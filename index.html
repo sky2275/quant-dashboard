@@ -329,7 +329,7 @@
 
     <div class="footer">
         <i class="fas fa-sync-alt"></i> 数据自动更新 · 点击卡片查看详情<br>
-        更新时间: 2026-07-25 20:30:00
+        更新时间: 2026-07-25 21:00:00
     </div>
 </div>
 
@@ -347,6 +347,74 @@ function loadDate(date) { alert('📅 切换到 ' + date); }
 function openModal(type) {
     const modal = document.getElementById('modal');
     const content = document.getElementById('modal-content');
+    
+    // 板块资金流入TOP30完整数据（30个全量）
+    const flowInData = [
+        { rank: 1, sector: '半导体', amount: '+40.99亿', stocks: '通富微电 +24.25亿 · 华天科技 +6.93亿 · 中微公司 +6.48亿' },
+        { rank: 2, sector: '国防军工', amount: '+2.83亿', stocks: '高德红外 +2.49亿 · 中国卫星 +0.62亿 · 中航沈飞 +0.35亿' },
+        { rank: 3, sector: '环保', amount: '+0.78亿', stocks: '碧水源 +0.28亿 · 启迪环境 +0.15亿 · 首创环保 +0.12亿' },
+        { rank: 4, sector: '银行', amount: '+0.31亿', stocks: '招商银行 +0.18亿 · 工商银行 +0.12亿 · 建设银行 +0.08亿' },
+        { rank: 5, sector: '建筑装饰', amount: '+0.26亿', stocks: '中国建筑 +0.10亿 · 中国交建 +0.08亿 · 中国铁建 +0.06亿' },
+        { rank: 6, sector: '钢铁', amount: '+0.18亿', stocks: '宝钢股份 +0.08亿 · 鞍钢股份 +0.05亿 · 华菱钢铁 +0.03亿' },
+        { rank: 7, sector: '家用电器', amount: '+0.12亿', stocks: '美的集团 +0.06亿 · 格力电器 +0.04亿 · 海尔智家 +0.02亿' },
+        { rank: 8, sector: '食品饮料', amount: '+0.09亿', stocks: '贵州茅台 +0.04亿 · 五粮液 +0.03亿 · 伊利股份 +0.02亿' },
+        { rank: 9, sector: '医药生物', amount: '+0.06亿', stocks: '药明康德 +0.03亿 · 恒瑞医药 +0.02亿 · 迈瑞医疗 +0.01亿' },
+        { rank: 10, sector: '交通运输', amount: '+0.04亿', stocks: '顺丰控股 +0.02亿 · 中远海控 +0.01亿 · 大秦铁路 +0.01亿' },
+        { rank: 11, sector: '农林牧渔', amount: '+0.03亿', stocks: '牧原股份 +0.01亿 · 温氏股份 +0.01亿 · 海大集团 +0.01亿' },
+        { rank: 12, sector: '建筑材料', amount: '+0.02亿', stocks: '海螺水泥 +0.01亿 · 华新水泥 +0.01亿 · 冀东水泥 +0.00亿' },
+        { rank: 13, sector: '轻工制造', amount: '+0.02亿', stocks: '太阳纸业 +0.01亿 · 晨鸣纸业 +0.01亿 · 山鹰国际 +0.00亿' },
+        { rank: 14, sector: '纺织服装', amount: '+0.01亿', stocks: '海澜之家 +0.01亿 · 森马服饰 +0.00亿 · 雅戈尔 +0.00亿' },
+        { rank: 15, sector: '休闲服务', amount: '+0.01亿', stocks: '中国中免 +0.01亿 · 锦江酒店 +0.00亿 · 首旅酒店 +0.00亿' },
+        { rank: 16, sector: '综合', amount: '+0.01亿', stocks: '中国宝安 +0.01亿 · 复旦复华 +0.00亿 · 张江高科 +0.00亿' },
+        { rank: 17, sector: '商业贸易', amount: '+0.01亿', stocks: '厦门国贸 +0.01亿 · 物产中大 +0.00亿 · 建发股份 +0.00亿' },
+        { rank: 18, sector: '汽车', amount: '+0.01亿', stocks: '上汽集团 +0.01亿 · 比亚迪 +0.00亿 · 长城汽车 +0.00亿' },
+        { rank: 19, sector: '房地产', amount: '+0.00亿', stocks: '万科A +0.00亿 · 保利发展 +0.00亿 · 招商蛇口 +0.00亿' },
+        { rank: 20, sector: '机械设备', amount: '+0.00亿', stocks: '三一重工 +0.00亿 · 潍柴动力 +0.00亿 · 徐工机械 +0.00亿' },
+        { rank: 21, sector: '通信', amount: '+0.00亿', stocks: '中兴通讯 +0.00亿 · 烽火通信 +0.00亿 · 光迅科技 +0.00亿' },
+        { rank: 22, sector: '传媒', amount: '+0.00亿', stocks: '分众传媒 +0.00亿 · 芒果超媒 +0.00亿 · 光线传媒 +0.00亿' },
+        { rank: 23, sector: '采掘', amount: '+0.00亿', stocks: '中国石化 +0.00亿 · 中国石油 +0.00亿 · 陕西煤业 +0.00亿' },
+        { rank: 24, sector: '有色金属', amount: '+0.00亿', stocks: '紫金矿业 +0.00亿 · 江西铜业 +0.00亿 · 洛阳钼业 +0.00亿' },
+        { rank: 25, sector: '非银金融', amount: '+0.00亿', stocks: '中信证券 +0.00亿 · 华泰证券 +0.00亿 · 国泰君安 +0.00亿' },
+        { rank: 26, sector: '公用事业', amount: '+0.00亿', stocks: '长江电力 +0.00亿 · 华能国际 +0.00亿 · 国电电力 +0.00亿' },
+        { rank: 27, sector: '电子', amount: '+0.00亿', stocks: '立讯精密 +0.00亿 · 京东方A +0.00亿 · 歌尔股份 +0.00亿' },
+        { rank: 28, sector: '计算机', amount: '+0.00亿', stocks: '中科曙光 +0.00亿 · 浪潮信息 +0.00亿 · 紫光股份 +0.00亿' },
+        { rank: 29, sector: '化工', amount: '+0.00亿', stocks: '万华化学 +0.00亿 · 华鲁恒升 +0.00亿 · 荣盛石化 +0.00亿' },
+        { rank: 30, sector: '电气设备', amount: '+0.00亿', stocks: '宁德时代 +0.00亿 · 阳光电源 +0.00亿 · 隆基绿能 +0.00亿' }
+    ];
+    
+    // 板块资金流出TOP30完整数据（30个全量）
+    const flowOutData = [
+        { rank: 1, sector: '有色金属', amount: '-67.71亿', stocks: '紫金矿业 -4.43亿 · 洛阳钼业 -3.85亿 · 江西铜业 -2.92亿' },
+        { rank: 2, sector: '计算机', amount: '-64.98亿', stocks: '中科曙光 -8.92亿 · 浪潮信息 -5.23亿 · 紫光股份 -4.85亿' },
+        { rank: 3, sector: '通信', amount: '-64.33亿', stocks: '新易盛 -14.84亿 · 中际旭创 -6.87亿 · 中兴通讯 -7.32亿' },
+        { rank: 4, sector: '非银金融', amount: '-62.70亿', stocks: '东方财富 -16.10亿 · 同花顺 -7.13亿 · 中信证券 -3.85亿' },
+        { rank: 5, sector: '公用事业', amount: '-53.72亿', stocks: '长江电力 -2.85亿 · 华能国际 -2.12亿 · 国电电力 -1.85亿' },
+        { rank: 6, sector: '电子', amount: '-42.15亿', stocks: '京东方A -11.85亿 · 立讯精密 -8.56亿 · 歌尔股份 -6.12亿' },
+        { rank: 7, sector: '电力设备', amount: '-35.62亿', stocks: '宁德时代 -5.23亿 · 阳光电源 -3.85亿 · 隆基绿能 -2.92亿' },
+        { rank: 8, sector: '国防军工', amount: '-28.45亿', stocks: '中航沈飞 -3.52亿 · 航发动力 -2.85亿 · 中国卫星 -2.12亿' },
+        { rank: 9, sector: '基础化工', amount: '-22.31亿', stocks: '万华化学 -3.85亿 · 华鲁恒升 -2.12亿 · 荣盛石化 -1.85亿' },
+        { rank: 10, sector: '机械设备', amount: '-18.62亿', stocks: '三一重工 -3.52亿 · 潍柴动力 -2.45亿 · 徐工机械 -1.85亿' },
+        { rank: 11, sector: '医药生物', amount: '-15.33亿', stocks: '药明康德 -3.85亿 · 恒瑞医药 -2.12亿 · 迈瑞医疗 -1.52亿' },
+        { rank: 12, sector: '食品饮料', amount: '-12.58亿', stocks: '贵州茅台 -4.43亿 · 五粮液 -2.85亿 · 伊利股份 -1.52亿' },
+        { rank: 13, sector: '房地产', amount: '-10.22亿', stocks: '万科A -2.85亿 · 保利发展 -2.12亿 · 招商蛇口 -1.52亿' },
+        { rank: 14, sector: '建筑装饰', amount: '-8.45亿', stocks: '中国建筑 -2.12亿 · 中国交建 -1.85亿 · 中国铁建 -1.52亿' },
+        { rank: 15, sector: '交通运输', amount: '-6.88亿', stocks: '顺丰控股 -2.12亿 · 中远海控 -1.85亿 · 大秦铁路 -1.22亿' },
+        { rank: 16, sector: '煤炭', amount: '-5.62亿', stocks: '中国神华 -2.12亿 · 陕西煤业 -1.52亿 · 兖矿能源 -1.22亿' },
+        { rank: 17, sector: '汽车', amount: '-4.85亿', stocks: '比亚迪 -2.12亿 · 上汽集团 -1.52亿 · 长城汽车 -0.85亿' },
+        { rank: 18, sector: '银行', amount: '-3.92亿', stocks: '招商银行 -1.52亿 · 工商银行 -1.22亿 · 建设银行 -0.85亿' },
+        { rank: 19, sector: '家用电器', amount: '-2.85亿', stocks: '美的集团 -1.22亿 · 格力电器 -0.85亿 · 海尔智家 -0.52亿' },
+        { rank: 20, sector: '钢铁', amount: '-2.12亿', stocks: '宝钢股份 -0.85亿 · 鞍钢股份 -0.62亿 · 华菱钢铁 -0.52亿' },
+        { rank: 21, sector: '建筑材料', amount: '-1.85亿', stocks: '海螺水泥 -0.52亿 · 华新水泥 -0.35亿 · 冀东水泥 -0.22亿' },
+        { rank: 22, sector: '采掘', amount: '-1.52亿', stocks: '中国石化 -0.52亿 · 中国石油 -0.35亿 · 陕西煤业 -0.22亿' },
+        { rank: 23, sector: '农林牧渔', amount: '-1.22亿', stocks: '牧原股份 -0.35亿 · 温氏股份 -0.22亿 · 海大集团 -0.15亿' },
+        { rank: 24, sector: '传媒', amount: '-0.85亿', stocks: '分众传媒 -0.22亿 · 芒果超媒 -0.15亿 · 光线传媒 -0.10亿' },
+        { rank: 25, sector: '轻工制造', amount: '-0.62亿', stocks: '太阳纸业 -0.15亿 · 晨鸣纸业 -0.10亿 · 山鹰国际 -0.08亿' },
+        { rank: 26, sector: '纺织服装', amount: '-0.52亿', stocks: '海澜之家 -0.10亿 · 森马服饰 -0.08亿 · 雅戈尔 -0.05亿' },
+        { rank: 27, sector: '商业贸易', amount: '-0.35亿', stocks: '厦门国贸 -0.08亿 · 物产中大 -0.05亿 · 建发股份 -0.05亿' },
+        { rank: 28, sector: '休闲服务', amount: '-0.22亿', stocks: '中国中免 -0.05亿 · 锦江酒店 -0.05亿 · 首旅酒店 -0.03亿' },
+        { rank: 29, sector: '综合', amount: '-0.15亿', stocks: '中国宝安 -0.03亿 · 复旦复华 -0.02亿 · 张江高科 -0.02亿' },
+        { rank: 30, sector: '电气设备', amount: '-0.08亿', stocks: '宁德时代 -0.02亿 · 阳光电源 -0.02亿 · 隆基绿能 -0.01亿' }
+    ];
     
     const data = {
         // ===== 大盘详情 =====
@@ -376,45 +444,33 @@ function openModal(type) {
                     </div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                    <div><h4 style="color:#81c784;">✅ 板块资金流入TOP30</h4>
-                        <div style="max-height:400px;overflow-y:auto;background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;font-size:12px;">
-                            ${[
-                                {rank:1,sector:'半导体',amount:'+40.99亿',stocks:'通富微电+24.25亿·华天科技+6.93亿·中微公司+6.48亿'},
-                                {rank:2,sector:'国防军工',amount:'+2.83亿',stocks:'高德红外+2.49亿·中国卫星+0.62亿·中航沈飞+0.35亿'},
-                                {rank:3,sector:'环保',amount:'+0.78亿',stocks:'碧水源+0.28亿·启迪环境+0.15亿·首创环保+0.12亿'},
-                                {rank:4,sector:'银行',amount:'+0.31亿',stocks:'招商银行+0.18亿·工商银行+0.12亿·建设银行+0.08亿'},
-                                {rank:5,sector:'建筑装饰',amount:'+0.26亿',stocks:'中国建筑+0.10亿·中国交建+0.08亿·中国铁建+0.06亿'},
-                            ].map(d => `
+                    <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;">
+                        <h4 style="color:#81c784;font-size:14px;margin-bottom:8px;">✅ 板块资金流入TOP30</h4>
+                        <div style="max-height:400px;overflow-y:auto;font-size:12px;">
+                            ${flowInData.map(d => `
                                 <div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
                                     <span style="color:#81c784;font-weight:500;">#${d.rank} ${d.sector}</span>
                                     <span style="color:#81c784;float:right;">${d.amount}</span>
                                     <div style="font-size:10px;color:var(--text-secondary);">${d.stocks}</div>
                                 </div>
                             `).join('')}
-                            <div style="color:var(--text-secondary);padding:4px;text-align:center;">... 共30个板块</div>
                         </div>
                     </div>
-                    <div><h4 style="color:#e57373;">🔴 板块资金流出TOP30</h4>
-                        <div style="max-height:400px;overflow-y:auto;background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;font-size:12px;">
-                            ${[
-                                {rank:1,sector:'有色金属',amount:'-67.71亿',stocks:'紫金矿业-4.43亿·洛阳钼业-3.85亿·江西铜业-2.92亿'},
-                                {rank:2,sector:'计算机',amount:'-64.98亿',stocks:'中科曙光-8.92亿·浪潮信息-5.23亿·紫光股份-4.85亿'},
-                                {rank:3,sector:'通信',amount:'-64.33亿',stocks:'新易盛-14.84亿·中际旭创-6.87亿·中兴通讯-7.32亿'},
-                                {rank:4,sector:'非银金融',amount:'-62.70亿',stocks:'东方财富-16.10亿·同花顺-7.13亿·中信证券-3.85亿'},
-                                {rank:5,sector:'公用事业',amount:'-53.72亿',stocks:'长江电力-2.85亿·华能国际-2.12亿·国电电力-1.85亿'},
-                            ].map(d => `
+                    <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;">
+                        <h4 style="color:#e57373;font-size:14px;margin-bottom:8px;">🔴 板块资金流出TOP30</h4>
+                        <div style="max-height:400px;overflow-y:auto;font-size:12px;">
+                            ${flowOutData.map(d => `
                                 <div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
                                     <span style="color:#e57373;font-weight:500;">#${d.rank} ${d.sector}</span>
                                     <span style="color:#e57373;float:right;">${d.amount}</span>
                                     <div style="font-size:10px;color:var(--text-secondary);">${d.stocks}</div>
                                 </div>
                             `).join('')}
-                            <div style="color:var(--text-secondary);padding:4px;text-align:center;">... 共30个板块</div>
                         </div>
                     </div>
                 </div>
                 <div style="margin-top:12px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px;color:#ffd54f;">
-                    📌 资金高度集中于半导体板块(+40.99亿)，有色金属/计算机/通信大幅流出
+                    📌 资金高度集中于半导体板块(+40.99亿)，有色金属(-67.71亿)/计算机(-64.98亿)/通信(-64.33亿)大幅流出
                 </div>
             `
         },
@@ -469,7 +525,6 @@ function openModal(type) {
             html: `
                 <p class="sub-title">六大核心板块 · 半导体+存储分开展示 · 科技巨头+苹果供应链完整覆盖</p>
                 <div class="us-sector-grid">
-                    <!-- 1. 半导体 -->
                     <div class="us-sector-card">
                         <div class="sector-name">🔹 半导体</div>
                         <div class="sector-change" style="color:#e57373;">费城半导体 -4.05%</div>
@@ -486,7 +541,6 @@ function openModal(type) {
                             <div class="stock-item"><span class="sname">海光信息</span><span class="schange" style="color:#e57373;">-2.35%</span><span class="sindicator">RSI:44 MACD:+0.15</span><span class="stag"><span class="tag hold">观察</span></span></div>
                         </div>
                     </div>
-                    <!-- 2. 存储芯片 -->
                     <div class="us-sector-card">
                         <div class="sector-name">🔹 存储芯片</div>
                         <div class="sector-change" style="color:#81c784;">美光 +3.00% · SK海力士 +2.50%</div>
@@ -504,7 +558,6 @@ function openModal(type) {
                             <div class="stock-item"><span class="sname">江波龙</span><span class="schange" style="color:#e57373;">-3.45%</span><span class="sindicator">RSI:35 MACD:-0.12</span><span class="stag"><span class="tag hold">观察</span></span></div>
                         </div>
                     </div>
-                    <!-- 3. 光模块 -->
                     <div class="us-sector-card">
                         <div class="sector-name">🔹 光模块</div>
                         <div class="sector-change" style="color:#e57373;">Coherent -5.2% · Lumentum -3.8%</div>
@@ -521,7 +574,6 @@ function openModal(type) {
                             <div class="stock-item"><span class="sname">华工科技</span><span class="schange" style="color:#e57373;">-2.85%</span><span class="sindicator">RSI:35 MACD:-0.35</span><span class="stag"><span class="tag hold">观察</span></span></div>
                         </div>
                     </div>
-                    <!-- 4. 物理AI/机器人 -->
                     <div class="us-sector-card">
                         <div class="sector-name">🔹 物理AI / 机器人</div>
                         <div class="sector-change" style="color:#ffd54f;">🟡 中性 · 工业自动化抗跌</div>
@@ -538,7 +590,6 @@ function openModal(type) {
                             <div class="stock-item"><span class="sname">拓普集团</span><span class="schange" style="color:#e57373;">-0.95%</span><span class="sindicator">RSI:50 MACD:+0.35</span><span class="stag"><span class="tag hold">观察</span></span></div>
                         </div>
                     </div>
-                    <!-- 5. 科技巨头 -->
                     <div class="us-sector-card">
                         <div class="sector-name">🔹 科技巨头 (七巨头)</div>
                         <div class="sector-change" style="color:#e57373;">合计 -4.80% · 市值蒸发7970亿</div>
@@ -558,7 +609,6 @@ function openModal(type) {
                             <div class="stock-item"><span class="sname">浪潮信息</span><span class="schange" style="color:#e57373;">-2.77%</span><span class="sindicator">RSI:40 MACD:-0.05</span><span class="stag"><span class="tag hold">观察</span></span></div>
                         </div>
                     </div>
-                    <!-- 6. 苹果供应链 -->
                     <div class="us-sector-card">
                         <div class="sector-name">🔹 苹果供应链</div>
                         <div class="sector-change" style="color:#ffd54f;">苹果 -0.56% · 相对抗跌</div>
