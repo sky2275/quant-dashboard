@@ -476,7 +476,7 @@
 
     <div class="footer">
         <i class="fas fa-sync-alt"></i> 数据自动更新 · 点击卡片查看详情<br>
-        更新时间: 2026-07-25 22:15:00
+        更新时间: 2026-07-25 22:30:00
     </div>
 </div>
 
@@ -495,7 +495,7 @@ function openModal(type) {
     const modal = document.getElementById('modal');
     const content = document.getElementById('modal-content');
     
-    // 资金流向前50名数据
+    // 资金流向前50名数据（用于flow详情）
     const flowTop50 = [
         { rank:1, stock:'通富微电', sector:'封测', amount:'+24.25亿', change:'+9.77%', tag:'强势' },
         { rank:2, stock:'华天科技', sector:'封测', amount:'+6.93亿', change:'+5.09%', tag:'强势' },
@@ -509,8 +509,25 @@ function openModal(type) {
         { rank:10, stock:'江丰电子', sector:'材料', amount:'+2.37亿', change:'+0.74%', tag:'强势' }
     ];
     
+    // 涨停板完整数据（用于limitup详情）
+    const limitUpDetail = [
+        { level:'五板及以上', stock:'立新能源', board:'5连板 · 电力', detail:'封单3.2亿 · 换手10.23%', heat:'🔥🔥🔥 极高', forecast:'📈 继续连板', forecastClass:'up' },
+        { level:'四连板', stock:'长缆科技', board:'4连板 · 电网设备', detail:'封单3.69亿 · 换手15.02%', heat:'🔥🔥🔥 极高', forecast:'📈 冲击5连板', forecastClass:'up' },
+        { level:'三连板', stock:'爱丽家居', board:'3连板 · 家居', detail:'封单1.2亿 · 换手8.64%', heat:'🔥🔥 高', forecast:'📊 震荡分化', forecastClass:'hold' },
+        { level:'三连板', stock:'五洲医疗', board:'3连板 · 医药', detail:'封单0.8亿 · 换手7.23%', heat:'🔥🔥 高', forecast:'📊 冲高回落', forecastClass:'hold' },
+        { level:'二连板', stock:'长城军工', board:'2连板 · 军工', detail:'封单2.47亿 · 换手5.12%', heat:'🔥 中高', forecast:'📈 有望晋级3连板', forecastClass:'up' },
+        { level:'二连板', stock:'湖南天雁', board:'2连板 · 军工', detail:'封单1.85亿 · 换手4.85%', heat:'🔥 中高', forecast:'📊 震荡换手', forecastClass:'hold' },
+        { level:'二连板', stock:'顺纳股份', board:'2连板 · 电网设备', detail:'封单1.52亿 · 换手6.23%', heat:'🔥 中高', forecast:'📊 分歧加大', forecastClass:'hold' },
+        { level:'首板', stock:'通富微电', board:'首板 · 封测', detail:'净流入+24.25亿 · 换手13.56%', heat:'🔥🔥🔥 极高', forecast:'📈 晋级2连板', forecastClass:'up' },
+        { level:'首板', stock:'华天科技', board:'首板 · 封测', detail:'净流入+6.93亿 · 换手9.42%', heat:'🔥🔥 高', forecast:'📈 晋级2连板', forecastClass:'up' },
+        { level:'首板', stock:'中微公司', board:'首板 · 设备', detail:'净流入+6.48亿 · 换手8.92%', heat:'🔥🔥 高', forecast:'📈 晋级2连板', forecastClass:'up' },
+        { level:'首板', stock:'深科技', board:'首板 · 存储封装', detail:'净流入+5.86亿 · 换手7.85%', heat:'🔥🔥 高', forecast:'📊 冲高震荡', forecastClass:'hold' },
+        { level:'首板', stock:'蓝思科技', board:'首板 · 消费电子', detail:'净流入+4.82亿 · 换手6.23%', heat:'🔥 中高', forecast:'📊 震荡整固', forecastClass:'hold' },
+        { level:'首板', stock:'雅克科技', board:'首板 · 材料', detail:'净流入+4.08亿 · 换手5.45%', heat:'🔥 中高', forecast:'📊 震荡换手', forecastClass:'hold' }
+    ];
+    
     const data = {
-        // ===== 大盘详情 =====
+        // ===== ① 大盘详情 =====
         'market': {
             title: '📊 全球大盘行情 + 板块资金流向',
             html: `
@@ -525,6 +542,7 @@ function openModal(type) {
                         <div class="detail-row"><span class="label">成交额</span><span class="value yellow">19444亿</span></div>
                         <div class="detail-row"><span class="label">涨跌家数</span><span class="value">555 / 4940</span></div>
                         <div class="detail-row"><span class="label">涨停/跌停</span><span class="value">42 / 25</span></div>
+                        <div class="detail-row"><span class="label">市场情绪</span><span class="value" style="color:#e57373;">悲观 (10%)</span></div>
                     </div>
                     <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;">
                         <h3 style="color:#4fc3f7;">🇺🇸 美股 (隔夜)</h3>
@@ -534,6 +552,7 @@ function openModal(type) {
                         <div class="detail-row"><span class="label">英伟达</span><span class="value red">-2.18%</span></div>
                         <div class="detail-row"><span class="label">苹果</span><span class="value red">-0.56%</span></div>
                         <div class="detail-row"><span class="label">美光</span><span class="value green">+3.00%</span></div>
+                        <div class="detail-row"><span class="label">SK海力士</span><span class="value green">+2.50%</span></div>
                     </div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -579,9 +598,9 @@ function openModal(type) {
                 </div>
             `
         },
-        // ===== 美股自选股行情 =====
+        // ===== ② 美股自选股行情 =====
         'us_market': {
-            title: '🇺🇸 美股自选股行情',
+            title: '🇺🇸 美股自选股行情 · 完整数据',
             html: `
                 <p class="sub-title">纳斯达克 · 费城半导体 · 七巨头 · 核心个股</p>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -624,7 +643,7 @@ function openModal(type) {
                 </div>
             `
         },
-        // ===== 美股六大板块完整映射 =====
+        // ===== ③ 美股六大板块完整映射 =====
         'transmission': {
             title: '🇺🇸 美股六大板块 · 完整行情 + A股映射',
             html: `
@@ -738,47 +757,51 @@ function openModal(type) {
                 </div>
             `
         },
-        // ===== 涨停板详情 =====
+        // ===== ④ 涨停板详情 =====
         'limitup': {
             title: '📊 涨停板数据详情 · 按连板分类',
             html: `
                 <p class="sub-title">涨停家数42家 · 连板≥2天15家 · 半导体/封测方向最强</p>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;border-left:3px solid #ffd54f;">
-                        <div style="font-size:12px;color:#ffd54f;">🔥🔥🔥 五板及以上</div>
-                        <div style="font-weight:600;font-size:14px;margin-top:4px;">立新能源</div>
-                        <div style="font-size:11px;color:var(--text-secondary);">5连板 · 电力</div>
-                        <div style="font-size:10px;color:#81c784;">封单3.2亿 · 换手10.23% · 热度极高</div>
-                        <div style="font-size:10px;margin-top:4px;background:rgba(129,199,132,0.2);color:#81c784;padding:2px 8px;border-radius:4px;display:inline-block;">📈 次日预测: 继续连板</div>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;border-left:3px solid #ffd54f;">
-                        <div style="font-size:12px;color:#ffd54f;">🔥🔥 四连板</div>
-                        <div style="font-weight:600;font-size:14px;margin-top:4px;">长缆科技</div>
-                        <div style="font-size:11px;color:var(--text-secondary);">4连板 · 电网设备</div>
-                        <div style="font-size:10px;color:#81c784;">封单3.69亿 · 换手15.02% · 热度极高</div>
-                        <div style="font-size:10px;margin-top:4px;background:rgba(129,199,132,0.2);color:#81c784;padding:2px 8px;border-radius:4px;display:inline-block;">📈 次日预测: 冲击5连板</div>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;border-left:3px solid #ffd54f;">
-                        <div style="font-size:12px;color:#ffd54f;">🔥 三连板</div>
-                        <div style="font-weight:600;font-size:14px;margin-top:4px;">爱丽家居</div>
-                        <div style="font-size:11px;color:var(--text-secondary);">3连板 · 家居</div>
-                        <div style="font-size:10px;color:#ffd54f;">封单1.2亿 · 换手8.64% · 热度高</div>
-                        <div style="font-size:10px;margin-top:4px;background:rgba(255,213,79,0.2);color:#ffd54f;padding:2px 8px;border-radius:4px;display:inline-block;">📊 次日预测: 震荡分化</div>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;border-left:3px solid #81c784;">
-                        <div style="font-size:12px;color:#81c784;">⚡ 二连板</div>
-                        <div style="font-weight:600;font-size:14px;margin-top:4px;">长城军工</div>
-                        <div style="font-size:11px;color:var(--text-secondary);">2连板 · 军工</div>
-                        <div style="font-size:10px;color:#81c784;">封单2.47亿 · 换手5.12% · 热度中高</div>
-                        <div style="font-size:10px;margin-top:4px;background:rgba(129,199,132,0.2);color:#81c784;padding:2px 8px;border-radius:4px;display:inline-block;">📈 次日预测: 有望晋级3连板</div>
-                    </div>
-                </div>
+                ${['五板及以上','四连板','三连板','二连板','首板'].map(level => {
+                    const items = limitUpDetail.filter(d => d.level === level);
+                    if (items.length === 0) return '';
+                    const colors = {
+                        '五板及以上':'#ffd54f',
+                        '四连板':'#ffd54f',
+                        '三连板':'#ffd54f',
+                        '二连板':'#81c784',
+                        '首板':'#81c784'
+                    };
+                    const icons = {
+                        '五板及以上':'🔥🔥🔥',
+                        '四连板':'🔥🔥',
+                        '三连板':'🔥',
+                        '二连板':'⚡',
+                        '首板':'📌'
+                    };
+                    return `
+                        <div style="margin-top:10px;">
+                            <div style="font-size:12px;font-weight:600;color:${colors[level]};padding:2px 10px;background:rgba(255,213,79,0.1);border-radius:4px;display:inline-block;">${icons[level]} ${level}</div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
+                                ${items.map(d => `
+                                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px 12px;border-left:3px solid ${colors[level]};">
+                                        <div style="font-weight:600;font-size:14px;">${d.stock}</div>
+                                        <div style="font-size:11px;color:var(--text-secondary);">${d.board}</div>
+                                        <div style="font-size:10px;color:var(--text-secondary);margin-top:2px;">${d.detail}</div>
+                                        <div style="font-size:10px;color:#ffd54f;">${d.heat}</div>
+                                        <div style="font-size:10px;margin-top:4px;padding:2px 8px;border-radius:4px;display:inline-block;background:${d.forecastClass === 'up' ? 'rgba(129,199,132,0.2)' : 'rgba(255,213,79,0.2)'};color:${d.forecastClass === 'up' ? '#81c784' : '#ffd54f'};">${d.forecast}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
                 <div style="margin-top:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px;color:#ffd54f;">
                     📌 涨停核心：立新能源5连板龙头，长缆科技4连板，半导体封测方向首板批量涨停
                 </div>
             `
         },
-        // ===== 热力全景图50名 =====
+        // ===== ⑤ 热力全景图50名 =====
         'flow': {
             title: '📊 A股热力全景图 · 资金流向前50名',
             html: `
@@ -803,7 +826,7 @@ function openModal(type) {
                 <div style="margin-top:12px;font-size:12px;color:#ffd54f;">📌 共50只个股 · 半导体/封测方向最强势</div>
             `
         },
-        // ===== 持仓详情 =====
+        // ===== ⑥ 持仓详情 =====
         'positions': {
             title: '💼 持仓详细分析',
             html: `
@@ -845,7 +868,7 @@ function openModal(type) {
                 </div>
             `
         },
-        // ===== 核心判断 =====
+        // ===== ⑦ 核心判断 =====
         'judgment': {
             title: '🎯 完整策略研判',
             html: `
@@ -856,7 +879,7 @@ function openModal(type) {
                         <ul style="list-style:none;padding:0;margin-top:8px;">
                             <li style="padding:5px 0;font-size:13px;color:#c8d0dc;border-bottom:1px solid rgba(255,255,255,0.03);">▸ 半导体连续3日主力净流入</li>
                             <li style="padding:5px 0;font-size:13px;color:#c8d0dc;border-bottom:1px solid rgba(255,255,255,0.03);">▸ 通富微电净流入24.25亿</li>
-                            <li style="padding:5px 0;font-size:13px;color:#c8d0dc;">▸ 存储芯片逆势走强</li>
+                            <li style="padding:5px 0;font-size:13px;color:#c8d0dc;border-bottom:1px solid rgba(255,255,255,0.03);">▸ 存储芯片逆势走强</li>
                         </ul>
                     </div>
                     <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:14px;">
