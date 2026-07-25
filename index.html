@@ -65,6 +65,10 @@
         .flow-table th { color:var(--text-secondary); font-weight:500; text-align:left; padding:8px 6px; border-bottom:1px solid var(--border-color); font-size:11px; text-transform:uppercase; }
         .flow-table td { padding:7px 6px; border-bottom:1px solid rgba(255,255,255,0.03); }
         .flow-table tbody tr:hover { background:rgba(255,255,255,0.03); }
+        .flow-table .rsi-badge { color:var(--text-secondary); font-size:10px; }
+        .flow-table .rsi-low { color:#81c784; }
+        .flow-table .rsi-mid { color:#ffd54f; }
+        .flow-table .rsi-high { color:#e57373; }
         
         .position-table { width:100%; font-size:12px; border-collapse:collapse; }
         .position-table th { color:var(--text-secondary); font-weight:500; text-align:left; padding:8px 6px; border-bottom:1px solid var(--border-color); font-size:11px; text-transform:uppercase; }
@@ -113,7 +117,6 @@
         .us-stock-row:last-child { border-bottom:none; }
         .us-stock-row .stock-name { font-weight:500; }
         
-        /* 涨停板层级样式 */
         .limit-up-section { margin-bottom:10px; }
         .limit-up-section .section-title { font-size:12px; font-weight:600; color:var(--accent-gold); margin-bottom:6px; padding:2px 10px; background:rgba(255,213,79,0.1); border-radius:4px; display:inline-block; }
         .limit-up-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
@@ -399,26 +402,34 @@
             </div>
         </div>
 
-        <!-- ④ A股热力全景图 -->
+        <!-- ④ A股热力全景图 · 资金流向前30名 -->
         <div class="card card-full" onclick="openModal('flow')">
             <div class="card-title">
-                <span class="icon"><i class="fas fa-fire"></i></span> ④ A股热力全景图 · 资金流向前10名
-                <span class="badge">Top 10 / 50</span>
+                <span class="icon"><i class="fas fa-fire"></i></span> ④ A股热力全景图 · 资金流向前30名
+                <span class="badge">Top 30 / 50</span>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 查看完整50名</span>
             </div>
-            <div style="overflow-x:auto;">
-                <table class="flow-table" style="width:100%;">
-                    <thead><tr><th>排名</th><th>股票</th><th>板块</th><th>净流入</th><th>涨跌幅</th><th>热度</th><th>趋势</th></tr></thead>
-                    <tbody>
-                        <tr><td><span class="rank-badge">#1</span></td><td><strong>通富微电</strong></td><td><span class="sector-tag">封测</span></td><td><span class="pos" style="font-weight:600;">+24.25亿</span></td><td style="color:#81c784;">+9.77%</td><td><div class="heat-bar" style="width:100%;"></div></td><td><span class="tag buy">强势</span></td></tr>
-                        <tr><td><span class="rank-badge">#2</span></td><td><strong>华天科技</strong></td><td><span class="sector-tag">封测</span></td><td><span class="pos" style="font-weight:600;">+6.93亿</span></td><td style="color:#81c784;">+5.09%</td><td><div class="heat-bar" style="width:80%;"></div></td><td><span class="tag buy">强势</span></td></tr>
-                        <tr><td><span class="rank-badge">#3</span></td><td><strong>中微公司</strong></td><td><span class="sector-tag">设备</span></td><td><span class="pos" style="font-weight:600;">+6.48亿</span></td><td style="color:#81c784;">+3.54%</td><td><div class="heat-bar" style="width:75%;"></div></td><td><span class="tag buy">强势</span></td></tr>
-                        <tr><td><span class="rank-badge">#4</span></td><td><strong>深科技</strong></td><td><span class="sector-tag">存储封装</span></td><td><span class="pos" style="font-weight:600;">+5.86亿</span></td><td style="color:#81c784;">+7.42%</td><td><div class="heat-bar" style="width:70%;"></div></td><td><span class="tag buy">强势</span></td></tr>
-                        <tr><td><span class="rank-badge">#5</span></td><td><strong>蓝思科技</strong></td><td><span class="sector-tag">消费电子</span></td><td><span class="pos" style="font-weight:600;">+4.82亿</span></td><td style="color:#81c784;">+2.02%</td><td><div class="heat-bar" style="width:60%;"></div></td><td><span class="tag buy">强势</span></td></tr>
+            <div style="overflow-x:auto;max-height:380px;overflow-y:auto;">
+                <table class="flow-table" style="width:100%;font-size:11px;">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>股票</th>
+                            <th>板块</th>
+                            <th>净流入</th>
+                            <th>涨跌幅</th>
+                            <th>RSI</th>
+                            <th>换手</th>
+                            <th>量比</th>
+                            <th>趋势</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flowTableBody">
+                        <!-- 由 JavaScript 动态渲染 -->
                     </tbody>
                 </table>
             </div>
-            <div style="margin-top:10px;font-size:11px;color:var(--text-secondary);">
+            <div style="margin-top:8px;font-size:11px;color:var(--text-secondary);">
                 <i class="fas fa-info-circle"></i> 半导体板块连续3日主力净流入，封测方向最强
             </div>
         </div>
@@ -476,7 +487,7 @@
 
     <div class="footer">
         <i class="fas fa-sync-alt"></i> 数据自动更新 · 点击卡片查看详情<br>
-        更新时间: 2026-07-25 22:30:00
+        更新时间: 2026-07-25 23:00:00
     </div>
 </div>
 
@@ -491,40 +502,92 @@
 <script>
 function loadDate(date) { alert('📅 切换到 ' + date); }
 
+// ===== 资金流向前30名数据 =====
+const flowTop30 = [
+    { rank:1, stock:'通富微电', sector:'封测', amount:'+24.25亿', change:'+9.77%', rsi:35, turnover:'13.56%', volumeRatio:1.26, tag:'强势' },
+    { rank:2, stock:'华天科技', sector:'封测', amount:'+6.93亿', change:'+5.09%', rsi:42, turnover:'9.42%', volumeRatio:1.18, tag:'强势' },
+    { rank:3, stock:'中微公司', sector:'设备', amount:'+6.48亿', change:'+3.54%', rsi:38, turnover:'8.92%', volumeRatio:1.12, tag:'强势' },
+    { rank:4, stock:'深科技', sector:'存储封装', amount:'+5.86亿', change:'+7.42%', rsi:45, turnover:'7.85%', volumeRatio:1.35, tag:'强势' },
+    { rank:5, stock:'蓝思科技', sector:'消费电子', amount:'+4.82亿', change:'+2.02%', rsi:52, turnover:'6.23%', volumeRatio:1.08, tag:'强势' },
+    { rank:6, stock:'雅克科技', sector:'材料', amount:'+4.08亿', change:'+3.27%', rsi:48, turnover:'5.45%', volumeRatio:1.05, tag:'强势' },
+    { rank:7, stock:'长川科技', sector:'设备', amount:'+3.63亿', change:'+4.21%', rsi:42, turnover:'4.85%', volumeRatio:1.15, tag:'强势' },
+    { rank:8, stock:'全志科技', sector:'芯片设计', amount:'+3.19亿', change:'+1.89%', rsi:50, turnover:'3.92%', volumeRatio:0.98, tag:'强势' },
+    { rank:9, stock:'高德红外', sector:'军工电子', amount:'+2.49亿', change:'+4.36%', rsi:55, turnover:'3.45%', volumeRatio:1.22, tag:'强势' },
+    { rank:10, stock:'江丰电子', sector:'材料', amount:'+2.37亿', change:'+0.74%', rsi:46, turnover:'2.85%', volumeRatio:0.92, tag:'强势' },
+    { rank:11, stock:'中科曙光', sector:'IT服务', amount:'+2.10亿', change:'+3.65%', rsi:58, turnover:'2.65%', volumeRatio:1.18, tag:'强势' },
+    { rank:12, stock:'浪潮信息', sector:'IT服务', amount:'+1.85亿', change:'+2.85%', rsi:52, turnover:'2.35%', volumeRatio:1.08, tag:'强势' },
+    { rank:13, stock:'紫光股份', sector:'IT服务', amount:'+1.72亿', change:'+6.85%', rsi:65, turnover:'3.12%', volumeRatio:1.45, tag:'强势' },
+    { rank:14, stock:'中兴通讯', sector:'通信', amount:'+1.58亿', change:'+2.35%', rsi:48, turnover:'1.85%', volumeRatio:0.95, tag:'强势' },
+    { rank:15, stock:'中际旭创', sector:'光模块', amount:'+1.45亿', change:'+4.85%', rsi:35, turnover:'3.85%', volumeRatio:1.25, tag:'强势' },
+    { rank:16, stock:'天孚通信', sector:'光模块', amount:'+1.32亿', change:'+3.52%', rsi:32, turnover:'3.45%', volumeRatio:1.18, tag:'强势' },
+    { rank:17, stock:'新易盛', sector:'光模块', amount:'+1.18亿', change:'+2.85%', rsi:34, turnover:'2.95%', volumeRatio:1.08, tag:'强势' },
+    { rank:18, stock:'光迅科技', sector:'光模块', amount:'+1.05亿', change:'+2.12%', rsi:38, turnover:'2.45%', volumeRatio:0.95, tag:'强势' },
+    { rank:19, stock:'埃斯顿', sector:'机器人', amount:'+0.92亿', change:'+3.85%', rsi:52, turnover:'2.85%', volumeRatio:1.15, tag:'强势' },
+    { rank:20, stock:'汇川技术', sector:'机器人', amount:'+0.85亿', change:'+2.65%', rsi:55, turnover:'2.35%', volumeRatio:1.02, tag:'强势' },
+    { rank:21, stock:'绿的谐波', sector:'机器人', amount:'+0.78亿', change:'+2.12%', rsi:48, turnover:'2.05%', volumeRatio:0.98, tag:'强势' },
+    { rank:22, stock:'中大力德', sector:'机器人', amount:'+0.72亿', change:'+1.85%', rsi:45, turnover:'1.85%', volumeRatio:0.92, tag:'强势' },
+    { rank:23, stock:'立讯精密', sector:'消费电子', amount:'+0.65亿', change:'+1.52%', rsi:48, turnover:'1.65%', volumeRatio:0.88, tag:'强势' },
+    { rank:24, stock:'歌尔股份', sector:'消费电子', amount:'+0.58亿', change:'+1.12%', rsi:42, turnover:'1.45%', volumeRatio:0.82, tag:'强势' },
+    { rank:25, stock:'京东方A', sector:'面板', amount:'+0.52亿', change:'+0.85%', rsi:35, turnover:'1.25%', volumeRatio:0.78, tag:'强势' },
+    { rank:26, stock:'TCL科技', sector:'面板', amount:'+0.48亿', change:'+0.65%', rsi:38, turnover:'1.05%', volumeRatio:0.72, tag:'强势' },
+    { rank:27, stock:'三安光电', sector:'半导体', amount:'+0.42亿', change:'+0.45%', rsi:42, turnover:'0.85%', volumeRatio:0.68, tag:'强势' },
+    { rank:28, stock:'兆易创新', sector:'存储', amount:'+0.38亿', change:'+0.35%', rsi:45, turnover:'0.75%', volumeRatio:0.62, tag:'强势' },
+    { rank:29, stock:'北方华创', sector:'设备', amount:'+0.35亿', change:'+0.25%', rsi:40, turnover:'0.65%', volumeRatio:0.58, tag:'强势' },
+    { rank:30, stock:'中芯国际', sector:'半导体', amount:'+0.32亿', change:'+0.15%', rsi:46, turnover:'0.55%', volumeRatio:0.52, tag:'强势' }
+];
+
+// ===== 资金流向前50名数据（用于详情页）=====
+const flowTop50 = [
+    ...flowTop30,
+    { rank:31, stock:'海光信息', sector:'半导体', amount:'+0.28亿', change:'+0.05%', rsi:44, turnover:'0.45%', volumeRatio:0.48, tag:'强势' },
+    { rank:32, stock:'寒武纪', sector:'AI芯片', amount:'+0.25亿', change:'-0.12%', rsi:40, turnover:'0.42%', volumeRatio:0.45, tag:'强势' },
+    { rank:33, stock:'紫光国微', sector:'芯片', amount:'+0.22亿', change:'-0.22%', rsi:38, turnover:'0.38%', volumeRatio:0.42, tag:'强势' },
+    { rank:34, stock:'卓胜微', sector:'射频', amount:'+0.20亿', change:'-0.32%', rsi:36, turnover:'0.35%', volumeRatio:0.38, tag:'强势' },
+    { rank:35, stock:'韦尔股份', sector:'芯片', amount:'+0.18亿', change:'-0.42%', rsi:42, turnover:'0.32%', volumeRatio:0.35, tag:'强势' },
+    { rank:36, stock:'闻泰科技', sector:'ODM', amount:'+0.16亿', change:'-0.52%', rsi:40, turnover:'0.30%', volumeRatio:0.32, tag:'强势' },
+    { rank:37, stock:'圣邦股份', sector:'模拟芯片', amount:'+0.15亿', change:'-0.62%', rsi:38, turnover:'0.28%', volumeRatio:0.30, tag:'强势' },
+    { rank:38, stock:'思瑞浦', sector:'模拟芯片', amount:'+0.14亿', change:'-0.72%', rsi:36, turnover:'0.26%', volumeRatio:0.28, tag:'强势' },
+    { rank:39, stock:'纳思达', sector:'打印芯片', amount:'+0.13亿', change:'-0.82%', rsi:34, turnover:'0.24%', volumeRatio:0.26, tag:'强势' },
+    { rank:40, stock:'晶方科技', sector:'封测', amount:'+0.12亿', change:'-0.92%', rsi:32, turnover:'0.22%', volumeRatio:0.24, tag:'强势' },
+    { rank:41, stock:'华虹宏力', sector:'半导体', amount:'+0.11亿', change:'-1.02%', rsi:30, turnover:'0.20%', volumeRatio:0.22, tag:'强势' },
+    { rank:42, stock:'沪硅产业', sector:'材料', amount:'+0.10亿', change:'-1.12%', rsi:28, turnover:'0.18%', volumeRatio:0.20, tag:'强势' },
+    { rank:43, stock:'安集科技', sector:'材料', amount:'+0.09亿', change:'-1.22%', rsi:32, turnover:'0.16%', volumeRatio:0.18, tag:'强势' },
+    { rank:44, stock:'长电科技', sector:'封测', amount:'+0.08亿', change:'-1.32%', rsi:30, turnover:'0.14%', volumeRatio:0.16, tag:'强势' },
+    { rank:45, stock:'通富微电', sector:'封测', amount:'+0.07亿', change:'-1.42%', rsi:28, turnover:'0.12%', volumeRatio:0.14, tag:'强势' },
+    { rank:46, stock:'华天科技', sector:'封测', amount:'+0.06亿', change:'-1.52%', rsi:26, turnover:'0.10%', volumeRatio:0.12, tag:'强势' },
+    { rank:47, stock:'中微公司', sector:'设备', amount:'+0.05亿', change:'-1.62%', rsi:24, turnover:'0.08%', volumeRatio:0.10, tag:'强势' },
+    { rank:48, stock:'深科技', sector:'存储封装', amount:'+0.04亿', change:'-1.72%', rsi:22, turnover:'0.06%', volumeRatio:0.08, tag:'强势' },
+    { rank:49, stock:'蓝思科技', sector:'消费电子', amount:'+0.03亿', change:'-1.82%', rsi:20, turnover:'0.04%', volumeRatio:0.06, tag:'强势' },
+    { rank:50, stock:'雅克科技', sector:'材料', amount:'+0.02亿', change:'-1.92%', rsi:18, turnover:'0.02%', volumeRatio:0.04, tag:'强势' }
+];
+
+// ===== 渲染主页面表格（前30名）=====
+function renderFlowTable() {
+    const tbody = document.getElementById('flowTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = flowTop30.map(d => {
+        const rsiClass = d.rsi < 35 ? 'rsi-low' : d.rsi > 65 ? 'rsi-high' : 'rsi-mid';
+        const changeColor = d.change.startsWith('+') ? '#81c784' : '#e57373';
+        return `
+            <tr>
+                <td><span class="rank-badge">#${d.rank}</span></td>
+                <td><strong>${d.stock}</strong></td>
+                <td><span class="sector-tag">${d.sector}</span></td>
+                <td><span class="pos" style="font-weight:600;">${d.amount}</span></td>
+                <td style="color:${changeColor};font-weight:500;">${d.change}</td>
+                <td><span class="${rsiClass}">${d.rsi}</span></td>
+                <td>${d.turnover}</td>
+                <td>${d.volumeRatio}</td>
+                <td><span class="tag buy">${d.tag}</span></td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// ===== 打开模态框 =====
 function openModal(type) {
     const modal = document.getElementById('modal');
     const content = document.getElementById('modal-content');
-    
-    // 资金流向前50名数据（用于flow详情）
-    const flowTop50 = [
-        { rank:1, stock:'通富微电', sector:'封测', amount:'+24.25亿', change:'+9.77%', tag:'强势' },
-        { rank:2, stock:'华天科技', sector:'封测', amount:'+6.93亿', change:'+5.09%', tag:'强势' },
-        { rank:3, stock:'中微公司', sector:'设备', amount:'+6.48亿', change:'+3.54%', tag:'强势' },
-        { rank:4, stock:'深科技', sector:'存储封装', amount:'+5.86亿', change:'+7.42%', tag:'强势' },
-        { rank:5, stock:'蓝思科技', sector:'消费电子', amount:'+4.82亿', change:'+2.02%', tag:'强势' },
-        { rank:6, stock:'雅克科技', sector:'材料', amount:'+4.08亿', change:'+3.27%', tag:'强势' },
-        { rank:7, stock:'长川科技', sector:'设备', amount:'+3.63亿', change:'+4.21%', tag:'强势' },
-        { rank:8, stock:'全志科技', sector:'芯片设计', amount:'+3.19亿', change:'+1.89%', tag:'强势' },
-        { rank:9, stock:'高德红外', sector:'军工电子', amount:'+2.49亿', change:'+4.36%', tag:'强势' },
-        { rank:10, stock:'江丰电子', sector:'材料', amount:'+2.37亿', change:'+0.74%', tag:'强势' }
-    ];
-    
-    // 涨停板完整数据（用于limitup详情）
-    const limitUpDetail = [
-        { level:'五板及以上', stock:'立新能源', board:'5连板 · 电力', detail:'封单3.2亿 · 换手10.23%', heat:'🔥🔥🔥 极高', forecast:'📈 继续连板', forecastClass:'up' },
-        { level:'四连板', stock:'长缆科技', board:'4连板 · 电网设备', detail:'封单3.69亿 · 换手15.02%', heat:'🔥🔥🔥 极高', forecast:'📈 冲击5连板', forecastClass:'up' },
-        { level:'三连板', stock:'爱丽家居', board:'3连板 · 家居', detail:'封单1.2亿 · 换手8.64%', heat:'🔥🔥 高', forecast:'📊 震荡分化', forecastClass:'hold' },
-        { level:'三连板', stock:'五洲医疗', board:'3连板 · 医药', detail:'封单0.8亿 · 换手7.23%', heat:'🔥🔥 高', forecast:'📊 冲高回落', forecastClass:'hold' },
-        { level:'二连板', stock:'长城军工', board:'2连板 · 军工', detail:'封单2.47亿 · 换手5.12%', heat:'🔥 中高', forecast:'📈 有望晋级3连板', forecastClass:'up' },
-        { level:'二连板', stock:'湖南天雁', board:'2连板 · 军工', detail:'封单1.85亿 · 换手4.85%', heat:'🔥 中高', forecast:'📊 震荡换手', forecastClass:'hold' },
-        { level:'二连板', stock:'顺纳股份', board:'2连板 · 电网设备', detail:'封单1.52亿 · 换手6.23%', heat:'🔥 中高', forecast:'📊 分歧加大', forecastClass:'hold' },
-        { level:'首板', stock:'通富微电', board:'首板 · 封测', detail:'净流入+24.25亿 · 换手13.56%', heat:'🔥🔥🔥 极高', forecast:'📈 晋级2连板', forecastClass:'up' },
-        { level:'首板', stock:'华天科技', board:'首板 · 封测', detail:'净流入+6.93亿 · 换手9.42%', heat:'🔥🔥 高', forecast:'📈 晋级2连板', forecastClass:'up' },
-        { level:'首板', stock:'中微公司', board:'首板 · 设备', detail:'净流入+6.48亿 · 换手8.92%', heat:'🔥🔥 高', forecast:'📈 晋级2连板', forecastClass:'up' },
-        { level:'首板', stock:'深科技', board:'首板 · 存储封装', detail:'净流入+5.86亿 · 换手7.85%', heat:'🔥🔥 高', forecast:'📊 冲高震荡', forecastClass:'hold' },
-        { level:'首板', stock:'蓝思科技', board:'首板 · 消费电子', detail:'净流入+4.82亿 · 换手6.23%', heat:'🔥 中高', forecast:'📊 震荡整固', forecastClass:'hold' },
-        { level:'首板', stock:'雅克科技', board:'首板 · 材料', detail:'净流入+4.08亿 · 换手5.45%', heat:'🔥 中高', forecast:'📊 震荡换手', forecastClass:'hold' }
-    ];
     
     const data = {
         // ===== ① 大盘详情 =====
@@ -542,7 +605,6 @@ function openModal(type) {
                         <div class="detail-row"><span class="label">成交额</span><span class="value yellow">19444亿</span></div>
                         <div class="detail-row"><span class="label">涨跌家数</span><span class="value">555 / 4940</span></div>
                         <div class="detail-row"><span class="label">涨停/跌停</span><span class="value">42 / 25</span></div>
-                        <div class="detail-row"><span class="label">市场情绪</span><span class="value" style="color:#e57373;">悲观 (10%)</span></div>
                     </div>
                     <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;">
                         <h3 style="color:#4fc3f7;">🇺🇸 美股 (隔夜)</h3>
@@ -552,12 +614,11 @@ function openModal(type) {
                         <div class="detail-row"><span class="label">英伟达</span><span class="value red">-2.18%</span></div>
                         <div class="detail-row"><span class="label">苹果</span><span class="value red">-0.56%</span></div>
                         <div class="detail-row"><span class="label">美光</span><span class="value green">+3.00%</span></div>
-                        <div class="detail-row"><span class="label">SK海力士</span><span class="value green">+2.50%</span></div>
                     </div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                     <div><h4 style="color:#81c784;">✅ 板块资金流入TOP30</h4>
-                        <div style="max-height:400px;overflow-y:auto;background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;font-size:12px;">
+                        <div style="max-height:350px;overflow-y:auto;background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;font-size:12px;">
                             ${[
                                 {rank:1,sector:'半导体',amount:'+40.99亿',stocks:'通富微电+24.25亿·华天科技+6.93亿·中微公司+6.48亿'},
                                 {rank:2,sector:'国防军工',amount:'+2.83亿',stocks:'高德红外+2.49亿·中国卫星+0.62亿·中航沈飞+0.35亿'},
@@ -575,7 +636,7 @@ function openModal(type) {
                         </div>
                     </div>
                     <div><h4 style="color:#e57373;">🔴 板块资金流出TOP30</h4>
-                        <div style="max-height:400px;overflow-y:auto;background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;font-size:12px;">
+                        <div style="max-height:350px;overflow-y:auto;background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;font-size:12px;">
                             ${[
                                 {rank:1,sector:'有色金属',amount:'-67.71亿',stocks:'紫金矿业-4.43亿·洛阳钼业-3.85亿·江西铜业-2.92亿'},
                                 {rank:2,sector:'计算机',amount:'-64.98亿',stocks:'中科曙光-8.92亿·浪潮信息-5.23亿·紫光股份-4.85亿'},
@@ -598,20 +659,20 @@ function openModal(type) {
                 </div>
             `
         },
-        // ===== ② 美股自选股行情 =====
+        // ===== ② 美股自选股 =====
         'us_market': {
             title: '🇺🇸 美股自选股行情 · 完整数据',
             html: `
                 <p class="sub-title">纳斯达克 · 费城半导体 · 七巨头 · 核心个股</p>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                     <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;border:1px solid var(--border-color);">
-                        <h4 style="color:#4fc3f7;font-size:13px;margin-bottom:6px;">📊 三大指数</h4>
+                        <h4 style="color:#4fc3f7;">📊 三大指数</h4>
                         <div class="detail-row"><span class="label">纳斯达克</span><span class="value red">25137.69 (-2.15%)</span></div>
                         <div class="detail-row"><span class="label">费城半导体</span><span class="value red">11856.16 (-4.05%)</span></div>
                         <div class="detail-row"><span class="label">科技七巨头</span><span class="value red">-4.80%</span></div>
                     </div>
                     <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;border:1px solid var(--border-color);">
-                        <h4 style="color:#ffd54f;font-size:13px;margin-bottom:6px;">🔹 科技七巨头</h4>
+                        <h4 style="color:#ffd54f;">🔹 科技七巨头</h4>
                         <div class="detail-row"><span class="label">苹果 (AAPL)</span><span class="value red">-0.56%</span></div>
                         <div class="detail-row"><span class="label">微软 (MSFT)</span><span class="value red">-1.13%</span></div>
                         <div class="detail-row"><span class="label">谷歌 (GOOGL)</span><span class="value red">-1.38%</span></div>
@@ -621,7 +682,7 @@ function openModal(type) {
                         <div class="detail-row"><span class="label">英伟达 (NVDA)</span><span class="value red">-2.18%</span></div>
                     </div>
                     <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;border:1px solid var(--border-color);">
-                        <h4 style="color:#81c784;font-size:13px;margin-bottom:6px;">🔹 半导体</h4>
+                        <h4 style="color:#81c784;">🔹 半导体</h4>
                         <div class="detail-row"><span class="label">英伟达 (NVDA)</span><span class="value red">-2.18%</span></div>
                         <div class="detail-row"><span class="label">AMD (AMD)</span><span class="value red">-3.85%</span></div>
                         <div class="detail-row"><span class="label">台积电 (TSM)</span><span class="value red">-2.77%</span></div>
@@ -629,7 +690,7 @@ function openModal(type) {
                         <div class="detail-row"><span class="label">英特尔 (INTC)</span><span class="value red">-2.36%</span></div>
                     </div>
                     <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;border:1px solid var(--border-color);">
-                        <h4 style="color:#81c784;font-size:13px;margin-bottom:6px;">🔹 存储芯片</h4>
+                        <h4 style="color:#81c784;">🔹 存储芯片</h4>
                         <div class="detail-row"><span class="label">美光 (MU)</span><span class="value green">+3.00%</span></div>
                         <div class="detail-row"><span class="label">SK海力士 (SKHY)</span><span class="value green">+2.50%</span></div>
                         <div class="detail-row"><span class="label">闪迪 (SNDK)</span><span class="value green">+1.85%</span></div>
@@ -639,11 +700,11 @@ function openModal(type) {
                 </div>
                 <div style="margin-top:16px;padding:12px;background:rgba(255,255,255,0.03);border-radius:8px;">
                     <div style="color:#ffd54f;">📌 行情解读</div>
-                    <div style="font-size:13px;color:#c8d0dc;margin-top:4px;">存储方向最强（美光+3%，SK海力士+2.5%），光模块短期承压，科技巨头整体偏弱。</div>
+                    <div style="font-size:13px;color:#c8d0dc;margin-top:4px;">存储方向最强（美光+3%），光模块短期承压。</div>
                 </div>
             `
         },
-        // ===== ③ 美股六大板块完整映射 =====
+        // ===== ③ 美股六大板块 =====
         'transmission': {
             title: '🇺🇸 美股六大板块 · 完整行情 + A股映射',
             html: `
@@ -655,14 +716,10 @@ function openModal(type) {
                         <div class="us-stock-row"><span class="stock-name">英伟达 (NVDA)</span><span class="stock-price red">-2.18%</span></div>
                         <div class="us-stock-row"><span class="stock-name">AMD (AMD)</span><span class="stock-price red">-3.85%</span></div>
                         <div class="us-stock-row"><span class="stock-name">台积电 (TSM)</span><span class="stock-price red">-2.77%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">博通 (AVGO)</span><span class="stock-price red">-1.92%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">英特尔 (INTC)</span><span class="stock-price red">-2.36%</span></div>
                         <div style="margin-top:6px;background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 8px;font-size:11px;">
                             <div style="color:#8892a0;">📌 A股映射</div>
                             <div class="stock-item"><span class="sname">通富微电</span><span class="schange" style="color:#e57373;">-6.81%</span><span class="sindicator">RSI:35 MACD:+0.85</span><span class="stag"><span class="tag hold">观察</span></span></div>
                             <div class="stock-item"><span class="sname">华天科技</span><span class="schange" style="color:#e57373;">-3.12%</span><span class="sindicator">RSI:42 MACD:+0.32</span><span class="stag"><span class="tag buy">持有</span></span></div>
-                            <div class="stock-item"><span class="sname">中微公司</span><span class="schange" style="color:#e57373;">-4.53%</span><span class="sindicator">RSI:38 MACD:-0.52</span><span class="stag"><span class="tag hold">观察</span></span></div>
-                            <div class="stock-item"><span class="sname">海光信息</span><span class="schange" style="color:#e57373;">-2.35%</span><span class="sindicator">RSI:44 MACD:+0.15</span><span class="stag"><span class="tag hold">观察</span></span></div>
                         </div>
                     </div>
                     <div class="us-sector-card">
@@ -670,16 +727,10 @@ function openModal(type) {
                         <div class="sector-change" style="color:#81c784;">美光 +3.00% · SK海力士 +2.50%</div>
                         <div class="us-stock-row"><span class="stock-name">美光 (MU)</span><span class="stock-price green">+3.00%</span></div>
                         <div class="us-stock-row"><span class="stock-name">SK海力士 (SKHY)</span><span class="stock-price green">+2.50%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">闪迪 (SNDK)</span><span class="stock-price green">+1.85%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">西部数据 (WDC)</span><span class="stock-price green">+1.20%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">希捷科技 (STX)</span><span class="stock-price green">+0.95%</span></div>
                         <div style="margin-top:6px;background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 8px;font-size:11px;">
                             <div style="color:#8892a0;">📌 A股映射</div>
                             <div class="stock-item"><span class="sname">兆易创新</span><span class="schange" style="color:#e57373;">-1.85%</span><span class="sindicator">RSI:45 MACD:+0.52</span><span class="stag"><span class="tag hold">观察</span></span></div>
                             <div class="stock-item"><span class="sname">深科技</span><span class="schange" style="color:#e57373;">-2.85%</span><span class="sindicator">RSI:38 MACD:+0.15</span><span class="stag"><span class="tag hold">观察</span></span></div>
-                            <div class="stock-item"><span class="sname">澜起科技</span><span class="schange" style="color:#e57373;">-2.12%</span><span class="sindicator">RSI:42 MACD:+0.08</span><span class="stag"><span class="tag hold">观察</span></span></div>
-                            <div class="stock-item"><span class="sname">北京君正</span><span class="schange" style="color:#e57373;">-5.45%</span><span class="sindicator">RSI:32 MACD:-0.28</span><span class="stag"><span class="tag hold">观察</span></span></div>
-                            <div class="stock-item"><span class="sname">江波龙</span><span class="schange" style="color:#e57373;">-3.45%</span><span class="sindicator">RSI:35 MACD:-0.12</span><span class="stag"><span class="tag hold">观察</span></span></div>
                         </div>
                     </div>
                     <div class="us-sector-card">
@@ -687,73 +738,49 @@ function openModal(type) {
                         <div class="sector-change" style="color:#e57373;">Coherent -5.2% · Lumentum -3.8%</div>
                         <div class="us-stock-row"><span class="stock-name">Coherent (COHR)</span><span class="stock-price red">-5.20%</span></div>
                         <div class="us-stock-row"><span class="stock-name">Lumentum (LITE)</span><span class="stock-price red">-3.80%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">Ciena (CIEN)</span><span class="stock-price red">-2.45%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">迈威尔科技 (MRVL)</span><span class="stock-price red">-1.85%</span></div>
                         <div style="margin-top:6px;background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 8px;font-size:11px;">
                             <div style="color:#8892a0;">📌 A股映射</div>
                             <div class="stock-item"><span class="sname">中际旭创</span><span class="schange" style="color:#e57373;">-4.28%</span><span class="sindicator">RSI:32 MACD:-0.85</span><span class="stag"><span class="tag sell">观望</span></span></div>
                             <div class="stock-item"><span class="sname">天孚通信</span><span class="schange" style="color:#e57373;">-4.09%</span><span class="sindicator">RSI:30 MACD:-0.62</span><span class="stag"><span class="tag sell">观望</span></span></div>
-                            <div class="stock-item"><span class="sname">新易盛</span><span class="schange" style="color:#e57373;">-3.85%</span><span class="sindicator">RSI:34 MACD:-0.45</span><span class="stag"><span class="tag hold">观察</span></span></div>
-                            <div class="stock-item"><span class="sname">光迅科技</span><span class="schange" style="color:#e57373;">-2.52%</span><span class="sindicator">RSI:36 MACD:-0.28</span><span class="stag"><span class="tag hold">观察</span></span></div>
-                            <div class="stock-item"><span class="sname">华工科技</span><span class="schange" style="color:#e57373;">-2.85%</span><span class="sindicator">RSI:35 MACD:-0.35</span><span class="stag"><span class="tag hold">观察</span></span></div>
                         </div>
                     </div>
                     <div class="us-sector-card">
-                        <div class="sector-name">🔹 物理AI / 机器人</div>
-                        <div class="sector-change" style="color:#ffd54f;">🟡 中性 · 工业自动化抗跌</div>
-                        <div class="us-stock-row"><span class="stock-name">发那科 (FANUY)</span><span class="stock-price green">+0.85%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">安川电机 (YASKY)</span><span class="stock-price green">+0.45%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">泰瑞达 (TER)</span><span class="stock-price green">+1.20%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">川崎重工 (KWHIY)</span><span class="stock-price green">+0.30%</span></div>
-                        <div style="margin-top:6px;background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 8px;font-size:11px;">
-                            <div style="color:#8892a0;">📌 A股映射</div>
-                            <div class="stock-item"><span class="sname">埃斯顿</span><span class="schange" style="color:#e57373;">-1.35%</span><span class="sindicator">RSI:52 MACD:+0.45</span><span class="stag"><span class="tag buy">关注</span></span></div>
-                            <div class="stock-item"><span class="sname">汇川技术</span><span class="schange" style="color:#e57373;">-0.85%</span><span class="sindicator">RSI:55 MACD:+0.62</span><span class="stag"><span class="tag buy">持有</span></span></div>
-                            <div class="stock-item"><span class="sname">绿的谐波</span><span class="schange" style="color:#e57373;">-1.85%</span><span class="sindicator">RSI:48 MACD:+0.28</span><span class="stag"><span class="tag hold">观察</span></span></div>
-                            <div class="stock-item"><span class="sname">中大力德</span><span class="schange" style="color:#e57373;">-1.52%</span><span class="sindicator">RSI:45 MACD:+0.18</span><span class="stag"><span class="tag hold">观察</span></span></div>
-                            <div class="stock-item"><span class="sname">拓普集团</span><span class="schange" style="color:#e57373;">-0.95%</span><span class="sindicator">RSI:50 MACD:+0.35</span><span class="stag"><span class="tag hold">观察</span></span></div>
-                        </div>
-                    </div>
-                    <div class="us-sector-card">
-                        <div class="sector-name">🔹 科技巨头 (七巨头)</div>
-                        <div class="sector-change" style="color:#e57373;">合计 -4.80% · 市值蒸发7970亿</div>
+                        <div class="sector-name">🔹 科技巨头</div>
+                        <div class="sector-change" style="color:#e57373;">合计 -4.80%</div>
                         <div class="us-stock-row"><span class="stock-name">苹果 (AAPL)</span><span class="stock-price red">-0.56%</span></div>
                         <div class="us-stock-row"><span class="stock-name">微软 (MSFT)</span><span class="stock-price red">-1.13%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">谷歌 (GOOGL)</span><span class="stock-price red">-1.38%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">亚马逊 (AMZN)</span><span class="stock-price red">-0.98%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">特斯拉 (TSLA)</span><span class="stock-price red">-2.61%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">Meta (META)</span><span class="stock-price red">-2.79%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">英伟达 (NVDA)</span><span class="stock-price red">-2.18%</span></div>
                         <div style="margin-top:6px;background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 8px;font-size:11px;">
                             <div style="color:#8892a0;">📌 A股映射</div>
                             <div class="stock-item"><span class="sname">中芯国际</span><span class="schange" style="color:#e57373;">-1.85%</span><span class="sindicator">RSI:46 MACD:+0.22</span><span class="stag"><span class="tag hold">观察</span></span></div>
                             <div class="stock-item"><span class="sname">海光信息</span><span class="schange" style="color:#e57373;">-2.35%</span><span class="sindicator">RSI:44 MACD:+0.15</span><span class="stag"><span class="tag hold">观察</span></span></div>
-                            <div class="stock-item"><span class="sname">寒武纪</span><span class="schange" style="color:#e57373;">-3.12%</span><span class="sindicator">RSI:40 MACD:-0.18</span><span class="stag"><span class="tag hold">观察</span></span></div>
-                            <div class="stock-item"><span class="sname">紫光股份</span><span class="schange" style="color:#e57373;">-2.85%</span><span class="sindicator">RSI:42 MACD:+0.08</span><span class="stag"><span class="tag hold">观察</span></span></div>
-                            <div class="stock-item"><span class="sname">浪潮信息</span><span class="schange" style="color:#e57373;">-2.77%</span><span class="sindicator">RSI:40 MACD:-0.05</span><span class="stag"><span class="tag hold">观察</span></span></div>
                         </div>
                     </div>
                     <div class="us-sector-card">
                         <div class="sector-name">🔹 苹果供应链</div>
-                        <div class="sector-change" style="color:#ffd54f;">苹果 -0.56% · 相对抗跌</div>
+                        <div class="sector-change" style="color:#ffd54f;">苹果 -0.56%</div>
                         <div class="us-stock-row"><span class="stock-name">苹果 (AAPL)</span><span class="stock-price red">-0.56%</span></div>
                         <div class="us-stock-row"><span class="stock-name">博通 (AVGO)</span><span class="stock-price red">-1.92%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">高通 (QCOM)</span><span class="stock-price red">-1.45%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">Qorvo (QRVO)</span><span class="stock-price red">-2.10%</span></div>
-                        <div class="us-stock-row"><span class="stock-name">Skyworks (SWKS)</span><span class="stock-price red">-1.85%</span></div>
                         <div style="margin-top:6px;background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 8px;font-size:11px;">
                             <div style="color:#8892a0;">📌 A股映射</div>
                             <div class="stock-item"><span class="sname">立讯精密</span><span class="schange" style="color:#e57373;">-0.85%</span><span class="sindicator">RSI:48 MACD:+0.18</span><span class="stag"><span class="tag hold">观察</span></span></div>
                             <div class="stock-item"><span class="sname">蓝思科技</span><span class="schange" style="color:#81c784;">+2.02%</span><span class="sindicator">RSI:52 MACD:+0.35</span><span class="stag"><span class="tag buy">关注</span></span></div>
-                            <div class="stock-item"><span class="sname">歌尔股份</span><span class="schange" style="color:#e57373;">-1.52%</span><span class="sindicator">RSI:42 MACD:-0.12</span><span class="stag"><span class="tag sell">观望</span></span></div>
-                            <div class="stock-item"><span class="sname">京东方A</span><span class="schange" style="color:#e57373;">-4.46%</span><span class="sindicator">RSI:32 MACD:-0.28</span><span class="stag"><span class="tag sell">观望</span></span></div>
-                            <div class="stock-item"><span class="sname">信维通信</span><span class="schange" style="color:#e57373;">-2.12%</span><span class="sindicator">RSI:40 MACD:-0.08</span><span class="stag"><span class="tag hold">观察</span></span></div>
+                        </div>
+                    </div>
+                    <div class="us-sector-card">
+                        <div class="sector-name">🔹 物理AI/机器人</div>
+                        <div class="sector-change" style="color:#ffd54f;">🟡 中性</div>
+                        <div class="us-stock-row"><span class="stock-name">发那科 (FANUY)</span><span class="stock-price green">+0.85%</span></div>
+                        <div class="us-stock-row"><span class="stock-name">安川电机 (YASKY)</span><span class="stock-price green">+0.45%</span></div>
+                        <div style="margin-top:6px;background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 8px;font-size:11px;">
+                            <div style="color:#8892a0;">📌 A股映射</div>
+                            <div class="stock-item"><span class="sname">埃斯顿</span><span class="schange" style="color:#e57373;">-1.35%</span><span class="sindicator">RSI:52 MACD:+0.45</span><span class="stag"><span class="tag buy">关注</span></span></div>
+                            <div class="stock-item"><span class="sname">汇川技术</span><span class="schange" style="color:#e57373;">-0.85%</span><span class="sindicator">RSI:55 MACD:+0.62</span><span class="stag"><span class="tag buy">持有</span></span></div>
                         </div>
                     </div>
                 </div>
                 <div style="margin-top:16px;padding:12px;background:rgba(255,255,255,0.03);border-radius:8px;">
                     <div style="color:#ffd54f;">📌 策略解读</div>
-                    <div style="font-size:13px;color:#c8d0dc;margin-top:4px;">存储方向最强（美光+3%，SK海力士+2.5%），关注A股存储芯片；光模块短期承压，等待企稳；科技巨头整体偏弱，A股科技股情绪承压。</div>
+                    <div style="font-size:13px;color:#c8d0dc;margin-top:4px;">存储方向最强，关注A股存储芯片；光模块短期承压。</div>
                 </div>
             `
         },
@@ -762,40 +789,36 @@ function openModal(type) {
             title: '📊 涨停板数据详情 · 按连板分类',
             html: `
                 <p class="sub-title">涨停家数42家 · 连板≥2天15家 · 半导体/封测方向最强</p>
-                ${['五板及以上','四连板','三连板','二连板','首板'].map(level => {
-                    const items = limitUpDetail.filter(d => d.level === level);
-                    if (items.length === 0) return '';
-                    const colors = {
-                        '五板及以上':'#ffd54f',
-                        '四连板':'#ffd54f',
-                        '三连板':'#ffd54f',
-                        '二连板':'#81c784',
-                        '首板':'#81c784'
-                    };
-                    const icons = {
-                        '五板及以上':'🔥🔥🔥',
-                        '四连板':'🔥🔥',
-                        '三连板':'🔥',
-                        '二连板':'⚡',
-                        '首板':'📌'
-                    };
-                    return `
-                        <div style="margin-top:10px;">
-                            <div style="font-size:12px;font-weight:600;color:${colors[level]};padding:2px 10px;background:rgba(255,213,79,0.1);border-radius:4px;display:inline-block;">${icons[level]} ${level}</div>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
-                                ${items.map(d => `
-                                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px 12px;border-left:3px solid ${colors[level]};">
-                                        <div style="font-weight:600;font-size:14px;">${d.stock}</div>
-                                        <div style="font-size:11px;color:var(--text-secondary);">${d.board}</div>
-                                        <div style="font-size:10px;color:var(--text-secondary);margin-top:2px;">${d.detail}</div>
-                                        <div style="font-size:10px;color:#ffd54f;">${d.heat}</div>
-                                        <div style="font-size:10px;margin-top:4px;padding:2px 8px;border-radius:4px;display:inline-block;background:${d.forecastClass === 'up' ? 'rgba(129,199,132,0.2)' : 'rgba(255,213,79,0.2)'};color:${d.forecastClass === 'up' ? '#81c784' : '#ffd54f'};">${d.forecast}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;border-left:3px solid #ffd54f;">
+                        <div style="font-size:12px;color:#ffd54f;">🔥🔥🔥 五板及以上</div>
+                        <div style="font-weight:600;font-size:14px;margin-top:4px;">立新能源</div>
+                        <div style="font-size:11px;color:var(--text-secondary);">5连板 · 电力</div>
+                        <div style="font-size:10px;color:#81c784;">封单3.2亿 · 换手10.23% · 热度极高</div>
+                        <div style="font-size:10px;margin-top:4px;background:rgba(129,199,132,0.2);color:#81c784;padding:2px 8px;border-radius:4px;display:inline-block;">📈 次日预测: 继续连板</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;border-left:3px solid #ffd54f;">
+                        <div style="font-size:12px;color:#ffd54f;">🔥🔥 四连板</div>
+                        <div style="font-weight:600;font-size:14px;margin-top:4px;">长缆科技</div>
+                        <div style="font-size:11px;color:var(--text-secondary);">4连板 · 电网设备</div>
+                        <div style="font-size:10px;color:#81c784;">封单3.69亿 · 换手15.02% · 热度极高</div>
+                        <div style="font-size:10px;margin-top:4px;background:rgba(129,199,132,0.2);color:#81c784;padding:2px 8px;border-radius:4px;display:inline-block;">📈 次日预测: 冲击5连板</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;border-left:3px solid #ffd54f;">
+                        <div style="font-size:12px;color:#ffd54f;">🔥 三连板</div>
+                        <div style="font-weight:600;font-size:14px;margin-top:4px;">爱丽家居</div>
+                        <div style="font-size:11px;color:var(--text-secondary);">3连板 · 家居</div>
+                        <div style="font-size:10px;color:#ffd54f;">封单1.2亿 · 换手8.64% · 热度高</div>
+                        <div style="font-size:10px;margin-top:4px;background:rgba(255,213,79,0.2);color:#ffd54f;padding:2px 8px;border-radius:4px;display:inline-block;">📊 次日预测: 震荡分化</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;border-left:3px solid #81c784;">
+                        <div style="font-size:12px;color:#81c784;">⚡ 二连板</div>
+                        <div style="font-weight:600;font-size:14px;margin-top:4px;">长城军工</div>
+                        <div style="font-size:11px;color:var(--text-secondary);">2连板 · 军工</div>
+                        <div style="font-size:10px;color:#81c784;">封单2.47亿 · 换手5.12% · 热度中高</div>
+                        <div style="font-size:10px;margin-top:4px;background:rgba(129,199,132,0.2);color:#81c784;padding:2px 8px;border-radius:4px;display:inline-block;">📈 次日预测: 有望晋级3连板</div>
+                    </div>
+                </div>
                 <div style="margin-top:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px;color:#ffd54f;">
                     📌 涨停核心：立新能源5连板龙头，长缆科技4连板，半导体封测方向首板批量涨停
                 </div>
@@ -803,27 +826,46 @@ function openModal(type) {
         },
         // ===== ⑤ 热力全景图50名 =====
         'flow': {
-            title: '📊 A股热力全景图 · 资金流向前50名',
+            title: '📊 A股热力全景图 · 资金流向前50名 完整数据',
             html: `
-                <p class="sub-title">主力资金净流入排名 · 半导体/封测方向最强势</p>
-                <div style="max-height:400px;overflow-y:auto;background:rgba(255,255,255,0.02);border-radius:10px;padding:8px;">
+                <p class="sub-title">主力资金净流入排名 · 含RSI/换手率/量比 · 半导体/封测方向最强势</p>
+                <div style="max-height:450px;overflow-y:auto;background:rgba(255,255,255,0.02);border-radius:10px;padding:8px;">
                     <table style="width:100%;font-size:11px;border-collapse:collapse;">
-                        <thead><tr style="color:#8892a0;border-bottom:1px solid var(--border-color);"><th style="text-align:left;padding:4px;">排名</th><th style="text-align:left;padding:4px;">股票</th><th style="text-align:left;padding:4px;">板块</th><th style="text-align:right;padding:4px;">净流入</th><th style="text-align:right;padding:4px;">涨跌幅</th><th style="text-align:right;padding:4px;">趋势</th></tr></thead>
+                        <thead><tr style="color:#8892a0;border-bottom:1px solid var(--border-color);">
+                            <th style="text-align:left;padding:4px;">排名</th>
+                            <th style="text-align:left;padding:4px;">股票</th>
+                            <th style="text-align:left;padding:4px;">板块</th>
+                            <th style="text-align:right;padding:4px;">净流入</th>
+                            <th style="text-align:right;padding:4px;">涨跌幅</th>
+                            <th style="text-align:right;padding:4px;">RSI</th>
+                            <th style="text-align:right;padding:4px;">换手</th>
+                            <th style="text-align:right;padding:4px;">量比</th>
+                            <th style="text-align:right;padding:4px;">趋势</th>
+                        </tr></thead>
                         <tbody>
-                            ${flowTop50.map(d => `
-                                <tr>
-                                    <td style="padding:4px;">#${d.rank}</td>
-                                    <td style="padding:4px;font-weight:500;">${d.stock}</td>
-                                    <td style="padding:4px;color:#4fc3f7;">${d.sector}</td>
-                                    <td style="padding:4px;text-align:right;color:#81c784;">${d.amount}</td>
-                                    <td style="padding:4px;text-align:right;color:${d.change.startsWith('+')?'#81c784':'#e57373'};">${d.change}</td>
-                                    <td style="padding:4px;text-align:right;"><span class="tag buy">${d.tag}</span></td>
-                                </tr>
-                            `).join('')}
+                            ${flowTop50.map(d => {
+                                const rsiClass = d.rsi < 35 ? 'rsi-low' : d.rsi > 65 ? 'rsi-high' : 'rsi-mid';
+                                const changeColor = d.change.startsWith('+') ? '#81c784' : '#e57373';
+                                return `
+                                    <tr>
+                                        <td style="padding:4px;">#${d.rank}</td>
+                                        <td style="padding:4px;font-weight:500;">${d.stock}</td>
+                                        <td style="padding:4px;color:#4fc3f7;">${d.sector}</td>
+                                        <td style="padding:4px;text-align:right;color:#81c784;">${d.amount}</td>
+                                        <td style="padding:4px;text-align:right;color:${changeColor};">${d.change}</td>
+                                        <td style="padding:4px;text-align:right;color:${d.rsi < 35 ? '#81c784' : d.rsi > 65 ? '#e57373' : '#ffd54f'};">${d.rsi}</td>
+                                        <td style="padding:4px;text-align:right;color:var(--text-secondary);">${d.turnover}</td>
+                                        <td style="padding:4px;text-align:right;color:var(--text-secondary);">${d.volumeRatio}</td>
+                                        <td style="padding:4px;text-align:right;"><span class="tag buy">${d.tag}</span></td>
+                                    </tr>
+                                `;
+                            }).join('')}
                         </tbody>
                     </table>
                 </div>
-                <div style="margin-top:12px;font-size:12px;color:#ffd54f;">📌 共50只个股 · 半导体/封测方向最强势</div>
+                <div style="margin-top:12px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px;color:#ffd54f;">
+                    📌 共50只个股 · 半导体/封测方向最强势 · 通富微电+24.25亿领跑
+                </div>
             `
         },
         // ===== ⑥ 持仓详情 =====
@@ -879,7 +921,7 @@ function openModal(type) {
                         <ul style="list-style:none;padding:0;margin-top:8px;">
                             <li style="padding:5px 0;font-size:13px;color:#c8d0dc;border-bottom:1px solid rgba(255,255,255,0.03);">▸ 半导体连续3日主力净流入</li>
                             <li style="padding:5px 0;font-size:13px;color:#c8d0dc;border-bottom:1px solid rgba(255,255,255,0.03);">▸ 通富微电净流入24.25亿</li>
-                            <li style="padding:5px 0;font-size:13px;color:#c8d0dc;border-bottom:1px solid rgba(255,255,255,0.03);">▸ 存储芯片逆势走强</li>
+                            <li style="padding:5px 0;font-size:13px;color:#c8d0dc;">▸ 存储芯片逆势走强</li>
                         </ul>
                     </div>
                     <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:14px;">
@@ -912,6 +954,9 @@ function openModal(type) {
 function closeModal() {
     document.getElementById('modal').classList.remove('active');
 }
+
+// ===== 页面加载完成后渲染表格 =====
+document.addEventListener('DOMContentLoaded', renderFlowTable);
 </script>
 </body>
 </html>
