@@ -62,25 +62,28 @@
         .sentiment-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,#e57373,#ffd54f,#81c784); }
         
         .flow-table { width:100%; font-size:12px; border-collapse:collapse; }
-        .flow-table th { color:var(--text-secondary); font-weight:500; text-align:left; padding:8px 6px; border-bottom:1px solid var(--border-color); font-size:11px; text-transform:uppercase; }
+        .flow-table th { color:var(--text-secondary); font-weight:500; text-align:left; padding:8px 6px; border-bottom:1px solid var(--border-color); font-size:11px; text-transform:uppercase; letter-spacing:0.3px; }
         .flow-table td { padding:7px 6px; border-bottom:1px solid rgba(255,255,255,0.03); }
         .flow-table tbody tr:hover { background:rgba(255,255,255,0.03); }
-        .flow-table .rsi-badge { color:var(--text-secondary); font-size:10px; }
-        .flow-table .rsi-low { color:#81c784; }
-        .flow-table .rsi-mid { color:#ffd54f; }
-        .flow-table .rsi-high { color:#e57373; }
+        .flow-table .rsi-low { color:#81c784; font-weight:500; }
+        .flow-table .rsi-mid { color:#ffd54f; font-weight:500; }
+        .flow-table .rsi-high { color:#e57373; font-weight:500; }
         
-        .position-table { width:100%; font-size:12px; border-collapse:collapse; }
-        .position-table th { color:var(--text-secondary); font-weight:500; text-align:left; padding:8px 6px; border-bottom:1px solid var(--border-color); font-size:11px; text-transform:uppercase; }
-        .position-table td { padding:7px 6px; border-bottom:1px solid rgba(255,255,255,0.03); }
+        .rank-badge { background:var(--border-color); padding:2px 8px; border-radius:12px; font-size:10px; color:var(--text-secondary); }
+        .sector-tag { background:rgba(79,195,247,0.12); color:var(--accent-blue); padding:2px 10px; border-radius:12px; font-size:10px; }
+        .heat-bar { height:4px; background:linear-gradient(90deg,#4fc3f7,#81c784); border-radius:2px; }
+        .pos { color:var(--accent-green); }
+        
+        /* 持仓表格增强 */
+        .position-table { width:100%; font-size:11px; border-collapse:collapse; }
+        .position-table th { color:var(--text-secondary); font-weight:500; text-align:left; padding:6px 4px; border-bottom:1px solid var(--border-color); font-size:10px; text-transform:uppercase; letter-spacing:0.3px; }
+        .position-table td { padding:6px 4px; border-bottom:1px solid rgba(255,255,255,0.03); }
         .position-table tbody tr:hover { background:rgba(255,255,255,0.03); }
         
         .tag { display:inline-block; padding:2px 10px; border-radius:12px; font-size:10px; font-weight:500; }
         .tag.buy { background:rgba(129,199,132,0.2); color:#81c784; }
         .tag.sell { background:rgba(229,115,115,0.2); color:#e57373; }
         .tag.hold { background:rgba(255,213,79,0.2); color:#ffd54f; }
-        .tag.strong { background:rgba(129,199,132,0.3); color:#81c784; }
-        .tag.weak { background:rgba(229,115,115,0.3); color:#e57373; }
         
         .flex-3col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
         @media (max-width:768px) { .flex-3col { grid-template-columns:1fr 1fr; } }
@@ -135,6 +138,18 @@
         
         .footer { margin-top:24px; text-align:center; font-size:11px; color:var(--text-secondary); border-top:1px solid var(--border-color); padding-top:16px; }
         
+        /* 汇总卡片样式 */
+        .summary-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:12px; }
+        @media (max-width:600px) { .summary-grid { grid-template-columns:1fr; } }
+        .summary-card { background:rgba(255,255,255,0.02); border-radius:8px; padding:10px 14px; border:1px solid var(--border-color); text-align:center; }
+        .summary-card .label { font-size:10px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.3px; }
+        .summary-card .value { font-size:18px; font-weight:700; margin-top:4px; }
+        .summary-card .sub { font-size:11px; color:var(--text-secondary); margin-top:2px; }
+        
+        /* 账户分组 */
+        .account-group { margin-bottom:8px; }
+        .account-group .account-title { font-size:11px; font-weight:600; color:var(--accent-blue); padding:4px 8px; background:rgba(79,195,247,0.08); border-radius:4px; display:inline-block; margin-bottom:4px; }
+        
         @media (max-width:768px) {
             .grid { grid-template-columns:1fr; }
             .card-full { grid-column:span 1; }
@@ -143,6 +158,7 @@
             .us-sector-grid { grid-template-columns:1fr; }
             .flex-3col { grid-template-columns:1fr; }
             .limit-up-grid { grid-template-columns:1fr; }
+            .summary-grid { grid-template-columns:1fr 1fr; }
         }
     </style>
 </head>
@@ -276,7 +292,6 @@
                 <span class="badge">42家涨停</span>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看详情</span>
             </div>
-            <!-- 五板及以上 -->
             <div class="limit-up-section">
                 <div class="section-title">🔥🔥🔥 五板及以上</div>
                 <div class="limit-up-grid">
@@ -289,7 +304,6 @@
                     </div>
                 </div>
             </div>
-            <!-- 四连板 -->
             <div class="limit-up-section">
                 <div class="section-title">🔥🔥 四连板</div>
                 <div class="limit-up-grid">
@@ -302,7 +316,6 @@
                     </div>
                 </div>
             </div>
-            <!-- 三连板 -->
             <div class="limit-up-section">
                 <div class="section-title">🔥 三连板</div>
                 <div class="limit-up-grid">
@@ -322,7 +335,6 @@
                     </div>
                 </div>
             </div>
-            <!-- 二连板 -->
             <div class="limit-up-section">
                 <div class="section-title">⚡ 二连板</div>
                 <div class="limit-up-grid">
@@ -349,7 +361,6 @@
                     </div>
                 </div>
             </div>
-            <!-- 首板 -->
             <div class="limit-up-section">
                 <div class="section-title">📌 首板</div>
                 <div class="limit-up-grid">
@@ -402,15 +413,15 @@
             </div>
         </div>
 
-        <!-- ④ A股热力全景图 · 资金流向前30名 -->
+        <!-- ④ A股热力全景图 -->
         <div class="card card-full" onclick="openModal('flow')">
             <div class="card-title">
                 <span class="icon"><i class="fas fa-fire"></i></span> ④ A股热力全景图 · 资金流向前30名
                 <span class="badge">Top 30 / 50</span>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 查看完整50名</span>
             </div>
-            <div style="overflow-x:auto;max-height:380px;overflow-y:auto;">
-                <table class="flow-table" style="width:100%;font-size:11px;">
+            <div style="overflow-x:auto;max-height:400px;overflow-y:auto;">
+                <table class="flow-table" style="width:100%;font-size:11px;" id="flowTable">
                     <thead>
                         <tr>
                             <th>排名</th>
@@ -439,18 +450,52 @@
             <div class="card-title">
                 <span class="icon"><i class="fas fa-briefcase"></i></span> ⑤ 持仓复盘
                 <span class="badge" style="background:rgba(229,115,115,0.2);color:#e57373;">总盈亏 -3,267</span>
-                <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看个股详情</span>
+                <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看完整分析</span>
             </div>
-            <table class="position-table" style="width:100%;">
-                <thead><tr><th>股票</th><th>持仓</th><th>成本</th><th>现价</th><th>盈亏</th><th>操作</th></tr></thead>
-                <tbody>
-                    <tr><td><strong>永安行</strong></td><td>2,300</td><td>18.57</td><td>18.35</td><td style="color:#e57373;">-506</td><td><span class="tag hold">观察</span></td></tr>
-                    <tr><td><strong>征和工业</strong></td><td>1,800</td><td>58.28</td><td>68.90</td><td style="color:#81c784;">+19,116</td><td><span class="tag buy">持有</span></td></tr>
-                    <tr><td><strong>长电科技</strong></td><td>1,300</td><td>84.48</td><td>82.90</td><td style="color:#e57373;">-2,054</td><td><span class="tag hold">观察</span></td></tr>
-                    <tr><td><strong>北京君正</strong></td><td>2,300</td><td>151.94</td><td>143.65</td><td style="color:#e57373;">-19,067</td><td><span class="tag hold">观察</span></td></tr>
-                    <tr><td><strong>通富微电</strong></td><td>200</td><td>73.60</td><td>69.82</td><td style="color:#e57373;">-756</td><td><span class="tag hold">观察</span></td></tr>
-                </tbody>
-            </table>
+            <!-- 汇总卡片 -->
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="label">📅 月度盈亏</div>
+                    <div class="value" style="color:#e57373;">-2,850</div>
+                    <div class="sub">7月</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">📅 周度盈亏</div>
+                    <div class="value" style="color:#81c784;">+1,230</div>
+                    <div class="sub">本周</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">📅 当日盈亏</div>
+                    <div class="value" style="color:#e57373;">-506</div>
+                    <div class="sub">7月24日</div>
+                </div>
+            </div>
+            <!-- 持仓表格 -->
+            <div style="overflow-x:auto;max-height:320px;overflow-y:auto;">
+                <table class="position-table" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>股票</th>
+                            <th>持仓</th>
+                            <th>成本</th>
+                            <th>现价</th>
+                            <th>盈亏</th>
+                            <th>RSI</th>
+                            <th>MACD</th>
+                            <th>量比</th>
+                            <th>换手</th>
+                            <th>主力</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="positionTableBody">
+                        <!-- 由 JavaScript 动态渲染 -->
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top:8px;font-size:10px;color:var(--text-secondary);">
+                <i class="fas fa-info-circle"></i> 持仓明细 · 含技术指标与资金流向
+            </div>
         </div>
 
         <!-- ⑥ 核心判断 -->
@@ -487,7 +532,7 @@
 
     <div class="footer">
         <i class="fas fa-sync-alt"></i> 数据自动更新 · 点击卡片查看详情<br>
-        更新时间: 2026-07-25 23:00:00
+        更新时间: 2026-07-25 23:50:00
     </div>
 </div>
 
@@ -501,6 +546,42 @@
 
 <script>
 function loadDate(date) { alert('📅 切换到 ' + date); }
+
+// ===== 持仓数据 =====
+const positionData = [
+    { stock:'永安行', account:'银河证券', quantity:2300, cost:18.57, price:18.35, pnl:-506, pnlRate:'-0.12%', rsi:32, macd:-0.28, volumeRatio:0.53, turnover:'0.44%', mainFlow:'流出-143万', signal:'观察', signalClass:'hold' },
+    { stock:'征和工业', account:'银河证券', quantity:1800, cost:58.28, price:68.90, pnl:19116, pnlRate:'+18.22%', rsi:58, macd:+0.62, volumeRatio:0.72, turnover:'2.48%', mainFlow:'流入438万', signal:'持有', signalClass:'buy' },
+    { stock:'长电科技', account:'银河证券', quantity:1300, cost:84.48, price:82.90, pnl:-2054, pnlRate:'-1.87%', rsi:42, macd:+0.32, volumeRatio:0.75, turnover:'9.42%', mainFlow:'流入1.85亿', signal:'观察', signalClass:'hold' },
+    { stock:'北京君正', account:'银河证券', quantity:2300, cost:151.94, price:143.65, pnl:-19067, pnlRate:'-5.46%', rsi:28, macd:-0.52, volumeRatio:0.77, turnover:'8.63%', mainFlow:'流出-3.42亿', signal:'观察', signalClass:'hold' },
+    { stock:'通富微电', account:'银河证券', quantity:200, cost:73.60, price:69.82, pnl:-756, pnlRate:'-5.14%', rsi:35, macd:+0.85, volumeRatio:0.94, turnover:'13.56%', mainFlow:'流出-20.04亿', signal:'观察', signalClass:'hold' }
+];
+
+// ===== 渲染持仓表格 =====
+function renderPositionTable() {
+    const tbody = document.getElementById('positionTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = positionData.map(d => {
+        const pnlColor = d.pnl > 0 ? '#81c784' : '#e57373';
+        const rsiClass = d.rsi < 35 ? 'rsi-low' : d.rsi > 65 ? 'rsi-high' : 'rsi-mid';
+        const macdColor = d.macd > 0 ? '#81c784' : '#e57373';
+        const mainFlowColor = d.mainFlow.includes('流入') ? '#81c784' : '#e57373';
+        return `
+            <tr>
+                <td><strong>${d.stock}</strong></td>
+                <td>${d.quantity}</td>
+                <td>${d.cost.toFixed(2)}</td>
+                <td>${d.price.toFixed(2)}</td>
+                <td style="color:${pnlColor};font-weight:600;">${d.pnl > 0 ? '+' : ''}${d.pnl}</td>
+                <td class="${rsiClass}">${d.rsi}</td>
+                <td style="color:${macdColor};">${d.macd > 0 ? '+' : ''}${d.macd.toFixed(2)}</td>
+                <td>${d.volumeRatio}</td>
+                <td>${d.turnover}</td>
+                <td style="color:${mainFlowColor};font-size:10px;">${d.mainFlow}</td>
+                <td><span class="tag ${d.signalClass}">${d.signal}</span></td>
+            </tr>
+        `;
+    }).join('');
+}
 
 // ===== 资金流向前30名数据 =====
 const flowTop30 = [
@@ -536,7 +617,6 @@ const flowTop30 = [
     { rank:30, stock:'中芯国际', sector:'半导体', amount:'+0.32亿', change:'+0.15%', rsi:46, turnover:'0.55%', volumeRatio:0.52, tag:'强势' }
 ];
 
-// ===== 资金流向前50名数据（用于详情页）=====
 const flowTop50 = [
     ...flowTop30,
     { rank:31, stock:'海光信息', sector:'半导体', amount:'+0.28亿', change:'+0.05%', rsi:44, turnover:'0.45%', volumeRatio:0.48, tag:'强势' },
@@ -561,7 +641,6 @@ const flowTop50 = [
     { rank:50, stock:'雅克科技', sector:'材料', amount:'+0.02亿', change:'-1.92%', rsi:18, turnover:'0.02%', volumeRatio:0.04, tag:'强势' }
 ];
 
-// ===== 渲染主页面表格（前30名）=====
 function renderFlowTable() {
     const tbody = document.getElementById('flowTableBody');
     if (!tbody) return;
@@ -575,26 +654,23 @@ function renderFlowTable() {
                 <td><span class="sector-tag">${d.sector}</span></td>
                 <td><span class="pos" style="font-weight:600;">${d.amount}</span></td>
                 <td style="color:${changeColor};font-weight:500;">${d.change}</td>
-                <td><span class="${rsiClass}">${d.rsi}</span></td>
-                <td>${d.turnover}</td>
-                <td>${d.volumeRatio}</td>
+                <td class="${rsiClass}">${d.rsi}</td>
+                <td style="color:var(--text-secondary);">${d.turnover}</td>
+                <td style="color:var(--text-secondary);">${d.volumeRatio}</td>
                 <td><span class="tag buy">${d.tag}</span></td>
             </tr>
         `;
     }).join('');
 }
 
-// ===== 打开模态框 =====
 function openModal(type) {
     const modal = document.getElementById('modal');
     const content = document.getElementById('modal-content');
     
     const data = {
-        // ===== ① 大盘详情 =====
         'market': {
             title: '📊 全球大盘行情 + 板块资金流向',
-            html: `
-                <p class="sub-title">A股四大指数 · 美股隔夜 · 板块资金流入/流出完整TOP30</p>
+            html: `<p class="sub-title">A股四大指数 · 美股隔夜 · 板块资金流入/流出完整TOP30</p>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
                     <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;">
                         <h3 style="color:#81c784;">🇨🇳 A股</h3>
@@ -618,7 +694,7 @@ function openModal(type) {
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                     <div><h4 style="color:#81c784;">✅ 板块资金流入TOP30</h4>
-                        <div style="max-height:350px;overflow-y:auto;background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;font-size:12px;">
+                        <div style="max-height:300px;overflow-y:auto;background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;font-size:12px;">
                             ${[
                                 {rank:1,sector:'半导体',amount:'+40.99亿',stocks:'通富微电+24.25亿·华天科技+6.93亿·中微公司+6.48亿'},
                                 {rank:2,sector:'国防军工',amount:'+2.83亿',stocks:'高德红外+2.49亿·中国卫星+0.62亿·中航沈飞+0.35亿'},
@@ -636,7 +712,7 @@ function openModal(type) {
                         </div>
                     </div>
                     <div><h4 style="color:#e57373;">🔴 板块资金流出TOP30</h4>
-                        <div style="max-height:350px;overflow-y:auto;background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;font-size:12px;">
+                        <div style="max-height:300px;overflow-y:auto;background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;font-size:12px;">
                             ${[
                                 {rank:1,sector:'有色金属',amount:'-67.71亿',stocks:'紫金矿业-4.43亿·洛阳钼业-3.85亿·江西铜业-2.92亿'},
                                 {rank:2,sector:'计算机',amount:'-64.98亿',stocks:'中科曙光-8.92亿·浪潮信息-5.23亿·紫光股份-4.85亿'},
@@ -659,11 +735,9 @@ function openModal(type) {
                 </div>
             `
         },
-        // ===== ② 美股自选股 =====
         'us_market': {
             title: '🇺🇸 美股自选股行情 · 完整数据',
-            html: `
-                <p class="sub-title">纳斯达克 · 费城半导体 · 七巨头 · 核心个股</p>
+            html: `<p class="sub-title">纳斯达克 · 费城半导体 · 七巨头 · 核心个股</p>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                     <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;border:1px solid var(--border-color);">
                         <h4 style="color:#4fc3f7;">📊 三大指数</h4>
@@ -704,11 +778,9 @@ function openModal(type) {
                 </div>
             `
         },
-        // ===== ③ 美股六大板块 =====
         'transmission': {
             title: '🇺🇸 美股六大板块 · 完整行情 + A股映射',
-            html: `
-                <p class="sub-title">六大核心板块 · 半导体+存储分开展示 · 科技巨头+苹果供应链完整覆盖</p>
+            html: `<p class="sub-title">六大核心板块 · 半导体+存储分开展示 · 科技巨头+苹果供应链完整覆盖</p>
                 <div class="us-sector-grid">
                     <div class="us-sector-card">
                         <div class="sector-name">🔹 半导体</div>
@@ -784,11 +856,9 @@ function openModal(type) {
                 </div>
             `
         },
-        // ===== ④ 涨停板详情 =====
         'limitup': {
             title: '📊 涨停板数据详情 · 按连板分类',
-            html: `
-                <p class="sub-title">涨停家数42家 · 连板≥2天15家 · 半导体/封测方向最强</p>
+            html: `<p class="sub-title">涨停家数42家 · 连板≥2天15家 · 半导体/封测方向最强</p>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                     <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;border-left:3px solid #ffd54f;">
                         <div style="font-size:12px;color:#ffd54f;">🔥🔥🔥 五板及以上</div>
@@ -824,7 +894,6 @@ function openModal(type) {
                 </div>
             `
         },
-        // ===== ⑤ 热力全景图50名 =====
         'flow': {
             title: '📊 A股热力全景图 · 资金流向前50名 完整数据',
             html: `
@@ -868,53 +937,83 @@ function openModal(type) {
                 </div>
             `
         },
-        // ===== ⑥ 持仓详情 =====
         'positions': {
-            title: '💼 持仓详细分析',
+            title: '💼 持仓详细分析 · 含技术指标与资金流向',
             html: `
-                <p class="sub-title">当前持仓盈亏明细</p>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:14px;border-left:3px solid #e57373;">
-                        <div style="font-weight:600;">永安行</div>
-                        <div style="font-size:12px;color:#8892a0;">持仓: 2,300股 | 成本: 18.57 | 现价: 18.35</div>
-                        <div style="font-size:14px;font-weight:600;color:#e57373;">盈亏: -506</div>
-                        <div style="font-size:12px;color:#4fc3f7;">操作: 🟡观察</div>
+                <p class="sub-title">按账户分类 · 含RSI/MACD/量比/换手率/主力资金</p>
+                <div style="margin-bottom:12px;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+                        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border-color);">
+                            <div style="font-size:10px;color:var(--text-secondary);">📅 月度盈亏</div>
+                            <div style="font-size:18px;font-weight:700;color:#e57373;">-2,850</div>
+                            <div style="font-size:10px;color:var(--text-secondary);">7月</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border-color);">
+                            <div style="font-size:10px;color:var(--text-secondary);">📅 周度盈亏</div>
+                            <div style="font-size:18px;font-weight:700;color:#81c784;">+1,230</div>
+                            <div style="font-size:10px;color:var(--text-secondary);">本周</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border-color);">
+                            <div style="font-size:10px;color:var(--text-secondary);">📅 当日盈亏</div>
+                            <div style="font-size:18px;font-weight:700;color:#e57373;">-506</div>
+                            <div style="font-size:10px;color:var(--text-secondary);">7月24日</div>
+                        </div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:14px;border-left:3px solid #81c784;">
-                        <div style="font-weight:600;">征和工业</div>
-                        <div style="font-size:12px;color:#8892a0;">持仓: 1,800股 | 成本: 58.28 | 现价: 68.90</div>
-                        <div style="font-size:14px;font-weight:600;color:#81c784;">盈亏: +19,116</div>
-                        <div style="font-size:12px;color:#4fc3f7;">操作: 🟢持有</div>
+                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;border:1px solid var(--border-color);margin-bottom:8px;">
+                        <div style="font-size:11px;color:var(--accent-blue);font-weight:600;">🏦 银河证券</div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:14px;border-left:3px solid #e57373;">
-                        <div style="font-weight:600;">长电科技</div>
-                        <div style="font-size:12px;color:#8892a0;">持仓: 1,300股 | 成本: 84.48 | 现价: 82.90</div>
-                        <div style="font-size:14px;font-weight:600;color:#e57373;">盈亏: -2,054</div>
-                        <div style="font-size:12px;color:#4fc3f7;">操作: 🟡观察</div>
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%;font-size:11px;border-collapse:collapse;">
+                            <thead><tr style="color:#8892a0;border-bottom:1px solid var(--border-color);">
+                                <th style="text-align:left;padding:4px;">股票</th>
+                                <th style="text-align:right;padding:4px;">持仓</th>
+                                <th style="text-align:right;padding:4px;">成本</th>
+                                <th style="text-align:right;padding:4px;">现价</th>
+                                <th style="text-align:right;padding:4px;">盈亏</th>
+                                <th style="text-align:right;padding:4px;">RSI</th>
+                                <th style="text-align:right;padding:4px;">MACD</th>
+                                <th style="text-align:right;padding:4px;">量比</th>
+                                <th style="text-align:right;padding:4px;">换手</th>
+                                <th style="text-align:right;padding:4px;">主力</th>
+                                <th style="text-align:center;padding:4px;">操作</th>
+                            </tr></thead>
+                            <tbody>
+                                ${positionData.map(d => {
+                                    const pnlColor = d.pnl > 0 ? '#81c784' : '#e57373';
+                                    const rsiClass = d.rsi < 35 ? 'rsi-low' : d.rsi > 65 ? 'rsi-high' : 'rsi-mid';
+                                    const macdColor = d.macd > 0 ? '#81c784' : '#e57373';
+                                    const mainFlowColor = d.mainFlow.includes('流入') ? '#81c784' : '#e57373';
+                                    return `
+                                        <tr>
+                                            <td style="padding:4px;font-weight:500;">${d.stock}</td>
+                                            <td style="padding:4px;text-align:right;">${d.quantity}</td>
+                                            <td style="padding:4px;text-align:right;">${d.cost.toFixed(2)}</td>
+                                            <td style="padding:4px;text-align:right;">${d.price.toFixed(2)}</td>
+                                            <td style="padding:4px;text-align:right;color:${pnlColor};font-weight:600;">${d.pnl > 0 ? '+' : ''}${d.pnl}</td>
+                                            <td style="padding:4px;text-align:right;" class="${rsiClass}">${d.rsi}</td>
+                                            <td style="padding:4px;text-align:right;color:${macdColor};">${d.macd > 0 ? '+' : ''}${d.macd.toFixed(2)}</td>
+                                            <td style="padding:4px;text-align:right;">${d.volumeRatio}</td>
+                                            <td style="padding:4px;text-align:right;">${d.turnover}</td>
+                                            <td style="padding:4px;text-align:right;color:${mainFlowColor};font-size:10px;">${d.mainFlow}</td>
+                                            <td style="padding:4px;text-align:center;"><span class="tag ${d.signalClass}">${d.signal}</span></td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
                     </div>
-                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:14px;border-left:3px solid #e57373;">
-                        <div style="font-weight:600;">北京君正</div>
-                        <div style="font-size:12px;color:#8892a0;">持仓: 2,300股 | 成本: 151.94 | 现价: 143.65</div>
-                        <div style="font-size:14px;font-weight:600;color:#e57373;">盈亏: -19,067</div>
-                        <div style="font-size:12px;color:#4fc3f7;">操作: 🟡观察</div>
+                    <div style="margin-top:8px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px;color:#ffd54f;">
+                        📌 总盈亏: -3,267 · 征和工业盈利最多(+19,116) · 北京君正亏损最大(-19,067)
                     </div>
-                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:14px;border-left:3px solid #e57373;">
-                        <div style="font-weight:600;">通富微电</div>
-                        <div style="font-size:12px;color:#8892a0;">持仓: 200股 | 成本: 73.60 | 现价: 69.82</div>
-                        <div style="font-size:14px;font-weight:600;color:#e57373;">盈亏: -756</div>
-                        <div style="font-size:12px;color:#4fc3f7;">操作: 🟡观察</div>
+                    <div style="margin-top:8px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:11px;color:var(--text-secondary);">
+                        <i class="fas fa-info-circle"></i> RSI: 超卖(&lt;35)绿色 · 中性(35-65)黄色 · 超买(&gt;65)红色 &nbsp;|&nbsp; MACD: 金叉(正)绿色 · 死叉(负)红色
                     </div>
-                </div>
-                <div style="margin-top:16px;padding:12px;background:rgba(255,255,255,0.03);border-radius:8px;">
-                    <div style="color:#ffd54f;">📌 总盈亏: -3,267</div>
                 </div>
             `
         },
-        // ===== ⑦ 核心判断 =====
         'judgment': {
             title: '🎯 完整策略研判',
-            html: `
-                <p class="sub-title">主线方向 · 风险提示 · 核心任务</p>
+            html: `<p class="sub-title">主线方向 · 风险提示 · 核心任务</p>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                     <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:14px;">
                         <div style="color:#81c784;">✅ 主线方向</div>
@@ -955,8 +1054,10 @@ function closeModal() {
     document.getElementById('modal').classList.remove('active');
 }
 
-// ===== 页面加载完成后渲染表格 =====
-document.addEventListener('DOMContentLoaded', renderFlowTable);
+document.addEventListener('DOMContentLoaded', () => {
+    renderFlowTable();
+    renderPositionTable();
+});
 </script>
 </body>
 </html>
