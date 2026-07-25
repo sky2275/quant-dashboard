@@ -74,7 +74,6 @@
         .heat-bar { height:4px; background:linear-gradient(90deg,#4fc3f7,#81c784); border-radius:2px; }
         .pos { color:var(--accent-green); }
         
-        /* 持仓表格增强 */
         .position-table { width:100%; font-size:11px; border-collapse:collapse; }
         .position-table th { color:var(--text-secondary); font-weight:500; text-align:left; padding:6px 4px; border-bottom:1px solid var(--border-color); font-size:10px; text-transform:uppercase; letter-spacing:0.3px; }
         .position-table td { padding:6px 4px; border-bottom:1px solid rgba(255,255,255,0.03); }
@@ -84,6 +83,7 @@
         .tag.buy { background:rgba(129,199,132,0.2); color:#81c784; }
         .tag.sell { background:rgba(229,115,115,0.2); color:#e57373; }
         .tag.hold { background:rgba(255,213,79,0.2); color:#ffd54f; }
+        .tag.strong { background:rgba(129,199,132,0.3); color:#81c784; }
         
         .flex-3col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
         @media (max-width:768px) { .flex-3col { grid-template-columns:1fr 1fr; } }
@@ -136,19 +136,32 @@
         .limit-up-card .stock-forecast.down { background:rgba(229,115,115,0.2); color:#e57373; }
         .limit-up-card .stock-forecast.hold { background:rgba(255,213,79,0.2); color:#ffd54f; }
         
-        .footer { margin-top:24px; text-align:center; font-size:11px; color:var(--text-secondary); border-top:1px solid var(--border-color); padding-top:16px; }
+        /* 备选股票池样式 */
+        .watchlist-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr 1fr; gap:8px; }
+        @media (max-width:1024px) { .watchlist-grid { grid-template-columns:1fr 1fr 1fr; } }
+        @media (max-width:600px) { .watchlist-grid { grid-template-columns:1fr 1fr; } }
+        .watchlist-card { background:rgba(255,255,255,0.02); border-radius:8px; padding:8px 10px; border:1px solid var(--border-color); text-align:center; }
+        .watchlist-card .stock-name { font-weight:600; font-size:12px; }
+        .watchlist-card .stock-sector { font-size:9px; color:var(--text-secondary); }
+        .watchlist-card .stock-price { font-size:14px; font-weight:700; color:var(--accent-green); margin-top:2px; }
+        .watchlist-card .stock-change { font-size:11px; font-weight:500; }
+        .watchlist-card .stock-score { font-size:10px; color:var(--text-secondary); margin-top:2px; }
         
-        /* 汇总卡片样式 */
         .summary-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:12px; }
-        @media (max-width:600px) { .summary-grid { grid-template-columns:1fr; } }
+        @media (max-width:600px) { .summary-grid { grid-template-columns:1fr 1fr; } }
         .summary-card { background:rgba(255,255,255,0.02); border-radius:8px; padding:10px 14px; border:1px solid var(--border-color); text-align:center; }
         .summary-card .label { font-size:10px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.3px; }
         .summary-card .value { font-size:18px; font-weight:700; margin-top:4px; }
         .summary-card .sub { font-size:11px; color:var(--text-secondary); margin-top:2px; }
         
-        /* 账户分组 */
-        .account-group { margin-bottom:8px; }
-        .account-group .account-title { font-size:11px; font-weight:600; color:var(--accent-blue); padding:4px 8px; background:rgba(79,195,247,0.08); border-radius:4px; display:inline-block; margin-bottom:4px; }
+        .backtest-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+        @media (max-width:600px) { .backtest-grid { grid-template-columns:1fr; } }
+        .backtest-card { background:rgba(255,255,255,0.02); border-radius:6px; padding:8px 12px; border:1px solid var(--border-color); }
+        .backtest-card .period { font-size:10px; color:var(--text-secondary); }
+        .backtest-card .result { font-size:14px; font-weight:600; }
+        .backtest-card .detail { font-size:10px; color:var(--text-secondary); }
+        
+        .footer { margin-top:24px; text-align:center; font-size:11px; color:var(--text-secondary); border-top:1px solid var(--border-color); padding-top:16px; }
         
         @media (max-width:768px) {
             .grid { grid-template-columns:1fr; }
@@ -158,7 +171,7 @@
             .us-sector-grid { grid-template-columns:1fr; }
             .flex-3col { grid-template-columns:1fr; }
             .limit-up-grid { grid-template-columns:1fr; }
-            .summary-grid { grid-template-columns:1fr 1fr; }
+            .watchlist-grid { grid-template-columns:1fr 1fr; }
         }
     </style>
 </head>
@@ -452,7 +465,6 @@
                 <span class="badge" style="background:rgba(229,115,115,0.2);color:#e57373;">总盈亏 -3,267</span>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看完整分析</span>
             </div>
-            <!-- 汇总卡片 -->
             <div class="summary-grid">
                 <div class="summary-card">
                     <div class="label">📅 月度盈亏</div>
@@ -470,7 +482,6 @@
                     <div class="sub">7月24日</div>
                 </div>
             </div>
-            <!-- 持仓表格 -->
             <div style="overflow-x:auto;max-height:320px;overflow-y:auto;">
                 <table class="position-table" style="width:100%;">
                     <thead>
@@ -498,10 +509,136 @@
             </div>
         </div>
 
-        <!-- ⑥ 核心判断 -->
+        <!-- ⑥ 备选股票池 -->
+        <div class="card card-full" onclick="openModal('watchlist')">
+            <div class="card-title">
+                <span class="icon"><i class="fas fa-star"></i></span> ⑥ 备选股票池
+                <span class="badge">12只标的</span>
+                <span class="click-hint"><i class="fas fa-chevron-right"></i> 查看回测详情</span>
+            </div>
+            <!-- 近一周资金流向前10板块 -->
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+                <span style="font-size:10px;color:var(--text-secondary);">🔥 热门板块:</span>
+                <span class="sector-tag">半导体</span>
+                <span class="sector-tag">封测</span>
+                <span class="sector-tag">存储芯片</span>
+                <span class="sector-tag">设备</span>
+                <span class="sector-tag">光模块</span>
+                <span class="sector-tag">IT服务</span>
+                <span class="sector-tag">机器人</span>
+                <span class="sector-tag">消费电子</span>
+                <span class="sector-tag">军工电子</span>
+                <span class="sector-tag">材料</span>
+            </div>
+            <!-- 备选股票网格 -->
+            <div class="watchlist-grid">
+                <div class="watchlist-card">
+                    <div class="stock-name">通富微电</div>
+                    <div class="stock-sector">封测</div>
+                    <div class="stock-price">69.82</div>
+                    <div class="stock-change" style="color:#81c784;">+9.77%</div>
+                    <div class="stock-score">评分 95</div>
+                </div>
+                <div class="watchlist-card">
+                    <div class="stock-name">华天科技</div>
+                    <div class="stock-sector">封测</div>
+                    <div class="stock-price">12.80</div>
+                    <div class="stock-change" style="color:#81c784;">+5.09%</div>
+                    <div class="stock-score">评分 88</div>
+                </div>
+                <div class="watchlist-card">
+                    <div class="stock-name">中微公司</div>
+                    <div class="stock-sector">设备</div>
+                    <div class="stock-price">352.80</div>
+                    <div class="stock-change" style="color:#81c784;">+3.54%</div>
+                    <div class="stock-score">评分 85</div>
+                </div>
+                <div class="watchlist-card">
+                    <div class="stock-name">深科技</div>
+                    <div class="stock-sector">存储封装</div>
+                    <div class="stock-price">18.56</div>
+                    <div class="stock-change" style="color:#81c784;">+7.42%</div>
+                    <div class="stock-score">评分 82</div>
+                </div>
+                <div class="watchlist-card">
+                    <div class="stock-name">蓝思科技</div>
+                    <div class="stock-sector">消费电子</div>
+                    <div class="stock-price">22.80</div>
+                    <div class="stock-change" style="color:#81c784;">+2.02%</div>
+                    <div class="stock-score">评分 78</div>
+                </div>
+                <div class="watchlist-card">
+                    <div class="stock-name">雅克科技</div>
+                    <div class="stock-sector">材料</div>
+                    <div class="stock-price">62.50</div>
+                    <div class="stock-change" style="color:#81c784;">+3.27%</div>
+                    <div class="stock-score">评分 76</div>
+                </div>
+                <div class="watchlist-card">
+                    <div class="stock-name">中际旭创</div>
+                    <div class="stock-sector">光模块</div>
+                    <div class="stock-price">145.20</div>
+                    <div class="stock-change" style="color:#81c784;">+4.85%</div>
+                    <div class="stock-score">评分 74</div>
+                </div>
+                <div class="watchlist-card">
+                    <div class="stock-name">埃斯顿</div>
+                    <div class="stock-sector">机器人</div>
+                    <div class="stock-price">28.50</div>
+                    <div class="stock-change" style="color:#81c784;">+3.85%</div>
+                    <div class="stock-score">评分 72</div>
+                </div>
+                <div class="watchlist-card">
+                    <div class="stock-name">汇川技术</div>
+                    <div class="stock-sector">机器人</div>
+                    <div class="stock-price">62.80</div>
+                    <div class="stock-change" style="color:#81c784;">+2.65%</div>
+                    <div class="stock-score">评分 70</div>
+                </div>
+                <div class="watchlist-card">
+                    <div class="stock-name">兆易创新</div>
+                    <div class="stock-sector">存储</div>
+                    <div class="stock-price">108.50</div>
+                    <div class="stock-change" style="color:#81c784;">+1.85%</div>
+                    <div class="stock-score">评分 68</div>
+                </div>
+                <div class="watchlist-card">
+                    <div class="stock-name">立讯精密</div>
+                    <div class="stock-sector">消费电子</div>
+                    <div class="stock-price">58.90</div>
+                    <div class="stock-change" style="color:#81c784;">+1.52%</div>
+                    <div class="stock-score">评分 65</div>
+                </div>
+                <div class="watchlist-card">
+                    <div class="stock-name">中芯国际</div>
+                    <div class="stock-sector">半导体</div>
+                    <div class="stock-price">68.50</div>
+                    <div class="stock-change" style="color:#81c784;">+0.15%</div>
+                    <div class="stock-score">评分 60</div>
+                </div>
+            </div>
+            <!-- 回测汇总 -->
+            <div class="backtest-grid">
+                <div class="backtest-card">
+                    <div class="period">📊 周度回测 (7/18-7/24)</div>
+                    <div class="result" style="color:#81c784;">+8.42%</div>
+                    <div class="detail">盈亏 +4,210 · 胜率 66.7%</div>
+                </div>
+                <div class="backtest-card">
+                    <div class="period">📊 月度回测 (7/1-7/24)</div>
+                    <div class="result" style="color:#81c784;">+12.85%</div>
+                    <div class="detail">盈亏 +6,425 · 胜率 58.3%</div>
+                </div>
+            </div>
+            <div style="margin-top:6px;font-size:10px;color:var(--text-secondary);">
+                <i class="fas fa-info-circle"></i> 基于近一周资金流向筛选 · 评分综合强度/涨幅/技术指标
+            </div>
+        </div>
+
+        <!-- ⑦ 核心判断 -->
         <div class="card card-full" onclick="openModal('judgment')">
             <div class="card-title">
-                <span class="icon"><i class="fas fa-lightbulb"></i></span> ⑥ 核心判断
+                <span class="icon"><i class="fas fa-lightbulb"></i></span> ⑦ 核心判断
                 <span class="badge">策略</span>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看完整策略</span>
             </div>
@@ -532,7 +669,7 @@
 
     <div class="footer">
         <i class="fas fa-sync-alt"></i> 数据自动更新 · 点击卡片查看详情<br>
-        更新时间: 2026-07-25 23:50:00
+        更新时间: 2026-07-26 00:10:00
     </div>
 </div>
 
@@ -555,33 +692,6 @@ const positionData = [
     { stock:'北京君正', account:'银河证券', quantity:2300, cost:151.94, price:143.65, pnl:-19067, pnlRate:'-5.46%', rsi:28, macd:-0.52, volumeRatio:0.77, turnover:'8.63%', mainFlow:'流出-3.42亿', signal:'观察', signalClass:'hold' },
     { stock:'通富微电', account:'银河证券', quantity:200, cost:73.60, price:69.82, pnl:-756, pnlRate:'-5.14%', rsi:35, macd:+0.85, volumeRatio:0.94, turnover:'13.56%', mainFlow:'流出-20.04亿', signal:'观察', signalClass:'hold' }
 ];
-
-// ===== 渲染持仓表格 =====
-function renderPositionTable() {
-    const tbody = document.getElementById('positionTableBody');
-    if (!tbody) return;
-    tbody.innerHTML = positionData.map(d => {
-        const pnlColor = d.pnl > 0 ? '#81c784' : '#e57373';
-        const rsiClass = d.rsi < 35 ? 'rsi-low' : d.rsi > 65 ? 'rsi-high' : 'rsi-mid';
-        const macdColor = d.macd > 0 ? '#81c784' : '#e57373';
-        const mainFlowColor = d.mainFlow.includes('流入') ? '#81c784' : '#e57373';
-        return `
-            <tr>
-                <td><strong>${d.stock}</strong></td>
-                <td>${d.quantity}</td>
-                <td>${d.cost.toFixed(2)}</td>
-                <td>${d.price.toFixed(2)}</td>
-                <td style="color:${pnlColor};font-weight:600;">${d.pnl > 0 ? '+' : ''}${d.pnl}</td>
-                <td class="${rsiClass}">${d.rsi}</td>
-                <td style="color:${macdColor};">${d.macd > 0 ? '+' : ''}${d.macd.toFixed(2)}</td>
-                <td>${d.volumeRatio}</td>
-                <td>${d.turnover}</td>
-                <td style="color:${mainFlowColor};font-size:10px;">${d.mainFlow}</td>
-                <td><span class="tag ${d.signalClass}">${d.signal}</span></td>
-            </tr>
-        `;
-    }).join('');
-}
 
 // ===== 资金流向前30名数据 =====
 const flowTop30 = [
@@ -641,6 +751,7 @@ const flowTop50 = [
     { rank:50, stock:'雅克科技', sector:'材料', amount:'+0.02亿', change:'-1.92%', rsi:18, turnover:'0.02%', volumeRatio:0.04, tag:'强势' }
 ];
 
+// ===== 渲染函数 =====
 function renderFlowTable() {
     const tbody = document.getElementById('flowTableBody');
     if (!tbody) return;
@@ -658,6 +769,32 @@ function renderFlowTable() {
                 <td style="color:var(--text-secondary);">${d.turnover}</td>
                 <td style="color:var(--text-secondary);">${d.volumeRatio}</td>
                 <td><span class="tag buy">${d.tag}</span></td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderPositionTable() {
+    const tbody = document.getElementById('positionTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = positionData.map(d => {
+        const pnlColor = d.pnl > 0 ? '#81c784' : '#e57373';
+        const rsiClass = d.rsi < 35 ? 'rsi-low' : d.rsi > 65 ? 'rsi-high' : 'rsi-mid';
+        const macdColor = d.macd > 0 ? '#81c784' : '#e57373';
+        const mainFlowColor = d.mainFlow.includes('流入') ? '#81c784' : '#e57373';
+        return `
+            <tr>
+                <td><strong>${d.stock}</strong></td>
+                <td>${d.quantity}</td>
+                <td>${d.cost.toFixed(2)}</td>
+                <td>${d.price.toFixed(2)}</td>
+                <td style="color:${pnlColor};font-weight:600;">${d.pnl > 0 ? '+' : ''}${d.pnl}</td>
+                <td class="${rsiClass}">${d.rsi}</td>
+                <td style="color:${macdColor};">${d.macd > 0 ? '+' : ''}${d.macd.toFixed(2)}</td>
+                <td>${d.volumeRatio}</td>
+                <td>${d.turnover}</td>
+                <td style="color:${mainFlowColor};font-size:10px;">${d.mainFlow}</td>
+                <td><span class="tag ${d.signalClass}">${d.signal}</span></td>
             </tr>
         `;
     }).join('');
@@ -1008,6 +1145,66 @@ function openModal(type) {
                     <div style="margin-top:8px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:11px;color:var(--text-secondary);">
                         <i class="fas fa-info-circle"></i> RSI: 超卖(&lt;35)绿色 · 中性(35-65)黄色 · 超买(&gt;65)红色 &nbsp;|&nbsp; MACD: 金叉(正)绿色 · 死叉(负)红色
                     </div>
+                </div>
+            `
+        },
+        'watchlist': {
+            title: '📊 备选股票池 · 周度/月度回测详情',
+            html: `
+                <p class="sub-title">近一周资金流向前10板块 · 12只备选标的 · 周/月回测</p>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+                    <span style="font-size:11px;color:var(--text-secondary);">🔥 热门板块:</span>
+                    <span class="sector-tag">半导体</span>
+                    <span class="sector-tag">封测</span>
+                    <span class="sector-tag">存储芯片</span>
+                    <span class="sector-tag">设备</span>
+                    <span class="sector-tag">光模块</span>
+                    <span class="sector-tag">IT服务</span>
+                    <span class="sector-tag">机器人</span>
+                    <span class="sector-tag">消费电子</span>
+                    <span class="sector-tag">军工电子</span>
+                    <span class="sector-tag">材料</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+                    ${[
+                        {name:'通富微电', sector:'封测', price:69.82, change:'+9.77%', score:95},
+                        {name:'华天科技', sector:'封测', price:12.80, change:'+5.09%', score:88},
+                        {name:'中微公司', sector:'设备', price:352.80, change:'+3.54%', score:85},
+                        {name:'深科技', sector:'存储封装', price:18.56, change:'+7.42%', score:82},
+                        {name:'蓝思科技', sector:'消费电子', price:22.80, change:'+2.02%', score:78},
+                        {name:'雅克科技', sector:'材料', price:62.50, change:'+3.27%', score:76},
+                        {name:'中际旭创', sector:'光模块', price:145.20, change:'+4.85%', score:74},
+                        {name:'埃斯顿', sector:'机器人', price:28.50, change:'+3.85%', score:72},
+                        {name:'汇川技术', sector:'机器人', price:62.80, change:'+2.65%', score:70},
+                        {name:'兆易创新', sector:'存储', price:108.50, change:'+1.85%', score:68},
+                        {name:'立讯精密', sector:'消费电子', price:58.90, change:'+1.52%', score:65},
+                        {name:'中芯国际', sector:'半导体', price:68.50, change:'+0.15%', score:60}
+                    ].map(d => `
+                        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:8px 10px;border:1px solid var(--border-color);text-align:center;">
+                            <div style="font-weight:600;font-size:12px;">${d.name}</div>
+                            <div style="font-size:9px;color:var(--text-secondary);">${d.sector}</div>
+                            <div style="font-size:14px;font-weight:700;color:#81c784;">${d.price}</div>
+                            <div style="font-size:11px;font-weight:500;color:#81c784;">${d.change}</div>
+                            <div style="font-size:10px;color:var(--text-secondary);">评分 ${d.score}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px 14px;border:1px solid var(--border-color);">
+                        <div style="font-size:10px;color:var(--text-secondary);">📊 周度回测 (7/18-7/24)</div>
+                        <div style="font-size:18px;font-weight:700;color:#81c784;">+8.42%</div>
+                        <div style="font-size:11px;color:var(--text-secondary);">盈亏 +4,210 · 胜率 66.7%</div>
+                        <div style="margin-top:6px;font-size:10px;color:#81c784;">✅ 跑赢大盘</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:10px 14px;border:1px solid var(--border-color);">
+                        <div style="font-size:10px;color:var(--text-secondary);">📊 月度回测 (7/1-7/24)</div>
+                        <div style="font-size:18px;font-weight:700;color:#81c784;">+12.85%</div>
+                        <div style="font-size:11px;color:var(--text-secondary);">盈亏 +6,425 · 胜率 58.3%</div>
+                        <div style="margin-top:6px;font-size:10px;color:#81c784;">✅ 跑赢大盘</div>
+                    </div>
+                </div>
+                <div style="margin-top:10px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:11px;color:#ffd54f;">
+                    📌 基于近一周资金流向筛选 · 评分综合强度/涨幅/技术指标 · 回测数据仅供参考
                 </div>
             `
         },
