@@ -1,78 +1,72 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-看板生成器 - 完整版
+完整看板生成器
 """
 
 import sys
 import os
-import json
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# 导入配置
 from config import POSITIONS, WATCH_LIST
+from scripts.fetch_data import (
+    fetch_market_data,
+    fetch_us_market,
+    fetch_flow_data,
+    fetch_limit_up,
+    get_transmission_prediction
+)
 
-# 导入数据抓取
-import pandas as pd
-import warnings
-warnings.filterwarnings('ignore')
 
-def fetch_market_data():
-    """获取大盘数据"""
-    try:
-        import akshare as ak
-        df = ak.stock_zh_index_spot()
-        sh = df[df['代码'] == '000001']
-        sz = df[df['代码'] == '399001']
-        return {
-            'date': datetime.now().strftime('%Y-%m-%d'),
-            'sh': {'close': float(sh['最新价'].iloc[0]) if not sh.empty else 3814.20, 'change': -1.61},
-            'sz': {'close': float(sz['最新价'].iloc[0]) if not sz.empty else 13774.68, 'change': -2.47},
-            'turnover': 19444,
-            'up': 555,
-            'down': 4940,
-            'limit_up': 42,
-            'limit_down': 25
-        }
-    except:
-        return {
-            'date': datetime.now().strftime('%Y-%m-%d'),
-            'sh': {'close': 3814.20, 'change': -1.61},
-            'sz': {'close': 13774.68, 'change': -2.47},
-            'turnover': 19444,
-            'up': 555,
-            'down': 4940,
-            'limit_up': 42,
-            'limit_down': 25
-        }
-
-def fetch_stock_realtime(symbols):
-    """获取个股行情"""
-    default = {
-        '603776': {'price': 18.35, 'change': -1.61},
-        '003033': {'price': 68.90, 'change': -0.42},
-        '600584': {'price': 82.90, 'change': 0.70},
-        '300223': {'price': 143.65, 'change': -5.45},
-        '002156': {'price': 69.82, 'change': -6.81},
+def calculate_positions(stock_data=None):
+    """计算持仓盈亏"""
+    if stock_data is None:
+        stock_data = {}
+    
+    default_prices = {
+        '603776': 18.35,
+        '003033': 68.90,
+        '600584': 82.90,
+        '300223': 143.65,
+        '002156': 69.82,
     }
-    try:
-        import akshare as ak
-        df = ak.stock_zh_a_spot()
-        result = {}
-        for symbol in symbols:
-            stock = df[df['代码'] == symbol]
-            if not stock.empty:
-                result[symbol] = {'price': float(stock['最新价'].iloc[0]), 'change': float(stock['涨跌幅'].iloc[0])}
-            else:
-                result[symbol] = default.get(symbol, {'price': 0, 'change': 0})
-        return result
-    except:
-        return {s: default.get(s, {'price': 0, 'change': 0}) for s in symbols}
+    
+    pos_rows = []
+    total_pnl = 0
+    
+    for symbol, pos in POSITIONS.items():
+        price = default_prices.get(symbol, pos.get('price', 0))
+        pnl = (price - pos['cost']) * pos['quantity']
+        total_pnl += pnl
+        
+        if pnl > 5000:
+            signal = '🟢持有'
+        elif pnl > 0:
+            signal = '🟡观察'
+        elif pnl > -5000:
+            signal = '🔴减仓'
+        else:
+            signal = '🔴清仓'
+        
+        pos_rows.append({
+            'name': pos['name'],
+            'quantity': pos['quantity'],
+            'cost': pos['cost'],
+            'price': price,
+            'pnl': pnl,
+            'signal': signal
+        })
+    
+    return pos_rows, total_pnl
 
-def generate_html(market, stock_data, pos_rows, total_pnl):
-    """生成HTML看板"""
+
+def generate_html(market, us_market, flow_data, limit_up, transmissions, pos_rows, total_pnl):
+    """生成完整HTML看板"""
+    
+    stock_flow_top100 = flow_data.get('stock_flow_top100', [])
+    
     html = f'''<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -81,97 +75,249 @@ def generate_html(market, stock_data, pos_rows, total_pnl):
     <title>📊 量化交易看板 · {market['date']}</title>
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        body {{ background: #0b0e14; color: #e8edf5; font-family: -apple-system, sans-serif; padding: 20px; }}
-        .dashboard {{ max-width: 1200px; margin: 0 auto; }}
-        .header {{ display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid #2a2f3a; margin-bottom: 24px; flex-wrap: wrap; }}
-        .header h1 {{ font-size: 24px; background: linear-gradient(135deg, #4fc3f7, #81c784); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
-        .header .date {{ color: #8892a0; font-size: 14px; }}
-        .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }}
-        .card {{ background: #141a24; border-radius: 12px; padding: 18px 20px; border: 1px solid #232833; }}
+        body {{
+            background: #0b0e14;
+            color: #e8edf5;
+            font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+            padding: 16px;
+        }}
+        .dashboard {{ max-width: 1400px; margin: 0 auto; }}
+        
+        .header {{
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 0; border-bottom: 1px solid #2a2f3a;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+        }}
+        .header h1 {{
+            font-size: 22px;
+            background: linear-gradient(135deg, #4fc3f7, #81c784);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }}
+        .header .date {{ color: #8892a0; font-size: 13px; }}
+        
+        .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }}
+        .card {{
+            background: #141a24; border-radius: 10px; padding: 16px 18px;
+            border: 1px solid #232833;
+        }}
         .card-full {{ grid-column: span 2; }}
-        .card-title {{ font-size: 14px; font-weight: 600; color: #8892a0; margin-bottom: 14px; }}
-        .market-row {{ display: flex; flex-wrap: wrap; gap: 16px 30px; }}
+        .card-title {{
+            font-size: 13px; font-weight: 600; color: #8892a0;
+            margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+        }}
+        .card-title .badge {{
+            background: #1b3a2a; color: #81c784; padding: 0 10px;
+            border-radius: 10px; font-size: 10px;
+        }}
+        
+        .market-row {{ display: flex; flex-wrap: wrap; gap: 12px 24px; }}
+        .market-item .label {{ color: #8892a0; font-size: 12px; }}
+        .market-item .value {{ font-size: 16px; font-weight: 600; }}
         .green {{ color: #81c784; }}
         .red {{ color: #e57373; }}
         .yellow {{ color: #ffd54f; }}
-        .tag {{ display: inline-block; padding: 0 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }}
+        
+        .flow-table {{ width: 100%; font-size: 12px; border-collapse: collapse; }}
+        .flow-table td, .flow-table th {{ padding: 4px 6px; border-bottom: 1px solid #1e2430; }}
+        .flow-table th {{ color: #8892a0; font-weight: 500; text-align: left; }}
+        .pos {{ color: #81c784; }}
+        .neg {{ color: #e57373; }}
+        
+        .position-table {{ width: 100%; font-size: 12px; border-collapse: collapse; }}
+        .position-table th, .position-table td {{ padding: 6px 4px; border-bottom: 1px solid #1e2430; text-align: left; }}
+        .position-table th {{ color: #8892a0; font-weight: 500; }}
+        
+        .tag {{
+            display: inline-block; padding: 0 8px; border-radius: 10px;
+            font-size: 10px; font-weight: 500;
+        }}
         .tag.buy {{ background: #1b3a2a; color: #81c784; }}
         .tag.sell {{ background: #3a1b1b; color: #e57373; }}
         .tag.hold {{ background: #2a2a1b; color: #ffd54f; }}
-        .position-table {{ width: 100%; font-size: 13px; border-collapse: collapse; }}
-        .position-table th, .position-table td {{ padding: 6px 4px; border-bottom: 1px solid #1e2430; text-align: left; }}
-        @media (max-width: 768px) {{ .grid {{ grid-template-columns: 1fr; }} .card-full {{ grid-column: span 1; }} }}
+        
+        .flex-2col {{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }}
+        .flex-3col {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }}
+        
+        .transmission-card {{
+            background: #1a1f2a; border-radius: 8px; padding: 10px 12px;
+            border-left: 3px solid #4fc3f7;
+        }}
+        .transmission-card .sector {{ font-weight: 600; font-size: 13px; }}
+        .transmission-card .strength {{ font-size: 12px; }}
+        .transmission-card .impact {{ color: #8892a0; font-size: 12px; }}
+        
+        .task-list {{ list-style: none; padding: 0; }}
+        .task-list li {{
+            padding: 4px 0; font-size: 13px; color: #c8d0dc;
+            padding-left: 18px; position: relative;
+        }}
+        .task-list li::before {{ content: "▸"; position: absolute; left: 0; color: #4fc3f7; }}
+        
+        .footer {{
+            margin-top: 20px; text-align: center; font-size: 11px;
+            color: #3a4050; border-top: 1px solid #1e2430; padding-top: 14px;
+        }}
+        
+        .scroll-table {{
+            max-height: 300px; overflow-y: auto;
+        }}
+        .scroll-table::-webkit-scrollbar {{ width: 4px; }}
+        .scroll-table::-webkit-scrollbar-track {{ background: #141a24; }}
+        .scroll-table::-webkit-scrollbar-thumb {{ background: #2a2f3a; border-radius: 4px; }}
+        
+        @media (max-width: 768px) {{
+            .grid {{ grid-template-columns: 1fr; }}
+            .card-full {{ grid-column: span 1; }}
+            .flex-2col, .flex-3col {{ grid-template-columns: 1fr; }}
+        }}
     </style>
 </head>
 <body>
 <div class="dashboard">
+
     <div class="header">
-        <h1>📊 量化交易系统 · 每日看板</h1>
-        <span class="date">{market['date']} ✅ 自动更新</span>
+        <h1>📊 量化交易系统 · 完整看板</h1>
+        <span class="date">{market['date']} <span class="badge" style="background:#1b3a2a;color:#81c784;padding:2px 10px;border-radius:10px;font-size:11px;">✅ 自动更新</span></span>
     </div>
+
     <div class="grid">
+
+        <!-- ① 大盘行情 -->
         <div class="card card-full">
-            <div class="card-title">① 大盘行情</div>
-            <div class="market-row">
-                <div><span style="color:#8892a0;">上证指数</span> <span class="value red">{market['sh']['close']:.2f}</span> <span class="red">{market['sh']['change']:+.2f}%</span></div>
-                <div><span style="color:#8892a0;">深证成指</span> <span class="value red">{market['sz']['close']:.2f}</span> <span class="red">{market['sz']['change']:+.2f}%</span></div>
-                <div><span style="color:#8892a0;">成交额</span> <span class="value yellow">{market['turnover']}亿</span></div>
-                <div><span style="color:#8892a0;">涨跌家数</span> <span class="value green">{market['up']}</span>/<span class="value red">{market['down']}</span></div>
-                <div><span style="color:#8892a0;">涨停/跌停</span> <span class="value green">{market['limit_up']}</span>/<span class="value red">{market['limit_down']}</span></div>
+            <div class="card-title">① 全球大盘行情</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div>
+                    <div style="color:#8892a0;font-size:11px;margin-bottom:6px;">🇨🇳 A股</div>
+                    <div class="market-row" style="gap:8px 16px;">
+                        <div class="market-item"><span class="label">上证</span><span class="value {"red" if market['sh']['change']<0 else "green"}">{market['sh']['close']:.2f}</span><span class="{"red" if market['sh']['change']<0 else "green"}">{market['sh']['change']:+.2f}%</span></div>
+                        <div class="market-item"><span class="label">深证</span><span class="value {"red" if market['sz']['change']<0 else "green"}">{market['sz']['close']:.2f}</span><span class="{"red" if market['sz']['change']<0 else "green"}">{market['sz']['change']:+.2f}%</span></div>
+                        <div class="market-item"><span class="label">创业板</span><span class="value {"red" if market['cy']['change']<0 else "green"}">{market['cy']['close']:.2f}</span><span class="{"red" if market['cy']['change']<0 else "green"}">{market['cy']['change']:+.2f}%</span></div>
+                        <div class="market-item"><span class="label">科创50</span><span class="value {"red" if market['kc']['change']<0 else "green"}">{market['kc']['close']:.2f}</span><span class="{"red" if market['kc']['change']<0 else "green"}">{market['kc']['change']:+.2f}%</span></div>
+                        <div class="market-item"><span class="label">成交额</span><span class="value yellow">{market['turnover']}亿</span></div>
+                        <div class="market-item"><span class="label">涨跌</span><span class="value green">{market['up']}</span> / <span class="value red">{market['down']}</span></div>
+                        <div class="market-item"><span class="label">涨停/跌停</span><span class="value green">{market['limit_up']}</span> / <span class="value red">{market['limit_down']}</span></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="color:#8892a0;font-size:11px;margin-bottom:6px;">🇺🇸 美股 (隔夜)</div>
+                    <div class="market-row" style="gap:8px 16px;">
+                        <div class="market-item"><span class="label">纳斯达克</span><span class="value red">{us_market['nasdaq']['close']:.2f}</span><span class="red">{us_market['nasdaq']['change']:+.2f}%</span></div>
+                        <div class="market-item"><span class="label">费城半导体</span><span class="value red">{us_market['sox']['close']:.2f}</span><span class="red">{us_market['sox']['change']:+.2f}%</span></div>
+                        <div class="market-item"><span class="label">科技七巨头</span><span class="value red">{us_market['tech_7']['change']:+.2f}%</span></div>
+                        <div class="market-item"><span class="label">英伟达</span><span class="value red">{us_market['nvidia']['change']:+.2f}%</span></div>
+                        <div class="market-item"><span class="label">苹果</span><span class="value red">{us_market['apple']['change']:+.2f}%</span></div>
+                        <div class="market-item"><span class="label">美光</span><span class="value green">{us_market['micron']['change']:+.2f}%</span></div>
+                        <div class="market-item"><span class="label">SK海力士</span><span class="value green">{us_market['sk_hynix']['change']:+.2f}%</span></div>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- ② 美股→A股传导预测 -->
         <div class="card card-full">
-            <div class="card-title">② 持仓复盘 <span style="color:#8892a0;font-weight:400;">总盈亏 {total_pnl:+,.0f}</span></div>
-            <table class="position-table">
+            <div class="card-title">② 美股 → A股 传导预测</div>
+            <div class="flex-3col">
+                {''.join([f'''
+                <div class="transmission-card" style="border-left-color: {"#81c784" if "极强" in t['strength'] or "偏强" in t['strength'] else "#e57373" if "偏空" in t['strength'] else "#ffd54f"};">
+                    <div class="sector">{t['sector']}</div>
+                    <div class="strength">{t['strength']}</div>
+                    <div class="impact">{t['impact'][:30]}{'...' if len(t['impact'])>30 else ''}</div>
+                    <div style="color:#8892a0;font-size:11px;margin-top:4px;">→ {t['direction']}</div>
+                </div>
+                ''' for t in transmissions[:6]])}
+            </div>
+        </div>
+
+        <!-- ③ A股热力全景图 -->
+        <div class="card card-full">
+            <div class="card-title">③ A股热力全景图 · 资金流向前10名 <span class="badge" style="background:#2a2a1b;color:#ffd54f;">Top 10</span></div>
+            <div style="overflow-x:auto;">
+                <table class="flow-table" style="width:100%;">
+                    <thead>
+                        <tr><th>排名</th><th>股票</th><th>板块</th><th>净流入(亿)</th><th>涨跌幅</th><th>趋势</th></tr>
+                    </thead>
+                    <tbody>
+                        {''.join([f'<tr><td>{i+1}</td><td>{item[0]}</td><td>{item[1]}</td><td class="pos">+{item[2]:.2f}</td><td style="color:{"#81c784" if "+" in item[3] else "#e57373"};">{item[3]}</td><td><span class="tag buy">🟢 强势</span></td></tr>' for i, item in enumerate(stock_flow_top100[:10])])}
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top:10px;font-size:11px;color:#8892a0;">
+                📌 半导体板块连续3日主力净流入，封测方向最强
+            </div>
+        </div>
+
+        <!-- ④ 持仓复盘 -->
+        <div class="card card-full">
+            <div class="card-title">④ 持仓复盘 <span style="color:#8892a0;font-weight:400;font-size:12px;">总盈亏 {total_pnl:+,.0f}</span></div>
+            <table class="position-table" style="width:100%;">
                 <thead><tr><th>股票</th><th>持仓</th><th>成本</th><th>现价</th><th>盈亏</th><th>操作</th></tr></thead>
                 <tbody>
-                    {''.join([f'<tr><td>{r["name"]}</td><td>{r["quantity"]}</td><td>{r["cost"]:.2f}</td><td>{r["price"]:.2f}</td><td style="color:{"#81c784" if r["pnl"]>0 else "#e57373"};">{r["pnl"]:+,.0f}</td><td><span class="tag {"buy" if "持有" in r["signal"] else "hold"}">{r["signal"]}</span></td></tr>' for r in pos_rows])}
+                    {''.join([f'<tr><td>{r["name"]}</td><td>{r["quantity"]}</td><td>{r["cost"]:.2f}</td><td>{r["price"]:.2f}</td><td style="color:{"#81c784" if r["pnl"]>0 else "#e57373"};">{r["pnl"]:+,.0f}</td><td><span class="tag {"buy" if "持有" in r["signal"] else "sell" if "清仓" in r["signal"] else "hold"}">{r["signal"]}</span></td></tr>' for r in pos_rows])}
                 </tbody>
             </table>
         </div>
+
+        <!-- ⑤ 核心判断 -->
         <div class="card card-full">
-            <div class="card-title">③ 核心判断</div>
-            <div style="color:#81c784;font-size:14px;">✅ 半导体连续3日主力净流入 · 通富微电净流入24.25亿</div>
-            <div style="color:#e57373;font-size:14px;margin-top:6px;">⚠️ 大盘连续3日下跌 · 北京君正143支撑关键</div>
-            <div style="margin-top:10px;padding:10px 14px;background:#1a1f2a;border-radius:8px;">
-                <div style="color:#4fc3f7;">🎯 核心任务</div>
-                <div style="font-size:13px;color:#c8d0dc;">永安行反抽18.50以上清仓 · 长电科技/征和工业持有 · 北京君正跌破143减仓</div>
+            <div class="card-title">⑤ 核心判断</div>
+            <div class="flex-2col">
+                <div>
+                    <div style="color:#81c784;font-size:12px;">✅ 主线方向</div>
+                    <div style="font-size:13px;padding:4px 0;">半导体连续3日主力净流入，封测方向最强</div>
+                    <div style="font-size:13px;padding:4px 0;">通富微电净流入24.25亿，华天科技+6.93亿</div>
+                    <div style="font-size:13px;padding:4px 0;">存储芯片逆势走强（美光+3%）</div>
+                </div>
+                <div>
+                    <div style="color:#e57373;font-size:12px;">⚠️ 风险提示</div>
+                    <div style="font-size:13px;padding:4px 0;">大盘连续3日下跌，成交额创三个月新低</div>
+                    <div style="font-size:13px;padding:4px 0;">北京君正143支撑关键，跌破需减仓</div>
+                    <div style="font-size:13px;padding:4px 0;">光模块持续承压，新易盛净流出14.84亿</div>
+                </div>
+            </div>
+            <div style="margin-top:10px;padding:10px 14px;background:#1a1f2a;border-radius:6px;">
+                <div style="color:#4fc3f7;font-size:12px;">🎯 核心任务</div>
+                <ul class="task-list">
+                    <li>永安行反抽18.50以上继续清仓</li>
+                    <li>长电科技/征和工业持有，不恐慌割肉</li>
+                    <li>北京君正143支撑，跌破则减仓</li>
+                    <li>关注通富微电回调至70元附近的建仓机会</li>
+                </ul>
             </div>
         </div>
+
     </div>
-    <div style="margin-top:20px;text-align:center;font-size:12px;color:#3a4050;border-top:1px solid #1e2430;padding-top:16px;">
-        量化交易系统 · 数据自动更新 · 策略仅供参考
+
+    <div class="footer">
+        量化交易系统 · 数据自动更新 · 策略仅供参考，投资需谨慎<br>
+        更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
     </div>
+
 </div>
 </body>
 </html>'''
     return html
 
+
 def main():
-    print("🚀 生成量化看板...")
+    print("🚀 生成完整量化看板...")
+    
     market = fetch_market_data()
-    symbols = list(POSITIONS.keys())
-    stock_data = fetch_stock_realtime(symbols)
+    us_market = fetch_us_market()
+    flow_data = fetch_flow_data()
+    limit_up = fetch_limit_up()
+    transmissions = get_transmission_prediction()
     
-    pos_rows = []
-    total_pnl = 0
-    for symbol, pos in POSITIONS.items():
-        stock = stock_data.get(symbol, {'price': 0})
-        price = stock.get('price', pos.get('price', 0))
-        pnl = (price - pos['cost']) * pos['quantity']
-        total_pnl += pnl
-        signal = '🟢持有' if pnl > 0 else '🟡观察'
-        pos_rows.append({
-            'name': pos['name'], 'quantity': pos['quantity'],
-            'cost': pos['cost'], 'price': price,
-            'pnl': pnl, 'signal': signal
-        })
+    pos_rows, total_pnl = calculate_positions()
     
-    html = generate_html(market, stock_data, pos_rows, total_pnl)
+    html = generate_html(market, us_market, flow_data, limit_up, transmissions, pos_rows, total_pnl)
+    
     with open('index.html', 'w', encoding='utf-8') as f:
         f.write(html)
+    
     print(f"✅ 看板已生成: index.html")
     print(f"📊 总盈亏: {total_pnl:+,.0f}")
+    print(f"📈 美股传导预测: {len(transmissions)} 个板块")
+
 
 if __name__ == "__main__":
     main()

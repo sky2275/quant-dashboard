@@ -6,67 +6,251 @@
     <title>📊 量化交易看板 · 2026-07-25</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0b0e14; color: #e8edf5; font-family: -apple-system, sans-serif; padding: 20px; }
-        .dashboard { max-width: 1200px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid #2a2f3a; margin-bottom: 24px; flex-wrap: wrap; }
-        .header h1 { font-size: 24px; background: linear-gradient(135deg, #4fc3f7, #81c784); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .header .date { color: #8892a0; font-size: 14px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { background: #141a24; border-radius: 12px; padding: 18px 20px; border: 1px solid #232833; }
+        body {
+            background: #0b0e14;
+            color: #e8edf5;
+            font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+            padding: 16px;
+        }
+        .dashboard { max-width: 1400px; margin: 0 auto; }
+        
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 0; border-bottom: 1px solid #2a2f3a;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+        }
+        .header h1 {
+            font-size: 22px;
+            background: linear-gradient(135deg, #4fc3f7, #81c784);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .header .date { color: #8892a0; font-size: 13px; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card {
+            background: #141a24; border-radius: 10px; padding: 16px 18px;
+            border: 1px solid #232833;
+        }
         .card-full { grid-column: span 2; }
-        .card-title { font-size: 14px; font-weight: 600; color: #8892a0; margin-bottom: 14px; }
-        .market-row { display: flex; flex-wrap: wrap; gap: 16px 30px; }
+        .card-title {
+            font-size: 13px; font-weight: 600; color: #8892a0;
+            margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+        }
+        .card-title .badge {
+            background: #1b3a2a; color: #81c784; padding: 0 10px;
+            border-radius: 10px; font-size: 10px;
+        }
+        
+        .market-row { display: flex; flex-wrap: wrap; gap: 12px 24px; }
+        .market-item .label { color: #8892a0; font-size: 12px; }
+        .market-item .value { font-size: 16px; font-weight: 600; }
         .green { color: #81c784; }
         .red { color: #e57373; }
         .yellow { color: #ffd54f; }
-        .tag { display: inline-block; padding: 0 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+        
+        .flow-table { width: 100%; font-size: 12px; border-collapse: collapse; }
+        .flow-table td, .flow-table th { padding: 4px 6px; border-bottom: 1px solid #1e2430; }
+        .flow-table th { color: #8892a0; font-weight: 500; text-align: left; }
+        .pos { color: #81c784; }
+        .neg { color: #e57373; }
+        
+        .position-table { width: 100%; font-size: 12px; border-collapse: collapse; }
+        .position-table th, .position-table td { padding: 6px 4px; border-bottom: 1px solid #1e2430; text-align: left; }
+        .position-table th { color: #8892a0; font-weight: 500; }
+        
+        .tag {
+            display: inline-block; padding: 0 8px; border-radius: 10px;
+            font-size: 10px; font-weight: 500;
+        }
         .tag.buy { background: #1b3a2a; color: #81c784; }
         .tag.sell { background: #3a1b1b; color: #e57373; }
         .tag.hold { background: #2a2a1b; color: #ffd54f; }
-        .position-table { width: 100%; font-size: 13px; border-collapse: collapse; }
-        .position-table th, .position-table td { padding: 6px 4px; border-bottom: 1px solid #1e2430; text-align: left; }
-        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } .card-full { grid-column: span 1; } }
+        
+        .flex-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .flex-3col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        
+        .transmission-card {
+            background: #1a1f2a; border-radius: 8px; padding: 10px 12px;
+            border-left: 3px solid #4fc3f7;
+        }
+        .transmission-card .sector { font-weight: 600; font-size: 13px; }
+        .transmission-card .strength { font-size: 12px; }
+        .transmission-card .impact { color: #8892a0; font-size: 12px; }
+        
+        .task-list { list-style: none; padding: 0; }
+        .task-list li {
+            padding: 4px 0; font-size: 13px; color: #c8d0dc;
+            padding-left: 18px; position: relative;
+        }
+        .task-list li::before { content: "▸"; position: absolute; left: 0; color: #4fc3f7; }
+        
+        .footer {
+            margin-top: 20px; text-align: center; font-size: 11px;
+            color: #3a4050; border-top: 1px solid #1e2430; padding-top: 14px;
+        }
+        
+        .scroll-table {
+            max-height: 300px; overflow-y: auto;
+        }
+        .scroll-table::-webkit-scrollbar { width: 4px; }
+        .scroll-table::-webkit-scrollbar-track { background: #141a24; }
+        .scroll-table::-webkit-scrollbar-thumb { background: #2a2f3a; border-radius: 4px; }
+        
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+            .card-full { grid-column: span 1; }
+            .flex-2col, .flex-3col { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 <div class="dashboard">
+
     <div class="header">
-        <h1>📊 量化交易系统 · 每日看板</h1>
-        <span class="date">2026-07-25 ✅ 自动更新</span>
+        <h1>📊 量化交易系统 · 完整看板</h1>
+        <span class="date">2026-07-25 <span class="badge" style="background:#1b3a2a;color:#81c784;padding:2px 10px;border-radius:10px;font-size:11px;">✅ 自动更新</span></span>
     </div>
+
     <div class="grid">
+
+        <!-- ① 大盘行情 -->
         <div class="card card-full">
-            <div class="card-title">① 大盘行情</div>
-            <div class="market-row">
-                <div><span style="color:#8892a0;">上证指数</span> <span class="value red">3814.20</span> <span class="red">-1.61%</span></div>
-                <div><span style="color:#8892a0;">深证成指</span> <span class="value red">13774.68</span> <span class="red">-2.47%</span></div>
-                <div><span style="color:#8892a0;">成交额</span> <span class="value yellow">19444亿</span></div>
-                <div><span style="color:#8892a0;">涨跌家数</span> <span class="value green">555</span>/<span class="value red">4940</span></div>
-                <div><span style="color:#8892a0;">涨停/跌停</span> <span class="value green">42</span>/<span class="value red">25</span></div>
+            <div class="card-title">① 全球大盘行情</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div>
+                    <div style="color:#8892a0;font-size:11px;margin-bottom:6px;">🇨🇳 A股</div>
+                    <div class="market-row" style="gap:8px 16px;">
+                        <div class="market-item"><span class="label">上证</span><span class="value red">3814.20</span><span class="red">-1.61%</span></div>
+                        <div class="market-item"><span class="label">深证</span><span class="value red">13774.68</span><span class="red">-2.47%</span></div>
+                        <div class="market-item"><span class="label">创业板</span><span class="value red">3575.52</span><span class="red">-0.25%</span></div>
+                        <div class="market-item"><span class="label">科创50</span><span class="value red">1789.69</span><span class="red">-3.78%</span></div>
+                        <div class="market-item"><span class="label">成交额</span><span class="value yellow">19444亿</span></div>
+                        <div class="market-item"><span class="label">涨跌</span><span class="value green">555</span> / <span class="value red">4940</span></div>
+                        <div class="market-item"><span class="label">涨停/跌停</span><span class="value green">42</span> / <span class="value red">25</span></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="color:#8892a0;font-size:11px;margin-bottom:6px;">🇺🇸 美股 (隔夜)</div>
+                    <div class="market-row" style="gap:8px 16px;">
+                        <div class="market-item"><span class="label">纳斯达克</span><span class="value red">25137.69</span><span class="red">-2.15%</span></div>
+                        <div class="market-item"><span class="label">费城半导体</span><span class="value red">11856.16</span><span class="red">-4.05%</span></div>
+                        <div class="market-item"><span class="label">科技七巨头</span><span class="value red">-4.80%</span></div>
+                        <div class="market-item"><span class="label">英伟达</span><span class="value red">-2.18%</span></div>
+                        <div class="market-item"><span class="label">苹果</span><span class="value red">-0.56%</span></div>
+                        <div class="market-item"><span class="label">美光</span><span class="value green">+3.00%</span></div>
+                        <div class="market-item"><span class="label">SK海力士</span><span class="value green">+2.50%</span></div>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- ② 美股→A股传导预测 -->
         <div class="card card-full">
-            <div class="card-title">② 持仓复盘 <span style="color:#8892a0;font-weight:400;">总盈亏 -3,267</span></div>
-            <table class="position-table">
+            <div class="card-title">② 美股 → A股 传导预测</div>
+            <div class="flex-3col">
+                
+                <div class="transmission-card" style="border-left-color: #81c784;">
+                    <div class="sector">半导体/存储</div>
+                    <div class="strength">🔥🔥🔥 极强</div>
+                    <div class="impact">费城半导体-4.05%，但存储个股逆势上涨3%</div>
+                    <div style="color:#8892a0;font-size:11px;margin-top:4px;">→ 分化，存储方向偏强</div>
+                </div>
+                
+                <div class="transmission-card" style="border-left-color: #e57373;">
+                    <div class="sector">光模块</div>
+                    <div class="strength">🔴 偏空</div>
+                    <div class="impact">Coherent-5.2%，Lumentum-3.8%</div>
+                    <div style="color:#8892a0;font-size:11px;margin-top:4px;">→ 短期承压，等待企稳</div>
+                </div>
+                
+                <div class="transmission-card" style="border-left-color: #e57373;">
+                    <div class="sector">科技巨头</div>
+                    <div class="strength">🔴 偏空</div>
+                    <div class="impact">科技七巨头-4.8%，市值蒸发7970亿</div>
+                    <div style="color:#8892a0;font-size:11px;margin-top:4px;">→ A股科技股情绪承压</div>
+                </div>
+                
+                <div class="transmission-card" style="border-left-color: #ffd54f;">
+                    <div class="sector">物理AI/机器人</div>
+                    <div class="strength">🟡 中性</div>
+                    <div class="impact">工业自动化方向相对抗跌</div>
+                    <div style="color:#8892a0;font-size:11px;margin-top:4px;">→ 关注国内机器人政策催化</div>
+                </div>
+                
+                <div class="transmission-card" style="border-left-color: #ffd54f;">
+                    <div class="sector">苹果供应链</div>
+                    <div class="strength">🟡 中性偏弱</div>
+                    <div class="impact">苹果-0.56%，相对抗跌</div>
+                    <div style="color:#8892a0;font-size:11px;margin-top:4px;">→ 果链短期承压但有限</div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- ③ A股热力全景图 -->
+        <div class="card card-full">
+            <div class="card-title">③ A股热力全景图 · 资金流向前10名 <span class="badge" style="background:#2a2a1b;color:#ffd54f;">Top 10</span></div>
+            <div style="overflow-x:auto;">
+                <table class="flow-table" style="width:100%;">
+                    <thead>
+                        <tr><th>排名</th><th>股票</th><th>板块</th><th>净流入(亿)</th><th>涨跌幅</th><th>趋势</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>通富微电</td><td>封测</td><td class="pos">+24.25</td><td style="color:#81c784;">+9.77%</td><td><span class="tag buy">🟢 强势</span></td></tr><tr><td>2</td><td>华天科技</td><td>封测</td><td class="pos">+6.93</td><td style="color:#81c784;">+5.09%</td><td><span class="tag buy">🟢 强势</span></td></tr><tr><td>3</td><td>中微公司</td><td>设备</td><td class="pos">+6.48</td><td style="color:#81c784;">+3.54%</td><td><span class="tag buy">🟢 强势</span></td></tr><tr><td>4</td><td>深科技</td><td>存储封装</td><td class="pos">+5.86</td><td style="color:#81c784;">+7.42%</td><td><span class="tag buy">🟢 强势</span></td></tr><tr><td>5</td><td>蓝思科技</td><td>消费电子</td><td class="pos">+4.82</td><td style="color:#81c784;">+2.02%</td><td><span class="tag buy">🟢 强势</span></td></tr><tr><td>6</td><td>雅克科技</td><td>材料</td><td class="pos">+4.08</td><td style="color:#81c784;">+3.27%</td><td><span class="tag buy">🟢 强势</span></td></tr><tr><td>7</td><td>长川科技</td><td>设备</td><td class="pos">+3.63</td><td style="color:#81c784;">+4.21%</td><td><span class="tag buy">🟢 强势</span></td></tr><tr><td>8</td><td>全志科技</td><td>芯片设计</td><td class="pos">+3.19</td><td style="color:#81c784;">+1.89%</td><td><span class="tag buy">🟢 强势</span></td></tr><tr><td>9</td><td>高德红外</td><td>军工电子</td><td class="pos">+2.49</td><td style="color:#81c784;">+4.36%</td><td><span class="tag buy">🟢 强势</span></td></tr><tr><td>10</td><td>江丰电子</td><td>材料</td><td class="pos">+2.37</td><td style="color:#81c784;">+0.74%</td><td><span class="tag buy">🟢 强势</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top:10px;font-size:11px;color:#8892a0;">
+                📌 半导体板块连续3日主力净流入，封测方向最强
+            </div>
+        </div>
+
+        <!-- ④ 持仓复盘 -->
+        <div class="card card-full">
+            <div class="card-title">④ 持仓复盘 <span style="color:#8892a0;font-weight:400;font-size:12px;">总盈亏 -3,267</span></div>
+            <table class="position-table" style="width:100%;">
                 <thead><tr><th>股票</th><th>持仓</th><th>成本</th><th>现价</th><th>盈亏</th><th>操作</th></tr></thead>
                 <tbody>
-                    <tr><td>永安行</td><td>2300</td><td>18.57</td><td>18.35</td><td style="color:#e57373;">-506</td><td><span class="tag hold">🟡观察</span></td></tr><tr><td>征和工业</td><td>1800</td><td>58.28</td><td>68.90</td><td style="color:#81c784;">+19,116</td><td><span class="tag buy">🟢持有</span></td></tr><tr><td>长电科技</td><td>1300</td><td>84.48</td><td>82.90</td><td style="color:#e57373;">-2,054</td><td><span class="tag hold">🟡观察</span></td></tr><tr><td>北京君正</td><td>2300</td><td>151.94</td><td>143.65</td><td style="color:#e57373;">-19,067</td><td><span class="tag hold">🟡观察</span></td></tr><tr><td>通富微电</td><td>200</td><td>73.60</td><td>69.82</td><td style="color:#e57373;">-756</td><td><span class="tag hold">🟡观察</span></td></tr>
+                    <tr><td>永安行</td><td>2300</td><td>18.57</td><td>18.35</td><td style="color:#e57373;">-506</td><td><span class="tag hold">🔴减仓</span></td></tr><tr><td>征和工业</td><td>1800</td><td>58.28</td><td>68.90</td><td style="color:#81c784;">+19,116</td><td><span class="tag buy">🟢持有</span></td></tr><tr><td>长电科技</td><td>1300</td><td>84.48</td><td>82.90</td><td style="color:#e57373;">-2,054</td><td><span class="tag hold">🔴减仓</span></td></tr><tr><td>北京君正</td><td>2300</td><td>151.94</td><td>143.65</td><td style="color:#e57373;">-19,067</td><td><span class="tag sell">🔴清仓</span></td></tr><tr><td>通富微电</td><td>200</td><td>73.60</td><td>69.82</td><td style="color:#e57373;">-756</td><td><span class="tag hold">🔴减仓</span></td></tr>
                 </tbody>
             </table>
         </div>
+
+        <!-- ⑤ 核心判断 -->
         <div class="card card-full">
-            <div class="card-title">③ 核心判断</div>
-            <div style="color:#81c784;font-size:14px;">✅ 半导体连续3日主力净流入 · 通富微电净流入24.25亿</div>
-            <div style="color:#e57373;font-size:14px;margin-top:6px;">⚠️ 大盘连续3日下跌 · 北京君正143支撑关键</div>
-            <div style="margin-top:10px;padding:10px 14px;background:#1a1f2a;border-radius:8px;">
-                <div style="color:#4fc3f7;">🎯 核心任务</div>
-                <div style="font-size:13px;color:#c8d0dc;">永安行反抽18.50以上清仓 · 长电科技/征和工业持有 · 北京君正跌破143减仓</div>
+            <div class="card-title">⑤ 核心判断</div>
+            <div class="flex-2col">
+                <div>
+                    <div style="color:#81c784;font-size:12px;">✅ 主线方向</div>
+                    <div style="font-size:13px;padding:4px 0;">半导体连续3日主力净流入，封测方向最强</div>
+                    <div style="font-size:13px;padding:4px 0;">通富微电净流入24.25亿，华天科技+6.93亿</div>
+                    <div style="font-size:13px;padding:4px 0;">存储芯片逆势走强（美光+3%）</div>
+                </div>
+                <div>
+                    <div style="color:#e57373;font-size:12px;">⚠️ 风险提示</div>
+                    <div style="font-size:13px;padding:4px 0;">大盘连续3日下跌，成交额创三个月新低</div>
+                    <div style="font-size:13px;padding:4px 0;">北京君正143支撑关键，跌破需减仓</div>
+                    <div style="font-size:13px;padding:4px 0;">光模块持续承压，新易盛净流出14.84亿</div>
+                </div>
+            </div>
+            <div style="margin-top:10px;padding:10px 14px;background:#1a1f2a;border-radius:6px;">
+                <div style="color:#4fc3f7;font-size:12px;">🎯 核心任务</div>
+                <ul class="task-list">
+                    <li>永安行反抽18.50以上继续清仓</li>
+                    <li>长电科技/征和工业持有，不恐慌割肉</li>
+                    <li>北京君正143支撑，跌破则减仓</li>
+                    <li>关注通富微电回调至70元附近的建仓机会</li>
+                </ul>
             </div>
         </div>
+
     </div>
-    <div style="margin-top:20px;text-align:center;font-size:12px;color:#3a4050;border-top:1px solid #1e2430;padding-top:16px;">
-        量化交易系统 · 数据自动更新 · 策略仅供参考
+
+    <div class="footer">
+        量化交易系统 · 数据自动更新 · 策略仅供参考，投资需谨慎<br>
+        更新时间: 2026-07-25 14:40:01
     </div>
+
 </div>
 </body>
 </html>
