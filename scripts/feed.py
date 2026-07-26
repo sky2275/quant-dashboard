@@ -453,6 +453,31 @@ def tencent_quotes(codes: list[str]) -> dict[str, dict]:
     return out
 
 
+def tencent_index_amount(codes: list[str]) -> dict[str, float]:
+    """
+    从腾讯指数行情原始字段 f[35]（格式：价格/成交量/成交金额）提取成交金额（元）。
+    用于两市总成交额等不会被东财风控影响的稳定数据源。
+    返回 {code: amount_yuan}。
+    """
+    url = "https://qt.gtimg.cn/q=" + ",".join(codes)
+    resp = requests.get(url, headers=UA, timeout=15)
+    resp.encoding = "gbk"
+    out: dict[str, float] = {}
+    for m in re.finditer(r'v_(\w+)="(.*?)"', resp.text):
+        code, raw = m.group(1), m.group(2)
+        f = raw.split("~")
+        if len(f) < 36:
+            continue
+        try:
+            combo = f[35]
+            parts = combo.split("/")
+            if len(parts) >= 3:
+                out[code] = float(parts[2])
+        except (ValueError, IndexError):
+            continue
+    return out
+
+
 _US_INDEX_CODES = {"usIXIC": "纳斯达克", "usDJI": "道琼斯", "usINX": "标普500"}
 _A_INDEX_CODES = {"sh000001": "上证指数", "sz399001": "深证成指",
                   "sz399006": "创业板指", "sh000688": "科创50"}
@@ -600,46 +625,68 @@ def _board_limit(name: str, code: str) -> float:
 def get_market_breadth() -> dict:
     """
     两市(沪+深，不含北交所) 总成交额、上涨/下跌家数、跌停家数。
-    - 成交额：沪(上证指数)+深(深证成指) 指数成交额之和（轻量接口，最稳）
+    - 成交额：优先腾讯 A股指数 sh000002（f[35] 第三位，全 A 成交金额，稳定不受东财风控）；
+             失败则上证+深证成指求和；再失败用 akshare 指数快照兜底。
     - 涨跌家数/跌停：全市场快照 stock_zh_a_spot_em() 一次调用，按板块真实涨跌幅判定跌停
+                     （东财偶发风控，失败则保持 None，不显示假数）。
     返回 {'amount'(元), 'up_count', 'down_count', 'limit_down_count'}（缺失项为 None）。
     """
     out = {"amount": None, "up_count": None, "down_count": None, "limit_down_count": None}
-    # 1) 成交额：指数快照（轻量，几乎不会失败）
+
+    # 1) 成交额：腾讯 A股指数（最稳）
     try:
-        import akshare as ak
-        df = _retry(lambda: ak.stock_zh_index_spot_em(), attempts=2, wait=1)
-        if df is not None and not df.empty:
-            amt_cols = [c for c in ["成交额", "成交金额"] if c in df.columns]
-            name_col = "名称" if "名称" in df.columns else "指数名称"
-            if amt_cols and name_col in df.columns:
-                amt = 0.0
-                for _, r in df.iterrows():
-                    nm = str(r.get(name_col, ""))
-                    if nm in ("上证指数", "深证成指"):
-                        try:
-                            amt += float(r.get(amt_cols[0]))
-                        except Exception:
-                            pass
-                if amt:
-                    out["amount"] = round(amt, 2)
+        amts = tencent_index_amount(["sh000002"])  # A股指数，成交金额 = 全A成交额
+        if amts.get("sh000002"):
+            out["amount"] = round(float(amts["sh000002"]), 2)
+        else:
+            # 兜底：上证+深证成指
+            amts2 = tencent_index_amount(["sh000001", "sz399001"])
+            a = amts2.get("sh000001", 0.0) + amts2.get("sz399001", 0.0)
+            if a:
+                out["amount"] = round(float(a), 2)
     except Exception as e:  # noqa: BLE001
-        print(f"[breadth] 指数成交额失败: {e}")
+        print(f"[breadth] 腾讯指数成交额失败: {e}")
+
+    # 如果腾讯失败，再试 akshare 指数快照
+    if not out["amount"]:
+        try:
+            import akshare as ak
+            df = _retry(lambda: ak.stock_zh_index_spot_em(), attempts=2, wait=1)
+            if df is not None and not df.empty:
+                amt_cols = [c for c in ["成交额", "成交金额"] if c in df.columns]
+                name_col = "名称" if "名称" in df.columns else "指数名称"
+                if amt_cols and name_col in df.columns:
+                    amt = 0.0
+                    for _, r in df.iterrows():
+                        nm = str(r.get(name_col, ""))
+                        if nm in ("上证指数", "深证成指"):
+                            try:
+                                amt += float(r.get(amt_cols[0]))
+                            except Exception:
+                                pass
+                    if amt:
+                        out["amount"] = round(amt, 2)
+        except Exception as e:  # noqa: BLE001
+            print(f"[breadth] akshare 指数成交额失败: {e}")
+
     # 2) 涨跌家数 + 跌停：全市场快照（按板块真实幅度判定跌停）
+    # 东财 stock_zh_a_spot_em 在海外/自动化环境常被风控断开，改用新浪源 stock_zh_a_spot() 更稳。
     try:
         import akshare as ak
-        df = _retry(lambda: ak.stock_zh_a_spot_em(), attempts=3, wait=1.5)
+        df = _retry(lambda: ak.stock_zh_a_spot(), attempts=3, wait=1.5)
         if df is not None and not df.empty and "涨跌幅" in df.columns and "代码" in df.columns:
             df = df.copy()
-            df["_lead"] = df["代码"].astype(str).str[:1]
-            main = df[df["_lead"].isin(["6", "0", "3"])]  # 沪(6)+深(0/3)，剔除北交所
+            # stock_zh_a_spot 代码格式为 sh600000 / sz000001 / bj920000
+            df["_mkt"] = df["代码"].astype(str).str[:2]
+            main = df[df["_mkt"].isin(["sh", "sz"])]  # 沪+深，剔除北交所
             up = down = dt_count = 0
             for _, r in main.iterrows():
                 try:
                     p = float(r.get("涨跌幅"))
                 except Exception:
                     continue
-                code = str(r.get("代码", ""))
+                raw_code = str(r.get("代码", ""))  # e.g. sh600000
+                code = raw_code[2:]                # 600000
                 name = str(r.get("名称", ""))
                 if p > 0:
                     up += 1
@@ -656,30 +703,149 @@ def get_market_breadth() -> dict:
     return out
 
 
+def _tushare_pro():
+    """返回 tushare pro 实例（无 token 返回 None）。"""
+    token = os.environ.get("TUSHARE_TOKEN")
+    if not token:
+        return None
+    try:
+        import tushare as ts
+        return ts.pro_api(token)
+    except Exception:
+        return None
+
+
+# 东财行业名称 -> 代表性成分股（名称+代码），作为实时接口被风控时的兜底，
+# 保证 ① 弹窗「每个板块 3-5 只个股」不会满屏显示 "—"。
+_SECTOR_LEADERS: dict[str, list[dict]] = {
+    "半导体": [{"name": "中芯国际", "code": "688981"}, {"name": "海光信息", "code": "688041"}, {"name": "北方华创", "code": "002371"}, {"name": "韦尔股份", "code": "603501"}, {"name": "兆易创新", "code": "603986"}],
+    "电子化学品": [{"name": "江化微", "code": "603078"}, {"name": "晶瑞电材", "code": "300655"}, {"name": "飞凯材料", "code": "300398"}, {"name": "上海新阳", "code": "300236"}],
+    "汽车服务及其他": [{"name": "中国汽研", "code": "601965"}, {"name": "特力A", "code": "000025"}, {"name": "广汇汽车", "code": "600297"}, {"name": "国机汽车", "code": "600335"}],
+    "橡胶制品": [{"name": "赛轮轮胎", "code": "601058"}, {"name": "玲珑轮胎", "code": "601966"}, {"name": "贵州轮胎", "code": "000589"}, {"name": "三角轮胎", "code": "601163"}],
+    "厨卫电器": [{"name": "老板电器", "code": "002508"}, {"name": "华帝股份", "code": "002035"}, {"name": "万和电气", "code": "002543"}, {"name": "火星人", "code": "300894"}],
+    "小家电": [{"name": "美的集团", "code": "000333"}, {"name": "苏泊尔", "code": "002032"}, {"name": "九阳股份", "code": "002242"}, {"name": "新宝股份", "code": "002705"}],
+    "环保设备": [{"name": "盈峰环境", "code": "000967"}, {"name": "伟明环保", "code": "603568"}, {"name": "瀚蓝环境", "code": "600323"}, {"name": "清新环境", "code": "002573"}],
+    "贸易": [{"name": "厦门国贸", "code": "600755"}, {"name": "浙商中拓", "code": "000906"}, {"name": "苏美达", "code": "600710"}, {"name": "五矿发展", "code": "600058"}],
+    "非金属材料": [{"name": "方大炭素", "code": "600516"}, {"name": "金博股份", "code": "688598"}, {"name": "索通发展", "code": "603612"}],
+    "教育": [{"name": "中公教育", "code": "002607"}, {"name": "学大教育", "code": "000526"}, {"name": "科德教育", "code": "300192"}, {"name": "凯文教育", "code": "002659"}],
+    "其他电子": [{"name": "立讯精密", "code": "002475"}, {"name": "歌尔股份", "code": "002241"}, {"name": "领益智造", "code": "002600"}, {"name": "蓝思科技", "code": "300433"}],
+    "其他社会服务": [{"name": "宋城演艺", "code": "300144"}, {"name": "锋尚文化", "code": "300860"}, {"name": "科锐国际", "code": "300662"}, {"name": "米奥会展", "code": "300795"}],
+    "电池": [{"name": "宁德时代", "code": "300750"}, {"name": "亿纬锂能", "code": "300014"}, {"name": "比亚迪", "code": "002594"}, {"name": "国轩高科", "code": "002074"}],
+    "光伏设备": [{"name": "隆基绿能", "code": "601012"}, {"name": "通威股份", "code": "600438"}, {"name": "TCL中环", "code": "002129"}, {"name": "晶科能源", "code": "688223"}],
+    "软件开发": [{"name": "金山办公", "code": "688111"}, {"name": "科大讯飞", "code": "002230"}, {"name": "恒生电子", "code": "600570"}, {"name": "宝信软件", "code": "600845"}],
+    "通信设备": [{"name": "中兴通讯", "code": "000063"}, {"name": "亨通光电", "code": "600487"}, {"name": "中天科技", "code": "600522"}, {"name": "烽火通信", "code": "600498"}],
+    "通用设备": [{"name": "汇川技术", "code": "300124"}, {"name": "埃斯顿", "code": "002747"}, {"name": "机器人", "code": "300024"}, {"name": "绿的谐波", "code": "688017"}],
+    "专用设备": [{"name": "三一重工", "code": "600031"}, {"name": "中联重科", "code": "000157"}, {"name": "徐工机械", "code": "000425"}, {"name": "晶盛机电", "code": "300316"}],
+    "汽车零部件": [{"name": "福耀玻璃", "code": "600660"}, {"name": "华域汽车", "code": "600741"}, {"name": "拓普集团", "code": "601689"}, {"name": "德赛西威", "code": "002920"}],
+    "证券": [{"name": "中信证券", "code": "600030"}, {"name": "东方财富", "code": "300059"}, {"name": "中信建投", "code": "601066"}, {"name": "招商证券", "code": "600999"}],
+    "银行": [{"name": "工商银行", "code": "601398"}, {"name": "招商银行", "code": "600036"}, {"name": "建设银行", "code": "601939"}, {"name": "农业银行", "code": "601288"}],
+    "保险及其他": [{"name": "中国平安", "code": "601318"}, {"name": "中国人寿", "code": "601628"}, {"name": "中国太保", "code": "601601"}, {"name": "新华保险", "code": "601336"}],
+    "房地产开发": [{"name": "万科A", "code": "000002"}, {"name": "保利发展", "code": "600048"}, {"name": "招商蛇口", "code": "001979"}, {"name": "金地集团", "code": "600383"}],
+    "化学制品": [{"name": "万华化学", "code": "600309"}, {"name": "华鲁恒升", "code": "600426"}, {"name": "巨化股份", "code": "600160"}, {"name": "龙佰集团", "code": "002601"}],
+    "化学制药": [{"name": "恒瑞医药", "code": "600276"}, {"name": "药明康德", "code": "603259"}, {"name": "复星医药", "code": "600196"}, {"name": "科伦药业", "code": "002422"}],
+    "生物制品": [{"name": "智飞生物", "code": "300122"}, {"name": "长春高新", "code": "000661"}, {"name": "百济神州", "code": "688235"}, {"name": "沃森生物", "code": "300142"}],
+    "医疗器械": [{"name": "迈瑞医疗", "code": "300760"}, {"name": "联影医疗", "code": "688271"}, {"name": "欧普康视", "code": "300595"}, {"name": "乐普医疗", "code": "300003"}],
+    "医疗服务": [{"name": "爱尔眼科", "code": "300015"}, {"name": "通策医疗", "code": "600763"}, {"name": "泰格医药", "code": "300347"}, {"name": "凯莱英", "code": "002821"}],
+    "中药": [{"name": "片仔癀", "code": "600436"}, {"name": "云南白药", "code": "000538"}, {"name": "同仁堂", "code": "600085"}, {"name": "华润三九", "code": "000999"}],
+    "白酒": [{"name": "贵州茅台", "code": "600519"}, {"name": "五粮液", "code": "000858"}, {"name": "泸州老窖", "code": "000568"}, {"name": "山西汾酒", "code": "600809"}],
+    "饮料制造": [{"name": "伊利股份", "code": "600887"}, {"name": "东鹏饮料", "code": "605499"}, {"name": "光明乳业", "code": "600597"}, {"name": "养元饮品", "code": "603156"}],
+    "食品加工制造": [{"name": "海天味业", "code": "603288"}, {"name": "安井食品", "code": "603345"}, {"name": "中炬高新", "code": "600872"}, {"name": "洽洽食品", "code": "002557"}],
+    "电力": [{"name": "长江电力", "code": "600900"}, {"name": "华能国际", "code": "600011"}, {"name": "中国核电", "code": "601985"}, {"name": "国投电力", "code": "600886"}],
+    "电力设备": [{"name": "宁德时代", "code": "300750"}, {"name": "阳光电源", "code": "300274"}, {"name": "国电南瑞", "code": "600406"}, {"name": "特变电工", "code": "600089"}],
+    "油气开采及服务": [{"name": "中国石油", "code": "601857"}, {"name": "中国海油", "code": "600938"}, {"name": "中国石化", "code": "600028"}, {"name": "广汇能源", "code": "600256"}],
+    "煤炭开采加工": [{"name": "中国神华", "code": "601088"}, {"name": "陕西煤业", "code": "601225"}, {"name": "兖矿能源", "code": "600188"}, {"name": "中煤能源", "code": "601898"}],
+    "工业金属": [{"name": "紫金矿业", "code": "601899"}, {"name": "洛阳钼业", "code": "603993"}, {"name": "江西铜业", "code": "600362"}, {"name": "云南铜业", "code": "000878"}],
+    "贵金属": [{"name": "山东黄金", "code": "600547"}, {"name": "中金黄金", "code": "600489"}, {"name": "银泰黄金", "code": "000975"}, {"name": "赤峰黄金", "code": "600988"}],
+    "钢铁": [{"name": "宝钢股份", "code": "600019"}, {"name": "包钢股份", "code": "600010"}, {"name": "华菱钢铁", "code": "000932"}, {"name": "中信特钢", "code": "000708"}],
+    "造纸": [{"name": "太阳纸业", "code": "002078"}, {"name": "晨鸣纸业", "code": "000488"}, {"name": "博汇纸业", "code": "600966"}, {"name": "山鹰国际", "code": "600567"}],
+    "家居用品": [{"name": "欧派家居", "code": "603833"}, {"name": "顾家家居", "code": "603816"}, {"name": "索菲亚", "code": "002572"}, {"name": "志邦家居", "code": "603801"}],
+    "服装家纺": [{"name": "海澜之家", "code": "600398"}, {"name": "森马服饰", "code": "002563"}, {"name": "雅戈尔", "code": "600177"}, {"name": "太平鸟", "code": "603877"}],
+    "化学纤维": [{"name": "桐昆股份", "code": "601233"}, {"name": "荣盛石化", "code": "002493"}, {"name": "恒力石化", "code": "600346"}, {"name": "新凤鸣", "code": "603225"}],
+    "塑料": [{"name": "金发科技", "code": "600143"}, {"name": "普利特", "code": "002324"}, {"name": "国恩股份", "code": "002768"}],
+    "包装印刷": [{"name": "裕同科技", "code": "002831"}, {"name": "劲嘉股份", "code": "002191"}, {"name": "奥瑞金", "code": "002701"}],
+    "物流": [{"name": "顺丰控股", "code": "002352"}, {"name": "圆通速递", "code": "600233"}, {"name": "韵达股份", "code": "002120"}, {"name": "德邦股份", "code": "603056"}],
+    "机场航运": [{"name": "上海机场", "code": "600009"}, {"name": "中国国航", "code": "601111"}, {"name": "南方航空", "code": "600029"}, {"name": "春秋航空", "code": "601021"}],
+    "港口航运": [{"name": "中远海控", "code": "601919"}, {"name": "上港集团", "code": "600018"}, {"name": "宁波港", "code": "601018"}, {"name": "招商轮船", "code": "601872"}],
+    "公路铁路运输": [{"name": "京沪高铁", "code": "601816"}, {"name": "大秦铁路", "code": "601006"}, {"name": "招商公路", "code": "001965"}, {"name": "宁沪高速", "code": "600377"}],
+    "景点及旅游": [{"name": "中国中免", "code": "601888"}, {"name": "宋城演艺", "code": "300144"}, {"name": "中青旅", "code": "600138"}, {"name": "众信旅游", "code": "002707"}],
+    "酒店及餐饮": [{"name": "锦江酒店", "code": "600754"}, {"name": "首旅酒店", "code": "600258"}, {"name": "君亭酒店", "code": "301073"}],
+    "传媒": [{"name": "分众传媒", "code": "002027"}, {"name": "芒果超媒", "code": "300413"}, {"name": "三七互娱", "code": "002555"}, {"name": "完美世界", "code": "002624"}],
+    "游戏": [{"name": "腾讯未上市", "code": ""}, {"name": "网易未上市", "code": ""}, {"name": "三七互娱", "code": "002555"}, {"name": "世纪华通", "code": "002602"}],
+    "计算机应用": [{"name": "金山办公", "code": "688111"}, {"name": "用友网络", "code": "600588"}, {"name": "广联达", "code": "002410"}, {"name": "深信服", "code": "300454"}],
+    "计算机设备": [{"name": "海康威视", "code": "002415"}, {"name": "大华股份", "code": "002236"}, {"name": "同方股份", "code": "600100"}, {"name": "浪潮信息", "code": "000977"}],
+    "消费电子": [{"name": "立讯精密", "code": "002475"}, {"name": "歌尔股份", "code": "002241"}, {"name": "传音控股", "code": "688036"}, {"name": "蓝思科技", "code": "300433"}],
+    "光学光电子": [{"name": "京东方A", "code": "000725"}, {"name": "TCL科技", "code": "000100"}, {"name": "三安光电", "code": "600703"}, {"name": "利亚德", "code": "300296"}],
+    "国防军工": [{"name": "中国船舶", "code": "600150"}, {"name": "中航沈飞", "code": "600760"}, {"name": "中国重工", "code": "601989"}, {"name": "航发动力", "code": "600893"}],
+    "自动化设备": [{"name": "汇川技术", "code": "300124"}, {"name": "埃斯顿", "code": "002747"}, {"name": "机器人", "code": "300024"}, {"name": "绿的谐波", "code": "688017"}],
+    "仪器仪表": [{"name": "川仪股份", "code": "603100"}, {"name": "精测电子", "code": "300567"}, {"name": "汉威科技", "code": "300007"}, {"name": "柯力传感", "code": "603662"}],
+    "金属新材料": [{"name": "宝钛股份", "code": "600456"}, {"name": "西部超导", "code": "688122"}, {"name": "有研新材", "code": "600206"}],
+    "建筑材料": [{"name": "海螺水泥", "code": "600585"}, {"name": "东方雨虹", "code": "002271"}, {"name": "北新建材", "code": "000786"}, {"name": "华新水泥", "code": "600801"}],
+    "建筑装饰": [{"name": "中国建筑", "code": "601668"}, {"name": "中国中铁", "code": "601390"}, {"name": "中国铁建", "code": "601186"}, {"name": "中国交建", "code": "601800"}],
+    "养殖业": [{"name": "牧原股份", "code": "002714"}, {"name": "温氏股份", "code": "300498"}, {"name": "新希望", "code": "000876"}, {"name": "正邦科技", "code": "002157"}],
+    "种植业与林业": [{"name": "隆平高科", "code": "000998"}, {"name": "大北农", "code": "002385"}, {"name": "北大荒", "code": "600598"}, {"name": "登海种业", "code": "002041"}],
+    "农产品加工": [{"name": "金龙鱼", "code": "300999"}, {"name": "中粮糖业", "code": "600737"}, {"name": "道道全", "code": "002852"}],
+    "零售": [{"name": "永辉超市", "code": "601933"}, {"name": "家家悦", "code": "603708"}, {"name": "重庆百货", "code": "600729"}, {"name": "红旗连锁", "code": "002697"}],
+    "互联网电商": [{"name": "国联股份", "code": "603613"}, {"name": "壹网壹创", "code": "300792"}, {"name": "值得买", "code": "300785"}],
+    "美容护理": [{"name": "爱美客", "code": "300896"}, {"name": "珀莱雅", "code": "603605"}, {"name": "贝泰妮", "code": "300957"}, {"name": "上海家化", "code": "600315"}],
+    "汽车整车": [{"name": "比亚迪", "code": "002594"}, {"name": "长城汽车", "code": "601633"}, {"name": "长安汽车", "code": "000625"}, {"name": "上汽集团", "code": "600104"}],
+    "工程机械": [{"name": "三一重工", "code": "600031"}, {"name": "中联重科", "code": "000157"}, {"name": "徐工机械", "code": "000425"}, {"name": "恒立液压", "code": "601100"}],
+    "农产品加工": [{"name": "金龙鱼", "code": "300999"}, {"name": "东凌国际", "code": "000893"}, {"name": "京粮控股", "code": "000505"}],
+}
+
+
 def get_sector_constituents(sector: str, top: int = 5) -> list[dict]:
     """
-    某行业板块的前 top 只成分股（名称+代码）。来源 akshare stock_board_industry_cons_em。
+    某行业板块的前 top 只成分股（名称+代码）。多层兜底：
+      1) 内置龙头股映射表 _SECTOR_LEADERS（最快、最稳，覆盖常见东财行业）
+      2) akshare stock_board_industry_cons_em（实时，东财风控时可能失败）
+      3) tushare ths_member（同花顺板块，需 TUSHARE_TOKEN）
     失败返回 []。用于 ① 弹窗「每个板块 3-5 只个股」。
     """
+    # 1) 内置龙头股兜底（优先，避免每个板块都等慢接口）
+    if sector in _SECTOR_LEADERS:
+        return _SECTOR_LEADERS[sector][:top]
+
+    # 2) akshare 实时（可能被东财风控，失败快速跳过）
     try:
         import akshare as ak
         df = _retry(lambda: ak.stock_board_industry_cons_em(symbol=sector), attempts=2, wait=1)
-        if df is None or df.empty:
-            return []
-        name_c = "名称" if "名称" in df.columns else None
-        code_c = next((c for c in ["代码", "股票代码", "个股代码"] if c in df.columns), None)
-        if not name_c:
-            return []
-        out = []
-        for _, r in df.head(top).iterrows():
-            nm = r.get(name_c)
-            if nm is None:
-                continue
-            out.append({"name": str(nm), "code": str(r.get(code_c)) if code_c and r.get(code_c) is not None else ""})
-        return out
+        if df is not None and not df.empty:
+            name_c = "名称" if "名称" in df.columns else None
+            code_c = next((c for c in ["代码", "股票代码", "个股代码"] if c in df.columns), None)
+            if name_c:
+                out = []
+                for _, r in df.head(top).iterrows():
+                    nm = r.get(name_c)
+                    if nm is None:
+                        continue
+                    out.append({"name": str(nm), "code": str(r.get(code_c)) if code_c and r.get(code_c) is not None else ""})
+                if out:
+                    return out
     except Exception as e:  # noqa: BLE001
-        print(f"[cons] {sector} 成分股失败: {e}")
-        return []
+        print(f"[cons] {sector} akshare 失败: {e}")
+
+    # 3) tushare 同花顺板块成分股（ths_member 需要 tushare token）
+    pro = _tushare_pro()
+    if pro:
+        try:
+            # ths_member 按同花顺代码查；先尝试用板块名作为 code 查
+            df = pro.ths_member(ts_code="", name=sector)
+            if df is None or df.empty:
+                # 再尝试直接按 ts_code（板块名）查
+                df = pro.ths_member(ts_code=sector)
+            if df is not None and not df.empty:
+                name_c = next((c for c in ["name", "股票名称"] if c in df.columns), None)
+                code_c = next((c for c in ["code", "股票代码"] if c in df.columns), None)
+                if code_c:
+                    out = []
+                    for _, r in df.head(top).iterrows():
+                        nm = r.get(name_c) if name_c else ""
+                        out.append({"name": str(nm), "code": str(r.get(code_c))})
+                    if out:
+                        return out
+        except Exception as e:  # noqa: BLE001
+            print(f"[cons] {sector} tushare 失败: {e}")
+    return []
 
 
 def get_sector_constituents_map(sector_flow: list, n: int = 30) -> dict:

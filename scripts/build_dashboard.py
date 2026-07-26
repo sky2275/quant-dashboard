@@ -970,10 +970,20 @@ def _section_judge(overnight, snap, cfg, a_quotes):
 # ----------------------------------------------------------------- 弹窗数据（预渲染 html）
 def _flow_in_out(snap):
     sf = snap.get("sector_flow", []) or []
-    cons = snap.get("sector_constituents") or {}
     real = [x for x in sf if isinstance(x, dict) and "error" not in x]
     if not real:
         return None, None
+
+    # 实时取成分股：不依赖缓存里的 sector_constituents（旧缓存可能没有或为空），
+    # 生成 HTML 时直接调用 feed 层，确保弹窗里每个板块都带 3-5 只个股。
+    try:
+        import sys
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import feed
+        cons = feed.get_sector_constituents_map(real, n=30)
+    except Exception:
+        cons = snap.get("sector_constituents") or {}
+
     inp, out = [], []
     for x in real:
         net = x.get("今日主力净流入-净额")
