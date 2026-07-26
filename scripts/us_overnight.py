@@ -69,11 +69,29 @@ def run() -> dict:
             "drivers": drivers,
             "a_candidates": s.get("a_candidates", []),
         })
+    # 数据基准逻辑：若本次全部板块都拿不到数据（休市/接口失败），保留上一次成功缓存（最近交易日收盘）
+    cache_path = os.path.join(feed.CACHE_DIR, "us_overnight.json")
+    all_missing = all(s.get("avg_change") is None for s in sectors_out)
+    if all_missing and os.path.exists(cache_path):
+        try:
+            with open(cache_path, encoding="utf-8") as f:
+                prev = json.load(f)
+            if prev.get("sectors") and any(
+                    s.get("avg_change") is not None for s in prev["sectors"]):
+                print("[fallback] 美股隔夜数据不可用，保留最近交易日缓存")
+                prev["stale"] = True  # 标记为历史收盘数据
+                with open(cache_path, "w", encoding="utf-8") as f:
+                    json.dump(prev, f, ensure_ascii=False, indent=2, default=str)
+                return prev
+        except Exception:
+            pass
+
     result = {
         "updated_at": dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "sectors": sectors_out,
+        "stale": False,
     }
-    with open(os.path.join(feed.CACHE_DIR, "us_overnight.json"), "w", encoding="utf-8") as f:
+    with open(cache_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2, default=str)
     return result
 

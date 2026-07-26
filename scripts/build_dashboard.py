@@ -405,6 +405,24 @@ def _score_cls(v):
 
 
 # ----------------------------------------------------------------- ① 全球大盘行情
+def _trade_mode(snap):
+    """
+    根据快照里的 trade_ctx 返回 (是否交易日, 数据基准日'MM-DD', 徽标HTML)。
+    交易日 -> 绿色『实时』；非交易日 -> 金色『MM-DD 收盘数据 · 今日休市』。
+    """
+    ctx = snap.get("trade_ctx") or {}
+    is_open = ctx.get("is_trade_day")
+    td = str(ctx.get("trade_date") or "")
+    td_fmt = f"{td[4:6]}-{td[6:8]}" if len(td) == 8 else ""
+    if is_open is None:          # 旧快照无该字段，维持原样
+        return True, td_fmt, '<span class="badge">实时</span>'
+    if is_open:
+        return True, td_fmt, '<span class="badge">实时</span>'
+    badge = (f'<span class="badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">'
+             f'{td_fmt} 收盘数据 · 今日休市</span>')
+    return False, td_fmt, badge
+
+
 def _section_global(snap, us_quotes):
     a = snap.get("a_indexes", []) or []
     us = snap.get("us_indices", []) or []
@@ -471,7 +489,7 @@ def _section_global(snap, us_quotes):
         <div class="card card-full" onclick="openModal('market')">
             <div class="card-title">
                 <span class="icon"><i class="fas fa-globe-americas"></i></span> ① 全球大盘行情
-                <span class="badge">实时</span>
+                {_trade_mode(snap)[2]}
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击详情</span>
             </div>
             <div class="market-grid-2col">
@@ -518,11 +536,16 @@ def _section_transmit(overnight):
                         <div style="color:#8892a0;font-size:9px;">A股: {cands or "—"}</div>
                     </div>
                 </div>'''
+    stale_badge = ''
+    if (overnight or {}).get("stale"):
+        ud = str((overnight or {}).get("updated_at", ""))[:10]
+        stale_badge = (f'<span class="badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">'
+                       f'{ud[5:] if len(ud) >= 10 else ud} 收盘数据</span>')
     return f'''
         <div class="card card-full" onclick="openModal('transmission')">
             <div class="card-title">
                 <span class="icon"><i class="fas fa-arrow-right-arrow-left"></i></span> ② 美股 → A股 传导预测
-                <span class="badge">6大板块完整映射</span>
+                <span class="badge">6大板块完整映射</span>{stale_badge}
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看全部</span>
             </div>
             <div class="flex-3col">
@@ -1265,6 +1288,16 @@ def build() -> str:
     except Exception:
         date_val = dt.date.today().strftime("%Y-%m-%d")
 
+    # 交易日/非交易日 状态徽标 + 数据基准说明
+    is_open, td_fmt, _ = _trade_mode(snap)
+    if is_open:
+        status_badge = '<span class="status-badge"><i class="fas fa-check-circle"></i> 数据已更新</span>'
+        basis_txt = "实时数据"
+    else:
+        status_badge = ('<span class="status-badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;">'
+                        f'<i class="fas fa-moon"></i> 休市 · 显示 {td_fmt} 收盘数据</span>')
+        basis_txt = f"今日休市，展示最近交易日 {td_fmt} 收盘数据"
+
     header = f'''
     <div class="header">
         <div class="header-left">
@@ -1276,7 +1309,7 @@ def build() -> str:
                 <span class="icon"><i class="far fa-calendar-alt"></i></span>
                 <input type="date" id="datePicker" value="{date_val}" onchange="loadDate(this.value)">
             </div>
-            <span class="status-badge"><i class="fas fa-check-circle"></i> 数据已更新</span>
+            {status_badge}
         </div>
     </div>'''
 
@@ -1293,7 +1326,7 @@ def build() -> str:
     footer = f'''
     <div class="footer">
         <i class="fas fa-sync-alt"></i> 数据自动更新 · 点击卡片查看详情<br>
-        更新时间: {updated_at} ｜ 来源：腾讯行情 / 东财资金流 / tushare技术指标
+        更新时间: {updated_at} ｜ {basis_txt} ｜ 来源：腾讯行情 / 东财资金流 / tushare技术指标
     </div>'''
 
     modal_shell = '''

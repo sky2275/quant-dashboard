@@ -51,6 +51,59 @@ def _retry(fn: Callable, attempts: int = 3, wait: float = 2.0):
     raise last  # type: ignore[misc]
 
 
+# ---------------------------------------------------------------- 交易日历（tushare → akshare → 周末启发式 三级兜底）
+def get_trade_context(today: dt.date | None = None) -> dict:
+    """
+    判断今天是否 A股交易日，并给出应使用的数据基准日（最近一个交易日）。
+    返回 {"is_trade_day": bool, "trade_date": "YYYYMMDD", "today": "YYYYMMDD", "source": str}
+    - 交易日   -> trade_date = 今天（显示实时数据）
+    - 非交易日 -> trade_date = 最近一个交易日（显示该日收盘数据）
+    """
+    if today is None:
+        today = dt.date.today()
+    today_s = today.strftime("%Y%m%d")
+    start_s = (today - dt.timedelta(days=30)).strftime("%Y%m%d")
+
+    # 1) tushare 官方交易日历（最准确，含节假日）
+    pro = _tushare_pro()
+    if pro:
+        try:
+            cal = pro.trade_cal(exchange="SSE", start_date=start_s, end_date=today_s)
+            if cal is not None and not cal.empty:
+                cal = cal.sort_values("cal_date")
+                open_days = cal[cal["is_open"] == 1]["cal_date"].tolist()
+                if open_days:
+                    is_open = open_days[-1] == today_s
+                    return {"is_trade_day": is_open,
+                            "trade_date": open_days[-1],
+                            "today": today_s, "source": "tushare"}
+        except Exception as e:  # noqa: BLE001
+            print(f"[trade_cal] tushare 失败: {e}")
+
+    # 2) akshare 新浪交易日历
+    try:
+        import akshare as ak
+        df = _retry(lambda: ak.tool_trade_date_hist_sina(), attempts=2, wait=1)
+        if df is not None and not df.empty:
+            days = sorted(str(x).replace("-", "")[:8] for x in df["trade_date"].tolist())
+            past = [d for d in days if d <= today_s]
+            if past:
+                is_open = past[-1] == today_s
+                return {"is_trade_day": is_open,
+                        "trade_date": past[-1],
+                        "today": today_s, "source": "akshare"}
+    except Exception as e:  # noqa: BLE001
+        print(f"[trade_cal] akshare 失败: {e}")
+
+    # 3) 周末启发式（不含节假日，仅兜底）
+    d = today
+    while d.weekday() >= 5:  # 周六=5 周日=6
+        d -= dt.timedelta(days=1)
+    return {"is_trade_day": today.weekday() < 5,
+            "trade_date": d.strftime("%Y%m%d"),
+            "today": today_s, "source": "weekday"}
+
+
 # ---------------------------------------------------------------- 技术指标（RSI / 量比）
 def compute_rsi(closes, period: int = 14) -> float | None:
     """Wilder RSI。closes 为收盘价序列（旧→新）。不足 period+1 根返回 None。"""
@@ -576,15 +629,54 @@ def get_a_spot_sample() -> list[dict]:
         return [{"error": str(e)[:120]}]
 
 
+def _is_bad(rows) -> bool:
+    """判断一份列表数据是否『不可用』：空、或全是 error 行。"""
+    if not rows or not isinstance(rows, list):
+        return True
+    real = [x for x in rows if isinstance(x, dict) and "error" not in x]
+    return len(real) == 0
+
+
 def collect_all(date: str | None = None) -> dict:
-    trade_date = (date or dt.date.today().strftime("%Y%m%d"))
-    heatmap = get_a_spot_sample()
+    """
+    数据基准日逻辑：
+    - 交易日   -> 取当日实时/盘中数据
+    - 非交易日 -> 按最近一个交易日取数（涨停板等按日期接口直接传该日）；
+                  排行类接口若拿空，则回退上一次成功缓存（即最后交易日收盘时 Actions 提交的快照）
+    """
+    ctx = get_trade_context()
+    trade_date = date or ctx["trade_date"]
+    prev = _load("market_snapshot") or {}  # 上一次成功快照（回退用）
+
+    def _pick(new_rows, key):
+        """新数据可用就用新的；否则回退旧快照对应字段。"""
+        if not _is_bad(new_rows):
+            return new_rows, False
+        old = prev.get(key)
+        if not _is_bad(old):
+            print(f"[fallback] {key} 取数失败，回退最近交易日缓存")
+            return old, True
+        return new_rows, False
+
+    us_indices, _ = _pick(get_us_indices(), "us_indices")
+    a_indexes, _ = _pick(get_a_indexes(), "a_indexes")
+    sector_flow, sf_stale = _pick(get_sector_fund_flow(), "sector_flow")
+    limit_up, lu_stale = _pick(get_limit_up(trade_date), "limit_up")
+    heatmap, hm_stale = _pick(get_a_spot_sample(), "heatmap")
+
     data = {
         "updated_at": dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "us_indices": get_us_indices(),
-        "a_indexes": get_a_indexes(),
-        "sector_flow": get_sector_fund_flow(),
-        "limit_up": get_limit_up(date),
+        "trade_ctx": {
+            "is_trade_day": ctx["is_trade_day"],
+            "trade_date": trade_date,
+            "source": ctx["source"],
+            "stale_keys": [k for k, s in
+                           [("sector_flow", sf_stale), ("limit_up", lu_stale), ("heatmap", hm_stale)] if s],
+        },
+        "us_indices": us_indices,
+        "a_indexes": a_indexes,
+        "sector_flow": sector_flow,
+        "limit_up": limit_up,
         "heatmap": heatmap,
     }
     _save("market_snapshot", data)
