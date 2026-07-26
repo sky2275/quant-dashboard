@@ -37,7 +37,24 @@ NAME_CODE = {
     "北京君正": "sz300223", "歌尔股份": "sz002241",
 }
 US_SYMS = ["NVDA", "AMD", "TSM", "MU", "COHR", "LITE",
-           "AAPL", "MSFT", "GOOGL", "AMZN", "META", "TSLA", "SOX"]
+           "AAPL", "MSFT", "GOOGL", "AMZN", "META", "TSLA", "SOX",
+           "SOXX", "QQQ", "XLK", "KWEB", "SMH", "BOTZ", "ARKQ"]
+
+# 美股核心指数/相关板块指数的展示映射（中文名 → 代码）
+US_CORE_INDEX = {
+    "纳斯达克": "IXIC", "道琼斯": "DJI", "标普500": "INX",
+    "半导体指数(SOXX)": "SOXX",
+    "纳斯达克100(QQQ)": "QQQ", "科技行业ETF(XLK)": "XLK",
+    "中概互联网ETF(KWEB)": "KWEB",
+}
+US_SECTOR_INDEX = {
+    "半导体ETF(SMH)": "SMH",
+    "光模块(COHR)": "COHR",
+    "光模块(LITE)": "LITE",
+    "机器人/AI ETF(BOTZ)": "BOTZ",
+    "自主科技ETF(ARKQ)": "ARKQ",
+    "苹果供应链(AAPL)": "AAPL",
+}
 
 # ----------------------------------------------------------------- 原版 CSS（1:1 复刻）
 CSS_RULES = """
@@ -1023,6 +1040,50 @@ def _flow_in_out(snap):
     return (inp or None), (out or None)
 
 
+def _a_offensive_strategy(fin, fout):
+    """根据板块资金流入/流出 TOP30 生成未来一周进攻板块分析策略。"""
+    if not fin or not fout:
+        return None
+    top_in = fin[:5]
+    top_out = fout[:5]
+    in_names = "、".join([f"{d['sector']}({d['amount']})" for d in top_in])
+    out_names = "、".join([f"{d['sector']}({d['amount']})" for d in top_out])
+    focus = []
+    for d in top_in[:3]:
+        stocks = d.get("stocks") or []
+        names = [s.get("name", "") for s in stocks[:3] if s.get("name")]
+        if names:
+            focus.append(f"{d['sector']}：{' / '.join(names)}")
+    in_total = sum(d.get("net", 0) for d in top_in)
+    out_total = abs(sum(d.get("net", 0) for d in top_out))
+    if in_total > out_total * 1.2:
+        position = "进攻仓位可保持 6-7 成，重点围绕净流入主线低吸，博弈主线延续。"
+    elif in_total < out_total * 0.8:
+        position = "市场偏防守，建议仓位控制在 3-4 成，优先规避净流出方向，等待情绪企稳。"
+    else:
+        position = "攻守平衡，仓位 5 成左右，跟随板块节奏做轮动，不追高。"
+    focus_html = "<br>".join(focus) if focus else "暂无"
+    return f'''
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div style="background:rgba(239,68,68,0.06);border-radius:8px;padding:10px;border:1px solid rgba(239,68,68,0.12);">
+                <div style="color:#ef4444;font-weight:600;font-size:12px;margin-bottom:4px;">🎯 进攻主线</div>
+                <div style="font-size:11px;color:#c8d0dc;line-height:1.5;">{in_names}</div>
+            </div>
+            <div style="background:rgba(34,197,94,0.06);border-radius:8px;padding:10px;border:1px solid rgba(34,197,94,0.12);">
+                <div style="color:#22c55e;font-weight:600;font-size:12px;margin-bottom:4px;">⚠️ 回避方向</div>
+                <div style="font-size:11px;color:#c8d0dc;line-height:1.5;">{out_names}</div>
+            </div>
+        </div>
+        <div style="background:rgba(245,158,11,0.08);border-radius:8px;padding:10px;border:1px solid rgba(245,158,11,0.15);margin-bottom:12px;">
+            <div style="color:#f59e0b;font-weight:600;font-size:12px;margin-bottom:4px;">📊 仓位建议</div>
+            <div style="font-size:11px;color:#c8d0dc;line-height:1.5;">{position}</div>
+        </div>
+        <div style="background:rgba(79,195,247,0.06);border-radius:8px;padding:10px;border:1px solid rgba(79,195,247,0.12);">
+            <div style="color:#4fc3f7;font-weight:600;font-size:12px;margin-bottom:4px;">📌 关注标的（前3流入板块核心股）</div>
+            <div style="font-size:11px;color:#c8d0dc;line-height:1.5;">{focus_html}</div>
+        </div>'''
+
+
 def _to_yi(s):
     try:
         return float(str(s).replace("亿", "").replace("+", "").replace("-", ""))
@@ -1075,6 +1136,7 @@ def _modal_market(snap, us_quotes):
                 f'</div>')
 
     fin, fout = _flow_in_out(snap)
+    strategy_html = _a_offensive_strategy(fin, fout)
     if fin:
         in_html = "".join(_sector_block(d, "#ef4444") for d in fin)
     else:
@@ -1095,6 +1157,10 @@ def _modal_market(snap, us_quotes):
                     <h3 style="color:#4fc3f7;">🇺🇸 美股 (隔夜)</h3>{us_html}
                 </div>
             </div>
+            <h4 style="color:#f59e0b;margin-bottom:10px;">🎯 未来一周进攻板块分析策略</h4>
+            <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;border:1px solid var(--border-color);margin-bottom:16px;">
+                {strategy_html or '<div style="color:var(--text-secondary);font-size:12px;">策略数据不可用。</div>'}
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                 <div><h4 style="color:#ef4444;">✅ 板块资金流入TOP30</h4>
                     <div style="max-height:400px;overflow-y:auto;background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;font-size:12px;">{in_html}</div></div>
@@ -1105,17 +1171,31 @@ def _modal_market(snap, us_quotes):
 
 
 def _modal_us_market(snap, us_quotes, overnight):
-    # 三大指数（来自 market_snapshot 的 us_indices）
+    # 美股核心指数：三大指数 + 半导体/科技/中概（优先用 market_snapshot 里的三大指数，其余用 us_quotes）
     us = snap.get("us_indices", []) or []
-    idx_html = ""
-    name_map = {"纳斯达克": "IXIC", "道琼斯": "DJI", "标普500": "INX"}
+    core_idx = {}
     for x in us:
-        lab = x.get("name", "—")
-        price = x.get("price")
-        pct = x.get("change_pct")
-        idx_html += f'<div class="detail-row"><span class="label">{lab}</span><span class="value" style="color:{_hex(pct)};">{_safe(price,"—")} ({_fmt_pct(pct)})</span></div>'
-    if not idx_html:
-        idx_html = '<div class="detail-row"><span class="label">—</span><span class="value">数据缺失</span></div>'
+        lab = x.get("name", "")
+        if lab in ("纳斯达克", "道琼斯", "标普500"):
+            core_idx[lab] = x
+    for lab, sym in US_CORE_INDEX.items():
+        if lab in core_idx or lab in ("纳斯达克", "道琼斯", "标普500"):
+            continue
+        q = us_quotes.get(sym)
+        if q:
+            core_idx[lab] = {"name": lab, "price": q.get("price"), "change_pct": q.get("change_pct")}
+    core_html = "".join(
+        f'<div class="detail-row"><span class="label">{lab}</span><span class="value" style="color:{_hex(x.get("change_pct"))};">{_safe(x.get("price"),"—")} ({_fmt_pct(x.get("change_pct"))})</span></div>'
+        for lab, x in core_idx.items()) or '<div class="detail-row"><span class="label">—</span><span class="value">数据缺失</span></div>'
+
+    # 相关板块指数：存储芯片、光模块、物理AI/机器人、苹果供应链
+    sector_idx_html = ""
+    for lab, sym in US_SECTOR_INDEX.items():
+        q = us_quotes.get(sym)
+        if q:
+            sector_idx_html += f'<div class="detail-row"><span class="label">{lab}</span><span class="value" style="color:{_hex(q.get("change_pct"))};">{_safe(q.get("price"),"—")} ({_fmt_pct(q.get("change_pct"))})</span></div>'
+    if not sector_idx_html:
+        sector_idx_html = '<div class="detail-row"><span class="label">—</span><span class="value">数据缺失</span></div>'
 
     # 6 大核心板块（ overnight 数据）：龙头行情 + A股映射 + 影响预测
     sectors = (overnight or {}).get("sectors", []) or []
@@ -1163,15 +1243,24 @@ def _modal_us_market(snap, us_quotes, overnight):
     return {
         "title": "🇺🇸 美股（隔夜）· 板块龙头行情 + A股影响预测",
         "html": f'''
-            <p class="sub-title">纳斯达克 · 道琼斯 · 标普500 · 6大核心板块 · A股映射</p>
+            <p class="sub-title">美股核心指数 · 相关板块指数 · 6大核心板块 · A股映射</p>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
                 <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;border:1px solid var(--border-color);">
-                    <h4 style="color:#4fc3f7;">📊 三大指数</h4>{idx_html}
+                    <h4 style="color:#4fc3f7;">📊 美股核心指数</h4>{core_html}
                 </div>
+                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;border:1px solid var(--border-color);">
+                    <h4 style="color:#a78bfa;">🔍 相关板块指数</h4>{sector_idx_html}
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
                 <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;border:1px solid var(--border-color);">
                     <h4 style="color:#f59e0b;">📈 隔夜情绪</h4>
                     <div class="detail-row"><span class="label">数据时间</span><span class="value">{(overnight or {}).get("updated_at", "—")}</span></div>
                     <div class="detail-row"><span class="label">板块数量</span><span class="value">{len(sectors)}</span></div>
+                </div>
+                <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;border:1px solid var(--border-color);">
+                    <h4 style="color:#22c55e;">📋 指数说明</h4>
+                    <div style="font-size:11px;color:#c8d0dc;line-height:1.5;">核心指数覆盖三大指数、半导体(SOXX)、科技(QQQ/XLK)、中概(KWEB)；相关板块指数覆盖存储芯片(SMH)、光模块(COHR/LITE)、机器人(BOTZ/ARKQ)、苹果供应链(AAPL)等方向。</div>
                 </div>
             </div>
             <h4 style="color:#4fc3f7;margin-bottom:10px;">🔹 六大核心板块 · 龙头 + A股映射</h4>
