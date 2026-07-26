@@ -57,7 +57,12 @@ def run() -> dict:
                 try:
                     chg = float(rec["change_pct"])
                     changes.append(chg)
-                    drivers.append({"symbol": sym, "change_pct": chg})
+                    drivers.append({
+                        "symbol": sym,
+                        "name": rec.get("name") or sym,
+                        "price": rec.get("price"),
+                        "change_pct": chg,
+                    })
                 except Exception:
                     pass
         avg = round(sum(changes) / len(changes), 2) if changes else None

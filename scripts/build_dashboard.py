@@ -439,7 +439,7 @@ def _trade_mode(snap):
     return False, td_fmt, badge
 
 
-def _section_global(snap, us_quotes):
+def _section_global(snap, us_quotes, overnight):
     a = snap.get("a_indexes", []) or []
     us = snap.get("us_indices", []) or []
     a_items = "".join(
@@ -480,7 +480,7 @@ def _section_global(snap, us_quotes):
                     </div>
                 </div>'''
 
-    # 美股隔夜：三大指数 + 费城半导体 + 英伟达 + 苹果 + 美光
+    # 美股隔夜：三大指数 + 6 大核心板块（来自 us_overnight.json）
     def _us_row(label, sym=None, val=None, pct=None):
         if sym and us_quotes.get(sym):
             q = us_quotes[sym]
@@ -495,17 +495,24 @@ def _section_global(snap, us_quotes):
 
     us_idx_rows = "".join(
         _us_row(x.get("name", "—"), val=x.get("price"), pct=x.get("change_pct")) for x in us)
-    sox = us_quotes.get("SOX")
-    sox_pct = sox.get("change_pct") if sox else None
+
+    # 6 大核心板块行情（使用 us_overnight 的加权涨跌幅，保证与传导模块口径一致）
+    sectors = (overnight or {}).get("sectors", []) or []
+    sector_rows = ""
+    for s in sectors:
+        name = s.get("a_sector", "—")
+        avg = s.get("avg_change")
+        if avg is None:
+            continue
+        sector_rows += (f'<div class="market-item"><span class="label">{name}</span>'
+                        f'<span class="change {_cls(avg)}">{_fmt_pct(avg)}</span></div>')
+
     us_box = f'''
                 <div class="market-box" onclick="event.stopPropagation(); openModal('us_market')">
-                    <div class="box-title"><span class="flag">🇺🇸</span> 美股 (隔夜) <span style="color:var(--accent-blue);font-size:10px;font-weight:400;">👆 点击查看自选股行情</span></div>
+                    <div class="box-title"><span class="flag">🇺🇸</span> 美股 (隔夜) <span style="color:var(--accent-blue);font-size:10px;font-weight:400;">👆 点击查看板块龙头 + A股映射</span></div>
                     <div class="market-row">
                         {us_idx_rows or '<div class="market-item"><span class="label">数据缺失</span></div>'}
-                        {_us_row("费城半导体", "SOX", None, sox_pct)}
-                        {_us_row("英伟达", "NVDA")}
-                        {_us_row("苹果", "AAPL")}
-                        {_us_row("美光", "MU")}
+                        {sector_rows or '<div class="market-item"><span class="label">板块数据缺失</span></div>'}
                     </div>
                 </div>'''
 
@@ -1097,38 +1104,95 @@ def _modal_market(snap, us_quotes):
     }
 
 
-def _modal_us_market(us_quotes):
+def _modal_us_market(snap, us_quotes, overnight):
+    # 三大指数（来自 market_snapshot 的 us_indices）
+    us = snap.get("us_indices", []) or []
     idx_html = ""
-    for sym, lab in [("IXIC", "纳斯达克"), ("SOX", "费城半导体"), ("AAPL", "苹果")]:
-        key = "IXIC" if sym == "IXIC" else sym
-        q = us_quotes.get(key)
-        if q:
-            idx_html += f'<div class="detail-row"><span class="label">{lab}</span><span class="value" style="color:{_hex(q.get("change_pct"))};">{_safe(q.get("price"),"—")} ({_fmt_pct(q.get("change_pct"))})</span></div>'
-    # 七巨头
-    giants = ["AAPL", "MSFT", "GOOGL", "AMZN", "META", "NVDA", "TSLA"]
-    g_html = ""
-    vals = []
-    for sym in giants:
-        q = us_quotes.get(sym)
-        if q:
-            g_html += f'<div class="detail-row"><span class="label">{sym}</span><span class="value" style="color:{_hex(q.get("change_pct"))};">{_fmt_pct(q.get("change_pct"))}</span></div>'
-            vals.append(float(q.get("change_pct") or 0))
-    avg = f"{sum(vals)/len(vals):+.2f}%" if vals else "—"
+    name_map = {"纳斯达克": "IXIC", "道琼斯": "DJI", "标普500": "INX"}
+    for x in us:
+        lab = x.get("name", "—")
+        price = x.get("price")
+        pct = x.get("change_pct")
+        idx_html += f'<div class="detail-row"><span class="label">{lab}</span><span class="value" style="color:{_hex(pct)};">{_safe(price,"—")} ({_fmt_pct(pct)})</span></div>'
     if not idx_html:
         idx_html = '<div class="detail-row"><span class="label">—</span><span class="value">数据缺失</span></div>'
+
+    # 6 大核心板块（ overnight 数据）：龙头行情 + A股映射 + 影响预测
+    sectors = (overnight or {}).get("sectors", []) or []
+    sector_cards = ""
+    for s in sectors:
+        color = _level_color(s.get("level"))
+        avg = s.get("avg_change")
+        name = s.get("a_sector", "—")
+        level = s.get("level", "—")
+        # 龙头股
+        drivers = s.get("drivers", []) or []
+        drv_rows = "".join(
+            f'<div class="us-stock-row">'
+            f'<span class="stock-name">{d.get("symbol")}<span style="color:var(--text-secondary);font-size:10px;margin-left:4px;">{d.get("name", "")}</span></span>'
+            f'<span style="color:var(--text-secondary);font-size:10px;">{_safe(d.get("price"), "")}</span>'
+            f'<span class="stock-price" style="color:{_hex(d.get("change_pct"))};">{_fmt_pct(d.get("change_pct"))}</span>'
+            f'</div>'
+            for d in drivers) or '<div class="us-stock-row"><span class="stock-name">—</span></div>'
+        # A股映射
+        cands = " ".join(
+            f'<div class="stock-item"><span class="sname">{c}</span><span class="schange" style="color:var(--text-secondary);">映射</span></div>'
+            for c in (s.get("a_candidates", []) or []))
+        # 影响预测文字
+        impact_text = _us_impact_text(name, avg, level)
+        sector_cards += f'''
+            <div class="us-sector-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                    <div class="sector-name">🔹 {name}</div>
+                    <div class="sector-change" style="color:{_hex(avg)};">{_fmt_pct(avg)}</div>
+                </div>
+                <div style="font-size:11px;color:{color};margin-bottom:6px;">{level}</div>
+                <div style="color:#8892a0;font-size:10px;margin-bottom:4px;">龙头股</div>
+                {drv_rows}
+                <div style="margin-top:8px;background:rgba(255,255,255,0.03);border-radius:6px;padding:6px 8px;font-size:11px;">
+                    <div style="color:#8892a0;margin-bottom:4px;">📌 A股映射</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px;">{cands or '<span style="color:var(--text-secondary);">—</span>'}</div>
+                </div>
+                <div style="margin-top:6px;padding:6px 8px;background:rgba(79,195,247,0.08);border-radius:6px;font-size:11px;color:#c8d0dc;">
+                    📊 {impact_text}
+                </div>
+            </div>'''
+    if not sector_cards:
+        sector_cards = '<div style="color:var(--text-secondary);">美股隔夜板块数据暂不可用。</div>'
+
     return {
-        "title": "🇺🇸 美股自选股行情 · 完整数据",
+        "title": "🇺🇸 美股（隔夜）· 板块龙头行情 + A股影响预测",
         "html": f'''
-            <p class="sub-title">纳斯达克 · 费城半导体 · 七巨头 · 核心个股</p>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <p class="sub-title">纳斯达克 · 道琼斯 · 标普500 · 6大核心板块 · A股映射</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
                 <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;border:1px solid var(--border-color);">
                     <h4 style="color:#4fc3f7;">📊 三大指数</h4>{idx_html}
                 </div>
                 <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;border:1px solid var(--border-color);">
-                    <h4 style="color:#f59e0b;">🔹 科技七巨头（均值 {avg}）</h4>{g_html or '<div class="detail-row"><span class="label">—</span><span class="value">数据缺失</span></div>'}
+                    <h4 style="color:#f59e0b;">📈 隔夜情绪</h4>
+                    <div class="detail-row"><span class="label">数据时间</span><span class="value">{(overnight or {}).get("updated_at", "—")}</span></div>
+                    <div class="detail-row"><span class="label">板块数量</span><span class="value">{len(sectors)}</span></div>
                 </div>
-            </div>'''
+            </div>
+            <h4 style="color:#4fc3f7;margin-bottom:10px;">🔹 六大核心板块 · 龙头 + A股映射</h4>
+            <div class="us-sector-grid">{sector_cards}</div>'''
     }
+
+
+def _us_impact_text(sector_name, avg_change, level):
+    """根据美股板块隔夜涨跌幅生成对A股同板块的影响预测文字。"""
+    if avg_change is None:
+        return "数据不足，无法判断传导影响。"
+    chg = float(avg_change)
+    if "极强利好" in level or chg >= 3:
+        return f"{sector_name}美股隔夜大涨 {chg:+.2f}%，预计将显著提振 A股同板块情绪，关注高开后的持续性。"
+    if "偏多" in level or chg >= 1:
+        return f"{sector_name}美股隔夜收涨 {chg:+.2f}%，对 A股同板块构成正面刺激，可留意相关映射标的。"
+    if "极强利空" in level or chg <= -3:
+        return f"{sector_name}美股隔夜大跌 {chg:+.2f}%，预计将对 A股同板块形成明显承压，注意低开与兑现风险。"
+    if "偏空" in level or chg <= -1:
+        return f"{sector_name}美股隔夜收跌 {chg:+.2f}%，可能对 A股同板块产生负面拖累，谨慎观察开盘承接。"
+    return f"{sector_name}美股隔夜波动有限 {chg:+.2f}%，对 A股同板块影响中性，更多跟随大盘情绪。"
 
 
 def _modal_transmission(overnight):
@@ -1379,7 +1443,7 @@ def build() -> str:
     </div>'''
 
     modules = "".join([
-        _section_global(snap, us_quotes),
+        _section_global(snap, us_quotes, overnight),
         _section_transmit(overnight),
         _section_limitup(snap),
         _section_heatmap(snap, indicators),
@@ -1404,7 +1468,7 @@ def build() -> str:
 
     modal_data = {
         "market": _modal_market(snap, us_quotes),
-        "us_market": _modal_us_market(us_quotes),
+        "us_market": _modal_us_market(snap, us_quotes, overnight),
         "transmission": _modal_transmission(overnight),
         "limitup": _modal_limitup(snap),
         "flow": _modal_flow(snap, indicators),
