@@ -391,6 +391,19 @@ def _fmt_turnover(v):
         return "—"
 
 
+def _score_cls(v):
+    """综合评分配色：>=60 强势(红) / 40-60 中性(金) / <40 弱势(绿)。非数字返回空。"""
+    try:
+        f = float(v)
+    except Exception:
+        return ""
+    if f >= 60:
+        return "up"
+    if f < 40:
+        return "down"
+    return "rsi-mid"
+
+
 # ----------------------------------------------------------------- ① 全球大盘行情
 def _section_global(snap, us_quotes):
     a = snap.get("a_indexes", []) or []
@@ -711,7 +724,8 @@ def _position_rows(cfg, a_quotes, indicators):
             "volumeRatio": _fmt_vol(vr),
             "vol_cls": _vol_cls(vr),
             "turnover": _fmt_turnover(ind.get("turnover_rate")),
-            "mainFlow": "—",
+            "mainFlow": _fmt_yi(ind.get("main_flow")),
+            "mainFlow_cls": _cls(ind.get("main_flow")),
             "signal": signal,
             "signalClass": signal_cls,
         })
@@ -737,7 +751,7 @@ def _section_holdings(cfg, a_quotes, indicators):
             <td class="{d['macd_cls']}">{d['macd']}</td>
             <td class="{d['vol_cls']}" style="{'color:var(--text-secondary);' if not d['vol_cls'] else ''}">{d['volumeRatio']}</td>
             <td>{d['turnover']}</td>
-            <td style="color:var(--text-secondary);font-size:10px;">{d['mainFlow']}</td>
+            <td class="{d['mainFlow_cls']}" style="font-size:10px;font-weight:600;">{d['mainFlow']}</td>
             <td><span class="tag {d['signalClass']}">{d['signal']}</span></td>
         </tr>''' for d in rows)
     return f'''
@@ -756,7 +770,7 @@ def _section_holdings(cfg, a_quotes, indicators):
                 </table>
             </div>
             <div style="margin-top:8px;font-size:10px;color:var(--text-secondary);">
-                <i class="fas fa-info-circle"></i> 现价为腾讯实时价；RSI(14)/MACD/量比/换手来自 tushare 真实技术指标
+                <i class="fas fa-info-circle"></i> 现价腾讯实时价；RSI(14)/MACD/量比/换手/主力净流入来自 tushare 真实数据
             </div>
         </div>'''
 
@@ -779,7 +793,11 @@ def _section_pool(cfg, a_quotes, indicators):
         ind = indicators.get(ts, {}) if ts else {}
         rsi = ind.get("rsi")
         vr = ind.get("volume_ratio")
-        score = f"RSI {_fmt_rsi(rsi)} · 量比 {_fmt_vol(vr)} · 换手 {_fmt_turnover(ind.get('turnover_rate'))}"
+        week = ind.get("week_pct")
+        month = ind.get("month_pct")
+        score_val = ind.get("score")
+        score = f"周 {_fmt_pct(week,1)} · 月 {_fmt_pct(month,1)}"
+        score_disp = f"评分 {score_val}" if score_val is not None else "评分 —"
         cards += f'''
                 <div class="watchlist-card">
                     <div class="stock-name">{name}</div>
@@ -787,6 +805,7 @@ def _section_pool(cfg, a_quotes, indicators):
                     <div class="stock-price">{_safe(price,'—')}</div>
                     <div class="stock-change">{_fmt_pct(pct)}</div>
                     <div class="stock-score">{score}</div>
+                    <div class="stock-score" style="font-weight:600;" class="{_score_cls(score_val)}">{score_disp}</div>
                 </div>'''
     return f'''
         <div class="card card-full" onclick="openModal('watchlist')">
@@ -803,7 +822,7 @@ def _section_pool(cfg, a_quotes, indicators):
             </div>
             <div class="watchlist-grid">{cards}</div>
             <div style="margin-top:6px;font-size:10px;color:var(--text-secondary);">
-                <i class="fas fa-info-circle"></i> 价格为腾讯实时价；RSI/量比/换手为 tushare 真实技术指标
+                <i class="fas fa-info-circle"></i> 价格腾讯实时价；周/月动量 + 综合评分(0-100)来自 tushare 真实数据
             </div>
         </div>'''
 
@@ -1124,7 +1143,7 @@ def _modal_positions(cfg, a_quotes, indicators):
             <td style="padding:4px;text-align:right;" class="{d['macd_cls']}">{d['macd']}</td>
             <td style="padding:4px;text-align:right;" class="{d['vol_cls']}">{d['volumeRatio']}</td>
             <td style="padding:4px;text-align:right;">{d['turnover']}</td>
-            <td style="padding:4px;text-align:right;color:var(--text-secondary);font-size:10px;">{d['mainFlow']}</td>
+            <td style="padding:4px;text-align:right;font-size:10px;font-weight:600;" class="{d['mainFlow_cls']}">{d['mainFlow']}</td>
             <td style="padding:4px;text-align:center;"><span class="tag {d['signalClass']}">{d['signal']}</span></td>
         </tr>''' for d in rows)
     return {
@@ -1144,7 +1163,7 @@ def _modal_positions(cfg, a_quotes, indicators):
                 </table>
             </div>
             <div style="margin-top:8px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:11px;color:#f59e0b;">
-                📌 现价为腾讯实时价；技术指标（RSI/MACD/量比/换手）来自 tushare 真实数据
+                📌 现价腾讯实时价；RSI/MACD/量比/换手/主力净流入来自 tushare 真实数据
             </div>'''
     }
 
@@ -1162,13 +1181,18 @@ def _modal_watchlist(cfg, a_quotes, indicators):
         ind = indicators.get(ts, {}) if ts else {}
         rsi = ind.get("rsi")
         vr = ind.get("volume_ratio")
-        score = f"RSI {_fmt_rsi(rsi)} · 量比 {_fmt_vol(vr)} · 换手 {_fmt_turnover(ind.get('turnover_rate'))}"
+        week = ind.get("week_pct")
+        month = ind.get("month_pct")
+        score_val = ind.get("score")
+        score = f"周 {_fmt_pct(week,1)} · 月 {_fmt_pct(month,1)}"
+        score_disp = f"评分 {score_val}" if score_val is not None else "评分 —"
         cards += f'''
             <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:8px 10px;border:1px solid var(--border-color);text-align:center;">
                 <div style="font-weight:600;font-size:12px;color:#ef4444;">{name}</div>
                 <div style="font-size:14px;font-weight:700;color:#ef4444;">{_safe(price,'—')}</div>
                 <div style="font-size:11px;font-weight:500;color:{_hex(pct)};">{_fmt_pct(pct)}</div>
                 <div style="font-size:10px;color:var(--text-secondary);">{score}</div>
+                <div style="font-size:11px;font-weight:600;" class="{_score_cls(score_val)}">{score_disp}</div>
             </div>'''
     return {
         "title": "📊 备选股票池 · 实时行情",
@@ -1176,7 +1200,7 @@ def _modal_watchlist(cfg, a_quotes, indicators):
             <p class="sub-title">共 {len(pool)} 只备选标的 · 价格为腾讯实时价 · RSI/量比/换手为 tushare 真实指标</p>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px;">{cards}</div>
             <div style="margin-top:10px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:11px;color:#f59e0b;">
-                📌 价格为腾讯实时价；RSI(14)/量比/换手来自 tushare 真实技术指标
+                📌 价格腾讯实时价；周/月动量 + 综合评分(0-100)来自 tushare 真实数据
             </div>'''
     }
 

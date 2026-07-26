@@ -121,6 +121,37 @@ def compute_macd(closes, fast: int = 12, slow: int = 26, signal: int = 9) -> dic
     }
 
 
+def _pct_change(closes, n: int) -> float | None:
+    """n 个交易日前到现在的涨跌幅(%)，数据不足返回 None。"""
+    try:
+        cs = [float(c) for c in closes if c is not None]
+    except Exception:
+        return None
+    if len(cs) <= n:
+        return None
+    base = cs[-1 - n]
+    if not base:
+        return None
+    return round((cs[-1] - base) / base * 100, 2)
+
+
+def _score(rsi, week_pct, month_pct, volume_ratio) -> int:
+    """综合动量评分(0-100)：周/月涨幅动量为主，RSI 趋势质量 + 量能辅助。仅基于真实数据。"""
+    try:
+        w = 0 if week_pct is None else max(0.0, min(float(week_pct), 15.0)) / 15.0 * 30.0
+        m = 0 if month_pct is None else max(0.0, min(float(month_pct), 30.0)) / 30.0 * 30.0
+    except Exception:
+        w, m = 0.0, 0.0
+    r = 50.0 if rsi is None else float(rsi)
+    if 40.0 <= r <= 70.0:
+        trend = 20.0 - abs(r - 55.0) / 15.0 * 10.0
+    else:
+        trend = 5.0
+    vr = volume_ratio
+    v = 0.0 if vr is None else (10.0 if 1.2 <= vr <= 3.0 else (5.0 if vr > 1.0 else 0.0))
+    return int(round(w + m + trend + v))
+
+
 def _tushare_pro():
     """读取 TUSHARE_TOKEN 环境变量，返回 pro_api；缺 token 或库未装返回 None。"""
     token = os.getenv("TUSHARE_TOKEN")
@@ -174,13 +205,13 @@ def _ak_rsi(em_code: str, end_date: str) -> float | None:
 
 # ---------------------------------------------------------------- 批量技术指标（tushare 主力 + akshare 兜底）
 def _tushare_indicators(pro, ts_codes: list[str]) -> dict:
-    """tushare 批量取 RSI(14)/MACD/量比/换手。2 次调用覆盖全部标的。"""
+    """tushare 批量取 RSI(14)/MACD/量比/换手/主力净流入/周月动量。3 次批量调用覆盖全部标的。"""
     out: dict = {c: {} for c in ts_codes}
     if not ts_codes:
         return out
     end = dt.date.today().strftime("%Y%m%d")
     start = (dt.date.today() - dt.timedelta(days=70)).strftime("%Y%m%d")
-    # 1) RSI + MACD 来自 daily
+    # 1) RSI + MACD + 周/月动量来自 daily
     try:
         df = pro.daily(ts_code=",".join(ts_codes), start_date=start, end_date=end)
         if df is not None and not df.empty and "close" in df.columns:
@@ -192,6 +223,8 @@ def _tushare_indicators(pro, ts_codes: list[str]) -> dict:
                 m = compute_macd(closes)
                 if m:
                     out[code].update(m)
+                out[code]["week_pct"] = _pct_change(closes, 5)
+                out[code]["month_pct"] = _pct_change(closes, 21)
     except Exception as e:  # noqa: BLE001
         print(f"[tushare] daily 失败: {e}")
     # 2) 量比 + 换手来自 daily_basic
@@ -213,6 +246,24 @@ def _tushare_indicators(pro, ts_codes: list[str]) -> dict:
                     out[code]["turnover_rate"] = None
     except Exception as e:  # noqa: BLE001
         print(f"[tushare] daily_basic 失败: {e}")
+    # 3) 主力净流入来自 moneyflow（net_mf_amount 单位千元 → 元）
+    try:
+        dfm = pro.moneyflow(ts_code=",".join(ts_codes), start_date=start, end_date=end)
+        if dfm is not None and not dfm.empty and "net_mf_amount" in dfm.columns:
+            for code, g in dfm.groupby("ts_code"):
+                if code not in out:
+                    out[code] = {}
+                g = g.sort_values("trade_date")
+                amt = g.iloc[-1].get("net_mf_amount")
+                try:
+                    out[code]["main_flow"] = float(amt) * 1000.0 if amt is not None else None
+                except Exception:
+                    out[code]["main_flow"] = None
+    except Exception as e:  # noqa: BLE001
+        print(f"[tushare] moneyflow 失败: {e}")
+    # 综合动量评分
+    for code, rec in out.items():
+        rec["score"] = _score(rec.get("rsi"), rec.get("week_pct"), rec.get("month_pct"), rec.get("volume_ratio"))
     return out
 
 
@@ -260,16 +311,20 @@ def _akshare_indicators(items: list[tuple]) -> dict:
                 m = compute_macd(closes)
                 if m:
                     rec.update(m)
-                if "换手率" in dfh.columns:
-                    try:
-                        rec["turnover_rate"] = float(dfh["换手率"].iloc[-1])
-                    except Exception:
-                        pass
+            if "换手率" in dfh.columns:
+                try:
+                    rec["turnover_rate"] = float(dfh["换手率"].iloc[-1])
+                except Exception:
+                    pass
+            rec["week_pct"] = _pct_change(closes, 5)
+            rec["month_pct"] = _pct_change(closes, 21)
         except Exception:
             pass
         rec["volume_ratio"] = name_vr.get(name)
         if rec.get("turnover_rate") is None:
             rec["turnover_rate"] = name_turn.get(name)
+        rec["main_flow"] = None  # 主力净流入仅 tushare moneyflow 提供；无 token 时显示 —
+        rec["score"] = _score(rec.get("rsi"), rec.get("week_pct"), rec.get("month_pct"), rec.get("volume_ratio"))
         out[ts_code] = rec
         time.sleep(0.05)
     return out
@@ -277,10 +332,11 @@ def _akshare_indicators(items: list[tuple]) -> dict:
 
 def get_indicators(items: list[tuple]) -> dict:
     """
-    批量获取技术指标（RSI14 / MACD / 量比 / 换手）。
+    批量获取技术指标（RSI14 / MACD / 量比 / 换手 / 主力净流入 / 周月动量 / 评分）。
     items: list of (name, ts_code)，ts_code 形如 '600584.SH'。
-    优先 tushare（2 次批量调用）；否则 akshare 逐只兜底；少量缺失自动补齐。
-    返回 {ts_code: {rsi, macd_dif, macd_dea, macd_hist, volume_ratio, turnover_rate}}
+    优先 tushare（3 次批量调用：daily / daily_basic / moneyflow）；否则 akshare 逐只兜底；少量缺失自动补齐。
+    返回 {ts_code: {rsi, macd_dif, macd_dea, macd_hist, volume_ratio, turnover_rate,
+                     main_flow(元), week_pct, month_pct, score(0-100)}}
     """
     valid = [(n, t) for n, t in items if t]
     if not valid:
