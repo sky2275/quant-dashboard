@@ -587,67 +587,121 @@ def get_limit_up(date: str | None = None) -> list[dict]:
         return [{"error": str(e)[:120]}]
 
 
-def get_limit_down(date: str | None = None) -> list[dict]:
-    """跌停池（与 get_limit_up 对称）。失败返回 [{'error':...}]。"""
-    if date is None:
-        date = dt.date.today().strftime("%Y%m%d")
-    try:
-        import akshare as ak
-        df = _retry(lambda: ak.stock_dt_pool_em(date=date))
-        if df is None or df.empty:
-            return []
-        cols = [c for c in ["名称", "代码", "涨跌幅", "成交额", "连板数", "封单资金", "所属行业"] if c in df.columns]
-        return df[cols].to_dict(orient="records")
-    except Exception as e:
-        return [{"error": str(e)[:120]}]
+def _board_limit(name: str, code: str) -> float:
+    """按名称/代码判断涨跌停幅度(%)：ST=5，创业板/科创板/北交所=20，其余=10。"""
+    if name and "ST" in str(name).upper():
+        return 5.0
+    lead = str(code)[:1]
+    if lead in ("3", "8", "4") or str(code).startswith("688"):
+        return 20.0
+    return 10.0
 
 
 def get_market_breadth() -> dict:
     """
-    两市(沪+深，不含北交所) 总成交额、上涨/下跌/平盘家数。
-    来源：akshare 全市场快照 stock_zh_a_spot_em() 一次调用即可同时得到三项。
-    失败返回 {'error': ...}；非交易日接口返回的是最近交易日收盘快照。
+    两市(沪+深，不含北交所) 总成交额、上涨/下跌家数、跌停家数。
+    - 成交额：沪(上证指数)+深(深证成指) 指数成交额之和（轻量接口，最稳）
+    - 涨跌家数/跌停：全市场快照 stock_zh_a_spot_em() 一次调用，按板块真实涨跌幅判定跌停
+    返回 {'amount'(元), 'up_count', 'down_count', 'limit_down_count'}（缺失项为 None）。
+    """
+    out = {"amount": None, "up_count": None, "down_count": None, "limit_down_count": None}
+    # 1) 成交额：指数快照（轻量，几乎不会失败）
+    try:
+        import akshare as ak
+        df = _retry(lambda: ak.stock_zh_index_spot_em(), attempts=2, wait=1)
+        if df is not None and not df.empty:
+            amt_cols = [c for c in ["成交额", "成交金额"] if c in df.columns]
+            name_col = "名称" if "名称" in df.columns else "指数名称"
+            if amt_cols and name_col in df.columns:
+                amt = 0.0
+                for _, r in df.iterrows():
+                    nm = str(r.get(name_col, ""))
+                    if nm in ("上证指数", "深证成指"):
+                        try:
+                            amt += float(r.get(amt_cols[0]))
+                        except Exception:
+                            pass
+                if amt:
+                    out["amount"] = round(amt, 2)
+    except Exception as e:  # noqa: BLE001
+        print(f"[breadth] 指数成交额失败: {e}")
+    # 2) 涨跌家数 + 跌停：全市场快照（按板块真实幅度判定跌停）
+    try:
+        import akshare as ak
+        df = _retry(lambda: ak.stock_zh_a_spot_em(), attempts=3, wait=1.5)
+        if df is not None and not df.empty and "涨跌幅" in df.columns and "代码" in df.columns:
+            df = df.copy()
+            df["_lead"] = df["代码"].astype(str).str[:1]
+            main = df[df["_lead"].isin(["6", "0", "3"])]  # 沪(6)+深(0/3)，剔除北交所
+            up = down = dt_count = 0
+            for _, r in main.iterrows():
+                try:
+                    p = float(r.get("涨跌幅"))
+                except Exception:
+                    continue
+                code = str(r.get("代码", ""))
+                name = str(r.get("名称", ""))
+                if p > 0:
+                    up += 1
+                elif p < 0:
+                    down += 1
+                lim = _board_limit(name, code)
+                if p <= -(lim - 0.25):
+                    dt_count += 1
+            out["up_count"] = up
+            out["down_count"] = down
+            out["limit_down_count"] = dt_count
+    except Exception as e:  # noqa: BLE001
+        print(f"[breadth] 全市场快照失败: {e}")
+    return out
+
+
+def get_sector_constituents(sector: str, top: int = 5) -> list[dict]:
+    """
+    某行业板块的前 top 只成分股（名称+代码）。来源 akshare stock_board_industry_cons_em。
+    失败返回 []。用于 ① 弹窗「每个板块 3-5 只个股」。
     """
     try:
         import akshare as ak
-        df = _retry(lambda: ak.stock_zh_a_spot_em(), attempts=2, wait=1)
+        df = _retry(lambda: ak.stock_board_industry_cons_em(symbol=sector), attempts=2, wait=1)
         if df is None or df.empty:
-            return {"error": "empty"}
-        code_col = "代码" if "代码" in df.columns else None
-        pct_col = "涨跌幅" if "涨跌幅" in df.columns else None
-        amt_col = "成交额" if "成交额" in df.columns else None
-        if not (code_col and pct_col and amt_col):
-            return {"error": "cols"}
-        df = df.copy()
-        df["_lead"] = df[code_col].astype(str).str[:1]
-        main = df[df["_lead"].isin(["6", "0", "3"])]  # 沪(6) + 深(0/3)，剔除北交所(8/4)
-        amt = 0.0
-        for v in main[amt_col].tolist():
-            try:
-                if v not in (None, "", "None", "nan"):
-                    amt += float(v)
-            except Exception:
-                pass
-        up = down = flat = 0
-        for v in main[pct_col].tolist():
-            try:
-                p = float(v)
-            except Exception:
+            return []
+        name_c = "名称" if "名称" in df.columns else None
+        code_c = next((c for c in ["代码", "股票代码", "个股代码"] if c in df.columns), None)
+        if not name_c:
+            return []
+        out = []
+        for _, r in df.head(top).iterrows():
+            nm = r.get(name_c)
+            if nm is None:
                 continue
-            if p > 0:
-                up += 1
-            elif p < 0:
-                down += 1
-            else:
-                flat += 1
-        return {
-            "amount": round(amt, 2),   # 元
-            "up_count": up,
-            "down_count": down,
-            "flat_count": flat,
-        }
+            out.append({"name": str(nm), "code": str(r.get(code_c)) if code_c and r.get(code_c) is not None else ""})
+        return out
     except Exception as e:  # noqa: BLE001
-        return {"error": str(e)[:120]}
+        print(f"[cons] {sector} 成分股失败: {e}")
+        return []
+
+
+def get_sector_constituents_map(sector_flow: list, n: int = 30) -> dict:
+    """对流入/流出 TOP n 板块，各取 3-5 只成分股。返回 {板块名: [{name,code}]}。"""
+    real = [x for x in (sector_flow or []) if isinstance(x, dict) and "error" not in x]
+    if not real:
+        return {}
+    inp, out = [], []
+    for x in real:
+        try:
+            nv = float(x.get("今日主力净流入-净额") or 0)
+        except Exception:
+            nv = 0
+        (inp if nv >= 0 else out).append(x.get("名称"))
+    names = set(inp[:n]) | set(out[:n])
+    out_map: dict = {}
+    for s in names:
+        if not s:
+            continue
+        out_map[s] = get_sector_constituents(s, top=5)
+        time.sleep(0.15)  # 礼貌限速，避免东财风控
+    return out_map
 
 
 def get_a_spot_sample() -> list[dict]:
@@ -727,7 +781,8 @@ def collect_all(date: str | None = None) -> dict:
     limit_up, lu_stale = _pick(get_limit_up(trade_date), "limit_up")
     heatmap, hm_stale = _pick(get_a_spot_sample(), "heatmap")
     breadth, br_stale = _pick(get_market_breadth(), "market_breadth")
-    limit_down, ld_stale = _pick(get_limit_down(trade_date), "limit_down")
+    # 板块成分股（①弹窗用）：对流入/流出 TOP30 板块各取 3-5 只个股
+    sector_constituents = get_sector_constituents_map(sector_flow, n=30)
 
     data = {
         "updated_at": dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -737,8 +792,7 @@ def collect_all(date: str | None = None) -> dict:
             "source": ctx["source"],
             "stale_keys": [k for k, s in
                            [("sector_flow", sf_stale), ("limit_up", lu_stale),
-                            ("heatmap", hm_stale), ("market_breadth", br_stale),
-                            ("limit_down", ld_stale)] if s],
+                            ("heatmap", hm_stale), ("market_breadth", br_stale)] if s],
         },
         "us_indices": us_indices,
         "a_indexes": a_indexes,
@@ -746,7 +800,7 @@ def collect_all(date: str | None = None) -> dict:
         "limit_up": limit_up,
         "heatmap": heatmap,
         "market_breadth": breadth,
-        "limit_down": limit_down,
+        "sector_constituents": sector_constituents,
     }
     _save("market_snapshot", data)
     return data

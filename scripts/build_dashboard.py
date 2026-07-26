@@ -456,15 +456,15 @@ def _section_global(snap, us_quotes):
 
     limit_up = snap.get("limit_up", []) or []
     zt = len([x for x in limit_up if isinstance(x, dict) and "error" not in x])
-    # 两市总览：成交额 + 涨跌家数 来自 market_breadth；跌停家数来自 limit_down 跌停池
+    # 两市总览：成交额 + 涨跌家数 + 跌停家数 均来自 market_breadth
+    # (跌停改用全市场快照按板块真实幅度判定，因 akshare 无 stock_dt_pool_em)
     breadth = snap.get("market_breadth") or {}
-    amount = up_c = down_c = None
+    amount = up_c = down_c = dt_count = None
     if isinstance(breadth, dict) and "error" not in breadth:
         amount = breadth.get("amount")
         up_c = breadth.get("up_count")
         down_c = breadth.get("down_count")
-    limit_down = snap.get("limit_down", []) or []
-    dt_count = len([x for x in limit_down if isinstance(x, dict) and "error" not in x])
+        dt_count = breadth.get("limit_down_count")
     a_box = f'''
                 <div class="market-box">
                     <div class="box-title"><span class="flag">🇨🇳</span> A股</div>
@@ -970,6 +970,7 @@ def _section_judge(overnight, snap, cfg, a_quotes):
 # ----------------------------------------------------------------- 弹窗数据（预渲染 html）
 def _flow_in_out(snap):
     sf = snap.get("sector_flow", []) or []
+    cons = snap.get("sector_constituents") or {}
     real = [x for x in sf if isinstance(x, dict) and "error" not in x]
     if not real:
         return None, None
@@ -980,10 +981,12 @@ def _flow_in_out(snap):
             nv = float(net)
         except Exception:
             nv = 0
+        sec = x.get("名称", "—")
+        stocks = cons.get(sec) or []  # 该板块 3-5 只成分股
         if nv >= 0:
-            inp.append({"sector": x.get("名称", "—"), "amount": _fmt_yi(net), "stocks": _safe(x.get("领涨股"), "—")})
+            inp.append({"sector": sec, "amount": _fmt_yi(net), "stocks": stocks})
         else:
-            out.append({"sector": x.get("名称", "—"), "amount": _fmt_yi(net), "stocks": _safe(x.get("领涨股"), "—")})
+            out.append({"sector": sec, "amount": _fmt_yi(net), "stocks": stocks})
     inp.sort(key=lambda d: -_to_yi(d["amount"]))
     out.sort(key=lambda d: _to_yi(d["amount"]))
     for i, d in enumerate(inp, 1):
@@ -1009,9 +1012,10 @@ def _modal_market(snap, us_quotes):
     # 两市总览汇总行
     limit_up_m = snap.get("limit_up", []) or []
     zt = len([x for x in limit_up_m if isinstance(x, dict) and "error" not in x])
-    limit_down_m = snap.get("limit_down", []) or []
-    dt_count = len([x for x in limit_down_m if isinstance(x, dict) and "error" not in x])
     breadth = snap.get("market_breadth") or {}
+    dt_count = None
+    if isinstance(breadth, dict) and "error" not in breadth:
+        dt_count = breadth.get("limit_down_count")
     b_html = ""
     if isinstance(breadth, dict) and "error" not in breadth:
         b_html = (f'<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;padding-top:10px;'
@@ -1020,7 +1024,7 @@ def _modal_market(snap, us_quotes):
                   f'<span>上涨 <b style="color:#ef4444;">{_safe(breadth.get("up_count"),"—")}</b></span>'
                   f'<span>下跌 <b style="color:#22c55e;">{_safe(breadth.get("down_count"),"—")}</b></span>'
                   f'<span>涨停 <b style="color:#ef4444;">{zt}</b></span>'
-                  f'<span>跌停 <b style="color:#22c55e;">{dt_count}</b></span>'
+                  f'<span>跌停 <b style="color:#22c55e;">{_safe(dt_count, "—")}</b></span>'
                   f'</div>')
     us_html = "".join(
         f'<div class="detail-row"><span class="label">{x.get("name","—")}</span><span class="value" style="color:{_hex(x.get("change_pct"))};">{_safe(x.get("price"),"—")} ({_fmt_pct(x.get("change_pct"))})</span></div>'
@@ -1033,23 +1037,28 @@ def _modal_market(snap, us_quotes):
         if q:
             us_html += f'<div class="detail-row"><span class="label">{lab}</span><span class="value" style="color:{_hex(q.get("change_pct"))};">{_fmt_pct(q.get("change_pct"))}</span></div>'
 
+    def _sector_block(d, color):
+        stocks = d.get("stocks") or []
+        if stocks:
+            chips = " · ".join(
+                f'<span style="color:#fbbf24;">{s.get("name","—")}</span>'
+                f'<span style="color:var(--text-secondary);">({s.get("code","")})</span>'
+                for s in stocks[:5])
+        else:
+            chips = '<span style="color:var(--text-secondary);">—</span>'
+        return (f'<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03);">'
+                f'<span style="color:{color};font-weight:500;">#{d["rank"]} {d["sector"]}</span>'
+                f'<span style="color:{color};float:right;">{d["amount"]}</span>'
+                f'<div style="font-size:10px;color:var(--text-secondary);margin-top:2px;">成分股：{chips}</div>'
+                f'</div>')
+
     fin, fout = _flow_in_out(snap)
     if fin:
-        in_html = "".join(
-            f'''<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
-                <span style="color:#ef4444;font-weight:500;">#{d['rank']} {d['sector']}</span>
-                <span style="color:#ef4444;float:right;">{d['amount']}</span>
-                <div style="font-size:10px;color:var(--text-secondary);">{d['stocks']}</div>
-            </div>''' for d in fin)
+        in_html = "".join(_sector_block(d, "#ef4444") for d in fin)
     else:
         in_html = '<div style="color:var(--text-secondary);font-size:12px;padding:8px 0;">板块资金流数据暂不可用（非交易日 / 接口限流）。</div>'
     if fout:
-        out_html = "".join(
-            f'''<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
-                <span style="color:#22c55e;font-weight:500;">#{d['rank']} {d['sector']}</span>
-                <span style="color:#22c55e;float:right;">{d['amount']}</span>
-                <div style="font-size:10px;color:var(--text-secondary);">{d['stocks']}</div>
-            </div>''' for d in fout)
+        out_html = "".join(_sector_block(d, "#22c55e") for d in fout)
     else:
         out_html = '<div style="color:var(--text-secondary);font-size:12px;padding:8px 0;">板块资金流数据暂不可用（非交易日 / 接口限流）。</div>'
     return {
