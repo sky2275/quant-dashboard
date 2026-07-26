@@ -1,11 +1,24 @@
 {
-  "updated_at": "2026-07-26 05:41:55",
+  "updated_at": "2026-07-26 05:56:30",
   "sectors": [
     {
       "a_sector": "半导体",
-      "avg_change": null,
-      "level": "数据缺失",
-      "drivers": [],
+      "avg_change": -2.38,
+      "level": "🔥🔥🔥 极强利空",
+      "drivers": [
+        {
+          "symbol": "NVDA",
+          "change_pct": -0.92
+        },
+        {
+          "symbol": "AMD",
+          "change_pct": -3.29
+        },
+        {
+          "symbol": "TSM",
+          "change_pct": -2.93
+        }
+      ],
       "a_candidates": [
         "通富微电",
         "华天科技",
@@ -14,9 +27,14 @@
     },
     {
       "a_sector": "存储芯片",
-      "avg_change": null,
-      "level": "数据缺失",
-      "drivers": [],
+      "avg_change": -6.99,
+      "level": "🔥🔥🔥 极强利空",
+      "drivers": [
+        {
+          "symbol": "MU",
+          "change_pct": -6.99
+        }
+      ],
       "a_candidates": [
         "兆易创新",
         "深科技",
@@ -47,9 +65,30 @@
     },
     {
       "a_sector": "科技巨头",
-      "avg_change": null,
-      "level": "数据缺失",
-      "drivers": [],
+      "avg_change": 0.35,
+      "level": "🟡 中性",
+      "drivers": [
+        {
+          "symbol": "AAPL",
+          "change_pct": 3.53
+        },
+        {
+          "symbol": "MSFT",
+          "change_pct": 0.03
+        },
+        {
+          "symbol": "META",
+          "change_pct": -1.8
+        },
+        {
+          "symbol": "GOOGL",
+          "change_pct": 0.65
+        },
+        {
+          "symbol": "AMZN",
+          "change_pct": -0.66
+        }
+      ],
       "a_candidates": [
         "中芯国际",
         "海光信息",
@@ -58,9 +97,14 @@
     },
     {
       "a_sector": "苹果供应链",
-      "avg_change": null,
-      "level": "数据缺失",
-      "drivers": [],
+      "avg_change": 3.53,
+      "level": "🔥🔥🔥 极强利好",
+      "drivers": [
+        {
+          "symbol": "AAPL",
+          "change_pct": 3.53
+        }
+      ],
       "a_candidates": [
         "立讯精密",
         "蓝思科技",
