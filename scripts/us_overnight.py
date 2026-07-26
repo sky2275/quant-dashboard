@@ -15,9 +15,6 @@ import yaml  # noqa: E402
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CFG_PATH = os.path.join(REPO_ROOT, "config", "strategy.yaml")
-INDEX_NAME = {"SOX": "费城半导体"}
-
-
 def _load_cfg() -> dict:
     with open(CFG_PATH, encoding="utf-8") as f:
         return yaml.safe_load(f)
@@ -45,14 +42,8 @@ def run() -> dict:
         changes = []
         drivers = []
         for sym in s.get("us_drivers", []):
-            rec = None
-            if sym in INDEX_NAME:
-                for idx in feed.get_us_indices():
-                    if idx.get("name") == INDEX_NAME[sym]:
-                        rec = {"symbol": sym, "name": idx.get("name"),
-                               "change_pct": idx.get("change_pct")}
-            else:
-                rec = feed.get_us_stock(sym)
+            # 指数型代码（如 SOX）通过腾讯个股接口同样能取到行情，统一处理
+            rec = feed.get_us_stock(sym)
             if rec and rec.get("change_pct") is not None:
                 try:
                     chg = float(rec["change_pct"])

@@ -30,20 +30,29 @@ CFG_PATH = os.path.join(REPO_ROOT, "config", "strategy.yaml")
 # 名称 → 腾讯代码（用于持仓 / 备选池实时价补充）
 NAME_CODE = {
     "通富微电": "sz002156", "华天科技": "sz002185", "中微公司": "sh688012",
-    "深科技": "sz000021", "蓝思科技": "sz300433", "雅克科技": "sz002409",
-    "中际旭创": "sz300308", "埃斯顿": "sz002747", "汇川技术": "sz300124",
-    "兆易创新": "sh603986", "立讯精密": "sz002475", "中芯国际": "sh688981",
+    "中芯国际": "sh688981", "北方华创": "sz002371",
+    "深科技": "sz000021", "兆易创新": "sh603986", "澜起科技": "sh688008",
+    "北京君正": "sz300223", "江波龙": "sz301308",
+    "中际旭创": "sz300308", "天孚通信": "sz300394", "新易盛": "sz300502",
+    "光迅科技": "sz002281", "剑桥科技": "sh603083",
+    "埃斯顿": "sz002747", "汇川技术": "sz300124", "绿的谐波": "sh688017",
+    "三花智控": "sz002050", "拓普集团": "sh601689",
+    "海光信息": "sh688041", "寒武纪": "sh688256", "韦尔股份": "sh603501",
+    "蓝思科技": "sz300433", "雅克科技": "sz002409",
+    "立讯精密": "sz002475", "歌尔股份": "sz002241",
+    "领益智造": "sz002600", "鹏鼎控股": "sz002938",
     "永安行": "sh603776", "征和工业": "sz003033", "长电科技": "sh600584",
-    "北京君正": "sz300223", "歌尔股份": "sz002241",
 }
 US_SYMS = ["NVDA", "AMD", "TSM", "MU", "COHR", "LITE",
-           "AAPL", "MSFT", "GOOGL", "AMZN", "META", "TSLA", "SOX",
-           "SOXX", "QQQ", "XLK", "KWEB", "SMH", "BOTZ", "ARKQ"]
+           "AAPL", "MSFT", "GOOGL", "AMZN", "META", "TSLA",
+           "SOXX", "QQQ", "XLK", "KWEB", "SMH", "BOTZ", "ARKQ",
+           "AVGO", "INTC", "WDC", "STX", "AAOI", "NPTN", "CIEN", "ROK",
+           "QCOM", "SWKS", "CRUS"]
 
 # 美股核心指数/相关板块指数的展示映射（中文名 → 代码）
 US_CORE_INDEX = {
     "纳斯达克": "IXIC", "道琼斯": "DJI", "标普500": "INX",
-    "半导体指数(SOXX)": "SOXX",
+    "费城半导体指数(SOXX)": "SOXX",
     "纳斯达克100(QQQ)": "QQQ", "科技行业ETF(XLK)": "XLK",
     "中概互联网ETF(KWEB)": "KWEB",
 }
@@ -1170,8 +1179,9 @@ def _modal_market(snap, us_quotes):
     }
 
 
-def _modal_us_market(snap, us_quotes, overnight):
-    # 美股核心指数：三大指数 + 半导体/科技/中概（优先用 market_snapshot 里的三大指数，其余用 us_quotes）
+def _modal_us_market(snap, us_quotes, overnight, a_quotes=None):
+    a_quotes = a_quotes or {}
+    # 美股核心指数：三大指数 + 费城半导体 + 半导体ETF/科技/中概（优先用 market_snapshot 里的三大指数，其余用 us_quotes）
     us = snap.get("us_indices", []) or []
     core_idx = {}
     for x in us:
@@ -1214,9 +1224,9 @@ def _modal_us_market(snap, us_quotes, overnight):
             f'<span class="stock-price" style="color:{_hex(d.get("change_pct"))};">{_fmt_pct(d.get("change_pct"))}</span>'
             f'</div>'
             for d in drivers) or '<div class="us-stock-row"><span class="stock-name">—</span></div>'
-        # A股映射
+        # A股映射（带真实行情）
         cands = " ".join(
-            f'<div class="stock-item"><span class="sname">{c}</span><span class="schange" style="color:var(--text-secondary);">映射</span></div>'
+            _a_map_item(c, a_quotes.get(c))
             for c in (s.get("a_candidates", []) or []))
         # 影响预测文字
         impact_text = _us_impact_text(name, avg, level)
@@ -1260,12 +1270,23 @@ def _modal_us_market(snap, us_quotes, overnight):
                 </div>
                 <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;border:1px solid var(--border-color);">
                     <h4 style="color:#22c55e;">📋 指数说明</h4>
-                    <div style="font-size:11px;color:#c8d0dc;line-height:1.5;">核心指数覆盖三大指数、半导体(SOXX)、科技(QQQ/XLK)、中概(KWEB)；相关板块指数覆盖存储芯片(SMH)、光模块(COHR/LITE)、机器人(BOTZ/ARKQ)、苹果供应链(AAPL)等方向。</div>
+                    <div style="font-size:11px;color:#c8d0dc;line-height:1.5;">核心指数覆盖三大指数、费城半导体指数(SOXX)、科技(QQQ/XLK)、中概(KWEB)；相关板块指数覆盖存储芯片(SMH)、光模块(COHR/LITE)、机器人(BOTZ/ARKQ)、苹果供应链(AAPL)等方向。六大核心板块每个均展示3-5只美股龙头及3-5只A股映射龙头实时行情。</div>
                 </div>
             </div>
             <h4 style="color:#4fc3f7;margin-bottom:10px;">🔹 六大核心板块 · 龙头 + A股映射</h4>
             <div class="us-sector-grid">{sector_cards}</div>'''
     }
+
+
+def _a_map_item(name, q):
+    """A股映射标的展示：名称 + 价格 + 涨跌幅。"""
+    if not q or q.get("price") is None:
+        return f'<div class="stock-item"><span class="sname">{name}</span><span class="schange" style="color:var(--text-secondary);">映射</span></div>'
+    return (f'<div class="stock-item">'
+            f'<span class="sname">{name}</span>'
+            f'<span class="schange" style="color:var(--text-secondary);">{_safe(q.get("price"),"—")}</span>'
+            f'<span class="schange" style="color:{_hex(q.get("change_pct"))};">{_fmt_pct(q.get("change_pct"))}</span>'
+            f'</div>')
 
 
 def _us_impact_text(sector_name, avg_change, level):
@@ -1488,7 +1509,10 @@ def build() -> str:
     # 实时价补充（失败则优雅降级为占位）
     pool_names = list(cfg.get("attack_pool", []) or [])
     hold_names = [h.get("code") or h.get("name") for h in (cfg.get("holdings", []) or [])]
-    a_quotes = _fetch_a_quotes(list(dict.fromkeys(pool_names + hold_names)))
+    candidate_names = []
+    for s in cfg.get("sector_mapping", []) or []:
+        candidate_names.extend(s.get("a_candidates", []) or [])
+    a_quotes = _fetch_a_quotes(list(dict.fromkeys(pool_names + hold_names + candidate_names)))
     us_quotes = _fetch_us_quotes(US_SYMS)
 
     # 批量技术指标（RSI/MACD/量比/换手）：收集全部标的 ts_code，调用 feed.get_indicators 一次
@@ -1564,7 +1588,7 @@ def build() -> str:
 
     modal_data = {
         "market": _modal_market(snap, us_quotes),
-        "us_market": _modal_us_market(snap, us_quotes, overnight),
+        "us_market": _modal_us_market(snap, us_quotes, overnight, a_quotes),
         "transmission": _modal_transmission(overnight),
         "limitup": _modal_limitup(snap),
         "flow": _modal_flow(snap, indicators),

@@ -9,28 +9,28 @@
 # threshold: 美股加权涨跌超过该百分比(绝对值) 触发“强”信号
 sector_mapping:
   - a_sector: "半导体"
-    us_drivers: ["NVDA", "AMD", "TSM", "SOX"]
-    a_candidates: ["通富微电", "华天科技", "中微公司"]
+    us_drivers: ["NVDA", "AMD", "TSM", "AVGO", "INTC"]
+    a_candidates: ["通富微电", "华天科技", "中微公司", "中芯国际", "北方华创"]
     threshold: 2.0
   - a_sector: "存储芯片"
-    us_drivers: ["MU", "SKHynix"]
-    a_candidates: ["兆易创新", "深科技", "澜起科技"]
+    us_drivers: ["MU", "WDC", "STX"]
+    a_candidates: ["兆易创新", "深科技", "澜起科技", "北京君正", "江波龙"]
     threshold: 2.0
   - a_sector: "光模块"
-    us_drivers: ["COHR", "LITE"]   # Coherent / Lumentum
-    a_candidates: ["中际旭创", "天孚通信", "新易盛"]
+    us_drivers: ["COHR", "LITE", "AAOI", "NPTN", "CIEN"]
+    a_candidates: ["中际旭创", "天孚通信", "新易盛", "光迅科技", "剑桥科技"]
     threshold: 2.0
   - a_sector: "物理AI/机器人"
-    us_drivers: ["SYM", "ISRG", "TER"]   # Symbotic / 直觉外科 / 泰瑞达（美股机器人自动化链）
-    a_candidates: ["埃斯顿", "汇川技术", "绿的谐波"]
+    us_drivers: ["SYM", "ISRG", "TER", "TSLA", "ROK"]
+    a_candidates: ["埃斯顿", "汇川技术", "绿的谐波", "三花智控", "拓普集团"]
     threshold: 1.5
   - a_sector: "科技巨头"
     us_drivers: ["AAPL", "MSFT", "META", "GOOGL", "AMZN"]
-    a_candidates: ["中芯国际", "海光信息", "寒武纪"]
+    a_candidates: ["中芯国际", "海光信息", "寒武纪", "韦尔股份", "北方华创"]
     threshold: 1.5
   - a_sector: "苹果供应链"
-    us_drivers: ["AAPL"]
-    a_candidates: ["立讯精密", "蓝思科技", "歌尔股份"]
+    us_drivers: ["AAPL", "QCOM", "SWKS", "CRUS", "LITE"]
+    a_candidates: ["立讯精密", "蓝思科技", "歌尔股份", "领益智造", "鹏鼎控股"]
     threshold: 1.5
 
 # 风险等级文字（按加权涨跌幅落在哪个区间）
