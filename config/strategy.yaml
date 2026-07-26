@@ -1,0 +1,75 @@
+# ============================================================
+# 策略参数（你只改这个文件，不用碰代码）
+# 修改后推送，GitHub Actions 自动生效
+# ============================================================
+
+# 美股 → A股 板块传导映射
+# us_drivers: 监控的美股代码（akshare 代码，如 NVDA/AMD/MU）
+# a_candidates: 对应 A股候选标的（用于传导预测展示）
+# threshold: 美股加权涨跌超过该百分比(绝对值) 触发“强”信号
+sector_mapping:
+  - a_sector: "半导体"
+    us_drivers: ["NVDA", "AMD", "TSM", "SOX"]
+    a_candidates: ["通富微电", "华天科技", "中微公司"]
+    threshold: 2.0
+  - a_sector: "存储芯片"
+    us_drivers: ["MU", "SKHynix"]
+    a_candidates: ["兆易创新", "深科技", "澜起科技"]
+    threshold: 2.0
+  - a_sector: "光模块"
+    us_drivers: ["Coherent", "Lumentum"]
+    a_candidates: ["中际旭创", "天孚通信", "新易盛"]
+    threshold: 2.0
+  - a_sector: "物理AI/机器人"
+    us_drivers: ["ESTUN", "HUIYUAN"]
+    a_candidates: ["埃斯顿", "汇川技术", "绿的谐波"]
+    threshold: 1.5
+  - a_sector: "科技巨头"
+    us_drivers: ["AAPL", "MSFT", "META", "GOOGL", "AMZN"]
+    a_candidates: ["中芯国际", "海光信息", "寒武纪"]
+    threshold: 1.5
+  - a_sector: "苹果供应链"
+    us_drivers: ["AAPL"]
+    a_candidates: ["立讯精密", "蓝思科技", "歌尔股份"]
+    threshold: 1.5
+
+# 风险等级文字（按加权涨跌幅落在哪个区间）
+levels:
+  strong_bull: "🔥🔥🔥 极强利好"
+  bull: "🟢 偏多"
+  neutral: "🟡 中性"
+  bear: "🔴 偏空"
+  strong_bear: "🔥🔥🔥 极强利空"
+
+# 进攻标的热点备选池（14:30 推荐 & 每日更新来源）
+attack_pool:
+  - "通富微电"
+  - "华天科技"
+  - "中微公司"
+  - "深科技"
+  - "蓝思科技"
+  - "雅克科技"
+  - "中际旭创"
+  - "埃斯顿"
+  - "汇川技术"
+  - "兆易创新"
+  - "立讯精密"
+  - "中芯国际"
+
+# 持仓（用于持仓复盘模块，按实际填写）
+holdings:
+  - code: "永安行"
+    cost: 18.57
+    price: 18.35
+  - code: "征和工业"
+    cost: 58.28
+    price: 68.90
+  - code: "长电科技"
+    cost: 84.48
+    price: 82.90
+  - code: "北京君正"
+    cost: 151.94
+    price: 143.65
+  - code: "通富微电"
+    cost: 73.60
+    price: 69.82

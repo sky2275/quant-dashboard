@@ -1,0 +1,82 @@
+"""
+us_overnight.py —— 08:00 美股隔夜模块
+拉取美股驱动标的，按 config/strategy.yaml 的映射计算各 A股板块的传导风险信号。
+输出缓存到 cache/us_overnight.json，供看板“美股→A股传导预测”模块使用。
+"""
+from __future__ import annotations
+import os
+import sys
+import json
+import datetime as dt
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import feed  # noqa: E402
+import yaml  # noqa: E402
+
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CFG_PATH = os.path.join(REPO_ROOT, "config", "strategy.yaml")
+INDEX_NAME = {"SOX": "费城半导体"}
+
+
+def _load_cfg() -> dict:
+    with open(CFG_PATH, encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def _classify(avg: float, thr: float, levels: dict) -> str:
+    if avg <= -thr:
+        return levels.get("strong_bear", "极强利空")
+    if avg < -0.5:
+        return levels.get("bear", "偏空")
+    if avg >= thr:
+        return levels.get("strong_bull", "极强利好")
+    if avg > 0.5:
+        return levels.get("bull", "偏多")
+    return levels.get("neutral", "中性")
+
+
+def run() -> dict:
+    cfg = _load_cfg()
+    levels = cfg.get("levels", {})
+    sectors_out = []
+    for s in cfg.get("sector_mapping", []):
+        a_sector = s["a_sector"]
+        thr = float(s.get("threshold", 2.0))
+        changes = []
+        drivers = []
+        for sym in s.get("us_drivers", []):
+            rec = None
+            if sym in INDEX_NAME:
+                for idx in feed.get_us_indices():
+                    if idx.get("name") == INDEX_NAME[sym]:
+                        rec = {"symbol": sym, "name": idx.get("name"),
+                               "change_pct": idx.get("change_pct")}
+            else:
+                rec = feed.get_us_stock(sym)
+            if rec and rec.get("change_pct") is not None:
+                try:
+                    chg = float(rec["change_pct"])
+                    changes.append(chg)
+                    drivers.append({"symbol": sym, "change_pct": chg})
+                except Exception:
+                    pass
+        avg = round(sum(changes) / len(changes), 2) if changes else None
+        level = _classify(avg, thr, levels) if avg is not None else "数据缺失"
+        sectors_out.append({
+            "a_sector": a_sector,
+            "avg_change": avg,
+            "level": level,
+            "drivers": drivers,
+            "a_candidates": s.get("a_candidates", []),
+        })
+    result = {
+        "updated_at": dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "sectors": sectors_out,
+    }
+    with open(os.path.join(feed.CACHE_DIR, "us_overnight.json"), "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2, default=str)
+    return result
+
+
+if __name__ == "__main__":
+    print(json.dumps(run(), ensure_ascii=False, indent=2, default=str))

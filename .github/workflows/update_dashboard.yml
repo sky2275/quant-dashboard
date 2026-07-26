@@ -1,39 +1,40 @@
-name: 每日更新量化看板
+name: 量化复盘看板自动更新
 
 on:
   schedule:
-    # 北京时间每天 16:00 运行
-    - cron: '0 8 * * *'
-  workflow_dispatch:  # 允许手动触发
+    # 北京时间 → UTC（标准时 UTC+8）
+    - cron: "0 0 * * 1-5"    # 08:00 美股隔夜
+    - cron: "30 1 * * 1-5"   # 09:30 盘前
+    - cron: "35 3 * * 1-5"   # 11:35 午间
+    - cron: "35 6 * * 1-5"   # 14:35 尾盘进攻
+    - cron: "30 7 * * 1-5"   # 15:30 收盘复盘
+  workflow_dispatch:         # 允许手动触发
 
 permissions:
   contents: write
 
 jobs:
-  update:
+  build:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-
-      - name: 设置 Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
         with:
-          python-version: '3.11'
-          
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - name: 安装依赖
-        run: |
-          pip install pandas requests akshare
-          
+        run: pip install akshare pandas pyyaml
+      - name: 拉取行情数据
+        run: python scripts/feed.py
+      - name: 美股→A股传导预测(08:00)
+        run: python scripts/us_overnight.py
       - name: 生成看板
-        run: |
-          python scripts/generate_dashboard.py
-          
+        run: python scripts/build_dashboard.py
       - name: 提交更新
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add index.html
-          git diff --staged --quiet || git commit -m "自动更新看板: $(date '+%Y-%m-%d %H:%M')"
+          git config user.name "quant-bot"
+          git config user.email "bot@quant.local"
+          git add index.html cache/*.json
+          git commit -m "auto update dashboard $(date +'%Y-%m-%d %H:%M')" || echo "no changes"
           git push
