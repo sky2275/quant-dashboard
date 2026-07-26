@@ -987,7 +987,8 @@ def _flow_in_out(snap):
 
     # 流入 TOP30 按「流入资金」降序；流出 TOP30 按「流出资金」降序；
     # 条目颜色仍按「净流入」正负（红涨绿跌/A股习惯）。
-    inp, out = [], []
+    # 分别建两份独立 dict，避免 inflow/outflow 排序后 rank 互相覆盖
+    base = []
     for x in real:
         sec = x.get("名称", "—")
         stocks = cons.get(sec) or []  # 该板块 3-5 只成分股
@@ -1001,17 +1002,14 @@ def _flow_in_out(snap):
         except Exception:
             inflow = net if net >= 0 else 0
             outflow = -net if net < 0 else 0
-        item = {"sector": sec, "amount": _fmt_yi(net), "stocks": stocks,
-                "inflow": inflow, "outflow": outflow}
-        inp.append(item)
-        out.append(item)
-    inp.sort(key=lambda d: -d["inflow"])
-    out.sort(key=lambda d: -d["outflow"])
-    for i, d in enumerate(inp, 1):
-        d["rank"] = i
-    for i, d in enumerate(out, 1):
-        d["rank"] = i
-    return (inp[:30] or None), (out[:30] or None)
+        base.append({"sector": sec, "amount": _fmt_yi(net), "stocks": stocks,
+                     "inflow": inflow, "outflow": outflow})
+
+    inp_sorted = sorted(base, key=lambda d: -d["inflow"])[:30]
+    out_sorted = sorted(base, key=lambda d: -d["outflow"])[:30]
+    inp = [dict(d, rank=i) for i, d in enumerate(inp_sorted, 1)]
+    out = [dict(d, rank=i) for i, d in enumerate(out_sorted, 1)]
+    return (inp or None), (out or None)
 
 
 def _to_yi(s):
