@@ -258,6 +258,46 @@ def _hex(v):
         return "var(--text-secondary)"
 
 
+def _rsi_class(v):
+    """RSI 配色：<35 超卖(绿) / >65 超买(红) / 中间(金)。非数字返回空(中性)。"""
+    try:
+        f = float(v)
+    except Exception:
+        return ""
+    if f < 35:
+        return "rsi-low"
+    if f > 65:
+        return "rsi-high"
+    return "rsi-mid"
+
+
+def _vol_cls(v):
+    """量比配色：>1.5 放量(红) / <0.8 缩量(绿) / 中间中性。"""
+    try:
+        f = float(v)
+    except Exception:
+        return ""
+    if f > 1.5:
+        return "up"
+    if f < 0.8:
+        return "down"
+    return ""
+
+
+def _fmt_rsi(v):
+    try:
+        return f"{float(v):.1f}"
+    except Exception:
+        return "—"
+
+
+def _fmt_vol(v):
+    try:
+        return f"{float(v):.2f}"
+    except Exception:
+        return "—"
+
+
 def _fmt_yi(yuan):
     """元 → 带符号的亿（用于资金净流入）。"""
     try:
@@ -533,12 +573,12 @@ def _section_limitup(snap):
         </div>'''
 
 
-# ----------------------------------------------------------------- ④ A股热力全景图（资金流向前30）
+# ----------------------------------------------------------------- ④ A股热力全景图（资金流向前50，含真实 RSI / 量比）
 def _flowtop_rows(snap):
     heat = snap.get("heatmap", []) or []
     real = [x for x in heat if isinstance(x, dict) and "error" not in x]
     rows = []
-    for i, x in enumerate(real[:30], 1):
+    for i, x in enumerate(real[:50], 1):
         net = x.get("今日主力净流入-净额") or x.get("主力净流入-净额")
         rows.append({
             "rank": i,
@@ -546,9 +586,13 @@ def _flowtop_rows(snap):
             "sector": "—",
             "amount": _fmt_yi(net),
             "change": _fmt_pct(x.get("涨跌幅")),
-            "rsi": "—",
+            "rsi": x.get("rsi"),
+            "rsi_disp": _fmt_rsi(x.get("rsi")),
+            "rsi_cls": _rsi_class(x.get("rsi")),
             "turnover": _safe(x.get("换手率"), "—"),
-            "volumeRatio": "—",
+            "volumeRatio": x.get("量比"),
+            "vol_disp": _fmt_vol(x.get("量比")),
+            "vol_cls": _vol_cls(x.get("量比")),
             "tag": "强势",
         })
     return rows
@@ -566,16 +610,16 @@ def _section_heatmap(snap):
                 <td><span class="sector-tag">{d['sector']}</span></td>
                 <td><span class="pos" style="font-weight:600;">{d['amount']}</span></td>
                 <td style="color:{_hex(d['change'])};font-weight:500;">{d['change']}</td>
-                <td class="rsi-mid">{d['rsi']}</td>
+                <td class="{d['rsi_cls']}">{d['rsi_disp']}</td>
                 <td style="color:var(--text-secondary);">{d['turnover']}</td>
-                <td style="color:var(--text-secondary);">{d['volumeRatio']}</td>
+                <td class="{d['vol_cls']}" style="{'color:var(--text-secondary);' if not d['vol_cls'] else ''}">{d['vol_disp']}</td>
                 <td><span class="tag buy">{d['tag']}</span></td>
             </tr>''' for d in rows)
     return f'''
         <div class="card card-full" onclick="openModal('flow')">
             <div class="card-title">
-                <span class="icon"><i class="fas fa-fire"></i></span> ④ A股热力全景图 · 资金流向前30名
-                <span class="badge">Top 30</span>
+                <span class="icon"><i class="fas fa-fire"></i></span> ④ A股热力全景图 · 资金流向前50名
+                <span class="badge">Top 50</span>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 查看完整50名</span>
             </div>
             <div style="overflow-x:auto;max-height:400px;overflow-y:auto;">
@@ -587,7 +631,7 @@ def _section_heatmap(snap):
                 </table>
             </div>
             <div style="margin-top:8px;font-size:11px;color:var(--text-secondary);">
-                <i class="fas fa-info-circle"></i> 数据来源：东财个股资金流（净流入/涨跌幅/换手为真实值；RSI/量比待接入技术指标）
+                <i class="fas fa-info-circle"></i> 资金流(净流入/涨跌幅/换手)为东财真实值；RSI(14)/量比为 akshare 真实技术指标
             </div>
         </div>'''
 
@@ -984,20 +1028,20 @@ def _modal_flow(snap):
                 "html": '<p class="sub-title">主力资金净流入排名</p><div style="color:var(--text-secondary);">个股资金流数据暂不可用（非交易日 / 接口限流）。</div>'}
     trs = "".join(
         f'''<tr>
-            <td style="padding:4px;">#{d['rank']}</td>
+            <td style="padding:4px;">{d['rank']}</td>
             <td style="padding:4px;font-weight:500;">{d['stock']}</td>
             <td style="padding:4px;color:#4fc3f7;">{d['sector']}</td>
             <td style="padding:4px;text-align:right;color:#ef4444;">{d['amount']}</td>
             <td style="padding:4px;text-align:right;color:{_hex(d['change'])};">{d['change']}</td>
-            <td style="padding:4px;text-align:right;color:var(--text-secondary);">{d['rsi']}</td>
+            <td style="padding:4px;text-align:right;" class="{d['rsi_cls']}">{d['rsi_disp']}</td>
             <td style="padding:4px;text-align:right;color:var(--text-secondary);">{d['turnover']}</td>
-            <td style="padding:4px;text-align:right;color:var(--text-secondary);">{d['volumeRatio']}</td>
+            <td style="padding:4px;text-align:right;{'color:var(--text-secondary);' if not d['vol_cls'] else ''}" class="{d['vol_cls']}">{d['vol_disp']}</td>
             <td style="padding:4px;text-align:right;"><span class="tag buy">{d['tag']}</span></td>
         </tr>''' for d in rows)
     return {
-        "title": "📊 A股热力全景图 · 资金流向前30名 完整数据",
+        "title": "📊 A股热力全景图 · 资金流向前50名 完整数据",
         "html": f'''
-            <p class="sub-title">主力资金净流入排名 · 含涨跌幅/换手 · 共{len(rows)}只（东财真实值）</p>
+            <p class="sub-title">主力资金净流入排名 · 含真实 RSI(14)/量比 · 共{len(rows)}只</p>
             <div style="max-height:450px;overflow-y:auto;background:rgba(255,255,255,0.02);border-radius:10px;padding:8px;">
                 <table style="width:100%;font-size:11px;border-collapse:collapse;">
                     <thead><tr style="color:#8892a0;border-bottom:1px solid var(--border-color);">
@@ -1010,7 +1054,7 @@ def _modal_flow(snap):
                 </table>
             </div>
             <div style="margin-top:12px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px;color:#f59e0b;">
-                📌 净流入/涨跌幅/换手为东财真实值；RSI/量比待接入技术指标
+                📌 净流入/涨跌幅/换手为东财真实值；RSI(14)/量比为 akshare 真实技术指标（RSI&lt;35 超卖绿 / &gt;65 超买红）
             </div>'''
     }
 
@@ -1154,7 +1198,7 @@ def build() -> str:
     footer = f'''
     <div class="footer">
         <i class="fas fa-sync-alt"></i> 数据自动更新 · 点击卡片查看详情<br>
-        更新时间: {updated_at} ｜ 来源：腾讯行情 / 东财
+        更新时间: {updated_at} ｜ 来源：腾讯行情 / 东财 / akshare
     </div>'''
 
     modal_shell = '''

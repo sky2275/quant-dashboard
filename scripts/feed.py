@@ -51,6 +51,84 @@ def _retry(fn: Callable, attempts: int = 3, wait: float = 2.0):
     raise last  # type: ignore[misc]
 
 
+# ---------------------------------------------------------------- 技术指标（RSI / 量比）
+def compute_rsi(closes, period: int = 14) -> float | None:
+    """Wilder RSI。closes 为收盘价序列（旧→新）。不足 period+1 根返回 None。"""
+    try:
+        cs = [float(c) for c in closes if c is not None]
+    except Exception:
+        return None
+    if len(cs) < period + 1:
+        return None
+    deltas = [cs[i] - cs[i - 1] for i in range(1, len(cs))]
+    gains = [d if d > 0 else 0.0 for d in deltas]
+    losses = [-d if d < 0 else 0.0 for d in deltas]
+    avg_gain = sum(gains[:period]) / period
+    avg_loss = sum(losses[:period]) / period
+    for i in range(period, len(deltas)):
+        avg_gain = (avg_gain * (period - 1) + gains[i]) / period
+        avg_loss = (avg_loss * (period - 1) + losses[i]) / period
+    if avg_loss == 0:
+        return 100.0 if avg_gain > 0 else 50.0
+    rs = avg_gain / avg_loss
+    return round(100 - 100 / (1 + rs), 1)
+
+
+def _ak_volume_ratio_map() -> dict:
+    """名称 -> 量比（来自全市场快照，一次调用覆盖全部）。失败返回 {}。"""
+    try:
+        import akshare as ak
+        df = _retry(lambda: ak.stock_zh_a_spot_em(), attempts=2, wait=1)
+        out: dict = {}
+        if df is None or df.empty:
+            return out
+        for _, r in df.iterrows():
+            name = r.get("名称")
+            vr = r.get("量比")
+            if name and vr is not None and str(vr) not in ("", "None", "nan"):
+                try:
+                    out[str(name)] = float(vr)
+                except Exception:
+                    pass
+        return out
+    except Exception:
+        return {}
+
+
+def _ak_rsi(em_code: str, end_date: str) -> float | None:
+    """单只股票 RSI(14)，来自日线 qfq 收盘。失败返回 None。"""
+    try:
+        import akshare as ak
+        start = (dt.date.today() - dt.timedelta(days=75)).strftime("%Y%m%d")
+        df = _retry(
+            lambda: ak.stock_zh_a_hist(
+                symbol=str(em_code), period="daily",
+                start_date=start, end_date=end_date, adjust="qfq"),
+            attempts=2, wait=0.5)
+        if df is None or df.empty or "收盘" not in df.columns:
+            return None
+        return compute_rsi(df["收盘"].tolist(), 14)
+    except Exception:
+        return None
+
+
+def enrich_heatmap(heat: list, trade_date: str | None = None) -> list:
+    """给资金流前 N 名补上真实 RSI / 量比。失败的行留 None（看板显示 '—'），不拖垮整体。"""
+    real = [x for x in heat if isinstance(x, dict) and "error" not in x]
+    if not real:
+        return heat
+    if trade_date is None:
+        trade_date = dt.date.today().strftime("%Y%m%d")
+    vr_map = _ak_volume_ratio_map()
+    for x in real:
+        name = x.get("名称")
+        code = str(x.get("代码", "") or "")
+        x["量比"] = vr_map.get(name)
+        x["rsi"] = _ak_rsi(code, trade_date) if code else None
+        time.sleep(0.05)  # 礼貌限速，避免东财风控
+    return heat
+
+
 # ---------------------------------------------------------------- 腾讯行情源
 def tencent_quotes(codes: list[str]) -> dict[str, dict]:
     """批量获取腾讯行情。codes 如 ['sh000001','usIXIC','usNVDA']。
@@ -176,7 +254,7 @@ def get_sector_fund_flow() -> list[dict]:
         df = _retry(lambda: ak.stock_sector_fund_flow_rank(
             indicator="今日", sector_type="行业资金流"), attempts=2)
         cols = [c for c in ["名称", "今日主力净流入-净额", "今日主力净流入-净占比", "涨跌幅"] if c in df.columns]
-        return df[cols].head(30).to_dict(orient="records")
+        return df[cols].head(50).to_dict(orient="records")
     except Exception:
         pass
     # 兜底：同花顺行业资金流（字段归一为东财格式，净额从亿元换算为元）
@@ -185,7 +263,7 @@ def get_sector_fund_flow() -> list[dict]:
         df = _retry(lambda: ak.stock_fund_flow_industry(symbol="即时"), attempts=2)
         df = df.sort_values("净额", ascending=False)
         out = []
-        for _, r in df.head(30).iterrows():
+        for _, r in df.head(50).iterrows():
             out.append({
                 "名称": r.get("行业"),
                 "今日主力净流入-净额": float(r.get("净额", 0)) * 1e8,
@@ -217,7 +295,7 @@ def get_a_spot_sample() -> list[dict]:
         import akshare as ak
         df = _retry(lambda: ak.stock_individual_fund_flow_rank(indicator="今日"), attempts=2)
         cols = [c for c in ["名称", "代码", "最新价", "涨跌幅", "主力净流入-净额", "主力净流入-净占比", "换手率"] if c in df.columns]
-        return df[cols].head(30).to_dict(orient="records")
+        return df[cols].head(50).to_dict(orient="records")
     except Exception:
         pass
     # 兜底：同花顺个股资金流（字段归一为东财格式，净额从万元换算为元）
@@ -238,7 +316,7 @@ def get_a_spot_sample() -> list[dict]:
         df["_net"] = df["净额"].map(_num)
         df = df.sort_values("_net", ascending=False)
         out = []
-        for _, r in df.head(30).iterrows():
+        for _, r in df.head(50).iterrows():
             pct = str(r.get("涨跌幅", "")).rstrip("%")
             out.append({
                 "名称": r.get("股票简称"),
@@ -254,13 +332,15 @@ def get_a_spot_sample() -> list[dict]:
 
 
 def collect_all(date: str | None = None) -> dict:
+    trade_date = (date or dt.date.today().strftime("%Y%m%d"))
+    heatmap = get_a_spot_sample()
     data = {
         "updated_at": dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "us_indices": get_us_indices(),
         "a_indexes": get_a_indexes(),
         "sector_flow": get_sector_fund_flow(),
         "limit_up": get_limit_up(date),
-        "heatmap": get_a_spot_sample(),
+        "heatmap": enrich_heatmap(heatmap, trade_date),
     }
     _save("market_snapshot", data)
     return data
