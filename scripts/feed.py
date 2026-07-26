@@ -74,6 +74,66 @@ def compute_rsi(closes, period: int = 14) -> float | None:
     return round(100 - 100 / (1 + rs), 1)
 
 
+def to_tscode(code: str) -> str | None:
+    """6 位 A股代码 -> tushare ts_code（如 600584 -> 600584.SH）。非法返回 None。"""
+    s = str(code).strip()
+    if len(s) != 6 or not s.isdigit():
+        return None
+    if s[0] == "6":
+        return f"{s}.SH"
+    if s[0] in ("0", "3"):
+        return f"{s}.SZ"
+    if s[0] in ("8", "4"):
+        return f"{s}.BJ"
+    return None
+
+
+def compute_macd(closes, fast: int = 12, slow: int = 26, signal: int = 9) -> dict | None:
+    """返回最新 {macd_dif, macd_dea, macd_hist}（四舍五入3位）。数据不足返回 None。"""
+    try:
+        cs = [float(c) for c in closes if c is not None]
+    except Exception:
+        return None
+    if len(cs) < slow + signal:
+        return None
+
+    def _ema(data, n):
+        k = 2 / (n + 1)
+        out = []
+        prev = data[0]
+        for i, v in enumerate(data):
+            if i == 0:
+                out.append(v)
+            else:
+                prev = v * k + prev * (1 - k)
+                out.append(prev)
+        return out
+
+    ema_f = _ema(cs, fast)
+    ema_s = _ema(cs, slow)
+    dif = [ema_f[i] - ema_s[i] for i in range(len(cs))]
+    dea = _ema(dif, signal)
+    hist = [2 * (dif[i] - dea[i]) for i in range(len(cs))]
+    return {
+        "macd_dif": round(dif[-1], 3),
+        "macd_dea": round(dea[-1], 3),
+        "macd_hist": round(hist[-1], 3),
+    }
+
+
+def _tushare_pro():
+    """读取 TUSHARE_TOKEN 环境变量，返回 pro_api；缺 token 或库未装返回 None。"""
+    token = os.getenv("TUSHARE_TOKEN")
+    if not token:
+        return None
+    try:
+        import tushare as ts
+        ts.set_token(token)
+        return ts.pro_api()
+    except Exception:
+        return None
+
+
 def _ak_volume_ratio_map() -> dict:
     """名称 -> 量比（来自全市场快照，一次调用覆盖全部）。失败返回 {}。"""
     try:
@@ -110,6 +170,135 @@ def _ak_rsi(em_code: str, end_date: str) -> float | None:
         return compute_rsi(df["收盘"].tolist(), 14)
     except Exception:
         return None
+
+
+# ---------------------------------------------------------------- 批量技术指标（tushare 主力 + akshare 兜底）
+def _tushare_indicators(pro, ts_codes: list[str]) -> dict:
+    """tushare 批量取 RSI(14)/MACD/量比/换手。2 次调用覆盖全部标的。"""
+    out: dict = {c: {} for c in ts_codes}
+    if not ts_codes:
+        return out
+    end = dt.date.today().strftime("%Y%m%d")
+    start = (dt.date.today() - dt.timedelta(days=70)).strftime("%Y%m%d")
+    # 1) RSI + MACD 来自 daily
+    try:
+        df = pro.daily(ts_code=",".join(ts_codes), start_date=start, end_date=end)
+        if df is not None and not df.empty and "close" in df.columns:
+            for code, g in df.groupby("ts_code"):
+                if code not in out:
+                    out[code] = {}
+                closes = g.sort_values("trade_date")["close"].tolist()
+                out[code]["rsi"] = compute_rsi(closes, 14)
+                m = compute_macd(closes)
+                if m:
+                    out[code].update(m)
+    except Exception as e:  # noqa: BLE001
+        print(f"[tushare] daily 失败: {e}")
+    # 2) 量比 + 换手来自 daily_basic
+    try:
+        dfb = pro.daily_basic(ts_code=",".join(ts_codes), start_date=start, end_date=end)
+        if dfb is not None and not dfb.empty:
+            for code, g in dfb.groupby("ts_code"):
+                if code not in out:
+                    out[code] = {}
+                g = g.sort_values("trade_date")
+                last = g.iloc[-1]
+                try:
+                    out[code]["volume_ratio"] = float(last.get("volume_ratio")) if last.get("volume_ratio") is not None else None
+                except Exception:
+                    out[code]["volume_ratio"] = None
+                try:
+                    out[code]["turnover_rate"] = float(last.get("turnover_rate")) if last.get("turnover_rate") is not None else None
+                except Exception:
+                    out[code]["turnover_rate"] = None
+    except Exception as e:  # noqa: BLE001
+        print(f"[tushare] daily_basic 失败: {e}")
+    return out
+
+
+def _akshare_indicators(items: list[tuple]) -> dict:
+    """akshare 逐只兜底：RSI/MACD 用日线 qfq，量比/换手用全市场快照（一次）。"""
+    out: dict = {}
+    name_vr: dict = {}
+    name_turn: dict = {}
+    try:
+        import akshare as ak
+        df = _retry(lambda: ak.stock_zh_a_spot_em(), attempts=2, wait=1)
+        if df is not None and not df.empty:
+            for _, r in df.iterrows():
+                nm = r.get("名称")
+                if not nm:
+                    continue
+                try:
+                    name_vr[str(nm)] = float(r.get("量比"))
+                except Exception:
+                    pass
+                try:
+                    name_turn[str(nm)] = float(r.get("换手率"))
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    trade_date = dt.date.today().strftime("%Y%m%d")
+    start = (dt.date.today() - dt.timedelta(days=75)).strftime("%Y%m%d")
+    for name, ts_code in items:
+        if not ts_code:
+            out[ts_code] = {}
+            continue
+        em = ts_code.split(".")[0]
+        rec: dict = {}
+        try:
+            import akshare as ak
+            dfh = _retry(
+                lambda: ak.stock_zh_a_hist(
+                    symbol=em, period="daily",
+                    start_date=start, end_date=trade_date, adjust="qfq"),
+                attempts=2, wait=0.5)
+            if dfh is not None and not dfh.empty and "收盘" in dfh.columns:
+                closes = dfh["收盘"].tolist()
+                rec["rsi"] = compute_rsi(closes, 14)
+                m = compute_macd(closes)
+                if m:
+                    rec.update(m)
+                if "换手率" in dfh.columns:
+                    try:
+                        rec["turnover_rate"] = float(dfh["换手率"].iloc[-1])
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+        rec["volume_ratio"] = name_vr.get(name)
+        if rec.get("turnover_rate") is None:
+            rec["turnover_rate"] = name_turn.get(name)
+        out[ts_code] = rec
+        time.sleep(0.05)
+    return out
+
+
+def get_indicators(items: list[tuple]) -> dict:
+    """
+    批量获取技术指标（RSI14 / MACD / 量比 / 换手）。
+    items: list of (name, ts_code)，ts_code 形如 '600584.SH'。
+    优先 tushare（2 次批量调用）；否则 akshare 逐只兜底；少量缺失自动补齐。
+    返回 {ts_code: {rsi, macd_dif, macd_dea, macd_hist, volume_ratio, turnover_rate}}
+    """
+    valid = [(n, t) for n, t in items if t]
+    if not valid:
+        return {}
+    pro = _tushare_pro()
+    if pro:
+        ts_codes = [t for _, t in valid]
+        out = _tushare_indicators(pro, ts_codes)
+        # 个别缺失（如北交所/退市）用 akshare 补
+        missing = [(n, t) for n, t in valid if t not in out or not out.get(t)]
+        if missing:
+            filled = _akshare_indicators(missing)
+            for t, rec in filled.items():
+                base = out.get(t, {})
+                base.update({k: v for k, v in rec.items() if v is not None})
+                out[t] = base
+        return out
+    return _akshare_indicators(valid)
 
 
 def enrich_heatmap(heat: list, trade_date: str | None = None) -> list:
@@ -340,7 +529,7 @@ def collect_all(date: str | None = None) -> dict:
         "a_indexes": get_a_indexes(),
         "sector_flow": get_sector_fund_flow(),
         "limit_up": get_limit_up(date),
-        "heatmap": enrich_heatmap(heatmap, trade_date),
+        "heatmap": heatmap,
     }
     _save("market_snapshot", data)
     return data

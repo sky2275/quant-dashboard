@@ -364,6 +364,33 @@ def _fetch_us_quotes(syms):
     return out
 
 
+def _name_to_ts(name):
+    """持仓/备选池名称 -> ts_code（经 NAME_CODE 映射）。未知返回 None。"""
+    c = NAME_CODE.get(name)
+    if not c:
+        return None
+    return feed.to_tscode(c[2:]) if feed.to_tscode(c[2:]) else None
+
+
+def _macd_cell(ind):
+    """返回 (显示文本, 配色class)。hist>0 多头红 / hist<0 空头绿。"""
+    if not ind:
+        return "—", ""
+    dif = ind.get("macd_dif")
+    if dif is None:
+        return "—", ""
+    hist = ind.get("macd_hist") or 0
+    cls = "up" if hist > 0 else ("down" if hist < 0 else "")
+    return f"{dif:+.2f}", cls
+
+
+def _fmt_turnover(v):
+    try:
+        return f"{float(v):.2f}%"
+    except Exception:
+        return "—"
+
+
 # ----------------------------------------------------------------- ① 全球大盘行情
 def _section_global(snap, us_quotes):
     a = snap.get("a_indexes", []) or []
@@ -573,33 +600,42 @@ def _section_limitup(snap):
         </div>'''
 
 
-# ----------------------------------------------------------------- ④ A股热力全景图（资金流向前50，含真实 RSI / 量比）
-def _flowtop_rows(snap):
+# ----------------------------------------------------------------- ④ A股热力全景图（资金流向前50，含真实 RSI / MACD / 量比 / 换手）
+def _flowtop_rows(snap, indicators):
     heat = snap.get("heatmap", []) or []
     real = [x for x in heat if isinstance(x, dict) and "error" not in x]
     rows = []
     for i, x in enumerate(real[:50], 1):
         net = x.get("今日主力净流入-净额") or x.get("主力净流入-净额")
+        ts = feed.to_tscode(str(x.get("代码", "") or ""))
+        ind = indicators.get(ts, {}) if ts else {}
+        rsi = ind.get("rsi")
+        vr = ind.get("volume_ratio")
+        hk_turn = x.get("换手率")
+        if hk_turn is not None and str(hk_turn) not in ("", "None", "nan"):
+            turnover = _safe(hk_turn, "—")
+        else:
+            turnover = _fmt_turnover(ind.get("turnover_rate"))
         rows.append({
             "rank": i,
             "stock": x.get("名称", "—"),
             "sector": "—",
             "amount": _fmt_yi(net),
             "change": _fmt_pct(x.get("涨跌幅")),
-            "rsi": x.get("rsi"),
-            "rsi_disp": _fmt_rsi(x.get("rsi")),
-            "rsi_cls": _rsi_class(x.get("rsi")),
-            "turnover": _safe(x.get("换手率"), "—"),
-            "volumeRatio": x.get("量比"),
-            "vol_disp": _fmt_vol(x.get("量比")),
-            "vol_cls": _vol_cls(x.get("量比")),
+            "rsi": rsi,
+            "rsi_disp": _fmt_rsi(rsi),
+            "rsi_cls": _rsi_class(rsi),
+            "turnover": turnover,
+            "volumeRatio": vr,
+            "vol_disp": _fmt_vol(vr),
+            "vol_cls": _vol_cls(vr),
             "tag": "强势",
         })
     return rows
 
 
-def _section_heatmap(snap):
-    rows = _flowtop_rows(snap)
+def _section_heatmap(snap, indicators):
+    rows = _flowtop_rows(snap, indicators)
     if not rows:
         body = '<tr><td colspan="9" style="text-align:center;color:var(--text-secondary);padding:14px;">个股资金流数据暂不可用（非交易日 / 接口限流），云端 Actions 正常时自动显示。</td></tr>'
     else:
@@ -631,13 +667,13 @@ def _section_heatmap(snap):
                 </table>
             </div>
             <div style="margin-top:8px;font-size:11px;color:var(--text-secondary);">
-                <i class="fas fa-info-circle"></i> 资金流(净流入/涨跌幅/换手)为东财真实值；RSI(14)/量比为 akshare 真实技术指标
+                <i class="fas fa-info-circle"></i> 资金流(净流入/涨跌幅/换手)为东财真实值；RSI(14)/MACD/量比/换手为 tushare 真实技术指标
             </div>
         </div>'''
 
 
 # ----------------------------------------------------------------- ⑤ 持仓复盘
-def _position_rows(cfg, a_quotes):
+def _position_rows(cfg, a_quotes, indicators):
     hs = cfg.get("holdings", []) or []
     if not hs:
         return []
@@ -655,6 +691,11 @@ def _position_rows(cfg, a_quotes):
                 pnl_rate = None
         signal = "持有" if (pnl_rate is not None and pnl_rate > 0) else "观察"
         signal_cls = "buy" if signal == "持有" else "hold"
+        ts = _name_to_ts(name)
+        ind = indicators.get(ts, {}) if ts else {}
+        rsi = ind.get("rsi")
+        macd_disp, macd_cls = _macd_cell(ind)
+        vr = ind.get("volume_ratio")
         rows.append({
             "stock": name,
             "quantity": "—",
@@ -662,10 +703,14 @@ def _position_rows(cfg, a_quotes):
             "price": price,
             "pnl": None,
             "pnlRate": pnl_rate,
-            "rsi": "—",
-            "macd": "—",
-            "volumeRatio": "—",
-            "turnover": "—",
+            "rsi": rsi,
+            "rsi_disp": _fmt_rsi(rsi),
+            "rsi_cls": _rsi_class(rsi),
+            "macd": macd_disp,
+            "macd_cls": macd_cls,
+            "volumeRatio": _fmt_vol(vr),
+            "vol_cls": _vol_cls(vr),
+            "turnover": _fmt_turnover(ind.get("turnover_rate")),
             "mainFlow": "—",
             "signal": signal,
             "signalClass": signal_cls,
@@ -673,8 +718,8 @@ def _position_rows(cfg, a_quotes):
     return rows
 
 
-def _section_holdings(cfg, a_quotes):
-    rows = _position_rows(cfg, a_quotes)
+def _section_holdings(cfg, a_quotes, indicators):
+    rows = _position_rows(cfg, a_quotes, indicators)
     if not rows:
         return '''
         <div class="card card-full" onclick="openModal('positions')">
@@ -688,9 +733,9 @@ def _section_holdings(cfg, a_quotes):
             <td>{_safe(d['cost'],'—')}</td>
             <td>{_safe(d['price'],'—')}</td>
             <td style="color:{'#ef4444' if (d['pnlRate'] or 0) > 0 else ('#22c55e' if (d['pnlRate'] or 0) < 0 else 'var(--text-secondary)')};font-weight:600;">{_fmt_pct(d['pnlRate']) if d['pnlRate'] is not None else '—'}</td>
-            <td class="rsi-mid">{d['rsi']}</td>
-            <td style="color:var(--text-secondary);">{d['macd']}</td>
-            <td>{d['volumeRatio']}</td>
+            <td class="{d['rsi_cls']}">{d['rsi_disp']}</td>
+            <td class="{d['macd_cls']}">{d['macd']}</td>
+            <td class="{d['vol_cls']}" style="{'color:var(--text-secondary);' if not d['vol_cls'] else ''}">{d['volumeRatio']}</td>
             <td>{d['turnover']}</td>
             <td style="color:var(--text-secondary);font-size:10px;">{d['mainFlow']}</td>
             <td><span class="tag {d['signalClass']}">{d['signal']}</span></td>
@@ -711,13 +756,13 @@ def _section_holdings(cfg, a_quotes):
                 </table>
             </div>
             <div style="margin-top:8px;font-size:10px;color:var(--text-secondary);">
-                <i class="fas fa-info-circle"></i> 现价为腾讯实时价；RSI/MACD/量比/换手/主力等技术字段待补充真实数据
+                <i class="fas fa-info-circle"></i> 现价为腾讯实时价；RSI(14)/MACD/量比/换手来自 tushare 真实技术指标
             </div>
         </div>'''
 
 
 # ----------------------------------------------------------------- ⑥ 备选股票池
-def _section_pool(cfg, a_quotes):
+def _section_pool(cfg, a_quotes, indicators):
     pool = cfg.get("attack_pool", []) or []
     if not pool:
         return '''
@@ -730,13 +775,18 @@ def _section_pool(cfg, a_quotes):
         q = a_quotes.get(name)
         price = (q or {}).get("price") if q else None
         pct = (q or {}).get("change_pct") if q else None
+        ts = _name_to_ts(name)
+        ind = indicators.get(ts, {}) if ts else {}
+        rsi = ind.get("rsi")
+        vr = ind.get("volume_ratio")
+        score = f"RSI {_fmt_rsi(rsi)} · 量比 {_fmt_vol(vr)} · 换手 {_fmt_turnover(ind.get('turnover_rate'))}"
         cards += f'''
                 <div class="watchlist-card">
                     <div class="stock-name">{name}</div>
                     <div class="stock-sector">备选</div>
                     <div class="stock-price">{_safe(price,'—')}</div>
                     <div class="stock-change">{_fmt_pct(pct)}</div>
-                    <div class="stock-score">评分 —</div>
+                    <div class="stock-score">{score}</div>
                 </div>'''
     return f'''
         <div class="card card-full" onclick="openModal('watchlist')">
@@ -753,7 +803,7 @@ def _section_pool(cfg, a_quotes):
             </div>
             <div class="watchlist-grid">{cards}</div>
             <div style="margin-top:6px;font-size:10px;color:var(--text-secondary);">
-                <i class="fas fa-info-circle"></i> 价格为腾讯实时价；评分 / 回测指标待接入真实因子
+                <i class="fas fa-info-circle"></i> 价格为腾讯实时价；RSI/量比/换手为 tushare 真实技术指标
             </div>
         </div>'''
 
@@ -1021,8 +1071,8 @@ def _modal_limitup(snap):
     }
 
 
-def _modal_flow(snap):
-    rows = _flowtop_rows(snap)
+def _modal_flow(snap, indicators):
+    rows = _flowtop_rows(snap, indicators)
     if not rows:
         return {"title": "📊 A股热力全景图 · 资金流向前50名 完整数据",
                 "html": '<p class="sub-title">主力资金净流入排名</p><div style="color:var(--text-secondary);">个股资金流数据暂不可用（非交易日 / 接口限流）。</div>'}
@@ -1054,13 +1104,13 @@ def _modal_flow(snap):
                 </table>
             </div>
             <div style="margin-top:12px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px;color:#f59e0b;">
-                📌 净流入/涨跌幅/换手为东财真实值；RSI(14)/量比为 akshare 真实技术指标（RSI&lt;35 超卖绿 / &gt;65 超买红）
+                📌 净流入/涨跌幅/换手为东财真实值；RSI(14)/MACD/量比/换手为 tushare 真实技术指标（RSI&lt;35 超卖绿 / &gt;65 超买红）
             </div>'''
     }
 
 
-def _modal_positions(cfg, a_quotes):
-    rows = _position_rows(cfg, a_quotes)
+def _modal_positions(cfg, a_quotes, indicators):
+    rows = _position_rows(cfg, a_quotes, indicators)
     if not rows:
         return {"title": "💼 持仓详细分析", "html": '<p class="sub-title">含技术指标与资金流向</p><div style="color:var(--text-secondary);">未配置持仓。</div>'}
     trs = "".join(
@@ -1070,9 +1120,9 @@ def _modal_positions(cfg, a_quotes):
             <td style="padding:4px;text-align:right;">{_safe(d['cost'],'—')}</td>
             <td style="padding:4px;text-align:right;">{_safe(d['price'],'—')}</td>
             <td style="padding:4px;text-align:right;color:{'#ef4444' if (d['pnlRate'] or 0)>0 else ('#22c55e' if (d['pnlRate'] or 0)<0 else 'var(--text-secondary)')};font-weight:600;">{_fmt_pct(d['pnlRate']) if d['pnlRate'] is not None else '—'}</td>
-            <td style="padding:4px;text-align:right;" class="rsi-mid">{d['rsi']}</td>
-            <td style="padding:4px;text-align:right;color:var(--text-secondary);">{d['macd']}</td>
-            <td style="padding:4px;text-align:right;">{d['volumeRatio']}</td>
+            <td style="padding:4px;text-align:right;" class="{d['rsi_cls']}">{d['rsi_disp']}</td>
+            <td style="padding:4px;text-align:right;" class="{d['macd_cls']}">{d['macd']}</td>
+            <td style="padding:4px;text-align:right;" class="{d['vol_cls']}">{d['volumeRatio']}</td>
             <td style="padding:4px;text-align:right;">{d['turnover']}</td>
             <td style="padding:4px;text-align:right;color:var(--text-secondary);font-size:10px;">{d['mainFlow']}</td>
             <td style="padding:4px;text-align:center;"><span class="tag {d['signalClass']}">{d['signal']}</span></td>
@@ -1080,7 +1130,7 @@ def _modal_positions(cfg, a_quotes):
     return {
         "title": "💼 持仓详细分析 · 含技术指标与资金流向",
         "html": f'''
-            <p class="sub-title">按账户分类 · 含RSI/MACD/量比/换手率/主力资金（技术字段待补充）</p>
+            <p class="sub-title">按账户分类 · 含RSI/MACD/量比/换手率/主力资金（技术指标来自 tushare 真实数据）</p>
             <div style="overflow-x:auto;">
                 <table style="width:100%;font-size:11px;border-collapse:collapse;">
                     <thead><tr style="color:#8892a0;border-bottom:1px solid var(--border-color);">
@@ -1094,12 +1144,12 @@ def _modal_positions(cfg, a_quotes):
                 </table>
             </div>
             <div style="margin-top:8px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:11px;color:#f59e0b;">
-                📌 现价为腾讯实时价；技术字段（RSI/MACD/量比/换手/主力）待补充真实数据后展示
+                📌 现价为腾讯实时价；技术指标（RSI/MACD/量比/换手）来自 tushare 真实数据
             </div>'''
     }
 
 
-def _modal_watchlist(cfg, a_quotes):
+def _modal_watchlist(cfg, a_quotes, indicators):
     pool = cfg.get("attack_pool", []) or []
     if not pool:
         return {"title": "📊 备选股票池", "html": '<p class="sub-title">周度/月度回测详情</p><div style="color:var(--text-secondary);">未配置备选池。</div>'}
@@ -1108,20 +1158,25 @@ def _modal_watchlist(cfg, a_quotes):
         q = a_quotes.get(name)
         price = (q or {}).get("price")
         pct = (q or {}).get("change_pct")
+        ts = _name_to_ts(name)
+        ind = indicators.get(ts, {}) if ts else {}
+        rsi = ind.get("rsi")
+        vr = ind.get("volume_ratio")
+        score = f"RSI {_fmt_rsi(rsi)} · 量比 {_fmt_vol(vr)} · 换手 {_fmt_turnover(ind.get('turnover_rate'))}"
         cards += f'''
             <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:8px 10px;border:1px solid var(--border-color);text-align:center;">
                 <div style="font-weight:600;font-size:12px;color:#ef4444;">{name}</div>
                 <div style="font-size:14px;font-weight:700;color:#ef4444;">{_safe(price,'—')}</div>
                 <div style="font-size:11px;font-weight:500;color:{_hex(pct)};">{_fmt_pct(pct)}</div>
-                <div style="font-size:10px;color:var(--text-secondary);">评分 —</div>
+                <div style="font-size:10px;color:var(--text-secondary);">{score}</div>
             </div>'''
     return {
         "title": "📊 备选股票池 · 实时行情",
         "html": f'''
-            <p class="sub-title">共 {len(pool)} 只备选标的 · 价格为腾讯实时价</p>
+            <p class="sub-title">共 {len(pool)} 只备选标的 · 价格为腾讯实时价 · RSI/量比/换手为 tushare 真实指标</p>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px;">{cards}</div>
             <div style="margin-top:10px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:11px;color:#f59e0b;">
-                📌 评分 / 周度 / 月度回测指标待接入真实因子后展示
+                📌 价格为腾讯实时价；RSI(14)/量比/换手来自 tushare 真实技术指标
             </div>'''
     }
 
@@ -1164,6 +1219,22 @@ def build() -> str:
     a_quotes = _fetch_a_quotes(list(dict.fromkeys(pool_names + hold_names)))
     us_quotes = _fetch_us_quotes(US_SYMS)
 
+    # 批量技术指标（RSI/MACD/量比/换手）：收集全部标的 ts_code，调用 feed.get_indicators 一次
+    items = []
+    seen = set()
+    for x in (snap.get("heatmap", []) or []):
+        if isinstance(x, dict) and "error" not in x:
+            ts = feed.to_tscode(str(x.get("代码", "") or ""))
+            if ts and ts not in seen:
+                seen.add(ts)
+                items.append((x.get("名称", "—"), ts))
+    for n in list(dict.fromkeys(pool_names + hold_names)):
+        ts = _name_to_ts(n)
+        if ts and ts not in seen:
+            seen.add(ts)
+            items.append((n, ts))
+    indicators = feed.get_indicators(items)
+
     updated_at = snap.get("updated_at", "—")
     try:
         date_val = dt.datetime.strptime(updated_at, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
@@ -1189,16 +1260,16 @@ def build() -> str:
         _section_global(snap, us_quotes),
         _section_transmit(overnight),
         _section_limitup(snap),
-        _section_heatmap(snap),
-        _section_holdings(cfg, a_quotes),
-        _section_pool(cfg, a_quotes),
+        _section_heatmap(snap, indicators),
+        _section_holdings(cfg, a_quotes, indicators),
+        _section_pool(cfg, a_quotes, indicators),
         _section_judge(overnight, snap, cfg, a_quotes),
     ])
 
     footer = f'''
     <div class="footer">
         <i class="fas fa-sync-alt"></i> 数据自动更新 · 点击卡片查看详情<br>
-        更新时间: {updated_at} ｜ 来源：腾讯行情 / 东财 / akshare
+        更新时间: {updated_at} ｜ 来源：腾讯行情 / 东财资金流 / tushare技术指标
     </div>'''
 
     modal_shell = '''
@@ -1214,9 +1285,9 @@ def build() -> str:
         "us_market": _modal_us_market(us_quotes),
         "transmission": _modal_transmission(overnight),
         "limitup": _modal_limitup(snap),
-        "flow": _modal_flow(snap),
-        "positions": _modal_positions(cfg, a_quotes),
-        "watchlist": _modal_watchlist(cfg, a_quotes),
+        "flow": _modal_flow(snap, indicators),
+        "positions": _modal_positions(cfg, a_quotes, indicators),
+        "watchlist": _modal_watchlist(cfg, a_quotes, indicators),
         "judgment": _modal_judgment(overnight, snap, cfg, a_quotes),
     }
 

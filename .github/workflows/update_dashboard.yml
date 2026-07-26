@@ -22,6 +22,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,7 +32,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: 安装依赖
-        run: pip install akshare pandas pyyaml
+        run: pip install akshare pandas pyyaml tushare requests
       - name: 拉取行情数据
         run: python scripts/feed.py
       - name: 美股→A股传导预测(08:00)
