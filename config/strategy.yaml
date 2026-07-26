@@ -17,11 +17,11 @@ sector_mapping:
     a_candidates: ["兆易创新", "深科技", "澜起科技"]
     threshold: 2.0
   - a_sector: "光模块"
-    us_drivers: ["Coherent", "Lumentum"]
+    us_drivers: ["COHR", "LITE"]   # Coherent / Lumentum
     a_candidates: ["中际旭创", "天孚通信", "新易盛"]
     threshold: 2.0
   - a_sector: "物理AI/机器人"
-    us_drivers: ["ESTUN", "HUIYUAN"]
+    us_drivers: ["SYM", "ISRG", "TER"]   # Symbotic / 直觉外科 / 泰瑞达（美股机器人自动化链）
     a_candidates: ["埃斯顿", "汇川技术", "绿的谐波"]
     threshold: 1.5
   - a_sector: "科技巨头"

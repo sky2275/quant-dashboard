@@ -102,10 +102,14 @@ def _section_heatmap(snap: dict) -> str:
     rows = ""
     for i, x in enumerate(hs, 1):
         net = x.get("主力净流入-净额")
+        try:
+            net_txt = f"{float(net)/1e8:+.2f}亿"
+        except Exception:
+            net_txt = "—"
         rows += f'''<div class="row"><span class="rank">#{i}</span>
           <b>{x.get("名称","—")}</b>
           <i class="{_cls(x.get("涨跌幅"))}">{_fmt_pct(x.get("涨跌幅"))}</i>
-          <span class="net {_cls(net)}">净流入 {net}</span></div>'''
+          <span class="net {_cls(net)}">净流入 {net_txt}</span></div>'''
     return f'''
     <section><h2>④ A股资金流向前30</h2>
       <div class="card scroll">{rows}</div></section>'''

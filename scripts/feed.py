@@ -168,14 +168,31 @@ def get_a_stocks(codes: list[str]) -> dict[str, dict]:
         return {}
 
 
-# ------------------------------------------------------- 东财源（重试兜底）
+# --------------------------------------- 资金流（东财主力 / 同花顺兜底）
 def get_sector_fund_flow() -> list[dict]:
+    # 主力：东财（海外机房易断连，带重试）
     try:
         import akshare as ak
         df = _retry(lambda: ak.stock_sector_fund_flow_rank(
-            indicator="今日", sector_type="行业资金流"))
+            indicator="今日", sector_type="行业资金流"), attempts=2)
         cols = [c for c in ["名称", "今日主力净流入-净额", "今日主力净流入-净占比", "涨跌幅"] if c in df.columns]
         return df[cols].head(30).to_dict(orient="records")
+    except Exception:
+        pass
+    # 兜底：同花顺行业资金流（字段归一为东财格式，净额从亿元换算为元）
+    try:
+        import akshare as ak
+        df = _retry(lambda: ak.stock_fund_flow_industry(symbol="即时"), attempts=2)
+        df = df.sort_values("净额", ascending=False)
+        out = []
+        for _, r in df.head(30).iterrows():
+            out.append({
+                "名称": r.get("行业"),
+                "今日主力净流入-净额": float(r.get("净额", 0)) * 1e8,
+                "涨跌幅": r.get("行业-涨跌幅"),
+                "领涨股": r.get("领涨股"),
+            })
+        return out
     except Exception as e:
         return [{"error": str(e)[:120]}]
 
@@ -195,11 +212,43 @@ def get_limit_up(date: str | None = None) -> list[dict]:
 
 
 def get_a_spot_sample() -> list[dict]:
+    # 主力：东财个股资金流排行
     try:
         import akshare as ak
-        df = _retry(lambda: ak.stock_individual_fund_flow_rank(indicator="今日"))
+        df = _retry(lambda: ak.stock_individual_fund_flow_rank(indicator="今日"), attempts=2)
         cols = [c for c in ["名称", "代码", "最新价", "涨跌幅", "主力净流入-净额", "主力净流入-净占比", "换手率"] if c in df.columns]
         return df[cols].head(30).to_dict(orient="records")
+    except Exception:
+        pass
+    # 兜底：同花顺个股资金流（字段归一为东财格式，净额从万元换算为元）
+    try:
+        import akshare as ak
+        df = _retry(lambda: ak.stock_fund_flow_individual(symbol="即时"), attempts=2)
+
+        def _num(v):
+            try:
+                s = str(v).replace(",", "")
+                if s.endswith("亿"):
+                    return float(s[:-1]) * 1e8
+                if s.endswith("万"):
+                    return float(s[:-1]) * 1e4
+                return float(s)
+            except Exception:
+                return 0.0
+        df["_net"] = df["净额"].map(_num)
+        df = df.sort_values("_net", ascending=False)
+        out = []
+        for _, r in df.head(30).iterrows():
+            pct = str(r.get("涨跌幅", "")).rstrip("%")
+            out.append({
+                "名称": r.get("股票简称"),
+                "代码": str(r.get("股票代码", "")),
+                "最新价": r.get("最新价"),
+                "涨跌幅": float(pct) if pct not in ("", "None") else None,
+                "主力净流入-净额": r["_net"],
+                "换手率": r.get("换手率"),
+            })
+        return out
     except Exception as e:
         return [{"error": str(e)[:120]}]
 
