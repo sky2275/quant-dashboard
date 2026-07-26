@@ -587,6 +587,69 @@ def get_limit_up(date: str | None = None) -> list[dict]:
         return [{"error": str(e)[:120]}]
 
 
+def get_limit_down(date: str | None = None) -> list[dict]:
+    """跌停池（与 get_limit_up 对称）。失败返回 [{'error':...}]。"""
+    if date is None:
+        date = dt.date.today().strftime("%Y%m%d")
+    try:
+        import akshare as ak
+        df = _retry(lambda: ak.stock_dt_pool_em(date=date))
+        if df is None or df.empty:
+            return []
+        cols = [c for c in ["名称", "代码", "涨跌幅", "成交额", "连板数", "封单资金", "所属行业"] if c in df.columns]
+        return df[cols].to_dict(orient="records")
+    except Exception as e:
+        return [{"error": str(e)[:120]}]
+
+
+def get_market_breadth() -> dict:
+    """
+    两市(沪+深，不含北交所) 总成交额、上涨/下跌/平盘家数。
+    来源：akshare 全市场快照 stock_zh_a_spot_em() 一次调用即可同时得到三项。
+    失败返回 {'error': ...}；非交易日接口返回的是最近交易日收盘快照。
+    """
+    try:
+        import akshare as ak
+        df = _retry(lambda: ak.stock_zh_a_spot_em(), attempts=2, wait=1)
+        if df is None or df.empty:
+            return {"error": "empty"}
+        code_col = "代码" if "代码" in df.columns else None
+        pct_col = "涨跌幅" if "涨跌幅" in df.columns else None
+        amt_col = "成交额" if "成交额" in df.columns else None
+        if not (code_col and pct_col and amt_col):
+            return {"error": "cols"}
+        df = df.copy()
+        df["_lead"] = df[code_col].astype(str).str[:1]
+        main = df[df["_lead"].isin(["6", "0", "3"])]  # 沪(6) + 深(0/3)，剔除北交所(8/4)
+        amt = 0.0
+        for v in main[amt_col].tolist():
+            try:
+                if v not in (None, "", "None", "nan"):
+                    amt += float(v)
+            except Exception:
+                pass
+        up = down = flat = 0
+        for v in main[pct_col].tolist():
+            try:
+                p = float(v)
+            except Exception:
+                continue
+            if p > 0:
+                up += 1
+            elif p < 0:
+                down += 1
+            else:
+                flat += 1
+        return {
+            "amount": round(amt, 2),   # 元
+            "up_count": up,
+            "down_count": down,
+            "flat_count": flat,
+        }
+    except Exception as e:  # noqa: BLE001
+        return {"error": str(e)[:120]}
+
+
 def get_a_spot_sample() -> list[dict]:
     # 主力：东财个股资金流排行
     try:
@@ -663,6 +726,8 @@ def collect_all(date: str | None = None) -> dict:
     sector_flow, sf_stale = _pick(get_sector_fund_flow(), "sector_flow")
     limit_up, lu_stale = _pick(get_limit_up(trade_date), "limit_up")
     heatmap, hm_stale = _pick(get_a_spot_sample(), "heatmap")
+    breadth, br_stale = _pick(get_market_breadth(), "market_breadth")
+    limit_down, ld_stale = _pick(get_limit_down(trade_date), "limit_down")
 
     data = {
         "updated_at": dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -671,13 +736,17 @@ def collect_all(date: str | None = None) -> dict:
             "trade_date": trade_date,
             "source": ctx["source"],
             "stale_keys": [k for k, s in
-                           [("sector_flow", sf_stale), ("limit_up", lu_stale), ("heatmap", hm_stale)] if s],
+                           [("sector_flow", sf_stale), ("limit_up", lu_stale),
+                            ("heatmap", hm_stale), ("market_breadth", br_stale),
+                            ("limit_down", ld_stale)] if s],
         },
         "us_indices": us_indices,
         "a_indexes": a_indexes,
         "sector_flow": sector_flow,
         "limit_up": limit_up,
         "heatmap": heatmap,
+        "market_breadth": breadth,
+        "limit_down": limit_down,
     }
     _save("market_snapshot", data)
     return data

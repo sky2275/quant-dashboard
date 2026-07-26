@@ -307,6 +307,22 @@ def _fmt_yi(yuan):
         return "—"
 
 
+def _fmt_amount(yuan):
+    """元 → 万亿/亿/万（用于两市总成交额）。"""
+    try:
+        v = float(yuan)
+        a = abs(v)
+        if a >= 1e12:
+            return f"{v / 1e12:.2f}万亿"
+        if a >= 1e8:
+            return f"{v / 1e8:.0f}亿"
+        if a >= 1e4:
+            return f"{v / 1e4:.0f}万"
+        return f"{v:.0f}"
+    except Exception:
+        return "—"
+
+
 def _fmt_cap(yuan):
     """元 → 亿/万（用于涨停封单资金）。"""
     try:
@@ -440,14 +456,23 @@ def _section_global(snap, us_quotes):
 
     limit_up = snap.get("limit_up", []) or []
     zt = len([x for x in limit_up if isinstance(x, dict) and "error" not in x])
+    # 两市总览：成交额 + 涨跌家数 来自 market_breadth；跌停家数来自 limit_down 跌停池
+    breadth = snap.get("market_breadth") or {}
+    amount = up_c = down_c = None
+    if isinstance(breadth, dict) and "error" not in breadth:
+        amount = breadth.get("amount")
+        up_c = breadth.get("up_count")
+        down_c = breadth.get("down_count")
+    limit_down = snap.get("limit_down", []) or []
+    dt_count = len([x for x in limit_down if isinstance(x, dict) and "error" not in x])
     a_box = f'''
                 <div class="market-box">
                     <div class="box-title"><span class="flag">🇨🇳</span> A股</div>
                     <div class="market-row">
                         {a_items or '<div class="market-item"><span class="label">数据缺失</span></div>'}
-                        <div class="market-item"><span class="label">成交额</span><span class="value yellow">—</span></div>
-                        <div class="market-item"><span class="label">涨跌</span><span class="value up">—</span><span style="color:var(--text-secondary);">/</span><span class="value down">—</span></div>
-                        <div class="market-item"><span class="label">涨停/跌停</span><span class="value up">{zt or "—"}</span><span style="color:var(--text-secondary);">/</span><span class="value down">—</span></div>
+                        <div class="market-item"><span class="label">成交额</span><span class="value yellow">{_fmt_amount(amount)}</span></div>
+                        <div class="market-item"><span class="label">涨跌</span><span class="value up">{_safe(up_c, "—")}</span><span style="color:var(--text-secondary);">/</span><span class="value down">{_safe(down_c, "—")}</span></div>
+                        <div class="market-item"><span class="label">涨停/跌停</span><span class="value up">{zt or "—"}</span><span style="color:var(--text-secondary);">/</span><span class="value down">{dt_count or "—"}</span></div>
                     </div>
                     <div style="margin-top:6px;">
                         <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-secondary);"><span>恐慌</span><span>贪婪</span></div>
@@ -981,6 +1006,22 @@ def _modal_market(snap, us_quotes):
     a_html = "".join(
         f'<div class="detail-row"><span class="label">{x.get("name","—")}</span><span class="value" style="color:{_hex(x.get("change_pct"))};">{_safe(x.get("price"),"—")} ({_fmt_pct(x.get("change_pct"))})</span></div>'
         for x in a) or '<div class="detail-row"><span class="label">—</span><span class="value">数据缺失</span></div>'
+    # 两市总览汇总行
+    limit_up_m = snap.get("limit_up", []) or []
+    zt = len([x for x in limit_up_m if isinstance(x, dict) and "error" not in x])
+    limit_down_m = snap.get("limit_down", []) or []
+    dt_count = len([x for x in limit_down_m if isinstance(x, dict) and "error" not in x])
+    breadth = snap.get("market_breadth") or {}
+    b_html = ""
+    if isinstance(breadth, dict) and "error" not in breadth:
+        b_html = (f'<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;padding-top:10px;'
+                  f'border-top:1px solid rgba(255,255,255,0.06);font-size:12px;color:var(--text-secondary);">'
+                  f'<span>两市成交额 <b style="color:#f59e0b;">{_fmt_amount(breadth.get("amount"))}</b></span>'
+                  f'<span>上涨 <b style="color:#ef4444;">{_safe(breadth.get("up_count"),"—")}</b></span>'
+                  f'<span>下跌 <b style="color:#22c55e;">{_safe(breadth.get("down_count"),"—")}</b></span>'
+                  f'<span>涨停 <b style="color:#ef4444;">{zt}</b></span>'
+                  f'<span>跌停 <b style="color:#22c55e;">{dt_count}</b></span>'
+                  f'</div>')
     us_html = "".join(
         f'<div class="detail-row"><span class="label">{x.get("name","—")}</span><span class="value" style="color:{_hex(x.get("change_pct"))};">{_safe(x.get("price"),"—")} ({_fmt_pct(x.get("change_pct"))})</span></div>'
         for x in us)
@@ -1017,7 +1058,7 @@ def _modal_market(snap, us_quotes):
             <p class="sub-title">A股四大指数 · 美股隔夜 · 板块资金流入/流出完整TOP30</p>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
                 <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;">
-                    <h3 style="color:#ef4444;">🇨🇳 A股</h3>{a_html}
+                    <h3 style="color:#ef4444;">🇨🇳 A股</h3>{a_html}{b_html}
                 </div>
                 <div style="background:rgba(255,255,255,0.02);border-radius:10px;padding:14px;">
                     <h3 style="color:#4fc3f7;">🇺🇸 美股 (隔夜)</h3>{us_html}
