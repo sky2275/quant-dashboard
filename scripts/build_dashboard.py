@@ -454,16 +454,15 @@ def _section_global(snap, us_quotes):
     mood = "乐观" if avg > 0 else ("中性偏弱" if avg > -2 else "悲观")
     mood_color = "#ef4444" if avg > 0 else ("#f59e0b" if avg > -2 else "#22c55e")
 
-    limit_up = snap.get("limit_up", []) or []
-    zt = len([x for x in limit_up if isinstance(x, dict) and "error" not in x])
-    # 两市总览：成交额 + 涨跌家数 + 跌停家数 均来自 market_breadth
-    # (跌停改用全市场快照按板块真实幅度判定，因 akshare 无 stock_dt_pool_em)
+    # 两市总览：成交额 / 涨跌 / 涨停 / 跌停 全部来自 market_breadth
+    # （新浪源 stock_zh_a_spot 全市场快照，口径与同花顺 APP 一致）
     breadth = snap.get("market_breadth") or {}
-    amount = up_c = down_c = dt_count = None
+    amount = up_c = down_c = zt = dt_count = None
     if isinstance(breadth, dict) and "error" not in breadth:
         amount = breadth.get("amount")
         up_c = breadth.get("up_count")
         down_c = breadth.get("down_count")
+        zt = breadth.get("limit_up_count")
         dt_count = breadth.get("limit_down_count")
     a_box = f'''
                 <div class="market-box">
@@ -974,31 +973,40 @@ def _flow_in_out(snap):
     if not real:
         return None, None
 
-    # 实时取成分股：不依赖缓存里的 sector_constituents（旧缓存可能没有或为空），
-    # 生成 HTML 时直接调用 feed 层，确保弹窗里每个板块都带 3-5 只个股。
-    try:
-        import sys
-        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-        import feed
-        cons = feed.get_sector_constituents_map(real, n=30)
-    except Exception:
-        cons = snap.get("sector_constituents") or {}
+    # 成分股优先用缓存里的 sector_constituents（collect_all 已算好），
+    # 缺失/为空时再实时调用 feed 层兜底。
+    cons = snap.get("sector_constituents") or {}
+    if not cons:
+        try:
+            import sys
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            import feed
+            cons = feed.get_sector_constituents_map(real, n=30)
+        except Exception:
+            cons = {}
 
+    # 流入 TOP30 按「流入资金」降序；流出 TOP30 按「流出资金」降序；
+    # 条目颜色仍按「净流入」正负（红涨绿跌/A股习惯）。
     inp, out = [], []
     for x in real:
-        net = x.get("今日主力净流入-净额")
-        try:
-            nv = float(net)
-        except Exception:
-            nv = 0
         sec = x.get("名称", "—")
         stocks = cons.get(sec) or []  # 该板块 3-5 只成分股
-        if nv >= 0:
-            inp.append({"sector": sec, "amount": _fmt_yi(net), "stocks": stocks})
-        else:
-            out.append({"sector": sec, "amount": _fmt_yi(net), "stocks": stocks})
-    inp.sort(key=lambda d: -_to_yi(d["amount"]))
-    out.sort(key=lambda d: _to_yi(d["amount"]))
+        try:
+            net = float(x.get("净流入", 0))
+        except Exception:
+            net = 0.0
+        try:
+            inflow = float(x.get("流入资金", net if net >= 0 else 0))
+            outflow = float(x.get("流出资金", -net if net < 0 else 0))
+        except Exception:
+            inflow = net if net >= 0 else 0
+            outflow = -net if net < 0 else 0
+        item = {"sector": sec, "amount": _fmt_yi(net), "stocks": stocks,
+                "inflow": inflow, "outflow": outflow}
+        inp.append(item)
+        out.append(item)
+    inp.sort(key=lambda d: -d["inflow"])
+    out.sort(key=lambda d: -d["outflow"])
     for i, d in enumerate(inp, 1):
         d["rank"] = i
     for i, d in enumerate(out, 1):
@@ -1020,12 +1028,7 @@ def _modal_market(snap, us_quotes):
         f'<div class="detail-row"><span class="label">{x.get("name","—")}</span><span class="value" style="color:{_hex(x.get("change_pct"))};">{_safe(x.get("price"),"—")} ({_fmt_pct(x.get("change_pct"))})</span></div>'
         for x in a) or '<div class="detail-row"><span class="label">—</span><span class="value">数据缺失</span></div>'
     # 两市总览汇总行
-    limit_up_m = snap.get("limit_up", []) or []
-    zt = len([x for x in limit_up_m if isinstance(x, dict) and "error" not in x])
     breadth = snap.get("market_breadth") or {}
-    dt_count = None
-    if isinstance(breadth, dict) and "error" not in breadth:
-        dt_count = breadth.get("limit_down_count")
     b_html = ""
     if isinstance(breadth, dict) and "error" not in breadth:
         b_html = (f'<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;padding-top:10px;'
@@ -1033,8 +1036,8 @@ def _modal_market(snap, us_quotes):
                   f'<span>两市成交额 <b style="color:#f59e0b;">{_fmt_amount(breadth.get("amount"))}</b></span>'
                   f'<span>上涨 <b style="color:#ef4444;">{_safe(breadth.get("up_count"),"—")}</b></span>'
                   f'<span>下跌 <b style="color:#22c55e;">{_safe(breadth.get("down_count"),"—")}</b></span>'
-                  f'<span>涨停 <b style="color:#ef4444;">{zt}</b></span>'
-                  f'<span>跌停 <b style="color:#22c55e;">{_safe(dt_count, "—")}</b></span>'
+                  f'<span>涨停 <b style="color:#ef4444;">{_safe(breadth.get("limit_up_count"),"—")}</b></span>'
+                  f'<span>跌停 <b style="color:#22c55e;">{_safe(breadth.get("limit_down_count"), "—")}</b></span>'
                   f'</div>')
     us_html = "".join(
         f'<div class="detail-row"><span class="label">{x.get("name","—")}</span><span class="value" style="color:{_hex(x.get("change_pct"))};">{_safe(x.get("price"),"—")} ({_fmt_pct(x.get("change_pct"))})</span></div>'

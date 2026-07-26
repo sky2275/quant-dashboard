@@ -571,30 +571,58 @@ def get_a_stocks(codes: list[str]) -> dict[str, dict]:
 
 # --------------------------------------- 资金流（东财主力 / 同花顺兜底）
 def get_sector_fund_flow() -> list[dict]:
-    # 主力：东财（海外机房易断连，带重试）
+    """
+    行业板块资金流。统一输出字段：
+      名称, 净流入(元), 流入资金(元), 流出资金(元), 涨跌幅
+    主力源：同花顺 stock_fund_flow_industry（含完整的流入/流出/净额三列，不受东财风控）。
+    兜底：东财 stock_sector_fund_flow_rank（字段不齐时只保证净流入）。
+    """
+    # 主源：同花顺（新浪源，稳定，含流入/流出/净额）
+    try:
+        import akshare as ak
+        df = _retry(lambda: ak.stock_fund_flow_industry(symbol="即时"), attempts=2)
+        if df is not None and not df.empty and "行业" in df.columns and "净额" in df.columns:
+            df = df.copy()
+            # 列类型：净额/流入资金/流出资金 默认是亿元
+            out = []
+            for _, r in df.iterrows():
+                net = float(r.get("净额", 0)) * 1e8   # 亿元 -> 元
+                inflow = float(r.get("流入资金", net / 2 + net / 2)) * 1e8
+                outflow = float(r.get("流出资金", net / 2 - net / 2)) * 1e8
+                # 保证 净流入 = 流入 - 流出
+                inflow = max(inflow, net)
+                outflow = inflow - net
+                out.append({
+                    "名称": r.get("行业"),
+                    "净流入": net,
+                    "流入资金": inflow,
+                    "流出资金": outflow,
+                    "涨跌幅": r.get("行业-涨跌幅"),
+                })
+            return out
+    except Exception as e:  # noqa: BLE001
+        print(f"[sector_flow] 同花顺失败: {e}")
+
+    # 兜底：东财（只有净流入，流入/流出用简化估算）
     try:
         import akshare as ak
         df = _retry(lambda: ak.stock_sector_fund_flow_rank(
             indicator="今日", sector_type="行业资金流"), attempts=2)
+        if df is None or df.empty:
+            return []
         cols = [c for c in ["名称", "今日主力净流入-净额", "今日主力净流入-净占比", "涨跌幅"] if c in df.columns]
-        return df[cols].head(50).to_dict(orient="records")
-    except Exception:
-        pass
-    # 兜底：同花顺行业资金流（字段归一为东财格式，净额从亿元换算为元）
-    try:
-        import akshare as ak
-        df = _retry(lambda: ak.stock_fund_flow_industry(symbol="即时"), attempts=2)
-        df = df.sort_values("净额", ascending=False)
         out = []
-        for _, r in df.head(50).iterrows():
+        for _, r in df.iterrows():
+            net = float(r.get("今日主力净流入-净额", 0))
             out.append({
-                "名称": r.get("行业"),
-                "今日主力净流入-净额": float(r.get("净额", 0)) * 1e8,
-                "涨跌幅": r.get("行业-涨跌幅"),
-                "领涨股": r.get("领涨股"),
+                "名称": r.get("名称"),
+                "净流入": net,
+                "流入资金": net if net >= 0 else 0,
+                "流出资金": -net if net < 0 else 0,
+                "涨跌幅": r.get("涨跌幅"),
             })
         return out
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         return [{"error": str(e)[:120]}]
 
 
@@ -624,80 +652,59 @@ def _board_limit(name: str, code: str) -> float:
 
 def get_market_breadth() -> dict:
     """
-    两市(沪+深，不含北交所) 总成交额、上涨/下跌家数、跌停家数。
-    - 成交额：优先腾讯 A股指数 sh000002（f[35] 第三位，全 A 成交金额，稳定不受东财风控）；
-             失败则上证+深证成指求和；再失败用 akshare 指数快照兜底。
-    - 涨跌家数/跌停：全市场快照 stock_zh_a_spot_em() 一次调用，按板块真实涨跌幅判定跌停
-                     （东财偶发风控，失败则保持 None，不显示假数）。
-    返回 {'amount'(元), 'up_count', 'down_count', 'limit_down_count'}（缺失项为 None）。
+    A股市场宽度：成交额、上涨/下跌家数、涨停/跌停家数。
+    口径与同花顺 APP 保持一致：
+      - 全部 A股（沪+深+北交所）参与统计
+      - 涨停/跌停：非 ST 个股，且 最新价==最高/最低价 并达到对应板块涨跌停幅度
+    来源：akshare 新浪源 stock_zh_a_spot()（稳定，海外/自动化环境均可用）。
+    返回 {'amount'(元), 'up_count', 'down_count', 'limit_up_count', 'limit_down_count'}
+         （缺失项为 None）。
     """
-    out = {"amount": None, "up_count": None, "down_count": None, "limit_down_count": None}
-
-    # 1) 成交额：腾讯 A股指数（最稳）
-    try:
-        amts = tencent_index_amount(["sh000002"])  # A股指数，成交金额 = 全A成交额
-        if amts.get("sh000002"):
-            out["amount"] = round(float(amts["sh000002"]), 2)
-        else:
-            # 兜底：上证+深证成指
-            amts2 = tencent_index_amount(["sh000001", "sz399001"])
-            a = amts2.get("sh000001", 0.0) + amts2.get("sz399001", 0.0)
-            if a:
-                out["amount"] = round(float(a), 2)
-    except Exception as e:  # noqa: BLE001
-        print(f"[breadth] 腾讯指数成交额失败: {e}")
-
-    # 如果腾讯失败，再试 akshare 指数快照
-    if not out["amount"]:
-        try:
-            import akshare as ak
-            df = _retry(lambda: ak.stock_zh_index_spot_em(), attempts=2, wait=1)
-            if df is not None and not df.empty:
-                amt_cols = [c for c in ["成交额", "成交金额"] if c in df.columns]
-                name_col = "名称" if "名称" in df.columns else "指数名称"
-                if amt_cols and name_col in df.columns:
-                    amt = 0.0
-                    for _, r in df.iterrows():
-                        nm = str(r.get(name_col, ""))
-                        if nm in ("上证指数", "深证成指"):
-                            try:
-                                amt += float(r.get(amt_cols[0]))
-                            except Exception:
-                                pass
-                    if amt:
-                        out["amount"] = round(amt, 2)
-        except Exception as e:  # noqa: BLE001
-            print(f"[breadth] akshare 指数成交额失败: {e}")
-
-    # 2) 涨跌家数 + 跌停：全市场快照（按板块真实幅度判定跌停）
-    # 东财 stock_zh_a_spot_em 在海外/自动化环境常被风控断开，改用新浪源 stock_zh_a_spot() 更稳。
+    out = {"amount": None, "up_count": None, "down_count": None,
+           "limit_up_count": None, "limit_down_count": None}
     try:
         import akshare as ak
         df = _retry(lambda: ak.stock_zh_a_spot(), attempts=3, wait=1.5)
-        if df is not None and not df.empty and "涨跌幅" in df.columns and "代码" in df.columns:
-            df = df.copy()
-            # stock_zh_a_spot 代码格式为 sh600000 / sz000001 / bj920000
-            df["_mkt"] = df["代码"].astype(str).str[:2]
-            main = df[df["_mkt"].isin(["sh", "sz"])]  # 沪+深，剔除北交所
-            up = down = dt_count = 0
-            for _, r in main.iterrows():
-                try:
-                    p = float(r.get("涨跌幅"))
-                except Exception:
-                    continue
-                raw_code = str(r.get("代码", ""))  # e.g. sh600000
-                code = raw_code[2:]                # 600000
-                name = str(r.get("名称", ""))
-                if p > 0:
-                    up += 1
-                elif p < 0:
-                    down += 1
-                lim = _board_limit(name, code)
-                if p <= -(lim - 0.25):
-                    dt_count += 1
+        if df is None or df.empty or "涨跌幅" not in df.columns or "代码" not in df.columns:
+            return out
+        df = df.copy()
+        # stock_zh_a_spot 代码格式：sh600000 / sz000001 / bj920000
+        df["_code"] = df["代码"].astype(str).str[2:]
+        df["_is_st"] = df["名称"].astype(str).str.contains("ST", case=False, na=False)
+        df["_limit"] = df.apply(
+            lambda r: 5.0 if r["_is_st"] else (
+                20.0 if str(r["_code"]).startswith(("688", "30", "8", "4"))
+                or str(r["代码"]).startswith("bj") else 10.0),
+            axis=1)
+
+        # 1) 成交额：全部 A股求和（与 同花顺/东方财富 APP 口径一致）
+        if "成交额" in df.columns:
+            try:
+                out["amount"] = round(float(df["成交额"].sum()), 2)
+            except Exception:  # noqa: BLE001
+                pass
+
+        # 2) 上涨/下跌家数：全部 A股
+        try:
+            up = int((df["涨跌幅"] > 0).sum())
+            down = int((df["涨跌幅"] < 0).sum())
             out["up_count"] = up
             out["down_count"] = down
-            out["limit_down_count"] = dt_count
+        except Exception:  # noqa: BLE001
+            pass
+
+        # 3) 严格涨停/跌停：非 ST + 最新价==最高/最低 + 涨跌幅达板
+        #    同花顺 APP 的涨停/跌停家数一般不含 ST，此处保持一致。
+        try:
+            main = df[~df["_is_st"]]
+            zt = int(((main["最新价"] == main["最高"]) &
+                      (main["涨跌幅"] >= main["_limit"] - 0.25)).sum())
+            dt = int(((main["最新价"] == main["最低"]) &
+                      (main["涨跌幅"] <= -(main["_limit"] - 0.25))).sum())
+            out["limit_up_count"] = zt
+            out["limit_down_count"] = dt
+        except Exception:  # noqa: BLE001
+            pass
     except Exception as e:  # noqa: BLE001
         print(f"[breadth] 全市场快照失败: {e}")
     return out
@@ -805,10 +812,10 @@ def get_sector_constituents(sector: str, top: int = 5) -> list[dict]:
     if sector in _SECTOR_LEADERS:
         return _SECTOR_LEADERS[sector][:top]
 
-    # 2) akshare 实时（可能被东财风控，失败快速跳过）
+    # 2) akshare 实时（可能被东财风控，用短重试快速跳过）
     try:
         import akshare as ak
-        df = _retry(lambda: ak.stock_board_industry_cons_em(symbol=sector), attempts=2, wait=1)
+        df = _retry(lambda: ak.stock_board_industry_cons_em(symbol=sector), attempts=1, wait=0.5)
         if df is not None and not df.empty:
             name_c = "名称" if "名称" in df.columns else None
             code_c = next((c for c in ["代码", "股票代码", "个股代码"] if c in df.columns), None)
@@ -849,24 +856,37 @@ def get_sector_constituents(sector: str, top: int = 5) -> list[dict]:
 
 
 def get_sector_constituents_map(sector_flow: list, n: int = 30) -> dict:
-    """对流入/流出 TOP n 板块，各取 3-5 只成分股。返回 {板块名: [{name,code}]}。"""
+    """对流入/流出 TOP n 板块，各取 3-5 只成分股。返回 {板块名: [{name,code}]}。
+    排序口径与 build_dashboard._flow_in_out 保持一致：流入按「流入资金」降序，流出按「流出资金」降序。"""
     real = [x for x in (sector_flow or []) if isinstance(x, dict) and "error" not in x]
     if not real:
         return {}
-    inp, out = [], []
-    for x in real:
+    # 兼容新旧字段
+    def _net(x):
         try:
-            nv = float(x.get("今日主力净流入-净额") or 0)
+            return float(x.get("净流入") or x.get("今日主力净流入-净额") or 0)
         except Exception:
-            nv = 0
-        (inp if nv >= 0 else out).append(x.get("名称"))
-    names = set(inp[:n]) | set(out[:n])
+            return 0.0
+    def _in(x):
+        try:
+            return float(x.get("流入资金", _net(x) if _net(x) >= 0 else 0))
+        except Exception:
+            return max(_net(x), 0)
+    def _out(x):
+        try:
+            return float(x.get("流出资金", -_net(x) if _net(x) < 0 else 0))
+        except Exception:
+            return max(-_net(x), 0)
+
+    inp = sorted(real, key=lambda x: -_in(x))[:n]
+    out = sorted(real, key=lambda x: -_out(x))[:n]
+    names = set(x.get("名称") for x in inp) | set(x.get("名称") for x in out)
     out_map: dict = {}
     for s in names:
         if not s:
             continue
         out_map[s] = get_sector_constituents(s, top=5)
-        time.sleep(0.15)  # 礼貌限速，避免东财风控
+        time.sleep(0.08)  # 礼貌限速
     return out_map
 
 
