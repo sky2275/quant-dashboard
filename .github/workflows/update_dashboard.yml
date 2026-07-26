@@ -9,6 +9,12 @@ on:
     - cron: "35 6 * * 1-5"   # 14:35 尾盘进攻
     - cron: "30 7 * * 1-5"   # 15:30 收盘复盘
   workflow_dispatch:         # 允许手动触发
+  push:
+    branches: [main]
+    paths:                   # 代码/配置更新时自动重建看板
+      - "scripts/**"
+      - "config/**"
+      - ".github/workflows/update_dashboard.yml"
 
 permissions:
   contents: write
