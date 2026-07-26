@@ -1,22 +1,27 @@
 {
+  "locked_date": "2026-07-27",
   "modules": {
     "global_a_sector_flow": {
       "status": "frozen",
+      "style_locked": true,
       "data_file": "a_sector_flow.json",
-      "desc": "①A股板块资金流入/流出TOP30（同花顺Table.xls口径，7/24收盘，已手动核对）"
+      "desc": "①A股板块资金流入/流出TOP30（同花顺Table.xls口径，7/24收盘，已手动核对，数据+样式均已冻结）"
     },
     "global_a_market": {
       "status": "active",
-      "desc": "①A股指数/成交额/涨跌家数/涨停跌停（每日行情，交易日实时、非交易日取最近交易日）"
+      "style_locked": true,
+      "desc": "①A股指数/成交额/涨跌家数/涨停跌停（展示样式已固定，行情每日更新）"
     },
     "us_overnight": {
       "status": "active",
+      "style_locked": true,
       "data_file": "us_overnight.json",
-      "desc": "②美股隔夜6大板块行情+龙头股（展示逻辑已固定，行情每日更新）"
+      "desc": "②美股隔夜6大板块行情+龙头股（展示样式已固定，行情每日08:00由 update_dashboard.yml 定时刷新）"
     },
     "transmit": {
       "status": "active",
-      "desc": "②美股→A股传导预测"
+      "style_locked": true,
+      "desc": "②美股→A股传导预测（展示样式已固定，每日08:00随 us_overnight 刷新）"
     },
     "limitup": {
       "status": "draft",
@@ -44,6 +49,7 @@
     "step2_样式": "在 build_dashboard.py 固定页面展示结构/样式（可先用占位数据）",
     "step3_数据": "按口径填充正确数据，核对无误",
     "step4_冻结": "把数据导出为独立 json，在 modules.json 标 status=frozen；此后 feed.py 只读取，永不改写",
-    "说明": "frozen 后，即使修改其他模块触发 GitHub Actions 重新构建，本模块数据也不会被覆盖。"
+    "说明": "frozen 后，即使修改其他模块触发 GitHub Actions 重新构建，本模块数据也不会被覆盖。",
+    "每日更新": "update_dashboard.yml 已配置北京时间周一至周五 08:00 定时任务(cron 0 0 * * 1-5)，自动拉取美股隔夜行情并生成「美股→A股传导预测」，无需人工干预。locked_date=2026-07-27 表示各模块展示样式与数据口径于该交易日锁定。"
   }
 }
