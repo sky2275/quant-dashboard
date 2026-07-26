@@ -1069,15 +1069,19 @@ def collect_all(date: str | None = None) -> dict:
         if _sf is not None:
             sector_flow, sf_stale = _sf, False
             print("[frozen] global_a_sector_flow -> 读取 a_sector_flow.json，跳过实时抓取")
+            _sc = _load("a_sector_constituents")
+            sector_constituents = _sc if _sc is not None else get_sector_constituents_map(_sf, n=30)
         else:
             sector_flow, sf_stale = _pick(get_sector_fund_flow(), "sector_flow")
+            sector_constituents = get_sector_constituents_map(sector_flow, n=30)
     else:
         sector_flow, sf_stale = _pick(get_sector_fund_flow(), "sector_flow")
     limit_up, lu_stale = _pick(get_limit_up(trade_date), "limit_up")
     heatmap, hm_stale = _pick(get_a_spot_sample(), "heatmap")
     breadth, br_stale = _pick(get_market_breadth(), "market_breadth")
-    # 板块成分股（①弹窗用）：对流入/流出 TOP30 板块各取 3-5 只个股
-    sector_constituents = get_sector_constituents_map(sector_flow, n=30)
+    # 板块成分股（①弹窗用）：frozen 且冻结文件存在时已用冻结值，否则实时计算
+    if not (is_frozen("global_a_sector_flow") and _load("a_sector_constituents") is not None):
+        sector_constituents = get_sector_constituents_map(sector_flow, n=30)
 
     data = {
         "updated_at": dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),

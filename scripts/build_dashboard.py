@@ -1386,6 +1386,13 @@ def _modal_judgment(overnight, snap, cfg, a_quotes):
 # ----------------------------------------------------------------- 组装
 def build() -> str:
     snap = _load_cache("market_snapshot") or {"updated_at": "—"}
+    # 冻结双保险：①A股板块资金流及其成分股优先读取独立冻结文件，彻底隔离中间层污染
+    _frozen_sf = _load_cache("a_sector_flow")
+    if _frozen_sf:
+        snap["sector_flow"] = _frozen_sf
+    _frozen_sc = _load_cache("a_sector_constituents")
+    if _frozen_sc:
+        snap["sector_constituents"] = _frozen_sc
     overnight = _load_cache("us_overnight")
     cfg = _load_cfg()
 
