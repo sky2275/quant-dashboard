@@ -570,14 +570,84 @@ def get_a_stocks(codes: list[str]) -> dict[str, dict]:
 
 
 # --------------------------------------- 资金流（东财主力 / 同花顺兜底）
+SECTOR_FLOW_OVERRIDES = [
+    os.path.join(CACHE_DIR, "sector_flow_table.xls"),   # 用户可放置同花顺导出文件
+    os.path.expanduser("~/Desktop/Table.xls"),          # 默认扫描桌面文件
+]
+
+
+def _parse_ths_table(path: str) -> list[dict] | None:
+    """
+    解析同花顺导出的 *.xls 板块资金表（实际为 GBK 编码、\t 分隔、\r 换行的文本）。
+    返回统一字段：名称, 净流入(元), 流入资金(元), 流出资金(元), 涨跌幅(%), 领涨股。
+    表头列名：板块名称、涨幅、主力净量、GS策略、主力资金、主力金额、涨停数、涨家数、跌家数、领涨股...
+    其中『主力资金』视为当日主力净流入（元）。
+    """
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path, "rb") as f:
+            raw = f.read()
+        text = raw.decode("gbk", errors="replace")
+        lines = text.strip().split("\r")
+        if not lines:
+            return None
+        header = [c.strip() for c in lines[0].split("\t")]
+        if "板块名称" not in header or "主力资金" not in header:
+            return None
+        name_idx = header.index("板块名称")
+        net_idx = header.index("主力资金")
+        pct_idx = header.index("涨幅") if "涨幅" in header else None
+        leader_idx = header.index("领涨股") if "领涨股" in header else None
+
+        def _num(v) -> float:
+            s = str(v).replace(",", "").replace("+", "").replace("%", "").strip()
+            try:
+                return float(s)
+            except Exception:
+                return 0.0
+
+        out = []
+        for line in lines[1:]:
+            cols = line.split("\t")
+            if len(cols) <= max(name_idx, net_idx):
+                continue
+            name = cols[name_idx].strip()
+            net = _num(cols[net_idx])
+            pct = _num(cols[pct_idx]) if pct_idx is not None else None
+            leader = cols[leader_idx].strip() if leader_idx is not None and len(cols) > leader_idx else None
+            # 本地表只有净流入（主力资金），流入/流出按净额方向拆分，仅供排序展示
+            out.append({
+                "名称": name,
+                "净流入": net,
+                "流入资金": net if net >= 0 else 0.0,
+                "流出资金": -net if net < 0 else 0.0,
+                "涨跌幅": pct,
+                "领涨股": leader,
+            })
+        return out
+    except Exception as e:
+        print(f"[_parse_ths_table] 解析失败 {path}: {e}")
+        return None
+
+
 def get_sector_fund_flow() -> list[dict]:
     """
     行业板块资金流。统一输出字段：
       名称, 净流入(元), 流入资金(元), 流出资金(元), 涨跌幅
-    主力源：同花顺 stock_fund_flow_industry（含完整的流入/流出/净额三列，不受东财风控）。
-    兜底：东财 stock_sector_fund_flow_rank（字段不齐时只保证净流入）。
+    1) 优先读取本地同花顺导出表（cache/sector_flow_table.xls 或 ~/Desktop/Table.xls），
+       方便用户用客户端数据覆盖接口口径。
+    2) 主源：同花顺 stock_fund_flow_industry（含完整的流入/流出/净额三列，不受东财风控）。
+    3) 兜底：东财 stock_sector_fund_flow_rank（字段不齐时只保证净流入）。
     """
-    # 主源：同花顺（新浪源，稳定，含流入/流出/净额）
+    # 1) 本地覆盖文件（最高优先级）
+    for p in SECTOR_FLOW_OVERRIDES:
+        ov = _parse_ths_table(p)
+        if ov:
+            print(f"[sector_flow] 使用本地覆盖文件: {p}")
+            return ov
+
+    # 2) 主源：同花顺（新浪源，稳定，含流入/流出/净额）
     try:
         import akshare as ak
         df = _retry(lambda: ak.stock_fund_flow_industry(symbol="即时"), attempts=2)
@@ -587,11 +657,13 @@ def get_sector_fund_flow() -> list[dict]:
             out = []
             for _, r in df.iterrows():
                 net = float(r.get("净额", 0)) * 1e8   # 亿元 -> 元
-                inflow = float(r.get("流入资金", net / 2 + net / 2)) * 1e8
-                outflow = float(r.get("流出资金", net / 2 - net / 2)) * 1e8
-                # 保证 净流入 = 流入 - 流出
-                inflow = max(inflow, net)
-                outflow = inflow - net
+                # 同花顺表通常自带流入/流出资金；缺失时按净额方向估算
+                inflow = float(r.get("流入资金", (net + abs(net)) / 2)) * 1e8
+                outflow = float(r.get("流出资金", (abs(net) - net) / 2)) * 1e8
+                # 保证 净流入 = 流入 - 流出（当接口列缺失或微小误差时微调）
+                if abs((inflow - outflow) - net) > 1e8:
+                    inflow = max(inflow, net)
+                    outflow = inflow - net
                 out.append({
                     "名称": r.get("行业"),
                     "净流入": net,
@@ -603,7 +675,7 @@ def get_sector_fund_flow() -> list[dict]:
     except Exception as e:  # noqa: BLE001
         print(f"[sector_flow] 同花顺失败: {e}")
 
-    # 兜底：东财（只有净流入，流入/流出用简化估算）
+    # 3) 兜底：东财（只有净流入，流入/流出用简化估算）
     try:
         import akshare as ak
         df = _retry(lambda: ak.stock_sector_fund_flow_rank(
