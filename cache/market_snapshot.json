@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-26 08:23:02",
+  "updated_at": "2026-07-26 09:26:11",
   "trade_ctx": {
     "is_trade_day": false,
     "trade_date": "20260724",
@@ -1072,11 +1072,44 @@
     }
   ],
   "market_breadth": {
-    "error": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    "amount": null,
+    "up_count": null,
+    "down_count": null,
+    "limit_down_count": null
   },
-  "limit_down": [
-    {
-      "error": "module 'akshare' has no attribute 'stock_dt_pool_em'"
-    }
-  ]
+  "sector_constituents": {
+    "金属新材料": [],
+    "造纸": [],
+    "轨交设备": [],
+    "燃气": [],
+    "医药商业": [],
+    "厨卫电器": [],
+    "贸易": [],
+    "家居用品": [],
+    "种植业与林业": [],
+    "农产品加工": [],
+    "银行": [],
+    "饮料制造": [],
+    "电机": [],
+    "其他社会服务": [],
+    "纺织制造": [],
+    "环保设备": [],
+    "橡胶制品": [],
+    "电子化学品": [],
+    "黑色家电": [],
+    "军工电子": [],
+    "石油加工贸易": [],
+    "教育": [],
+    "小家电": [],
+    "其他电子": [],
+    "公路铁路运输": [],
+    "非金属材料": [],
+    "物流": [],
+    "美容护理": [],
+    "包装印刷": [],
+    "半导体": [],
+    "服装家纺": [],
+    "工程机械": [],
+    "汽车服务及其他": []
+  }
 }
