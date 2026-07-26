@@ -1,0 +1,49 @@
+{
+  "modules": {
+    "global_a_sector_flow": {
+      "status": "frozen",
+      "data_file": "a_sector_flow.json",
+      "desc": "①A股板块资金流入/流出TOP30（同花顺Table.xls口径，7/24收盘，已手动核对）"
+    },
+    "global_a_market": {
+      "status": "active",
+      "desc": "①A股指数/成交额/涨跌家数/涨停跌停（每日行情，交易日实时、非交易日取最近交易日）"
+    },
+    "us_overnight": {
+      "status": "active",
+      "data_file": "us_overnight.json",
+      "desc": "②美股隔夜6大板块行情+龙头股（展示逻辑已固定，行情每日更新）"
+    },
+    "transmit": {
+      "status": "active",
+      "desc": "②美股→A股传导预测"
+    },
+    "limitup": {
+      "status": "draft",
+      "desc": "③涨停板数据"
+    },
+    "heatmap": {
+      "status": "draft",
+      "desc": "④A股热力全景图"
+    },
+    "holdings": {
+      "status": "draft",
+      "desc": "⑤持仓分析"
+    },
+    "pool": {
+      "status": "draft",
+      "desc": "⑥自选股池"
+    },
+    "judge": {
+      "status": "draft",
+      "desc": "⑦综合研判"
+    }
+  },
+  "workflow": {
+    "step1_架构": "列清该模块要展示哪些数据字段",
+    "step2_样式": "在 build_dashboard.py 固定页面展示结构/样式（可先用占位数据）",
+    "step3_数据": "按口径填充正确数据，核对无误",
+    "step4_冻结": "把数据导出为独立 json，在 modules.json 标 status=frozen；此后 feed.py 只读取，永不改写",
+    "说明": "frozen 后，即使修改其他模块触发 GitHub Actions 重新构建，本模块数据也不会被覆盖。"
+  }
+}

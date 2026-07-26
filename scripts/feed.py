@@ -39,6 +39,34 @@ def _load(name: str) -> Any | None:
     return None
 
 
+# ---------------------------------------------------------------- 模块冻结（逐模块固定，互不污染）
+MODULES_JSON = os.path.join(REPO_ROOT, "config", "modules.json")
+
+def load_module_status() -> dict:
+    """读取 config/modules.json 的 modules 字段。每个模块含 status(frozen/active/draft) 与 data_file。"""
+    if not os.path.exists(MODULES_JSON):
+        return {}
+    try:
+        with open(MODULES_JSON, encoding="utf-8") as f:
+            cfg = json.load(f)
+        return cfg.get("modules", {})
+    except Exception:
+        return {}
+
+def is_frozen(key: str) -> bool:
+    st = load_module_status().get(key, {})
+    return str(st.get("status", "")).lower() == "frozen"
+
+def _frozen_data(key: str):
+    """已冻结模块：从独立静态 json 读取。该文件随仓库提交，云端可读，永不回退接口。"""
+    st = load_module_status().get(key, {})
+    fn = st.get("data_file")
+    if not fn:
+        return None
+    name = fn[:-5] if fn.endswith(".json") else fn
+    return _load(name)
+
+
 def _retry(fn: Callable, attempts: int = 3, wait: float = 2.0):
     """东财接口在海外机房偶发断连，做指数退避重试。"""
     last = None
@@ -1035,7 +1063,16 @@ def collect_all(date: str | None = None) -> dict:
 
     us_indices, _ = _pick(get_us_indices(), "us_indices")
     a_indexes, _ = _pick(get_a_indexes(), "a_indexes")
-    sector_flow, sf_stale = _pick(get_sector_fund_flow(), "sector_flow")
+    # ① A股板块资金流：已冻结则直接读静态文件 a_sector_flow.json（云端也随仓库可读），绝不重新抓取/覆盖
+    if is_frozen("global_a_sector_flow"):
+        _sf = _frozen_data("global_a_sector_flow")
+        if _sf is not None:
+            sector_flow, sf_stale = _sf, False
+            print("[frozen] global_a_sector_flow -> 读取 a_sector_flow.json，跳过实时抓取")
+        else:
+            sector_flow, sf_stale = _pick(get_sector_fund_flow(), "sector_flow")
+    else:
+        sector_flow, sf_stale = _pick(get_sector_fund_flow(), "sector_flow")
     limit_up, lu_stale = _pick(get_limit_up(trade_date), "limit_up")
     heatmap, hm_stale = _pick(get_a_spot_sample(), "heatmap")
     breadth, br_stale = _pick(get_market_breadth(), "market_breadth")
