@@ -176,12 +176,15 @@ def build():
     brokers = maps.get("brokers") or {}
     accounts = {}
     positions = []
+    found_any = False
     for acc, m in brokers.items():
         d = os.path.join(STATEMENT_DIR, acc)
         files = []
         if os.path.isdir(d):
             for pat in ("*.csv", "*.CSV", "*.xls", "*.XLS", "*.xlsx", "*.XLSX"):
                 files += sorted(glob.glob(os.path.join(d, pat)))
+        if files:
+            found_any = True
         rows = []
         for fp in files:
             low = fp.lower()
@@ -193,6 +196,12 @@ def build():
             acc_pos = _aggregate(rows, m, acc)
             accounts[acc] = acc_pos
             positions += acc_pos
+    # 未检测到任何交割单文件（如云端仓库未含原始文件）：保留现有 holdings.json，避免清空
+    if not found_any:
+        existing = os.path.join(CACHE_DIR, "holdings.json")
+        if os.path.exists(existing):
+            print("[ingest] 未检测到交割单文件，保留现有 holdings.json（不覆盖）")
+            return json.load(open(existing, encoding="utf-8"))
     result = {
         "source": "broker_statements",
         "updated_at": _bj_now().strftime("%Y-%m-%d %H:%M:%S"),

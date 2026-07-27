@@ -1,10 +1,70 @@
 {
   "source": "broker_statements",
-  "updated_at": "2026-07-28 00:16:23",
+  "updated_at": "2026-07-28 00:27:25",
   "account_labels": {
     "galaxy": "银河证券",
     "eastmoney": "东方财富"
   },
-  "accounts": {},
-  "positions": []
+  "accounts": {
+    "eastmoney": [
+      {
+        "code": "300223",
+        "name": "北京君正",
+        "account": "eastmoney",
+        "quantity": 1500,
+        "avg_cost": 183.6661
+      },
+      {
+        "code": "003033",
+        "name": "征和工业",
+        "account": "eastmoney",
+        "quantity": 500,
+        "avg_cost": 31.8825
+      },
+      {
+        "code": "603776",
+        "name": "永安行",
+        "account": "eastmoney",
+        "quantity": 2000,
+        "avg_cost": 19.0519
+      },
+      {
+        "code": "600584",
+        "name": "长电科技",
+        "account": "eastmoney",
+        "quantity": 1000,
+        "avg_cost": 82.215
+      }
+    ]
+  },
+  "positions": [
+    {
+      "code": "300223",
+      "name": "北京君正",
+      "account": "eastmoney",
+      "quantity": 1500,
+      "avg_cost": 183.6661
+    },
+    {
+      "code": "003033",
+      "name": "征和工业",
+      "account": "eastmoney",
+      "quantity": 500,
+      "avg_cost": 31.8825
+    },
+    {
+      "code": "603776",
+      "name": "永安行",
+      "account": "eastmoney",
+      "quantity": 2000,
+      "avg_cost": 19.0519
+    },
+    {
+      "code": "600584",
+      "name": "长电科技",
+      "account": "eastmoney",
+      "quantity": 1000,
+      "avg_cost": 82.215
+    }
+  ]
 }

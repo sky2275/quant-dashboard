@@ -2,10 +2,10 @@
   "locked_date": "2026-07-27",
   "modules": {
     "global_a_sector_flow": {
-      "status": "frozen",
+      "status": "active",
       "style_locked": true,
       "data_file": "a_sector_flow.json",
-      "desc": "①A股板块资金流入/流出TOP30（同花顺Table.xls口径，7/24收盘，已手动核对，数据+样式均已冻结）"
+      "desc": "①A股板块资金流入/流出TOP30（实时抓取同花顺即时行业资金流，失败回退 a_sector_flow.json 快照；样式已锁定）"
     },
     "global_a_market": {
       "status": "active",

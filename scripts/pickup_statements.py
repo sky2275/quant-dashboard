@@ -82,15 +82,19 @@ def main():
         print("\n没有复制任何文件，已退出。")
         return
 
+    # 复制完成后，本机先合并生成持仓快照（原始交割单按 .gitignore 不提交，保护隐私）
+    print("\n正在本机合并持仓快照 cache/holdings.json ...")
+    subprocess.run([sys.executable, "scripts/ingest_statements.py"], cwd=REPO_ROOT)
+
     do_push = "--push" in sys.argv
     if not do_push:
         a = input("\n是否提交并推送到 GitHub（触发看板自动合并更新）？ y/N: ").strip().lower()
         do_push = a in ("y", "yes", "是")
 
     if do_push:
-        subprocess.run(["git", "add", "data/statements/"], cwd=REPO_ROOT)
+        subprocess.run(["git", "add", "cache/holdings.json"], cwd=REPO_ROOT)
         r = subprocess.run(
-            ["git", "commit", "-m", "chore: 导入券商交割单(桌面取件)"],
+            ["git", "commit", "-m", "chore: 更新券商持仓快照(桌面取件，原始交割单不提交)"],
             cwd=REPO_ROOT, capture_output=True, text=True,
         )
         if r.returncode != 0:
@@ -99,7 +103,7 @@ def main():
         print(p.stdout.strip() or p.stderr.strip() or "")
         print("已推送，看板将在 1~2 分钟后自动更新。刷新页面即可看到双账号合并持仓。")
     else:
-        print("\n已复制到仓库，但未推送。需要时运行：")
+        print("\n已在本机生成持仓快照，但未推送。需要时运行：")
         print("  python3 scripts/pickup_statements.py --push")
 
 

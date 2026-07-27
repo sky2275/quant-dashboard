@@ -28,15 +28,15 @@ brokers:
     buy_keywords: ["买入", "买", "B", "BUY"]
     sell_keywords: ["卖出", "卖", "S", "SELL"]
 
-  eastmoney: # 东方财富证券 交割单导出
-    encoding: "utf-8-sig"    # 东财导出多为 UTF-8(BOM)
-    date: "日期"
-    code: "股票代码"
-    name: "股票名称"
-    side: "交易方向"
-    qty: "成交量"
-    price: "成交均价"
+  eastmoney: # 东方财富证券 交割单导出（资金流水格式）
+    encoding: "utf-8-sig"    # xlsx 实际由 pandas 读取，encoding 仅对 CSV 兜底
+    date: "交收日期"          # 或"发生日期"
+    code: "证券代码"
+    name: "证券名称"
+    side: "交易类别"          # 取值：证券买入 / 证券卖出 / 天天宝申购 / 证券转银行等
+    qty: "成交数量"
+    price: "成交均价"          # 东财导出列名为"成交均价"
     amount: "成交金额"
-    fees: ["手续费", "印花税", "过户费"]
-    buy_keywords: ["买入", "买", "B", "BUY"]
-    sell_keywords: ["卖出", "卖", "S", "SELL"]
+    fees: ["佣金", "其他费用"]  # 其他费用含印花税+过户费
+    buy_keywords: ["证券买入"]
+    sell_keywords: ["证券卖出"]

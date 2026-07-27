@@ -17,3 +17,11 @@ config_local.py
 
 # 备份文件
 index_*.html
+
+# 券商交割单原始文件（含隐私：真实交易记录/金额/日期，仅留本机，绝不提交）
+data/statements/**/*.xlsx
+data/statements/**/*.xls
+data/statements/**/*.csv
+data/statements/**/*.XLS
+data/statements/**/*.XLSX
+data/statements/**/*.CSV
