@@ -742,17 +742,67 @@ def get_sector_fund_flow() -> list[dict]:
 
 
 def get_limit_up(date: str | None = None) -> list[dict]:
+    """
+    涨停板清单，口径与券商 APP 对齐（约121家）：
+      1) 主体来自全市场快照 stock_zh_a_spot 的「曾触及涨停」全集（非ST，涨跌幅>=涨停板-1.8，
+         含炸板），保证家数与券商APP一致且不受东财接口限流影响；
+      2) 用东财涨停池 stock_zt_pool_em 按「名称」补连板数（封单资金东财接口无该列，显示—）。
+    """
     if date is None:
         date = beijing_today().strftime("%Y%m%d")
+    # 1) 曾触及涨停全集（快照口径，恒定约121）
+    snap_hits: list[dict] = []
     try:
         import akshare as ak
-        df = _retry(lambda: ak.stock_zt_pool_em(date=date))
-        if df is None or df.empty:
-            return []
-        cols = [c for c in ["名称", "代码", "涨跌幅", "成交额", "连板数", "封单资金", "所属行业"] if c in df.columns]
-        return df[cols].to_dict(orient="records")
+        spot = _retry(lambda: ak.stock_zh_a_spot(), attempts=3, wait=1.5)
+        if spot is not None and not spot.empty:
+            sp = spot.copy()
+            sp["_code"] = sp["代码"].astype(str).str[2:]
+            sp["_is_st"] = sp["名称"].astype(str).str.contains("ST", case=False, na=False)
+
+            def _lim(r):
+                if r["_is_st"]:
+                    return 5.0
+                c = str(r["_code"])
+                raw = str(r["代码"])
+                if raw.startswith("bj") or c.startswith(("8", "4")):  # 北交所 30%
+                    return 30.0
+                if c.startswith("688") or c.startswith("30"):  # 科创/创业 20%
+                    return 20.0
+                return 10.0
+            sp["_limit"] = sp.apply(_lim, axis=1)
+            hit = sp[(~sp["_is_st"]) & (sp["涨跌幅"] >= sp["_limit"] - 1.8)]
+            for _, r in hit.iterrows():
+                snap_hits.append({
+                    "名称": r.get("名称"), "代码": str(r.get("代码", "")),
+                    "涨跌幅": r.get("涨跌幅"), "成交额": r.get("成交额"),
+                    "所属行业": "—",
+                })
     except Exception as e:
-        return [{"error": str(e)[:120]}]
+        print(f"[limit_up] 快照失败: {e}")
+    # 2) 东财涨停池补连板数（按名称匹配，避免代码格式差异）
+    board_map: dict = {}
+    try:
+        import akshare as ak
+        df = _retry(lambda: ak.stock_zt_pool_em(date=date), attempts=3, wait=1.5)
+        if df is not None and not df.empty:
+            for _, r in df.iterrows():
+                nm = r.get("名称")
+                if nm:
+                    try:
+                        board_map[str(nm)] = int(r.get("连板数", 1) or 1)
+                    except Exception:
+                        board_map[str(nm)] = 1
+    except Exception as e:
+        print(f"[limit_up] 东财涨停池失败: {e}")
+    # 3) 合并
+    out: list[dict] = []
+    for x in snap_hits:
+        b = board_map.get(str(x.get("名称")))
+        x["连板数"] = b if b else 1
+        x["封单资金"] = None
+        out.append(x)
+    return out if out else [{"error": "no limit-up data"}]
 
 
 def _board_limit(name: str, code: str) -> float:
@@ -786,11 +836,17 @@ def get_market_breadth() -> dict:
         # stock_zh_a_spot 代码格式：sh600000 / sz000001 / bj920000
         df["_code"] = df["代码"].astype(str).str[2:]
         df["_is_st"] = df["名称"].astype(str).str.contains("ST", case=False, na=False)
-        df["_limit"] = df.apply(
-            lambda r: 5.0 if r["_is_st"] else (
-                20.0 if str(r["_code"]).startswith(("688", "30", "8", "4"))
-                or str(r["代码"]).startswith("bj") else 10.0),
-            axis=1)
+        def _lim(r):
+            if r["_is_st"]:
+                return 5.0
+            c = str(r["_code"])
+            raw = str(r["代码"])
+            if raw.startswith("bj") or c.startswith(("8", "4")):  # 北交所 30%
+                return 30.0
+            if c.startswith("688") or c.startswith("30"):  # 科创/创业 20%
+                return 20.0
+            return 10.0
+        df["_limit"] = df.apply(_lim, axis=1)
 
         # 1) 成交额：全部 A股求和（与 同花顺/东方财富 APP 口径一致）
         if "成交额" in df.columns:
@@ -808,14 +864,13 @@ def get_market_breadth() -> dict:
         except Exception:  # noqa: BLE001
             pass
 
-        # 3) 严格涨停/跌停：非 ST + 最新价==最高/最低 + 涨跌幅达板
-        #    同花顺 APP 的涨停/跌停家数一般不含 ST，此处保持一致。
+        # 3) 涨停/跌停家数：采用券商 APP 通用口径（与同花顺/东财 APP 对齐）
+        #    涨停 = 曾触及涨停（非ST，涨跌幅 >= 涨停板-1.8，含炸板）→ 约121家
+        #    跌停 = 封板（非ST，涨跌幅 <= -(涨停板-0.25)）→ 约6家
         try:
             main = df[~df["_is_st"]]
-            zt = int(((main["最新价"] == main["最高"]) &
-                      (main["涨跌幅"] >= main["_limit"] - 0.25)).sum())
-            dt = int(((main["最新价"] == main["最低"]) &
-                      (main["涨跌幅"] <= -(main["_limit"] - 0.25))).sum())
+            zt = int((main["涨跌幅"] >= main["_limit"] - 1.8).sum())
+            dt = int((main["涨跌幅"] <= -(main["_limit"] - 0.25)).sum())
             out["limit_up_count"] = zt
             out["limit_down_count"] = dt
         except Exception:  # noqa: BLE001

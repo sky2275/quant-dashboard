@@ -454,21 +454,33 @@ def _score_cls(v):
 
 
 # ----------------------------------------------------------------- ① 全球大盘行情
+def _session(label: str):
+    """返回 (文案, 内联样式) 表示交易时段。label='a' A股 / 'us' 美股，基于北京时间。"""
+    now = feed.beijing_now()
+    wd = now.weekday()
+    t = now.hour * 60 + now.minute
+    if label == "a":
+        trading = (wd < 5) and ((9 * 60 + 30 <= t <= 11 * 60 + 30) or (13 * 60 <= t <= 15 * 60))
+    else:  # 美股：北京时间 21:30 - 次日 04:00（夏令EDT）
+        trading = (21 * 60 + 30 <= t <= 24 * 60) or (0 <= t <= 4 * 60)
+    if trading:
+        return "盘中交易", "background:rgba(34,197,94,0.15);color:#22c55e;"
+    return "休市", "background:rgba(245,158,11,0.15);color:#f59e0b;"
+
+
 def _trade_mode(snap):
     """
     根据快照里的 trade_ctx 返回 (是否交易日, 数据基准日'MM-DD', 徽标HTML)。
-    交易日 -> 绿色『实时』；非交易日 -> 金色『MM-DD 收盘数据 · 今日休市』。
+    徽标按 A股实际交易时段显示『盘中交易』/『休市·收盘数据』，不再笼统显示"实时"。
     """
     ctx = snap.get("trade_ctx") or {}
-    is_open = ctx.get("is_trade_day")
     td = str(ctx.get("trade_date") or "")
     td_fmt = f"{td[4:6]}-{td[6:8]}" if len(td) == 8 else ""
-    if is_open is None:          # 旧快照无该字段，维持原样
-        return True, td_fmt, '<span class="badge">实时</span>'
+    a_txt, a_style = _session("a")
+    is_open = (a_txt == "盘中交易")
     if is_open:
-        return True, td_fmt, '<span class="badge">实时</span>'
-    badge = (f'<span class="badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">'
-             f'{td_fmt} 收盘数据 · 今日休市</span>')
+        return True, td_fmt, f'<span class="badge" style="{a_style}">盘中交易</span>'
+    badge = f'<span class="badge" style="{a_style}">今日休市 · {td_fmt} 收盘数据</span>'
     return False, td_fmt, badge
 
 
@@ -499,7 +511,7 @@ def _section_global(snap, us_quotes, overnight):
         dt_count = breadth.get("limit_down_count")
     a_box = f'''
                 <div class="market-box">
-                    <div class="box-title"><span class="flag">🇨🇳</span> A股</div>
+                    <div class="box-title"><span class="flag">🇨🇳</span> A股 <span class="badge" style="{_session('a')[1]}">{_session('a')[0]}</span></div>
                     <div class="market-row">
                         {a_items or '<div class="market-item"><span class="label">数据缺失</span></div>'}
                         <div class="market-item"><span class="label">成交额</span><span class="value yellow">{_fmt_amount(amount)}</span></div>
@@ -542,7 +554,7 @@ def _section_global(snap, us_quotes, overnight):
 
     us_box = f'''
                 <div class="market-box" onclick="event.stopPropagation(); openModal('us_market')">
-                    <div class="box-title"><span class="flag">🇺🇸</span> 美股 (隔夜) <span style="color:var(--accent-blue);font-size:10px;font-weight:400;">👆 点击查看板块龙头 + A股映射</span></div>
+                    <div class="box-title"><span class="flag">🇺🇸</span> 美股 (隔夜) <span class="badge" style="{_session('us')[1]}">{_session('us')[0]}</span> <span style="color:var(--accent-blue);font-size:10px;font-weight:400;">👆 点击查看板块龙头 + A股映射</span></div>
                     <div class="market-row">
                         {us_idx_rows or '<div class="market-item"><span class="label">数据缺失</span></div>'}
                         {sector_rows or '<div class="market-item"><span class="label">板块数据缺失</span></div>'}
