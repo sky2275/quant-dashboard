@@ -451,7 +451,7 @@ def _fmt_pnl(v):
         return "—"
     if abs(x) >= 1e4:
         return f"{x/1e4:+.2f}万"
-    return f"{x:+,}"
+    return f"{x:,.2f}"
 
 
 def _pnl_cls(v):
