@@ -12,6 +12,21 @@ import json
 import re
 import time
 import datetime as dt
+
+# 北京时间（Asia/Shanghai, UTC+8）统一时间基准，避免 GitHub Actions runner(UTC) 时区偏差导致"更新时间"晚8小时及日期边界误判
+try:
+    from zoneinfo import ZoneInfo
+    _BJ_TZ = ZoneInfo("Asia/Shanghai")
+except Exception:
+    _BJ_TZ = None
+
+
+def beijing_now():
+    return dt.datetime.now(_BJ_TZ) if _BJ_TZ else dt.datetime.now()
+
+
+def beijing_today():
+    return beijing_now().date()
 from typing import Any, Callable
 
 import requests
@@ -88,7 +103,7 @@ def get_trade_context(today: dt.date | None = None) -> dict:
     - 非交易日 -> trade_date = 最近一个交易日（显示该日收盘数据）
     """
     if today is None:
-        today = dt.date.today()
+        today = beijing_today()
     today_s = today.strftime("%Y%m%d")
     start_s = (today - dt.timedelta(days=30)).strftime("%Y%m%d")
 
@@ -271,7 +286,7 @@ def _ak_rsi(em_code: str, end_date: str) -> float | None:
     """单只股票 RSI(14)，来自日线 qfq 收盘。失败返回 None。"""
     try:
         import akshare as ak
-        start = (dt.date.today() - dt.timedelta(days=75)).strftime("%Y%m%d")
+        start = (beijing_today() - dt.timedelta(days=75)).strftime("%Y%m%d")
         df = _retry(
             lambda: ak.stock_zh_a_hist(
                 symbol=str(em_code), period="daily",
@@ -290,8 +305,8 @@ def _tushare_indicators(pro, ts_codes: list[str]) -> dict:
     out: dict = {c: {} for c in ts_codes}
     if not ts_codes:
         return out
-    end = dt.date.today().strftime("%Y%m%d")
-    start = (dt.date.today() - dt.timedelta(days=70)).strftime("%Y%m%d")
+    end = beijing_today().strftime("%Y%m%d")
+    start = (beijing_today() - dt.timedelta(days=70)).strftime("%Y%m%d")
     # 1) RSI + MACD + 周/月动量来自 daily
     try:
         df = pro.daily(ts_code=",".join(ts_codes), start_date=start, end_date=end)
@@ -371,8 +386,8 @@ def _akshare_indicators(items: list[tuple]) -> dict:
                     pass
     except Exception:
         pass
-    trade_date = dt.date.today().strftime("%Y%m%d")
-    start = (dt.date.today() - dt.timedelta(days=75)).strftime("%Y%m%d")
+    trade_date = beijing_today().strftime("%Y%m%d")
+    start = (beijing_today() - dt.timedelta(days=75)).strftime("%Y%m%d")
     for name, ts_code in items:
         if not ts_code:
             out[ts_code] = {}
@@ -444,7 +459,7 @@ def enrich_heatmap(heat: list, trade_date: str | None = None) -> list:
     if not real:
         return heat
     if trade_date is None:
-        trade_date = dt.date.today().strftime("%Y%m%d")
+        trade_date = beijing_today().strftime("%Y%m%d")
     vr_map = _ak_volume_ratio_map()
     for x in real:
         name = x.get("名称")
@@ -728,7 +743,7 @@ def get_sector_fund_flow() -> list[dict]:
 
 def get_limit_up(date: str | None = None) -> list[dict]:
     if date is None:
-        date = dt.date.today().strftime("%Y%m%d")
+        date = beijing_today().strftime("%Y%m%d")
     try:
         import akshare as ak
         df = _retry(lambda: ak.stock_zt_pool_em(date=date))
@@ -1084,7 +1099,7 @@ def collect_all(date: str | None = None) -> dict:
         sector_constituents = get_sector_constituents_map(sector_flow, n=30)
 
     data = {
-        "updated_at": dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "updated_at": beijing_now().strftime("%Y-%m-%d %H:%M:%S"),
         "trade_ctx": {
             "is_trade_day": ctx["is_trade_day"],
             "trade_date": trade_date,

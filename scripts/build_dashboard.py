@@ -20,6 +20,13 @@ import sys
 import json
 import datetime as dt
 
+# 北京时间（Asia/Shanghai, UTC+8）统一时间基准，与 feed.py 保持一致
+try:
+    from zoneinfo import ZoneInfo
+    _BJ_TZ = ZoneInfo("Asia/Shanghai")
+except Exception:
+    _BJ_TZ = None
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import yaml  # noqa: E402
 import feed  # noqa: E402
@@ -1535,7 +1542,7 @@ def build() -> str:
     try:
         date_val = dt.datetime.strptime(updated_at, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
     except Exception:
-        date_val = dt.date.today().strftime("%Y-%m-%d")
+        date_val = (dt.datetime.now(_BJ_TZ) if _BJ_TZ else dt.datetime.now()).strftime("%Y-%m-%d")
 
     # 交易日/非交易日 状态徽标 + 数据基准说明
     is_open, td_fmt, _ = _trade_mode(snap)
