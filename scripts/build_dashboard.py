@@ -151,6 +151,7 @@ CSS_RULES = """
         .tag.buy { background:rgba(239,68,68,0.2); color:#ef4444; }
         .tag.sell { background:rgba(34,197,94,0.2); color:#22c55e; }
         .tag.hold { background:rgba(245,158,11,0.2); color:#f59e0b; }
+        .acct-tag { font-size:10px; color:var(--text-secondary); margin-right:5px; padding:1px 6px; border:1px solid var(--border-color); border-radius:6px; }
         .tag.strong { background:rgba(239,68,68,0.3); color:#ef4444; }
 
         .flex-3col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
@@ -785,16 +786,45 @@ def _section_heatmap(snap, indicators):
 
 
 # ----------------------------------------------------------------- ⑤ 持仓复盘
-def _position_rows(cfg, a_quotes, indicators):
-    hs = cfg.get("holdings", []) or []
-    if not hs:
+ACCOUNT_LABELS = {"galaxy": "银河", "eastmoney": "东财", "manual": "手动"}
+
+
+def _unified_positions(cfg, broker_positions):
+    """统一持仓来源：优先用双券商交割单合并结果，否则回退到 strategy.yaml 手动 holdings。"""
+    if broker_positions:
+        out = []
+        for p in broker_positions:
+            out.append({
+                "name": p.get("name") or p.get("code"),
+                "code": p.get("code"),
+                "account": p.get("account"),
+                "quantity": p.get("quantity"),
+                "cost": p.get("avg_cost"),
+            })
+        return out
+    out = []
+    for h in (cfg.get("holdings", []) or []):
+        # strategy.yaml 的 holdings 用 code 字段存中文名
+        out.append({
+            "name": h.get("code") or h.get("name"),
+            "code": h.get("code"),
+            "account": None,
+            "quantity": None,
+            "cost": h.get("cost"),
+        })
+    return out
+
+
+def _position_rows(positions, a_quotes, indicators):
+    if not positions:
         return []
     rows = []
-    for h in hs:
-        name = h.get("code") or h.get("name") or "—"
+    for h in positions:
+        name = h.get("name") or h.get("code") or "—"
         cost = h.get("cost")
         live = a_quotes.get(name)
-        price = (live or {}).get("price") if live else h.get("price")
+        price = (live or {}).get("price") if live else None
+        qty = h.get("quantity")
         pnl_rate = None
         if cost is not None and price is not None:
             try:
@@ -808,9 +838,11 @@ def _position_rows(cfg, a_quotes, indicators):
         rsi = ind.get("rsi")
         macd_disp, macd_cls = _macd_cell(ind)
         vr = ind.get("volume_ratio")
+        acc = h.get("account")
         rows.append({
             "stock": name,
-            "quantity": "—",
+            "account": ACCOUNT_LABELS.get(acc, "手动") if acc else "手动",
+            "quantity": (f"{int(qty):,}" if isinstance(qty, (int, float)) else "—"),
             "cost": cost,
             "price": price,
             "pnl": None,
@@ -831,17 +863,17 @@ def _position_rows(cfg, a_quotes, indicators):
     return rows
 
 
-def _section_holdings(cfg, a_quotes, indicators):
-    rows = _position_rows(cfg, a_quotes, indicators)
+def _section_holdings(positions, a_quotes, indicators):
+    rows = _position_rows(positions, a_quotes, indicators)
     if not rows:
         return '''
         <div class="card card-full" onclick="openModal('positions')">
             <div class="card-title"><span class="icon"><i class="fas fa-briefcase"></i></span> ⑤ 持仓复盘 <span class="badge">未配置</span></div>
-            <div style="color:var(--text-secondary);font-size:13px;">strategy.yaml 未配置 holdings。</div>
+            <div style="color:var(--text-secondary);font-size:13px;">未检测到持仓（可把两家券商交割单 CSV 放入 data/statements/galaxy 与 data/statements/eastmoney，或手动在 strategy.yaml 配置 holdings）。</div>
         </div>'''
     body = "".join(
         f'''<tr>
-            <td><strong>{d['stock']}</strong></td>
+            <td><span class="acct-tag">{d['account']}</span> <strong>{d['stock']}</strong></td>
             <td>{d['quantity']}</td>
             <td>{_safe(d['cost'],'—')}</td>
             <td>{_safe(d['price'],'—')}</td>
@@ -853,23 +885,42 @@ def _section_holdings(cfg, a_quotes, indicators):
             <td class="{d['mainFlow_cls']}" style="font-size:10px;font-weight:600;">{d['mainFlow']}</td>
             <td><span class="tag {d['signalClass']}">{d['signal']}</span></td>
         </tr>''' for d in rows)
+    # 汇总：总成本 / 总市值 / 综合盈亏
+    tot_cost = tot_mv = 0.0
+    for d in rows:
+        try:
+            q = int(str(d['quantity']).replace(',', '')) if d['quantity'] != '—' else 0
+        except Exception:
+            q = 0
+        c = d['cost'] or 0
+        p = d['price'] or 0
+        tot_cost += c * q
+        tot_mv += p * q
+    pnl_all = round((tot_mv - tot_cost) / tot_cost * 100, 2) if tot_cost else None
+    if tot_cost:
+        summary = (f"持仓 <b>{len(rows)}</b> 只 · 总成本 <b>{tot_cost/1e4:.1f}万</b> · "
+                   f"总市值 <b>{tot_mv/1e4:.1f}万</b> · 综合盈亏 "
+                   f"<b style='color:{'#ef4444' if (pnl_all or 0) > 0 else '#22c55e'};'>{_fmt_pct(pnl_all)}</b>")
+    else:
+        summary = f"持仓 {len(rows)} 只（成本/市值缺失，无法汇总）"
     return f'''
         <div class="card card-full" onclick="openModal('positions')">
             <div class="card-title">
-                <span class="icon"><i class="fas fa-briefcase"></i></span> ⑤ 持仓复盘
+                <span class="icon"><i class="fas fa-briefcase"></i></span> ⑤ 持仓复盘（银河 / 东财 双账号合并）
                 <span class="badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;">持仓 {len(rows)} 只</span>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看完整分析</span>
             </div>
             <div style="overflow-x:auto;max-height:320px;overflow-y:auto;">
                 <table class="position-table" style="width:100%;">
                     <thead><tr>
-                        <th>股票</th><th>持仓</th><th>成本</th><th>现价</th><th>盈亏%</th><th>RSI</th><th>MACD</th><th>量比</th><th>换手</th><th>主力</th><th>操作</th>
+                        <th>账号/股票</th><th>持仓</th><th>成本</th><th>现价</th><th>盈亏%</th><th>RSI</th><th>MACD</th><th>量比</th><th>换手</th><th>主力</th><th>操作</th>
                     </tr></thead>
                     <tbody>{body}</tbody>
                 </table>
             </div>
-            <div style="margin-top:8px;font-size:10px;color:var(--text-secondary);">
-                <i class="fas fa-info-circle"></i> 现价腾讯实时价；RSI(14)/MACD/量比/换手/主力净流入来自 tushare 真实数据
+            <div style="margin-top:8px;font-size:11px;color:var(--text-secondary);">{summary}</div>
+            <div style="margin-top:4px;font-size:10px;color:var(--text-secondary);">
+                <i class="fas fa-info-circle"></i> 账号/成本来自双券商交割单自动合并；现价腾讯实时价；RSI(14)/MACD/量比/换手/主力净流入来自 tushare 真实数据
             </div>
         </div>'''
 
@@ -1409,13 +1460,13 @@ def _modal_flow(snap, indicators):
     }
 
 
-def _modal_positions(cfg, a_quotes, indicators):
-    rows = _position_rows(cfg, a_quotes, indicators)
+def _modal_positions(positions, a_quotes, indicators):
+    rows = _position_rows(positions, a_quotes, indicators)
     if not rows:
-        return {"title": "💼 持仓详细分析", "html": '<p class="sub-title">含技术指标与资金流向</p><div style="color:var(--text-secondary);">未配置持仓。</div>'}
+        return {"title": "💼 持仓详细分析", "html": '<p class="sub-title">含技术指标与资金流向</p><div style="color:var(--text-secondary);">未检测到持仓。</div>'}
     trs = "".join(
         f'''<tr>
-            <td style="padding:4px;font-weight:500;">{d['stock']}</td>
+            <td style="padding:4px;"><span class="acct-tag">{d['account']}</span> <b>{d['stock']}</b></td>
             <td style="padding:4px;text-align:right;">{d['quantity']}</td>
             <td style="padding:4px;text-align:right;">{_safe(d['cost'],'—')}</td>
             <td style="padding:4px;text-align:right;">{_safe(d['price'],'—')}</td>
@@ -1428,13 +1479,13 @@ def _modal_positions(cfg, a_quotes, indicators):
             <td style="padding:4px;text-align:center;"><span class="tag {d['signalClass']}">{d['signal']}</span></td>
         </tr>''' for d in rows)
     return {
-        "title": "💼 持仓详细分析 · 含技术指标与资金流向",
+        "title": "💼 持仓详细分析 · 双账号合并（银河 / 东财）",
         "html": f'''
             <p class="sub-title">按账户分类 · 含RSI/MACD/量比/换手率/主力资金（技术指标来自 tushare 真实数据）</p>
             <div style="overflow-x:auto;">
                 <table style="width:100%;font-size:11px;border-collapse:collapse;">
                     <thead><tr style="color:#8892a0;border-bottom:1px solid var(--border-color);">
-                        <th style="text-align:left;padding:4px;">股票</th><th style="text-align:right;padding:4px;">持仓</th>
+                        <th style="text-align:left;padding:4px;">账号/股票</th><th style="text-align:right;padding:4px;">持仓</th>
                         <th style="text-align:right;padding:4px;">成本</th><th style="text-align:right;padding:4px;">现价</th>
                         <th style="text-align:right;padding:4px;">盈亏%</th><th style="text-align:right;padding:4px;">RSI</th>
                         <th style="text-align:right;padding:4px;">MACD</th><th style="text-align:right;padding:4px;">量比</th>
@@ -1444,7 +1495,7 @@ def _modal_positions(cfg, a_quotes, indicators):
                 </table>
             </div>
             <div style="margin-top:8px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:11px;color:#f59e0b;">
-                📌 现价腾讯实时价；RSI/MACD/量比/换手/主力净流入来自 tushare 真实数据
+                📌 账号与成本来自双券商交割单自动合并；现价腾讯实时价；RSI/MACD/量比/换手/主力净流入来自 tushare 真实数据
             </div>'''
     }
 
@@ -1525,9 +1576,19 @@ def build() -> str:
     overnight = _load_cache("us_overnight")
     cfg = _load_cfg()
 
+    # 双券商交割单 → 合并持仓（若 data/statements 下有 CSV 则自动聚合；否则回退 strategy.yaml holdings）
+    try:
+        import ingest_statements
+        ingest_statements.build()
+    except Exception as e:
+        print(f"[warn] 交割单合并失败，回退手动持仓: {e}")
+    holdings_cache = _load_cache("holdings") or {}
+    broker_positions = holdings_cache.get("positions") or []
+    positions = _unified_positions(cfg, broker_positions)
+
     # 实时价补充（失败则优雅降级为占位）
     pool_names = list(cfg.get("attack_pool", []) or [])
-    hold_names = [h.get("code") or h.get("name") for h in (cfg.get("holdings", []) or [])]
+    hold_names = [p.get("name") or p.get("code") for p in positions]
     candidate_names = []
     for s in cfg.get("sector_mapping", []) or []:
         candidate_names.extend(s.get("a_candidates", []) or [])
@@ -1586,7 +1647,7 @@ def build() -> str:
         _section_transmit(overnight),
         _section_limitup(snap),
         _section_heatmap(snap, indicators),
-        _section_holdings(cfg, a_quotes, indicators),
+        _section_holdings(positions, a_quotes, indicators),
         _section_pool(cfg, a_quotes, indicators),
         _section_judge(overnight, snap, cfg, a_quotes),
     ])
@@ -1611,7 +1672,7 @@ def build() -> str:
         "transmission": _modal_transmission(overnight),
         "limitup": _modal_limitup(snap),
         "flow": _modal_flow(snap, indicators),
-        "positions": _modal_positions(cfg, a_quotes, indicators),
+        "positions": _modal_positions(positions, a_quotes, indicators),
         "watchlist": _modal_watchlist(cfg, a_quotes, indicators),
         "judgment": _modal_judgment(overnight, snap, cfg, a_quotes),
     }

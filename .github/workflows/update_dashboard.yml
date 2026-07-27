@@ -17,6 +17,7 @@ on:
     paths:                   # 代码/配置更新时自动重建看板
       - "scripts/**"
       - "config/**"
+      - "data/statements/**"   # 放入两家券商交割单 CSV 也触发重建
       - ".github/workflows/update_dashboard.yml"
 
 permissions:
