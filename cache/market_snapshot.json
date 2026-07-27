@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-27 21:29:48",
+  "updated_at": "2026-07-27 22:08:06",
   "trade_ctx": {
     "is_trade_day": true,
     "trade_date": "20260727",
@@ -9,18 +9,18 @@
   "us_indices": [
     {
       "name": "纳斯达克",
-      "price": 24975.82,
-      "change_pct": 0.0
+      "price": 25072.0,
+      "change_pct": 0.39
     },
     {
       "name": "道琼斯",
-      "price": 51947.25,
-      "change_pct": 0.0
+      "price": 52447.47,
+      "change_pct": 0.96
     },
     {
       "name": "标普500",
-      "price": 7411.98,
-      "change_pct": 0.0
+      "price": 7443.17,
+      "change_pct": 0.42
     }
   ],
   "a_indexes": [
