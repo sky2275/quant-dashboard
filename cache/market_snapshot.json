@@ -1,10 +1,12 @@
 {
-  "updated_at": "2026-07-27 08:34:48",
+  "updated_at": "2026-07-27 09:02:09",
   "trade_ctx": {
     "is_trade_day": true,
     "trade_date": "20260727",
     "source": "tushare",
-    "stale_keys": []
+    "stale_keys": [
+      "limit_up"
+    ]
   },
   "us_indices": [
     {
@@ -4868,11 +4870,11 @@
     }
   ],
   "market_breadth": {
-    "amount": 1944224878192.0,
-    "up_count": 555,
-    "down_count": 4939,
-    "limit_up_count": 41,
-    "limit_down_count": 26
+    "amount": 0.0,
+    "up_count": 0,
+    "down_count": 0,
+    "limit_up_count": 0,
+    "limit_down_count": 0
   },
   "sector_constituents": {
     "中船系": [],
