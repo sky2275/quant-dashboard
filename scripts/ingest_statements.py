@@ -31,7 +31,7 @@ STATEMENT_DIR = os.path.join(REPO_ROOT, "data", "statements")
 CACHE_DIR = feed.CACHE_DIR
 MAP_PATH = os.path.join(REPO_ROOT, "config", "broker_maps.yaml")
 
-ACCOUNT_LABELS = {"galaxy": "银河证券", "eastmoney": "东方财富"}
+ACCOUNT_LABELS = {"galaxy": "银河·张华", "eastmoney": "东方财富", "csc": "中信建投"}
 
 
 def _bj_now():
@@ -104,6 +104,36 @@ def _read_excel(path):
     for rec in df.to_dict(orient="records"):
         rows.append({str(k): ("" if v is None else str(v)) for k, v in rec.items()})
     return [] if not rows else rows
+
+
+def _read_tsv(path):
+    """读取 GBK 制表符分隔的文本文件（部分券商导出 .xls 实为 TSV）。
+    返回 [ {列名: 字符串值}, ... ]。首行作为表头。"""
+    try:
+        raw = open(path, "rb").read()
+    except Exception as e:
+        print(f"[ingest] 读取失败({path}): {e}")
+        return []
+    txt = None
+    for enc in ("gb18030", "gbk", "utf-8-sig", "utf-8"):
+        try:
+            txt = raw.decode(enc)
+            break
+        except Exception:
+            continue
+    if txt is None:
+        txt = raw.decode("latin-1", errors="ignore")
+    lines = [ln for ln in txt.splitlines() if ln.strip() != ""]
+    if len(lines) < 2:
+        return []
+    hdr = [h.strip() for h in lines[0].split("\t")]
+    rows = []
+    for ln in lines[1:]:
+        cols = ln.split("\t")
+        if len(cols) < len(hdr):
+            cols += [""] * (len(hdr) - len(cols))
+        rows.append({hdr[i]: (cols[i].strip() if i < len(cols) else "") for i in range(len(hdr))})
+    return rows
 
 
 def _side(row, m):
@@ -191,7 +221,10 @@ def build():
             if low.endswith(".csv"):
                 rows += _read_csv(fp, m.get("encoding", "utf-8-sig"))
             else:
-                rows += _read_excel(fp)
+                r = _read_excel(fp)
+                if not r:
+                    r = _read_tsv(fp)
+                rows += r
         if rows:
             acc_pos = _aggregate(rows, m, acc)
             accounts[acc] = acc_pos

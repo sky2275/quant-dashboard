@@ -15,18 +15,20 @@
 # ============================================================
 
 brokers:
-  galaxy:    # 银河证券 交割单导出
+  galaxy:    # 银河证券 交割单导出（张华）— table-银河.xls 实为 GBK 制表符分隔文本
     encoding: "gbk"          # 银河导出多为 GBK；识别失败会自动尝试 utf-8/gb18030
-    date: "成交日期"
+    date: "交收日期"
     code: "证券代码"
     name: "证券名称"
-    side: "买卖标志"
+    side: "操作"             # 取值：证券买入 / 证券卖出 / 银行转证券 / 指定交易 …
     qty: "成交数量"
-    price: "成交价格"
+    price: "成交均价"
     amount: "成交金额"
-    fees: ["佣金", "印花税", "过户费", "清算费"]
-    buy_keywords: ["买入", "买", "B", "BUY"]
-    sell_keywords: ["卖出", "卖", "S", "SELL"]
+    # 注意：银河导出里「手续费」与「佣金」为同一笔佣金（数值相同），只计其一避免重复；
+    # 其余费用列：印花税 / 其他杂费 / 过户费 / 清算费(B股)
+    fees: ["手续费", "印花税", "其他杂费", "过户费", "清算费(B股)"]
+    buy_keywords: ["证券买入"]
+    sell_keywords: ["证券卖出"]
 
   eastmoney: # 东方财富证券 交割单导出（资金流水格式）
     encoding: "utf-8-sig"    # xlsx 实际由 pandas 读取，encoding 仅对 CSV 兜底
@@ -38,5 +40,18 @@ brokers:
     price: "成交均价"          # 东财导出列名为"成交均价"
     amount: "成交金额"
     fees: ["佣金", "其他费用"]  # 其他费用含印花税+过户费
+    buy_keywords: ["证券买入"]
+    sell_keywords: ["证券卖出"]
+
+  csc:       # 中信建投证券 交割单导出 — table-中投.xls 实为 GBK 制表符分隔文本
+    encoding: "gbk"          # 中投导出为 GBK；识别失败自动尝试 utf-8/gb18030
+    date: "成交日期"
+    code: "证券代码"
+    name: "证券名称"
+    side: "操作"             # 取值：证券买入 / 证券卖出 / 证券转银行 / 利息归本 …
+    qty: "成交数量"
+    price: "成交均价"
+    amount: "成交金额"
+    fees: ["手续费", "印花税", "其他杂费"]
     buy_keywords: ["证券买入"]
     sell_keywords: ["证券卖出"]

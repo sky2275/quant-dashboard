@@ -441,6 +441,30 @@ def _fmt_turnover(v):
         return "—"
 
 
+def _fmt_pnl(v):
+    """盈亏金额格式化：>=1万 显示 x.xx万，否则带正负号整数。"""
+    if v is None:
+        return "—"
+    try:
+        x = float(v)
+    except Exception:
+        return "—"
+    if abs(x) >= 1e4:
+        return f"{x/1e4:+.2f}万"
+    return f"{x:+,}"
+
+
+def _pnl_cls(v):
+    """盈亏配色：盈利红 / 亏损绿 / 无数据灰（A股习惯）。"""
+    if v is None:
+        return "var(--text-secondary)"
+    if v > 0:
+        return "#ef4444"
+    if v < 0:
+        return "#22c55e"
+    return "var(--text-secondary)"
+
+
 def _score_cls(v):
     """综合评分配色：>=60 强势(红) / 40-60 中性(金) / <40 弱势(绿)。非数字返回空。"""
     try:
@@ -786,7 +810,7 @@ def _section_heatmap(snap, indicators):
 
 
 # ----------------------------------------------------------------- ⑤ 持仓复盘
-ACCOUNT_LABELS = {"galaxy": "银河", "eastmoney": "东财", "manual": "手动"}
+ACCOUNT_LABELS = {"galaxy": "银河·张华", "eastmoney": "东财", "csc": "中信建投", "manual": "手动"}
 
 
 def _unified_positions(cfg, broker_positions):
@@ -831,6 +855,17 @@ def _position_rows(positions, a_quotes, indicators):
                 pnl_rate = round((float(price) - float(cost)) / float(cost) * 100, 2)
             except Exception:
                 pnl_rate = None
+        # 总盈亏（¥）与当日盈亏（¥）：当日盈亏 = 持仓量 × 现价 × 当日涨跌幅%
+        chg = (live or {}).get("change_pct") if live else None
+        pnl_abs = None       # 总盈亏金额 = qty × (现价 - 成本)
+        pnl_today = None     # 当日盈亏金额 = qty × 现价 × 涨跌幅/100
+        if cost is not None and price is not None and isinstance(qty, (int, float)):
+            pnl_abs = round(qty * (price - cost), 2)
+        if price is not None and isinstance(qty, (int, float)) and chg is not None:
+            try:
+                pnl_today = round(qty * price * float(chg) / 100.0, 2)
+            except Exception:
+                pnl_today = None
         signal = "持有" if (pnl_rate is not None and pnl_rate > 0) else "观察"
         signal_cls = "buy" if signal == "持有" else "hold"
         ts = _name_to_ts(name)
@@ -847,6 +882,9 @@ def _position_rows(positions, a_quotes, indicators):
             "price": price,
             "pnl": None,
             "pnlRate": pnl_rate,
+            "pnlAbs": pnl_abs,
+            "pnlToday": pnl_today,
+            "changePct": chg,
             "rsi": rsi,
             "rsi_disp": _fmt_rsi(rsi),
             "rsi_cls": _rsi_class(rsi),
@@ -869,7 +907,7 @@ def _section_holdings(positions, a_quotes, indicators):
         return '''
         <div class="card card-full" onclick="openModal('positions')">
             <div class="card-title"><span class="icon"><i class="fas fa-briefcase"></i></span> ⑤ 持仓复盘 <span class="badge">未配置</span></div>
-            <div style="color:var(--text-secondary);font-size:13px;">未检测到持仓（可把两家券商交割单 CSV 放入 data/statements/galaxy 与 data/statements/eastmoney，或手动在 strategy.yaml 配置 holdings）。</div>
+            <div style="color:var(--text-secondary);font-size:13px;">未检测到持仓（可把三家券商交割单放入 data/statements/galaxy、data/statements/eastmoney、data/statements/csc，或手动在 strategy.yaml 配置 holdings）。</div>
         </div>'''
     body = "".join(
         f'''<tr>
@@ -878,6 +916,8 @@ def _section_holdings(positions, a_quotes, indicators):
             <td>{_safe(d['cost'],'—')}</td>
             <td>{_safe(d['price'],'—')}</td>
             <td style="color:{'#ef4444' if (d['pnlRate'] or 0) > 0 else ('#22c55e' if (d['pnlRate'] or 0) < 0 else 'var(--text-secondary)')};font-weight:600;">{_fmt_pct(d['pnlRate']) if d['pnlRate'] is not None else '—'}</td>
+            <td style="color:{_pnl_cls(d['pnlAbs'])};font-weight:600;">{_fmt_pnl(d['pnlAbs'])}</td>
+            <td style="color:{_pnl_cls(d['pnlToday'])};font-weight:600;">{_fmt_pnl(d['pnlToday'])}</td>
             <td class="{d['rsi_cls']}">{d['rsi_disp']}</td>
             <td class="{d['macd_cls']}">{d['macd']}</td>
             <td class="{d['vol_cls']}" style="{'color:var(--text-secondary);' if not d['vol_cls'] else ''}">{d['volumeRatio']}</td>
@@ -885,8 +925,10 @@ def _section_holdings(positions, a_quotes, indicators):
             <td class="{d['mainFlow_cls']}" style="font-size:10px;font-weight:600;">{d['mainFlow']}</td>
             <td><span class="tag {d['signalClass']}">{d['signal']}</span></td>
         </tr>''' for d in rows)
-    # 汇总：总成本 / 总市值 / 综合盈亏
+    # 汇总：总成本 / 总市值 / 总盈亏(¥) / 当日盈亏(¥)
     tot_cost = tot_mv = 0.0
+    tot_pnl = 0.0
+    tot_pnl_today = 0.0
     for d in rows:
         try:
             q = int(str(d['quantity']).replace(',', '')) if d['quantity'] != '—' else 0
@@ -896,31 +938,40 @@ def _section_holdings(positions, a_quotes, indicators):
         p = d['price'] or 0
         tot_cost += c * q
         tot_mv += p * q
+        if d.get('pnlAbs') is not None:
+            tot_pnl += d['pnlAbs']
+        if d.get('pnlToday') is not None:
+            tot_pnl_today += d['pnlToday']
     pnl_all = round((tot_mv - tot_cost) / tot_cost * 100, 2) if tot_cost else None
+    # 按账户统计只数（用于标题/汇总展示）
+    from collections import Counter
+    acc_cnt = Counter((p.get("account") or "手动") for p in positions)
+    acc_str = " · ".join(f"{ACCOUNT_LABELS.get(a, '手动')} {n}" for a, n in acc_cnt.items())
     if tot_cost:
-        summary = (f"持仓 <b>{len(rows)}</b> 只 · 总成本 <b>{tot_cost/1e4:.1f}万</b> · "
-                   f"总市值 <b>{tot_mv/1e4:.1f}万</b> · 综合盈亏 "
-                   f"<b style='color:{'#ef4444' if (pnl_all or 0) > 0 else '#22c55e'};'>{_fmt_pct(pnl_all)}</b>")
+        summary = (f"持仓 <b>{len(rows)}</b> 只（{acc_str}）· 总成本 <b>{tot_cost/1e4:.1f}万</b> · "
+                   f"总市值 <b>{tot_mv/1e4:.1f}万</b> · 总盈亏 "
+                   f"<b style='color:{_pnl_cls(tot_pnl)};'>{_fmt_pnl(tot_pnl)}（{_fmt_pct(pnl_all)}）</b> · "
+                   f"当日盈亏 <b style='color:{_pnl_cls(tot_pnl_today)};'>{_fmt_pnl(tot_pnl_today)}</b>")
     else:
         summary = f"持仓 {len(rows)} 只（成本/市值缺失，无法汇总）"
     return f'''
         <div class="card card-full" onclick="openModal('positions')">
             <div class="card-title">
-                <span class="icon"><i class="fas fa-briefcase"></i></span> ⑤ 持仓复盘（银河 / 东财 双账号合并）
+                <span class="icon"><i class="fas fa-briefcase"></i></span> ⑤ 持仓复盘（银河·张华 / 东财 / 中信建投 三账号合并）
                 <span class="badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;">持仓 {len(rows)} 只</span>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看完整分析</span>
             </div>
             <div style="overflow-x:auto;max-height:320px;overflow-y:auto;">
                 <table class="position-table" style="width:100%;">
                     <thead><tr>
-                        <th>账号/股票</th><th>持仓</th><th>成本</th><th>现价</th><th>盈亏%</th><th>RSI</th><th>MACD</th><th>量比</th><th>换手</th><th>主力</th><th>操作</th>
+                        <th>账号/股票</th><th>持仓</th><th>成本</th><th>现价</th><th>盈亏%</th><th>总盈亏</th><th>当日盈亏</th><th>RSI</th><th>MACD</th><th>量比</th><th>换手</th><th>主力</th><th>操作</th>
                     </tr></thead>
                     <tbody>{body}</tbody>
                 </table>
             </div>
             <div style="margin-top:8px;font-size:11px;color:var(--text-secondary);">{summary}</div>
             <div style="margin-top:4px;font-size:10px;color:var(--text-secondary);">
-                <i class="fas fa-info-circle"></i> 账号/成本来自双券商交割单自动合并；现价腾讯实时价；RSI(14)/MACD/量比/换手/主力净流入来自 tushare 真实数据
+                <i class="fas fa-info-circle"></i> 账号/成本来自三券商交割单自动合并；现价腾讯实时价；RSI(14)/MACD/量比/换手/主力净流入来自 tushare 真实数据
             </div>
         </div>'''
 
@@ -1471,6 +1522,8 @@ def _modal_positions(positions, a_quotes, indicators):
             <td style="padding:4px;text-align:right;">{_safe(d['cost'],'—')}</td>
             <td style="padding:4px;text-align:right;">{_safe(d['price'],'—')}</td>
             <td style="padding:4px;text-align:right;color:{'#ef4444' if (d['pnlRate'] or 0)>0 else ('#22c55e' if (d['pnlRate'] or 0)<0 else 'var(--text-secondary)')};font-weight:600;">{_fmt_pct(d['pnlRate']) if d['pnlRate'] is not None else '—'}</td>
+            <td style="padding:4px;text-align:right;color:{_pnl_cls(d['pnlAbs'])};font-weight:600;">{_fmt_pnl(d['pnlAbs'])}</td>
+            <td style="padding:4px;text-align:right;color:{_pnl_cls(d['pnlToday'])};font-weight:600;">{_fmt_pnl(d['pnlToday'])}</td>
             <td style="padding:4px;text-align:right;" class="{d['rsi_cls']}">{d['rsi_disp']}</td>
             <td style="padding:4px;text-align:right;" class="{d['macd_cls']}">{d['macd']}</td>
             <td style="padding:4px;text-align:right;" class="{d['vol_cls']}">{d['volumeRatio']}</td>
@@ -1479,7 +1532,7 @@ def _modal_positions(positions, a_quotes, indicators):
             <td style="padding:4px;text-align:center;"><span class="tag {d['signalClass']}">{d['signal']}</span></td>
         </tr>''' for d in rows)
     return {
-        "title": "💼 持仓详细分析 · 双账号合并（银河 / 东财）",
+        "title": "💼 持仓详细分析 · 三账号合并（银河·张华 / 东财 / 中信建投）",
         "html": f'''
             <p class="sub-title">按账户分类 · 含RSI/MACD/量比/换手率/主力资金（技术指标来自 tushare 真实数据）</p>
             <div style="overflow-x:auto;">
@@ -1487,7 +1540,7 @@ def _modal_positions(positions, a_quotes, indicators):
                     <thead><tr style="color:#8892a0;border-bottom:1px solid var(--border-color);">
                         <th style="text-align:left;padding:4px;">账号/股票</th><th style="text-align:right;padding:4px;">持仓</th>
                         <th style="text-align:right;padding:4px;">成本</th><th style="text-align:right;padding:4px;">现价</th>
-                        <th style="text-align:right;padding:4px;">盈亏%</th><th style="text-align:right;padding:4px;">RSI</th>
+                        <th style="text-align:right;padding:4px;">盈亏%</th><th style="text-align:right;padding:4px;">总盈亏</th><th style="text-align:right;padding:4px;">当日盈亏</th><th style="text-align:right;padding:4px;">RSI</th>
                         <th style="text-align:right;padding:4px;">MACD</th><th style="text-align:right;padding:4px;">量比</th>
                         <th style="text-align:right;padding:4px;">换手</th><th style="text-align:right;padding:4px;">主力</th><th style="text-align:center;padding:4px;">操作</th>
                     </tr></thead>

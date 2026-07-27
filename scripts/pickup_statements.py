@@ -9,9 +9,9 @@
 
 逻辑：
   1. 扫描 ~/Desktop 下所有 .xls/.xlsx/.csv；
-  2. 按文件名关键字自动判断券商（银河/海王星/双子星 → galaxy；东财/东方财富 → eastmoney）；
-  3. 判断不了的，逐个让你选 1)银河 2)东财 3)跳过；
-  4. 复制到 data/statements/{galaxy,eastmoney}/；
+  2. 按文件名关键字自动判断券商（银河/海王星/双子星 → galaxy；东财/东方财富 → eastmoney；中投/中信建投 → csc）；
+  3. 判断不了的，逐个让你选 1)银河 2)东财 3)中信建投 4)跳过；
+  4. 复制到 data/statements/{galaxy,eastmoney,csc}/；
   5. 询问（或 --push 直接）提交并推送到 GitHub，触发看板自动合并更新。
 """
 import os
@@ -25,6 +25,7 @@ DESKTOP = os.path.expanduser("~/Desktop")
 
 GALAXY_KEYS = ["银河", "海王星", "双子星", "galaxy", "yh"]
 EM_KEYS = ["东财", "东方财富", "eastmoney", "east"]
+CSC_KEYS = ["中投", "中信建投", "csc", "zj"]
 
 
 def detect(name):
@@ -33,6 +34,8 @@ def detect(name):
         return "galaxy"
     if any(k in n for k in EM_KEYS):
         return "eastmoney"
+    if any(k in n for k in CSC_KEYS):
+        return "csc"
     return None
 
 
@@ -56,9 +59,9 @@ def main():
         if acc is None:
             print(f"\n文件：{base}")
             print("  无法从文件名判断是哪家券商，请选择：")
-            print("    1) 银河证券    2) 东方财富    3) 跳过")
+            print("    1) 银河证券    2) 东方财富    3) 中信建投    4) 跳过")
             while True:
-                c = input("  输入 1 / 2 / 3: ").strip()
+                c = input("  输入 1 / 2 / 3 / 4: ").strip()
                 if c == "1":
                     acc = "galaxy"
                     break
@@ -66,16 +69,19 @@ def main():
                     acc = "eastmoney"
                     break
                 elif c == "3":
+                    acc = "csc"
+                    break
+                elif c == "4":
                     acc = None
                     break
-                print("  请输入 1、2 或 3。")
+                print("  请输入 1~4。")
         if acc:
             dst_dir = os.path.join(REPO_ROOT, "data", "statements", acc)
             os.makedirs(dst_dir, exist_ok=True)
             dst = os.path.join(dst_dir, base)
             shutil.copy2(fp, dst)
             copied.append((base, acc))
-            label = "银河证券" if acc == "galaxy" else "东方财富"
+            label = {"galaxy": "银河证券", "eastmoney": "东方财富", "csc": "中信建投"}.get(acc, acc)
             print(f"  ✓ 已复制 → data/statements/{acc}/  ({label})")
 
     if not copied:

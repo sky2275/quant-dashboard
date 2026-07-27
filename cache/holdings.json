@@ -1,11 +1,49 @@
 {
   "source": "broker_statements",
-  "updated_at": "2026-07-28 00:27:25",
+  "updated_at": "2026-07-28 01:06:45",
   "account_labels": {
-    "galaxy": "银河证券",
-    "eastmoney": "东方财富"
+    "galaxy": "银河·张华",
+    "eastmoney": "东方财富",
+    "csc": "中信建投"
   },
   "accounts": {
+    "galaxy": [
+      {
+        "code": "688825",
+        "name": "N长鑫",
+        "account": "galaxy",
+        "quantity": 200,
+        "avg_cost": 49.5055
+      },
+      {
+        "code": "300223",
+        "name": "北京君正",
+        "account": "galaxy",
+        "quantity": 200,
+        "avg_cost": 147.97
+      },
+      {
+        "code": "003033",
+        "name": "征和工业",
+        "account": "galaxy",
+        "quantity": 300,
+        "avg_cost": 64.0196
+      },
+      {
+        "code": "603776",
+        "name": "永安行",
+        "account": "galaxy",
+        "quantity": 300,
+        "avg_cost": 19.4797
+      },
+      {
+        "code": "600584",
+        "name": "长电科技",
+        "account": "galaxy",
+        "quantity": 300,
+        "avg_cost": 86.2042
+      }
+    ],
     "eastmoney": [
       {
         "code": "300223",
@@ -35,9 +73,45 @@
         "quantity": 1000,
         "avg_cost": 82.215
       }
-    ]
+    ],
+    "csc": []
   },
   "positions": [
+    {
+      "code": "688825",
+      "name": "N长鑫",
+      "account": "galaxy",
+      "quantity": 200,
+      "avg_cost": 49.5055
+    },
+    {
+      "code": "300223",
+      "name": "北京君正",
+      "account": "galaxy",
+      "quantity": 200,
+      "avg_cost": 147.97
+    },
+    {
+      "code": "003033",
+      "name": "征和工业",
+      "account": "galaxy",
+      "quantity": 300,
+      "avg_cost": 64.0196
+    },
+    {
+      "code": "603776",
+      "name": "永安行",
+      "account": "galaxy",
+      "quantity": 300,
+      "avg_cost": 19.4797
+    },
+    {
+      "code": "600584",
+      "name": "长电科技",
+      "account": "galaxy",
+      "quantity": 300,
+      "avg_cost": 86.2042
+    },
     {
       "code": "300223",
       "name": "北京君正",
