@@ -1,40 +1,40 @@
 {
-  "updated_at": "2026-07-27 12:48:24",
+  "updated_at": "2026-07-27 13:30:12",
   "sectors": [
     {
       "a_sector": "半导体",
-      "avg_change": -3.54,
-      "level": "🔥🔥🔥 极强利空",
+      "avg_change": 0.0,
+      "level": "🟡 中性",
       "drivers": [
         {
           "symbol": "NVDA",
           "name": "英伟达",
           "price": 206.84,
-          "change_pct": -0.92
+          "change_pct": 0.0
         },
         {
           "symbol": "AMD",
           "name": "超威半导体",
           "price": 521.95,
-          "change_pct": -3.29
+          "change_pct": 0.0
         },
         {
           "symbol": "TSM",
           "name": "台积电",
           "price": 403.41,
-          "change_pct": -2.93
+          "change_pct": 0.0
         },
         {
           "symbol": "AVGO",
           "name": "博通",
           "price": 381.92,
-          "change_pct": -2.69
+          "change_pct": 0.0
         },
         {
           "symbol": "INTC",
           "name": "英特尔",
           "price": 92.32,
-          "change_pct": -7.89
+          "change_pct": 0.0
         }
       ],
       "a_candidates": [
@@ -47,26 +47,26 @@
     },
     {
       "a_sector": "存储芯片",
-      "avg_change": -6.88,
-      "level": "🔥🔥🔥 极强利空",
+      "avg_change": 0.0,
+      "level": "🟡 中性",
       "drivers": [
         {
           "symbol": "MU",
           "name": "美光科技",
           "price": 920.95,
-          "change_pct": -6.99
+          "change_pct": 0.0
         },
         {
           "symbol": "WDC",
           "name": "西部数据",
           "price": 519.8,
-          "change_pct": -6.9
+          "change_pct": 0.0
         },
         {
           "symbol": "STX",
           "name": "希捷科技",
           "price": 851.69,
-          "change_pct": -6.75
+          "change_pct": 0.0
         }
       ],
       "a_candidates": [
@@ -79,26 +79,26 @@
     },
     {
       "a_sector": "光模块",
-      "avg_change": -6.6,
-      "level": "🔥🔥🔥 极强利空",
+      "avg_change": 0.0,
+      "level": "🟡 中性",
       "drivers": [
         {
           "symbol": "COHR",
           "name": "Coherent Corp.",
           "price": 282.39,
-          "change_pct": -9.84
+          "change_pct": 0.0
         },
         {
           "symbol": "LITE",
           "name": "Lumentum Holdings Inc.",
           "price": 762.99,
-          "change_pct": -8.47
+          "change_pct": 0.0
         },
         {
           "symbol": "AAOI",
           "name": "应用光电",
           "price": 100.15,
-          "change_pct": -10.6
+          "change_pct": 0.0
         },
         {
           "symbol": "NPTN",
@@ -110,7 +110,7 @@
           "symbol": "CIEN",
           "name": "Ciena科技",
           "price": 390.96,
-          "change_pct": -4.07
+          "change_pct": 0.0
         }
       ],
       "a_candidates": [
@@ -123,38 +123,38 @@
     },
     {
       "a_sector": "物理AI/机器人",
-      "avg_change": -1.5,
-      "level": "🔥🔥🔥 极强利空",
+      "avg_change": 0.0,
+      "level": "🟡 中性",
       "drivers": [
         {
           "symbol": "SYM",
           "name": "Symbotic Inc.",
           "price": 40.15,
-          "change_pct": -1.04
+          "change_pct": 0.0
         },
         {
           "symbol": "ISRG",
           "name": "直觉外科公司",
           "price": 337.5,
-          "change_pct": 1.65
+          "change_pct": 0.0
         },
         {
           "symbol": "TER",
           "name": "泰瑞达",
           "price": 349.92,
-          "change_pct": -6.38
+          "change_pct": 0.0
         },
         {
           "symbol": "TSLA",
           "name": "特斯拉",
           "price": 313.03,
-          "change_pct": -2.08
+          "change_pct": 0.0
         },
         {
           "symbol": "ROK",
           "name": "罗克韦尔自动化",
           "price": 462.16,
-          "change_pct": 0.33
+          "change_pct": 0.0
         }
       ],
       "a_candidates": [
@@ -167,38 +167,38 @@
     },
     {
       "a_sector": "科技巨头",
-      "avg_change": 0.35,
-      "level": "🟡 中性",
+      "avg_change": 1.63,
+      "level": "🔥🔥🔥 极强利好",
       "drivers": [
         {
           "symbol": "AAPL",
           "name": "苹果",
-          "price": 333.02,
-          "change_pct": 3.53
+          "price": 335.3,
+          "change_pct": 0.68
         },
         {
           "symbol": "MSFT",
           "name": "微软",
-          "price": 381.7,
-          "change_pct": 0.03
+          "price": 389.84,
+          "change_pct": 2.13
         },
         {
           "symbol": "META",
           "name": "Meta Platforms, Inc.",
-          "price": 595.19,
-          "change_pct": -1.8
+          "price": 607.78,
+          "change_pct": 2.11
         },
         {
           "symbol": "GOOGL",
           "name": "谷歌-A",
-          "price": 319.74,
-          "change_pct": 0.65
+          "price": 325.25,
+          "change_pct": 1.72
         },
         {
           "symbol": "AMZN",
           "name": "亚马逊",
-          "price": 232.11,
-          "change_pct": -0.66
+          "price": 235.66,
+          "change_pct": 1.53
         }
       ],
       "a_candidates": [
@@ -211,38 +211,38 @@
     },
     {
       "a_sector": "苹果供应链",
-      "avg_change": -1.55,
-      "level": "🔥🔥🔥 极强利空",
+      "avg_change": 0.58,
+      "level": "🟢 偏多",
       "drivers": [
         {
           "symbol": "AAPL",
           "name": "苹果",
-          "price": 333.02,
-          "change_pct": 3.53
+          "price": 335.3,
+          "change_pct": 0.68
         },
         {
           "symbol": "QCOM",
           "name": "高通",
-          "price": 166.97,
-          "change_pct": -2.42
+          "price": 169.77,
+          "change_pct": 1.68
         },
         {
           "symbol": "SWKS",
           "name": "思佳讯",
           "price": 60.21,
-          "change_pct": -0.43
+          "change_pct": 0.0
         },
         {
           "symbol": "CRUS",
           "name": "凌云半导体",
-          "price": 133.61,
-          "change_pct": 0.06
+          "price": 134.33,
+          "change_pct": 0.54
         },
         {
           "symbol": "LITE",
           "name": "Lumentum Holdings Inc.",
           "price": 762.99,
-          "change_pct": -8.47
+          "change_pct": 0.0
         }
       ],
       "a_candidates": [
