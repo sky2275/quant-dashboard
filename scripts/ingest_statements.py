@@ -31,7 +31,7 @@ STATEMENT_DIR = os.path.join(REPO_ROOT, "data", "statements")
 CACHE_DIR = feed.CACHE_DIR
 MAP_PATH = os.path.join(REPO_ROOT, "config", "broker_maps.yaml")
 
-ACCOUNT_LABELS = {"galaxy": "银河·张华", "eastmoney": "东方财富", "csc": "中信建投"}
+ACCOUNT_LABELS = {"galaxy": "银河证券", "eastmoney": "东方财富", "csc": "中信建投"}
 
 
 def _bj_now():
