@@ -3,14 +3,17 @@
 """
 双券商交割单 → 合并持仓 (cache/holdings.json)
 
-读取 data/statements/{galaxy,eastmoney}/*.csv，按 config/broker_maps.yaml 的列映射
-归一化，按 (账号, 代码) 聚合买卖记录、还原当前持仓（数量 / 成本价），输出
-cache/holdings.json。纯本地计算，不联网（避开沙箱行情限流），由 build_dashboard.py
-在生成看板时调用并按账户展示、再补实时价与技术指标。
+读取 data/statements/{galaxy,eastmoney} 下的交割单文件，支持格式：
+  - CSV        (.csv)
+  - Excel      (.xls / .xlsx，银河海王星多为 .xls，东财多为 .xlsx)
+按 config/broker_maps.yaml 的列映射归一化，按 (账号, 代码) 聚合买卖记录、
+还原当前持仓（数量 / 成本价），输出 cache/holdings.json。纯本地计算，不联网
+（避开沙箱行情限流），由 build_dashboard.py 在生成看板时调用并按账户展示、
+再补实时价与技术指标。
 
 用法：
     python scripts/ingest_statements.py
-build_dashboard.py 也会在生成时自动调用本模块（若 data/statements 下有 CSV）。
+build_dashboard.py 也会在生成时自动调用本模块（若 data/statements 下有交割单）。
 """
 import os
 import sys
@@ -82,6 +85,25 @@ def _read_csv(path, enc):
         except Exception:
             continue
     return []
+
+
+def _read_excel(path):
+    """读取 .xls / .xlsx 交割单，返回 [ {列名: 字符串值}, ... ]。"""
+    try:
+        import pandas as pd
+    except Exception as e:
+        print(f"[ingest] 缺少 pandas，无法解析 Excel({path}): {e}")
+        return []
+    try:
+        df = pd.read_excel(path, header=0)
+    except Exception as e:
+        print(f"[ingest] read_excel 失败({path}): {e}")
+        return []
+    df = df.fillna("")
+    rows = []
+    for rec in df.to_dict(orient="records"):
+        rows.append({str(k): ("" if v is None else str(v)) for k, v in rec.items()})
+    return [] if not rows else rows
 
 
 def _side(row, m):
@@ -156,10 +178,17 @@ def build():
     positions = []
     for acc, m in brokers.items():
         d = os.path.join(STATEMENT_DIR, acc)
-        files = sorted(glob.glob(os.path.join(d, "*.csv"))) if os.path.isdir(d) else []
+        files = []
+        if os.path.isdir(d):
+            for pat in ("*.csv", "*.CSV", "*.xls", "*.XLS", "*.xlsx", "*.XLSX"):
+                files += sorted(glob.glob(os.path.join(d, pat)))
         rows = []
         for fp in files:
-            rows += _read_csv(fp, m.get("encoding", "utf-8-sig"))
+            low = fp.lower()
+            if low.endswith(".csv"):
+                rows += _read_csv(fp, m.get("encoding", "utf-8-sig"))
+            else:
+                rows += _read_excel(fp)
         if rows:
             acc_pos = _aggregate(rows, m, acc)
             accounts[acc] = acc_pos
