@@ -1618,7 +1618,32 @@ function openModal(type) {{
 function closeModal() {{
     document.getElementById('modal').classList.remove('active');
 }}
-document.addEventListener('keydown', function(e) {{ if (e.key === 'Escape') closeModal(); }});'''
+document.addEventListener('keydown', function(e) {{ if (e.key === 'Escape') closeModal(); }});
+
+function shareDashboard() {{
+  const url = window.location.href.split('?')[0];
+  const title = document.title || '📊 量化交易看板';
+  if (navigator.share) {{
+    navigator.share({{ title: title, url: url }}).catch(function(){{}});
+  }} else if (navigator.clipboard && navigator.clipboard.writeText) {{
+    navigator.clipboard.writeText(url).then(function(){{ showShareToast('已复制看板链接'); }}).catch(function(){{ fallbackCopy(url); }});
+  }} else {{
+    fallbackCopy(url);
+  }}
+}}
+function fallbackCopy(text) {{
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try {{ document.execCommand('copy'); showShareToast('已复制看板链接'); }} catch (e) {{ showShareToast('复制失败，请长按地址栏复制'); }}
+  document.body.removeChild(ta);
+}}
+function showShareToast(msg) {{
+  const t = document.getElementById('shareToast');
+  if (!t) return;
+  t.textContent = msg; t.style.opacity = '1';
+  setTimeout(function(){{ t.style.opacity = '0'; }}, 1800);
+}}'''
 
     html = f'''<!DOCTYPE html>
 <html lang="zh-CN">
@@ -1639,6 +1664,10 @@ document.addEventListener('keydown', function(e) {{ if (e.key === 'Escape') clos
 {footer}
 </div>
 {modal_shell}
+<button id="shareFab" onclick="shareDashboard()" title="分享 / 复制看板链接" aria-label="分享看板" style="position:fixed;right:16px;bottom:22px;z-index:9999;width:54px;height:54px;border:none;border-radius:50%;background:linear-gradient(135deg,#ff7a45,#ff3d6e);color:#fff;font-size:21px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(255,61,110,.45);">
+  <i class="fas fa-share-alt"></i>
+</button>
+<div id="shareToast" style="position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:rgba(20,20,30,.9);color:#fff;padding:9px 16px;border-radius:22px;font-size:13px;z-index:10000;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;">已复制看板链接</div>
 <script>{js}
 </script>
 </body>
