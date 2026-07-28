@@ -1167,8 +1167,8 @@ def _flow_in_out(snap):
             cons = {}
 
     # 流入 TOP30 = 净流入最大的 30；流出 TOP30 = 净流出最大的 30（净流入最负）。
-    # 与同花顺客户端口径一致，避免“按资金流入规模”与“按净流出规模”混排导致榜单重复。
-    # 颜色仍按「净流入」正负（红涨绿跌/A股习惯）。
+    # 榜单金额统一用「净流入」口径，确保排名与展示值一致，避免 gross 流入/流出与 net 排序混排。
+    # 颜色按「净流入」正负（红涨绿跌/A股习惯）。
     base = []
     for x in real:
         sec = x.get("名称", "—")
@@ -1177,25 +1177,16 @@ def _flow_in_out(snap):
             net = float(x.get("净流入", 0))
         except Exception:
             net = 0.0
-        try:
-            inflow = float(x.get("流入资金", net if net >= 0 else 0))
-            outflow = float(x.get("流出资金", -net if net < 0 else 0))
-        except Exception:
-            inflow = net if net >= 0 else 0
-            outflow = -net if net < 0 else 0
         # 保留领涨股字段（本地 Table.xls 覆盖时可用作成分股补充）
         leader = x.get("领涨股")
         if leader and not stocks:
             stocks = [{"name": leader, "code": ""}]
-        base.append({"sector": sec, "amount": _fmt_yi(net), "stocks": stocks,
-                     "net": net, "inflow": inflow, "outflow": outflow})
+        base.append({"sector": sec, "amount": _fmt_yi(net), "stocks": stocks, "net": net})
 
     inp_sorted = sorted(base, key=lambda d: -d["net"])[:30]            # 净流入最大（板块吸金）
     out_sorted = sorted(base, key=lambda d: d["net"])[:30]             # 净流出最大（最负在前）
-    # 流入TOP30 展示真实「流入资金(元)」，流出TOP30 展示真实「流出资金(元)」，
-    # 避免此前净额口径混淆（流出榜误显正值净额）的问题。
-    inp = [dict(d, rank=i, amount=_fmt_yi(d["inflow"])) for i, d in enumerate(inp_sorted, 1)]
-    out = [dict(d, rank=i, amount=_fmt_yi(d["outflow"])) for i, d in enumerate(out_sorted, 1)]
+    inp = [dict(d, rank=i, amount=_fmt_yi(d["net"])) for i, d in enumerate(inp_sorted, 1)]
+    out = [dict(d, rank=i, amount=_fmt_yi(d["net"])) for i, d in enumerate(out_sorted, 1)]
     return (inp or None), (out or None)
 
 
