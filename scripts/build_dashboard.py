@@ -122,8 +122,9 @@ CSS_RULES = """
         .market-item .label { color:var(--text-secondary); font-size:11px; }
         .market-item .value { font-size:15px; font-weight:600; }
         .market-item .change { font-size:12px; font-weight:500; }
-        .up { color:var(--accent-red); }
-        .down { color:var(--accent-green); }
+        .up, .pnl-pos { color:var(--accent-red) !important; }
+        .down, .pnl-neg { color:var(--accent-green) !important; }
+        .pnl-zero { color:var(--text-secondary) !important; }
         .yellow { color:var(--accent-gold); }
 
         .sentiment-bar { width:100%; height:6px; background:var(--border-color); border-radius:3px; overflow:hidden; margin-top:6px; }
@@ -139,8 +140,8 @@ CSS_RULES = """
 
         .rank-badge { background:var(--border-color); padding:2px 8px; border-radius:12px; font-size:10px; color:var(--text-secondary); }
         .sector-tag { background:rgba(79,195,247,0.12); color:var(--accent-blue); padding:2px 10px; border-radius:12px; font-size:10px; }
-        .pos { color:var(--accent-red); }
-        .neg { color:var(--accent-green); }
+        .pos { color:var(--accent-red) !important; }
+        .neg { color:var(--accent-green) !important; }
 
         .position-table { width:100%; font-size:11px; border-collapse:collapse; }
         .position-table th { color:var(--text-secondary); font-weight:500; text-align:left; padding:6px 4px; border-bottom:1px solid var(--border-color); font-size:10px; text-transform:uppercase; letter-spacing:0.3px; }
@@ -463,6 +464,17 @@ def _pnl_cls(v):
     if v < 0:
         return "#22c55e"
     return "var(--text-secondary)"
+
+
+def _pnl_class(v):
+    """盈亏 CSS class：盈利 pnl-pos / 亏损 pnl-neg / 零 pnl-zero。"""
+    if v is None:
+        return "pnl-zero"
+    if v > 0:
+        return "pnl-pos"
+    if v < 0:
+        return "pnl-neg"
+    return "pnl-zero"
 
 
 def _score_cls(v):
@@ -927,8 +939,8 @@ def _section_holdings(positions, a_quotes, indicators, account_pnl=None):
             <td>{_safe(d['cost'],'—')}</td>
             <td>{_safe(d['price'],'—')}</td>
             <td style="color:{'#ef4444' if (d['pnlRate'] or 0) > 0 else ('#22c55e' if (d['pnlRate'] or 0) < 0 else 'var(--text-secondary)')};font-weight:600;">{_fmt_pct(d['pnlRate']) if d['pnlRate'] is not None else '—'}</td>
-            <td style="color:{_pnl_cls(d['pnlAbs'])};font-weight:600;">{_fmt_pnl(d['pnlAbs'])}</td>
-            <td style="color:{_pnl_cls(d['pnlToday'])};font-weight:600;">{_fmt_pnl(d['pnlToday'])}</td>
+            <td class="{_pnl_class(d['pnlAbs'])}" style="color:{_pnl_cls(d['pnlAbs'])};font-weight:600;">{_fmt_pnl(d['pnlAbs'])}</td>
+            <td class="{_pnl_class(d['pnlToday'])}" style="color:{_pnl_cls(d['pnlToday'])};font-weight:600;">{_fmt_pnl(d['pnlToday'])}</td>
             <td class="{d['rsi_cls']}">{d['rsi_disp']}</td>
             <td class="{d['macd_cls']}">{d['macd']}</td>
             <td class="{d['vol_cls']}" style="{'color:var(--text-secondary);' if not d['vol_cls'] else ''}">{d['volumeRatio']}</td>
@@ -1585,8 +1597,8 @@ def _modal_positions(positions, a_quotes, indicators, account_pnl=None):
             <td style="padding:4px;text-align:right;">{_safe(d['cost'],'—')}</td>
             <td style="padding:4px;text-align:right;">{_safe(d['price'],'—')}</td>
             <td style="padding:4px;text-align:right;color:{'#ef4444' if (d['pnlRate'] or 0)>0 else ('#22c55e' if (d['pnlRate'] or 0)<0 else 'var(--text-secondary)')};font-weight:600;">{_fmt_pct(d['pnlRate']) if d['pnlRate'] is not None else '—'}</td>
-            <td style="padding:4px;text-align:right;color:{_pnl_cls(d['pnlAbs'])};font-weight:600;">{_fmt_pnl(d['pnlAbs'])}</td>
-            <td style="padding:4px;text-align:right;color:{_pnl_cls(d['pnlToday'])};font-weight:600;">{_fmt_pnl(d['pnlToday'])}</td>
+            <td class="{_pnl_class(d['pnlAbs'])}" style="padding:4px;text-align:right;color:{_pnl_cls(d['pnlAbs'])};font-weight:600;">{_fmt_pnl(d['pnlAbs'])}</td>
+            <td class="{_pnl_class(d['pnlToday'])}" style="padding:4px;text-align:right;color:{_pnl_cls(d['pnlToday'])};font-weight:600;">{_fmt_pnl(d['pnlToday'])}</td>
             <td style="padding:4px;text-align:right;" class="{d['rsi_cls']}">{d['rsi_disp']}</td>
             <td style="padding:4px;text-align:right;" class="{d['macd_cls']}">{d['macd']}</td>
             <td style="padding:4px;text-align:right;" class="{d['vol_cls']}">{d['volumeRatio']}</td>
@@ -1899,6 +1911,9 @@ function showShareToast(msg) {{
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>📊 量化交易看板</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>{CSS_RULES}
