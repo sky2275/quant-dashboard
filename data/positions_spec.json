@@ -1,0 +1,29 @@
+{
+  "date": "2026-07-28",
+  "accounts": {
+    "galaxy": {
+      "summary": {"today": 4628, "today_pct": 4.82, "total": -24719.82, "pct": 30.66},
+      "positions": [
+        {"code": "003033", "name": "征和工业", "quantity": 100, "avg_cost": 51.745,
+         "pnl": {"total": 1051.52, "pct": 20.321, "today": 503, "today_pct": 2.602}},
+        {"code": "603776", "name": "永安行", "quantity": 300, "avg_cost": -31.957,
+         "pnl": {"total": 15206.23, "pct": 0.0, "today": 12, "today_pct": 0.214}}
+      ]
+    },
+    "eastmoney": {
+      "summary": {"today": 36442.51, "today_pct": 6.82, "total": 86009.22, "pct": 71.6},
+      "positions": [
+        {"code": "003033", "name": "征和工业", "quantity": 500, "avg_cost": 32.326,
+         "pnl": {"total": 14966.87, "pct": 92.6, "today": 1085, "today_pct": 3.368}},
+        {"code": "300223", "name": "北京君正", "quantity": 2500, "avg_cost": 143.507,
+         "pnl": {"total": 41018.72, "pct": 11.433, "today": 30537.98, "today_pct": 8.768}},
+        {"code": "603776", "name": "永安行", "quantity": 2000, "avg_cost": 19.04,
+         "pnl": {"total": 619.73, "pct": 1.628, "today": 80, "today_pct": 0.214}}
+      ]
+    },
+    "csc": {
+      "summary": {"today": null, "today_pct": null, "total": 21933.29, "pct": 6.99},
+      "positions": []
+    }
+  }
+}

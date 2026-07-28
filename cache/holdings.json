@@ -1,16 +1,31 @@
 {
   "source": "broker_pnl_snapshot_2026-07-28",
-  "updated_at": "2026-07-28 23:57:00",
-  "note": "权威盈亏快照：总成本/现价/盈亏均以来源券商(银河/东财/中信建投)后台口径，含分红与已平仓盈亏；账户级总额含已平仓盈亏，不等于个股市值之和。后续每日据此更新。",
+  "updated_at": "2026-07-28 00:19:23",
+  "note": "权威盈亏快照：成本/现价/盈亏均以来源券商后台口径，含分红与已平仓盈亏；账户级总额含已平仓盈亏，不等于个股市值之和。后续每日据此更新。",
   "account_labels": {
     "galaxy": "银河证券",
     "eastmoney": "东方财富",
     "csc": "中信建投"
   },
   "account_pnl": {
-    "galaxy": {"today": 4628, "today_pct": 4.82, "total": -24719.82, "pct": 30.66},
-    "eastmoney": {"today": 36442.51, "today_pct": 6.82, "total": 86009.22, "pct": 71.6},
-    "csc": {"today": null, "today_pct": null, "total": 21933.29, "pct": 6.99}
+    "galaxy": {
+      "today": 4628,
+      "today_pct": 4.82,
+      "total": -24719.82,
+      "pct": 30.66
+    },
+    "eastmoney": {
+      "today": 36442.51,
+      "today_pct": 6.82,
+      "total": 86009.22,
+      "pct": 71.6
+    },
+    "csc": {
+      "today": null,
+      "today_pct": null,
+      "total": 21933.29,
+      "pct": 6.99
+    }
   },
   "accounts": {
     "galaxy": [
@@ -20,7 +35,13 @@
         "account": "galaxy",
         "quantity": 100,
         "avg_cost": 51.745,
-        "pnl": {"total": 1051.52, "pct": 20.321, "today": 503, "today_pct": 2.602, "price": 62.26}
+        "pnl": {
+          "total": 1051.52,
+          "pct": 20.321,
+          "today": 503,
+          "today_pct": 2.602,
+          "price": 62.2602
+        }
       },
       {
         "code": "603776",
@@ -28,7 +49,13 @@
         "account": "galaxy",
         "quantity": 300,
         "avg_cost": -31.957,
-        "pnl": {"total": 15206.23, "pct": 0.0, "today": 12, "today_pct": 0.214, "price": 18.73}
+        "pnl": {
+          "total": 15206.23,
+          "pct": 0.0,
+          "today": 12,
+          "today_pct": 0.214,
+          "price": 18.7304
+        }
       }
     ],
     "eastmoney": [
@@ -38,7 +65,13 @@
         "account": "eastmoney",
         "quantity": 500,
         "avg_cost": 32.326,
-        "pnl": {"total": 14966.87, "pct": 92.6, "today": 1085, "today_pct": 3.368, "price": 62.26}
+        "pnl": {
+          "total": 14966.87,
+          "pct": 92.6,
+          "today": 1085,
+          "today_pct": 3.368,
+          "price": 62.2597
+        }
       },
       {
         "code": "300223",
@@ -46,7 +79,13 @@
         "account": "eastmoney",
         "quantity": 2500,
         "avg_cost": 143.507,
-        "pnl": {"total": 41018.72, "pct": 11.433, "today": 30537.98, "today_pct": 8.768, "price": 159.91}
+        "pnl": {
+          "total": 41018.72,
+          "pct": 11.433,
+          "today": 30537.98,
+          "today_pct": 8.768,
+          "price": 159.9145
+        }
       },
       {
         "code": "603776",
@@ -54,7 +93,13 @@
         "account": "eastmoney",
         "quantity": 2000,
         "avg_cost": 19.04,
-        "pnl": {"total": 619.73, "pct": 1.628, "today": 80, "today_pct": 0.214, "price": 19.35}
+        "pnl": {
+          "total": 619.73,
+          "pct": 1.628,
+          "today": 80,
+          "today_pct": 0.214,
+          "price": 19.3499
+        }
       }
     ],
     "csc": []
@@ -66,7 +111,13 @@
       "account": "galaxy",
       "quantity": 100,
       "avg_cost": 51.745,
-      "pnl": {"total": 1051.52, "pct": 20.321, "today": 503, "today_pct": 2.602, "price": 62.26}
+      "pnl": {
+        "total": 1051.52,
+        "pct": 20.321,
+        "today": 503,
+        "today_pct": 2.602,
+        "price": 62.2602
+      }
     },
     {
       "code": "603776",
@@ -74,7 +125,13 @@
       "account": "galaxy",
       "quantity": 300,
       "avg_cost": -31.957,
-      "pnl": {"total": 15206.23, "pct": 0.0, "today": 12, "today_pct": 0.214, "price": 18.73}
+      "pnl": {
+        "total": 15206.23,
+        "pct": 0.0,
+        "today": 12,
+        "today_pct": 0.214,
+        "price": 18.7304
+      }
     },
     {
       "code": "003033",
@@ -82,7 +139,13 @@
       "account": "eastmoney",
       "quantity": 500,
       "avg_cost": 32.326,
-      "pnl": {"total": 14966.87, "pct": 92.6, "today": 1085, "today_pct": 3.368, "price": 62.26}
+      "pnl": {
+        "total": 14966.87,
+        "pct": 92.6,
+        "today": 1085,
+        "today_pct": 3.368,
+        "price": 62.2597
+      }
     },
     {
       "code": "300223",
@@ -90,7 +153,13 @@
       "account": "eastmoney",
       "quantity": 2500,
       "avg_cost": 143.507,
-      "pnl": {"total": 41018.72, "pct": 11.433, "today": 30537.98, "today_pct": 8.768, "price": 159.91}
+      "pnl": {
+        "total": 41018.72,
+        "pct": 11.433,
+        "today": 30537.98,
+        "today_pct": 8.768,
+        "price": 159.9145
+      }
     },
     {
       "code": "603776",
@@ -98,7 +167,13 @@
       "account": "eastmoney",
       "quantity": 2000,
       "avg_cost": 19.04,
-      "pnl": {"total": 619.73, "pct": 1.628, "today": 80, "today_pct": 0.214, "price": 19.35}
+      "pnl": {
+        "total": 619.73,
+        "pct": 1.628,
+        "today": 80,
+        "today_pct": 0.214,
+        "price": 19.3499
+      }
     }
   ]
 }
