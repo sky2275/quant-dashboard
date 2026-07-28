@@ -14,10 +14,12 @@ on:
   workflow_dispatch:         # 允许手动触发
   push:
     branches: [main]
-    paths:                   # 代码/配置更新时自动重建看板
+    paths:                   # 代码/配置/数据/产物更新时自动重建看板
       - "scripts/**"
       - "config/**"
       - "data/statements/**"   # 放入两家券商交割单 CSV 也触发重建
+      - "cache/**"             # 持仓/行情缓存变更（含手动更新 holdings.json）触发重建
+      - "index.html"           # 看板产物变更触发重建
       - ".github/workflows/update_dashboard.yml"
 
 permissions:
