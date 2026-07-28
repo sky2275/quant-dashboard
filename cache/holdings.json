@@ -1,6 +1,6 @@
 {
   "source": "broker_statements",
-  "updated_at": "2026-07-28 23:13:49",
+  "updated_at": "2026-07-28 23:23:36",
   "account_labels": {
     "galaxy": "银河证券",
     "eastmoney": "东方财富",
@@ -9,24 +9,10 @@
   "accounts": {
     "galaxy": [
       {
-        "code": "688825",
-        "name": "N长鑫",
-        "account": "galaxy",
-        "quantity": 200,
-        "avg_cost": 49.5055
-      },
-      {
-        "code": "300223",
-        "name": "北京君正",
-        "account": "galaxy",
-        "quantity": 200,
-        "avg_cost": 147.97
-      },
-      {
         "code": "003033",
         "name": "征和工业",
         "account": "galaxy",
-        "quantity": 300,
+        "quantity": 100,
         "avg_cost": 64.0196
       },
       {
@@ -35,13 +21,6 @@
         "account": "galaxy",
         "quantity": 300,
         "avg_cost": 19.4797
-      },
-      {
-        "code": "600584",
-        "name": "长电科技",
-        "account": "galaxy",
-        "quantity": 300,
-        "avg_cost": 86.2042
       }
     ],
     "eastmoney": [
@@ -78,24 +57,10 @@
   },
   "positions": [
     {
-      "code": "688825",
-      "name": "N长鑫",
-      "account": "galaxy",
-      "quantity": 200,
-      "avg_cost": 49.5055
-    },
-    {
-      "code": "300223",
-      "name": "北京君正",
-      "account": "galaxy",
-      "quantity": 200,
-      "avg_cost": 147.97
-    },
-    {
       "code": "003033",
       "name": "征和工业",
       "account": "galaxy",
-      "quantity": 300,
+      "quantity": 100,
       "avg_cost": 64.0196
     },
     {
@@ -104,13 +69,6 @@
       "account": "galaxy",
       "quantity": 300,
       "avg_cost": 19.4797
-    },
-    {
-      "code": "600584",
-      "name": "长电科技",
-      "account": "galaxy",
-      "quantity": 300,
-      "avg_cost": 86.2042
     },
     {
       "code": "300223",
