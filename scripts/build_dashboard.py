@@ -1744,6 +1744,128 @@ def _modal_judgment(overnight, snap, cfg, a_quotes):
     }
 
 
+# ----------------------------------------------------------------- ⑧ 每日选股推荐（集合竞价 09:26 / 市场情绪 14:30 双池）
+def _scan_pick_col(data, title, subtitle):
+    """渲染单池卡片内左侧/右侧的紧凑列表（卡片内展示前 10 只）。"""
+    stocks = data.get("stocks", []) or []
+    rows = ""
+    for s in stocks[:10]:
+        name = s.get("name", "—")
+        code = s.get("code", "")
+        pct = s.get("change_pct")
+        vr = s.get("volume_ratio")
+        score = s.get("score")
+        rows += f'''
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                <td style="padding:5px 4px;font-size:13px;color:#e8edf4;white-space:nowrap;">
+                    <b>{name}</b> <span style="color:var(--text-secondary);font-size:11px;">{code}</span>
+                </td>
+                <td style="padding:5px 4px;font-size:13px;text-align:right;color:{_pnl_cls(pct)};">{_fmt_pct(pct, 2)}</td>
+                <td style="padding:5px 4px;font-size:12px;text-align:right;color:var(--text-secondary);">{_safe(vr, "—")}</td>
+                <td style="padding:5px 4px;font-size:12px;text-align:right;color:{_pnl_cls(score)};font-weight:600;">{_safe(score, "—")}</td>
+            </tr>'''
+    if not rows:
+        rows = '<tr><td colspan="4" style="padding:8px;color:var(--text-secondary);font-size:13px;">暂无数据（等待定时扫描生成）</td></tr>'
+    return f'''
+        <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;">
+            <div style="font-size:13px;color:#4fc3f7;font-weight:600;margin-bottom:2px;">{title}</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;">{subtitle}</div>
+            <table style="width:100%;border-collapse:collapse;">
+                <thead>
+                    <tr style="font-size:11px;color:var(--text-secondary);text-align:left;">
+                        <th style="padding:4px;text-align:left;font-weight:500;">名称 / 代码</th>
+                        <th style="padding:4px;text-align:right;font-weight:500;">涨幅</th>
+                        <th style="padding:4px;text-align:right;font-weight:500;">量比</th>
+                        <th style="padding:4px;text-align:right;font-weight:500;">评分</th>
+                    </tr>
+                </thead>
+                <tbody>{rows}</tbody>
+            </table>
+        </div>'''
+
+
+def _section_scan_picks():
+    s26 = _load_cache("scan_0926") or {}
+    s30 = _load_cache("scan_1430") or {}
+    col26 = _scan_pick_col(s26, "⏰ 集合竞价优选", "09:26 集合竞价信号")
+    col30 = _scan_pick_col(s30, "📊 市场情绪优选", "14:30 盘中情绪信号")
+    cnt26 = s26.get("count") or len(s26.get("stocks", []))
+    cnt30 = s30.get("count") or len(s30.get("stocks", []))
+    total26 = s26.get("total_scanned") or "—"
+    total30 = s30.get("total_scanned") or "—"
+    sub26 = s26.get("candidates") or "—"
+    sub30 = s30.get("candidates") or "—"
+    badge = f'<span class="badge">扫描 {total26} 只 → 候选 {sub26} → 优选 {cnt26}</span>'
+    return f'''
+        <div class="card card-full" onclick="openModal('scan_picks')">
+            <div class="card-title">
+                <span class="icon"><i class="fas fa-bolt"></i></span> ⑧ 每日选股推荐
+                {badge}
+                <span class="click-hint"><i class="fas fa-chevron-right"></i> 查看完整股票池</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                {col26}
+                {col30}
+            </div>
+            <div style="margin-top:8px;font-size:10px;color:var(--text-secondary);">
+                <i class="fas fa-info-circle"></i> 集合竞价池 09:26 基于开盘竞价值 + 量比/换手/流通市值筛选；市场情绪池 14:30 基于盘中量价异动筛选。算法生成，仅供研究，非投资建议。
+            </div>
+        </div>'''
+
+
+def _modal_scan_picks():
+    s26 = _load_cache("scan_0926") or {}
+    s30 = _load_cache("scan_1430") or {}
+
+    def panel(data, title):
+        stocks = data.get("stocks", []) or []
+        rows = ""
+        for i, s in enumerate(stocks, 1):
+            name = s.get("name", "—")
+            code = s.get("code", "")
+            pct = s.get("change_pct")
+            vr = s.get("volume_ratio")
+            turn = s.get("turnover")
+            score = s.get("score")
+            price = s.get("price")
+            reasons = s.get("reasons", "")
+            rows += f'''
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                <td style="padding:6px 4px;color:var(--text-secondary);font-size:12px;">{i}</td>
+                <td style="padding:6px 4px;font-size:13px;color:#e8edf4;"><b>{name}</b> <span style="color:var(--text-secondary);font-size:11px;">{code}</span></td>
+                <td style="padding:6px 4px;font-size:13px;text-align:right;color:{_pnl_cls(pct)};">{_fmt_pct(pct, 2)}</td>
+                <td style="padding:6px 4px;font-size:12px;text-align:right;color:var(--text-secondary);">{_safe(price, "—")}</td>
+                <td style="padding:6px 4px;font-size:12px;text-align:right;color:var(--text-secondary);">{_safe(vr, "—")}</td>
+                <td style="padding:6px 4px;font-size:12px;text-align:right;color:var(--text-secondary);">{_safe(turn, "—")}%</td>
+                <td style="padding:6px 4px;font-size:12px;text-align:right;color:{_pnl_cls(score)};font-weight:600;">{_safe(score, "—")}</td>
+                <td style="padding:6px 4px;font-size:11px;color:var(--text-secondary);">{reasons}</td>
+              </tr>'''
+        total = data.get("total_scanned", "—")
+        cand = data.get("candidates", "—")
+        cnt = data.get("count") or len(stocks)
+        return f'''
+          <div style="margin-bottom:18px;">
+            <div style="font-size:15px;color:#4fc3f7;font-weight:600;margin-bottom:4px;">{title}</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;">扫描全 A 股 {total} 只 · 入选候选 {cand} 只 · 优选 {cnt} 只 · 更新 {data.get("updated_at", "—")}</div>
+            <table style="width:100%;border-collapse:collapse;">
+              <thead><tr style="font-size:11px;color:var(--text-secondary);text-align:left;">
+                <th style="padding:4px;">#</th><th style="padding:4px;">名称/代码</th><th style="padding:4px;text-align:right;">涨幅</th>
+                <th style="padding:4px;text-align:right;">现价</th><th style="padding:4px;text-align:right;">量比</th>
+                <th style="padding:4px;text-align:right;">换手</th><th style="padding:4px;text-align:right;">评分</th><th style="padding:4px;">入选理由</th>
+              </tr></thead>
+              <tbody>{rows}</tbody>
+            </table>
+          </div>'''
+
+    return {
+        "title": "⚡ 每日选股推荐 · 双池",
+        "html": (panel(s26, "⏰ 集合竞价优选（09:26）") + panel(s30, "📊 市场情绪优选（14:30）") + '''
+          <div style="margin-top:10px;padding:10px 12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;font-size:12px;color:#f59e0b;">
+            ⚠️ 风险提示：以上为自动化算法基于集合竞价 / 盘中量价信号筛选的候选池，仅供研究与学习，不构成任何投资建议。据此操作风险自负。
+          </div>'''),
+    }
+
+
 # ----------------------------------------------------------------- 组装
 def build() -> str:
     snap = _load_cache("market_snapshot") or {"updated_at": "—"}
@@ -1838,6 +1960,7 @@ def build() -> str:
         _section_holdings(positions, a_quotes, indicators, account_pnl),
         _section_pool(cfg, a_quotes, indicators),
         _section_judge(overnight, snap, cfg, a_quotes),
+        _section_scan_picks(),
     ])
 
     footer = f'''
@@ -1863,6 +1986,7 @@ def build() -> str:
         "positions": _modal_positions(positions, a_quotes, indicators, account_pnl),
         "watchlist": _modal_watchlist(cfg, a_quotes, indicators),
         "judgment": _modal_judgment(overnight, snap, cfg, a_quotes),
+        "scan_picks": _modal_scan_picks(),
     }
 
     js = f'''
