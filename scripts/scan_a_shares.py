@@ -18,6 +18,10 @@ scan_a_shares.py —— A股全市场扫描选股（集合竞价 / 盘中情绪�
 from __future__ import annotations
 
 import os
+# 禁用代理，避免 akshare/requests 在部分网络环境下走代理失败
+for _k in ("http_proxy", "https_proxy", "all_proxy", "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"):
+    os.environ.pop(_k, None)
+
 import sys
 import json
 import argparse
@@ -36,12 +40,12 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 PRESETS = {
     "0926": {
         "label": "集合竞价",
-        "change_pct": (1.5, 6.0),      # 高开但避免一字板
-        "amount_min": 5_000_000,       # 竞价成交额 ≥ 500万
-        "turnover_min": 1.0,           # 换手率 ≥ 1%
+        "change_pct": (0.5, 6.0),      # 高开但避免一字板（0.5%即可，提高命中率）
+        "amount_min": 1_000_000,       # 竞价成交额 ≥ 100万（集合竞价阶段放宽）
+        "turnover_min": 0.5,           # 换手率 ≥ 0.5%
         "volume_ratio_min": 0.0,       # 集合竞价无稳定量比，不设下限
         "turnover_max": 25.0,          # 避免过度换手
-        "float_cap": (2.0e9, 3.0e11),  # 流通市值 20亿-300亿
+        "float_cap": (1.5e9, 3.0e11),  # 流通市值 15亿-300亿
         "exclude_bj": True,            # 排除北交所(9开头)
         "exclude_kc": True,            # 排除科创板(688开头)
         "score_weights": {
@@ -127,7 +131,53 @@ def _load_spot() -> list[dict[str, Any]]:
     return records
 
 
-def _filter_and_score(records: list[dict], preset: dict) -> list[dict]:
+def _analysis(mode: str, r: dict, score: float) -> dict[str, str]:
+    """为入选股票生成推荐理由与明日关注点。"""
+    reasons = []
+    if mode == "0926":
+        reasons.append(f"集合竞价高开 {r['change_pct']:+.2f}%，开盘异动")
+        if r["amount"] >= 5_000_000:
+            reasons.append(f"竞价成交额 {_fmt_yi(r['amount'])}")
+        if r["turnover"] >= 1.0:
+            reasons.append(f"换手 {r['turnover']:.2f}%，竞价有承接")
+        if 1.5e9 <= r["float_cap"] <= 8.0e10:
+            reasons.append("流通市值适中，易于拉升")
+    else:
+        reasons.append(f"盘中涨幅 {r['change_pct']:+.2f}%，走势偏强")
+        if r["turnover"] >= 5.0:
+            reasons.append(f"换手 {r['turnover']:.2f}%，交投活跃")
+        if r["volume_ratio"] >= 1.5:
+            reasons.append(f"量比 {r['volume_ratio']:.2f}，放量明显")
+        if r["amount"] >= 3.0e7:
+            reasons.append(f"成交额 {_fmt_yi(r['amount'])}")
+        if 1.5e9 <= r["float_cap"] <= 8.0e10:
+            reasons.append("流通市值适中")
+
+    focus = []
+    if mode == "0926":
+        focus.append("开盘后观察能否站稳分时均线，回踩不破开盘价可轻仓试错")
+        focus.append("若30分钟内放量拉升且量比>1.5，可加仓；跌破开盘价且反抽无力则放弃")
+    else:
+        focus.append("14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进")
+        focus.append("明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有")
+
+    risk = []
+    if r["change_pct"] >= 5.0:
+        risk.append("当日已有一定涨幅，追高需谨慎")
+    if r["turnover"] >= 15.0:
+        risk.append("换手率偏高，注意获利盘兑现风险")
+    if r["volume_ratio"] >= 5.0:
+        risk.append("量比过大，警惕日内冲高回落")
+
+    return {
+        "reason": "；".join(reasons) if reasons else "技术形态符合选股条件",
+        "focus": "；".join(focus),
+        "risk": "；".join(risk) if risk else "常规波动风险",
+        "score_comment": f"综合评分 {score:.1f}：量价配合{'较好' if score >= 60 else '一般'}",
+    }
+
+
+def _filter_and_score(records: list[dict], preset: dict, mode: str) -> list[dict]:
     change_min, change_max = preset["change_pct"]
     cap_min, cap_max = preset["float_cap"]
     amount_min = preset["amount_min"]
@@ -209,6 +259,7 @@ def _filter_and_score(records: list[dict], preset: dict) -> list[dict]:
             "float_cap": round(r["float_cap"], 2),
             "score": round(score, 1),
             "reasons": "、".join(reasons) or "—",
+            "analysis": _analysis(mode, r, score),
         })
 
     candidates.sort(key=lambda x: (-x["score"], -x["change_pct"]))
@@ -240,7 +291,7 @@ def run(mode: str, top_n: int = 15) -> dict[str, Any]:
     records = _load_spot()
     print(f"[{mode}] 获取 {len(records)} 只股票行情")
 
-    candidates = _filter_and_score(records, preset)
+    candidates = _filter_and_score(records, preset, mode)
     selected = candidates[:top_n]
     print(f"[{mode}] 筛选出 {len(selected)} 只优选股票")
 

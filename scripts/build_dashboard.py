@@ -512,6 +512,146 @@ def _score_color(v):
     return "#f59e0b"
 
 
+def _position_strategy(d):
+    """基于技术面为单只持仓股生成明日操作策略与逻辑。"""
+    rsi = d.get('rsi')
+    macd_cls = d.get('macd_cls')
+    vr = d.get('volumeRatio')
+    turnover = d.get('turnover')
+    main_flow = d.get('mainFlow')
+    pnl_rate = d.get('pnlRate')
+    change_pct = d.get('changePct')
+
+    facts = []
+    rsi_f = None
+    vr_f = None
+    try:
+        rsi_f = float(rsi)
+        if rsi_f >= 70:
+            facts.append(f"RSI {rsi_f:.1f} 超买")
+        elif rsi_f <= 30:
+            facts.append(f"RSI {rsi_f:.1f} 超卖")
+        elif rsi_f >= 55:
+            facts.append(f"RSI {rsi_f:.1f} 偏强")
+        else:
+            facts.append(f"RSI {rsi_f:.1f} 偏弱")
+    except Exception:
+        pass
+
+    if macd_cls == "up":
+        facts.append("MACD 多头")
+    elif macd_cls == "down":
+        facts.append("MACD 空头")
+    else:
+        facts.append("MACD 中性")
+
+    try:
+        vr_f = float(vr)
+        if vr_f >= 2.0:
+            facts.append(f"量比 {vr_f:.2f} 明显放量")
+        elif vr_f >= 1.2:
+            facts.append(f"量比 {vr_f:.2f} 温和放量")
+        elif vr_f <= 0.8:
+            facts.append(f"量比 {vr_f:.2f} 缩量")
+    except Exception:
+        pass
+
+    if main_flow and main_flow != "—":
+        try:
+            flow_val = float(main_flow.replace("亿", "").replace("万", ""))
+            unit = "亿" if "亿" in main_flow else "万"
+            if flow_val > 0:
+                facts.append(f"主力净流入 +{flow_val}{unit}")
+            elif flow_val < 0:
+                facts.append(f"主力净流出 {flow_val}{unit}")
+        except Exception:
+            pass
+
+    # 决策
+    if pnl_rate is None:
+        action = "观察"
+        reason = "成本或现价缺失，暂无法给出操作建议"
+    elif pnl_rate >= 50:
+        action = "减仓锁定"
+        reason = "浮盈已超 50%，建议分批止盈锁定利润；若继续冲高可保留底仓"
+    elif pnl_rate >= 20:
+        action = "持有/减仓"
+        if 'rsi_f' in locals() and rsi_f >= 65:
+            reason = "浮盈较大且 RSI 偏高，建议减仓一半锁定利润"
+        else:
+            reason = "浮盈较丰，趋势未走坏则持有，放量滞涨则减仓"
+    elif pnl_rate > 0:
+        action = "持有"
+        if macd_cls == "up":
+            reason = "小幅盈利且 MACD 多头，继续持有，守成本线"
+        else:
+            reason = "小幅盈利但 MACD 未多头，持有观察，破成本止盈"
+    elif pnl_rate <= -15:
+        action = "止损"
+        reason = "浮亏已超 15%，严格执行纪律止损，避免深套"
+    elif pnl_rate <= -8:
+        action = "观望/止损"
+        if macd_cls == "down":
+            reason = "浮亏较大且 MACD 空头，明日不反弹考虑止损"
+        else:
+            reason = "浮亏较大，等待缩量止跌信号，反弹至压力位减仓"
+    elif pnl_rate < 0:
+        action = "观望"
+        if macd_cls == "up":
+            reason = "轻度浮亏但 MACD 多头，可观望等待反抽"
+        else:
+            reason = "轻度浮亏，MACD 偏弱，暂不补仓，等待企稳"
+    else:
+        action = "持有"
+        reason = "成本附近，按技术信号操作"
+
+    # 结合量能修正
+    if action == "持有" and isinstance(vr_f, float) and vr_f >= 2.5 and (change_pct or 0) > 5:
+        action = "持有/减仓"
+        reason += "；今日放量大涨，明日若冲高回落可减仓锁定"
+
+    facts_str = "；".join(facts) if facts else "技术指标缺失"
+    return action, f"【{facts_str}】{reason}"
+
+
+POOL_SECTOR_MAP = {
+    "通富微电": "半导体封测龙头",
+    "华天科技": "封测",
+    "中微公司": "半导体设备",
+    "深科技": "存储芯片",
+    "蓝思科技": "消费电子",
+    "雅克科技": "半导体材料",
+    "中际旭创": "光模块/CPO",
+    "埃斯顿": "机器人",
+    "汇川技术": "机器人/工控",
+    "兆易创新": "存储芯片",
+    "立讯精密": "苹果供应链",
+    "中芯国际": "晶圆代工",
+}
+
+
+def _pool_reason(name, ind):
+    """生成单只备选标的进入股票池的具体理由。"""
+    parts = []
+    score = ind.get("score")
+    week = ind.get("week_pct")
+    month = ind.get("month_pct")
+    rsi = ind.get("rsi")
+    if score is not None:
+        parts.append(f"综合评分 {score:.0f}")
+    if week is not None:
+        parts.append(f"周动量 {_fmt_pct(week, 1)}")
+    if month is not None:
+        parts.append(f"月动量 {_fmt_pct(month, 1)}")
+    if rsi is not None:
+        if rsi >= 65:
+            parts.append("RSI 强势")
+        elif rsi <= 35:
+            parts.append("RSI 超卖待反弹")
+    parts.append(POOL_SECTOR_MAP.get(name, "热点产业链"))
+    return "；".join(parts)
+
+
 # ----------------------------------------------------------------- ① 全球大盘行情
 def _session(label: str):
     """返回 (文案, 内联样式) 表示交易时段。label='a' A股 / 'us' 美股，基于北京时间。"""
@@ -919,7 +1059,7 @@ def _position_rows(positions, a_quotes, indicators):
         macd_disp, macd_cls = _macd_cell(ind)
         vr = ind.get("volume_ratio")
         acc = h.get("account")
-        rows.append({
+        row = {
             "stock": name,
             "account": ACCOUNT_LABELS.get(acc, "手动") if acc else "手动",
             "quantity": (f"{int(qty):,}" if isinstance(qty, (int, float)) else "—"),
@@ -942,7 +1082,9 @@ def _position_rows(positions, a_quotes, indicators):
             "mainFlow_cls": _cls(ind.get("main_flow")),
             "signal": signal,
             "signalClass": signal_cls,
-        })
+        }
+        row["strategy"], row["strategy_reason"] = _position_strategy(row)
+        rows.append(row)
     return rows
 
 
@@ -969,6 +1111,10 @@ def _section_holdings(positions, a_quotes, indicators, account_pnl=None):
             <td>{d['turnover']}</td>
             <td class="{d['mainFlow_cls']}" style="font-size:10px;font-weight:600;">{d['mainFlow']}</td>
             <td><span class="tag {d['signalClass']}">{d['signal']}</span></td>
+            <td style="min-width:140px;">
+                <div style="font-weight:600;color:#4fc3f7;font-size:11px;">{d['strategy']}</div>
+                <div style="font-size:10px;color:var(--text-secondary);line-height:1.4;margin-top:2px;">{d['strategy_reason']}</div>
+            </td>
         </tr>''' for d in rows)
     # ---- 汇总：优先用权威 account_pnl 快照（含已平仓盈亏），否则按个股实时值加总 ----
     # 按账户统计只数（用于标题/汇总展示）
@@ -1057,6 +1203,35 @@ def _section_holdings(positions, a_quotes, indicators, account_pnl=None):
                        f"当日盈亏 <b style='color:{_pnl_cls(tot_pnl_today)};'>{_fmt_pnl(tot_pnl_today)}</b>")
         else:
             summary = f"持仓 {len(rows)} 只（成本/市值缺失，无法汇总）"
+
+    # ---- 账户盈亏汇总卡片 ----
+    acc_cards = []
+    acc_order_keys = ("galaxy", "eastmoney", "csc")
+    acc_labels = {"galaxy": "银河证券", "eastmoney": "东方财富", "csc": "中信建投"}
+    for acc_key in acc_order_keys:
+        lab = acc_labels.get(acc_key)
+        cnt = sum(1 for d in rows if d['account'] == lab)
+        if account_pnl and acc_key in account_pnl:
+            ap = account_pnl[acc_key]
+            pa = ap.get("total"); pt = ap.get("today")
+            pa_rate = ap.get("pct")
+            card = f'''<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border-color);">
+                <div style="font-size:10px;color:var(--text-secondary);">{lab} · {cnt}只</div>
+                <div style="font-size:16px;font-weight:700;color:{_pnl_cls(pa)};margin-top:4px;">{_fmt_pnl(pa)}</div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">总盈亏{_fmt_pct(pa_rate) if pa_rate is not None else '—'}</div>
+                <div style="font-size:11px;color:{_pnl_cls(pt)};margin-top:2px;">当日 {_fmt_pnl(pt) if pt is not None else '—'}</div>
+            </div>'''
+        else:
+            pa = sum(d['pnlAbs'] for d in rows if d['account'] == lab)
+            pt = sum((d['pnlToday'] or 0) for d in rows if d['account'] == lab)
+            card = f'''<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border-color);">
+                <div style="font-size:10px;color:var(--text-secondary);">{lab} · {cnt}只</div>
+                <div style="font-size:16px;font-weight:700;color:{_pnl_cls(pa)};margin-top:4px;">{_fmt_pnl(pa)}</div>
+                <div style="font-size:11px;color:{_pnl_cls(pt)};margin-top:2px;">当日 {_fmt_pnl(pt)}</div>
+            </div>'''
+        acc_cards.append(card)
+    acc_cards_html = "".join(acc_cards)
+
     return f'''
         <div class="card card-full" onclick="openModal('positions')">
             <div class="card-title">
@@ -1064,10 +1239,13 @@ def _section_holdings(positions, a_quotes, indicators, account_pnl=None):
                 <span class="badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;">持仓 {len(rows)} 只</span>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看完整分析</span>
             </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+                {acc_cards_html}
+            </div>
             <div style="overflow-x:auto;max-height:320px;overflow-y:auto;">
                 <table class="position-table" style="width:100%;">
                     <thead><tr>
-                        <th>账号/股票</th><th>持仓</th><th>成本</th><th>现价</th><th>盈亏%</th><th>总盈亏</th><th>当日盈亏</th><th>RSI</th><th>MACD</th><th>量比</th><th>换手</th><th>主力</th><th>操作</th>
+                        <th>账号/股票</th><th>持仓</th><th>成本</th><th>现价</th><th>盈亏%</th><th>总盈亏</th><th>当日盈亏</th><th>RSI</th><th>MACD</th><th>量比</th><th>换手</th><th>主力</th><th>操作</th><th>明日策略 / 逻辑</th>
                     </tr></thead>
                     <tbody>{body}</tbody>
                 </table>
@@ -1103,6 +1281,7 @@ def _section_pool(cfg, a_quotes, indicators):
         score_val = ind.get("score")
         score = f"周 {_fmt_pct(week,1)} · 月 {_fmt_pct(month,1)}"
         score_disp = f"评分 {score_val}" if score_val is not None else "评分 —"
+        reason = _pool_reason(name, ind)
         cards += f'''
                 <div class="watchlist-card">
                     <div class="stock-name {_cls(pct)}">{name}</div>
@@ -1111,6 +1290,7 @@ def _section_pool(cfg, a_quotes, indicators):
                     <div class="stock-change {_cls(pct)}">{_fmt_pct(pct)}</div>
                     <div class="stock-score">{score}</div>
                     <div class="stock-score {_score_cls(score_val)}" style="font-weight:600;">{score_disp}</div>
+                    <div style="margin-top:4px;font-size:9px;color:var(--text-secondary);line-height:1.3;border-top:1px solid rgba(255,255,255,0.04);padding-top:4px;">📌 {reason}</div>
                 </div>'''
     return f'''
         <div class="card card-full" onclick="openModal('watchlist')">
@@ -1135,22 +1315,77 @@ def _section_pool(cfg, a_quotes, indicators):
 
 
 # ----------------------------------------------------------------- ⑦ 核心判断（按当日信号自动生成）
-def _build_judgment(overnight, snap, cfg, a_quotes):
+def _build_judgment(overnight, snap, cfg, a_quotes, account_pnl=None):
+    """
+    生成详细作战策略，返回 dict：
+      main_lines: 主线方向（每条含标题+逻辑）
+      risk_lines: 风险提示（每条含标题+逻辑）
+      tasks: 分步骤核心任务
+      logic: 总作战逻辑（一段话）
+      position: 仓位建议
+    """
     sectors = (overnight or {}).get("sectors", []) or []
-    a = snap.get("a_indexes", []) or []
-    bull, bear = [], []
+    a_indexes = snap.get("a_indexes", []) or []
+    sector_flow = snap.get("sector_flow", []) or []
+
+    # 1. 主线方向
+    bull, bull_logic = [], []
     for s in sectors:
         lvl = s.get("level", "")
+        sec = s.get("a_sector", "")
+        if not sec:
+            continue
         if "利好" in lvl or "偏多" in lvl:
-            bull.append(s.get("a_sector", ""))
-        elif "利空" in lvl:
-            bear.append(s.get("a_sector", ""))
-    a_down = sum(1 for x in a if isinstance(x.get("change_pct"), (int, float)) and x["change_pct"] < 0)
-    if a_down >= len(a) and a:
-        bear.append("大盘普跌")
-    # 持仓盈亏
-    pos_bull, pos_bear = [], []
-    for h in cfg.get("holdings", []) or []:
+            bull.append(sec)
+            reason = s.get("reason") or "美股/宏观映射偏多"
+            bull_logic.append(f"<b>{sec}</b>：{reason}，A股对应产业链存在补涨或惯性冲高动能。")
+
+    # 加入当日资金流入前3板块
+    inflow_top = sorted(
+        [x for x in sector_flow if isinstance(x, dict) and "error" not in x],
+        key=lambda x: float(x.get("净流入", 0) or 0),
+        reverse=True
+    )[:3]
+    for x in inflow_top:
+        sec = x.get("名称", "—")
+        net = float(x.get("净流入", 0) or 0)
+        if net > 0 and sec not in bull:
+            bull.append(sec)
+            bull_logic.append(f"<b>{sec}</b>：当日主力净流入 {_fmt_yi(net*1e8)}，资金主动进攻，短期热度有望延续。")
+
+    # 2. 风险提示
+    bear, bear_logic = [], []
+    for s in sectors:
+        lvl = s.get("level", "")
+        sec = s.get("a_sector", "")
+        if not sec:
+            continue
+        if "利空" in lvl:
+            bear.append(sec)
+            reason = s.get("reason") or "美股/宏观映射偏空"
+            bear_logic.append(f"<b>{sec}</b>：{reason}，A股相关链条承压，宜回避或减仓。")
+
+    # 资金流出前3
+    outflow_top = sorted(
+        [x for x in sector_flow if isinstance(x, dict) and "error" not in x],
+        key=lambda x: float(x.get("净流入", 0) or 0)
+    )[:3]
+    for x in outflow_top:
+        sec = x.get("名称", "—")
+        net = float(x.get("净流入", 0) or 0)
+        if net < 0 and sec not in bear:
+            bear.append(sec)
+            bear_logic.append(f"<b>{sec}</b>：当日主力净流出 {_fmt_yi(abs(net)*1e8)}，资金撤离明显，短期回避。")
+
+    # 大盘普跌
+    a_down = sum(1 for x in a_indexes if isinstance(x.get("change_pct"), (int, float)) and x["change_pct"] < 0)
+    if a_down >= len(a_indexes) and a_indexes:
+        bear_logic.append("<b>大盘普跌</b>：主要宽基指数全线收跌，系统性风险上升，控制仓位优先。")
+
+    # 持仓风险（使用持仓股实时盈亏，基于 positions 中的数据更精确）
+    holdings = cfg.get("holdings", []) or []
+    risk_pos = []
+    for h in holdings:
         name = h.get("code") or h.get("name")
         q = a_quotes.get(name)
         price = (q or {}).get("price") if q else h.get("price")
@@ -1158,23 +1393,56 @@ def _build_judgment(overnight, snap, cfg, a_quotes):
         if cost and price:
             try:
                 r = (float(price) - float(cost)) / float(cost) * 100
-                if r > 0:
-                    pos_bull.append(f"{name}盈利{_fmt_pct(r,1)}持有")
+                if r < -8:
+                    risk_pos.append(f"<b>{name}</b>：浮亏 {_fmt_pct(r,1)}，已触发深度止损观察线，明日不反弹需执行纪律。")
                 elif r < -3:
-                    pos_bear.append(f"{name}浮亏{_fmt_pct(r,1)}，关注支撑")
-                else:
-                    pos_bear.append(f"{name}微亏{_fmt_pct(r,1)}，观察")
+                    risk_pos.append(f"<b>{name}</b>：浮亏 {_fmt_pct(r,1)}，跌破成本，关注关键支撑是否守住。")
             except Exception:
                 pass
-    main_lines = bull + pos_bull
-    risk_lines = bear + pos_bear
-    if not main_lines:
-        main_lines = ["无明显主线信号"]
-    if not risk_lines:
-        risk_lines = ["无明显风险信号"]
-    # 核心任务
-    tasks = []
-    for h in cfg.get("holdings", []) or []:
+    bear_logic.extend(risk_pos)
+
+    if not bull_logic:
+        bull_logic = ["暂无明确主线，轻仓观望或聚焦独立个股机会。"]
+    if not bear_logic:
+        bear_logic = ["暂无显著系统性风险，按个股技术信号操作。"]
+
+    # 3. 仓位建议
+    total_pnl_pct = None
+    if account_pnl:
+        totals = [(account_pnl.get(k, {}) or {}).get("total") for k in ("galaxy", "eastmoney", "csc")]
+        valid = [v for v in totals if v is not None]
+        if valid:
+            total_pnl_pct = sum(valid) / abs(sum(valid)) * 100 if sum(valid) else 0
+    if a_down >= len(a_indexes) and a_indexes:
+        position = "🛡️ 防御仓位（3成以下）"
+    elif len(bull_logic) >= 3 and not risk_pos:
+        position = "⚔️ 积极仓位（6-7成）"
+    elif risk_pos:
+        position = "⚖️ 保守仓位（4-5成），先处理持仓风险"
+    else:
+        position = "⚖️ 中性仓位（5成左右），择优参与"
+
+    # 4. 作战逻辑（总纲）
+    bull_names = "、".join(bull[:3])
+    bear_names = "、".join(bear[:3])
+    logic = (
+        f"当前主线集中在 <b>{bull_names if bull else '暂不明显'}</b>，"
+        f"风险点在于 <b>{bear_names if bear else '个股分化'}</b>。"
+        f"作战思路：{'进攻为主，沿资金流入方向择强参与' if len(bull_logic) >= 3 else '控制仓位，等待主线明朗'}；"
+        f"对持仓股按技术信号执行止盈/止损，不逆势补仓；"
+        f"对备选池标的，只参与放量突破或缩量企稳的确定性买点。"
+    )
+
+    # 5. 分步骤核心任务
+    tasks = [
+        "① 开盘前：复核隔夜美股、汇率、期货信号，确认今日仓位上限；",
+        "② 09:25-09:35：观察集合竞价选股池信号，符合高开+放量条件的标的可轻仓试错；",
+        "③ 盘中：持仓股按策略列执行，盈利股守好止盈位，亏损股严守止损纪律；",
+        "④ 14:30：扫描市场情绪池，强势股不回落可持有/跟进，冲高回落则减仓；",
+        "⑤ 尾盘：控制总仓位在建议范围内，规避隔夜不确定性。",
+    ]
+    # 持仓具体任务
+    for h in holdings:
         name = h.get("code") or h.get("name")
         q = a_quotes.get(name)
         price = (q or {}).get("price") if q else h.get("price")
@@ -1182,26 +1450,35 @@ def _build_judgment(overnight, snap, cfg, a_quotes):
         if cost and price:
             try:
                 r = (float(price) - float(cost)) / float(cost) * 100
-                if r > 0:
-                    tasks.append(f"{name} 盈利持有")
+                if r > 10:
+                    tasks.append(f"▸ {name}：盈利 {_fmt_pct(r,1)}，分批止盈，保留底仓。")
+                elif r > 0:
+                    tasks.append(f"▸ {name}：盈利 {_fmt_pct(r,1)}，持有并守成本线。")
+                elif r < -8:
+                    tasks.append(f"▸ {name}：深套 {_fmt_pct(r,1)}，明日不反弹执行止损。")
                 elif r < -3:
-                    tasks.append(f"{name} 跌破成本{_fmt_pct(r,1)}，考虑减仓")
+                    tasks.append(f"▸ {name}：浮亏 {_fmt_pct(r,1)}，观察支撑，反弹减仓。")
                 else:
-                    tasks.append(f"{name} 观察，等待反抽")
+                    tasks.append(f"▸ {name}：微亏 {_fmt_pct(r,1)}，持有观察。")
             except Exception:
-                tasks.append(f"{name} 观察")
+                tasks.append(f"▸ {name}：观察")
         else:
-            tasks.append(f"{name} 观察")
-    if bear:
-        tasks.append(f"回避{'/'.join(bear[:2])}链，控制仓位")
-    return main_lines, risk_lines, tasks
+            tasks.append(f"▸ {name}：观察")
+
+    return {
+        "main_lines": bull_logic,
+        "risk_lines": bear_logic,
+        "tasks": tasks,
+        "logic": logic,
+        "position": position,
+    }
 
 
-def _section_judge(overnight, snap, cfg, a_quotes):
-    main, risk, tasks = _build_judgment(overnight, snap, cfg, a_quotes)
-    main_html = "".join(f'<div style="font-size:13px;padding:4px 0;color:#c8d0dc;">{m}</div>' for m in main)
-    risk_html = "".join(f'<div style="font-size:13px;padding:4px 0;color:#c8d0dc;">{r}</div>' for r in risk)
-    task_html = "".join(f'<li>{t}</li>' for t in tasks)
+def _section_judge(overnight, snap, cfg, a_quotes, account_pnl=None):
+    j = _build_judgment(overnight, snap, cfg, a_quotes, account_pnl)
+    main_html = "".join(f'<div style="font-size:12px;padding:4px 0;color:#c8d0dc;line-height:1.5;">{m}</div>' for m in j["main_lines"])
+    risk_html = "".join(f'<div style="font-size:12px;padding:4px 0;color:#c8d0dc;line-height:1.5;">{r}</div>' for r in j["risk_lines"])
+    task_html = "".join(f'<li>{t}</li>' for t in j["tasks"][:5])  # 卡片只展示前5步
     return f'''
         <div class="card card-full" onclick="openModal('judgment')">
             <div class="card-title">
@@ -1209,18 +1486,22 @@ def _section_judge(overnight, snap, cfg, a_quotes):
                 <span class="badge">策略</span>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看完整策略</span>
             </div>
+            <div style="margin-bottom:10px;padding:8px 12px;background:rgba(245,158,11,0.08);border-radius:8px;border:1px solid rgba(245,158,11,0.15);">
+                <div style="font-size:12px;color:#f59e0b;font-weight:600;">{j["position"]}</div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:3px;line-height:1.4;">{j["logic"]}</div>
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                 <div>
-                    <div style="color:#ef4444;font-size:12px;">✅ 主线方向</div>
+                    <div style="color:#ef4444;font-size:12px;font-weight:600;">✅ 主线方向</div>
                     {main_html}
                 </div>
                 <div>
-                    <div style="color:#22c55e;font-size:12px;">⚠️ 风险提示</div>
+                    <div style="color:#22c55e;font-size:12px;font-weight:600;">⚠️ 风险提示</div>
                     {risk_html}
                 </div>
             </div>
             <div style="margin-top:10px;padding:10px 14px;background:rgba(79,195,247,0.06);border-radius:8px;border:1px solid rgba(79,195,247,0.1);">
-                <div style="color:#4fc3f7;font-size:12px;">🎯 核心任务</div>
+                <div style="color:#4fc3f7;font-size:12px;font-weight:600;">🎯 核心任务</div>
                 <ul class="task-list">{task_html}</ul>
             </div>
         </div>'''
@@ -1629,6 +1910,10 @@ def _modal_positions(positions, a_quotes, indicators, account_pnl=None):
             <td style="padding:4px;text-align:right;">{d['turnover']}</td>
             <td style="padding:4px;text-align:right;font-size:10px;font-weight:600;" class="{d['mainFlow_cls']}">{d['mainFlow']}</td>
             <td style="padding:4px;text-align:center;"><span class="tag {d['signalClass']}">{d['signal']}</span></td>
+            <td style="padding:4px;min-width:180px;">
+                <div style="font-weight:600;color:#4fc3f7;font-size:11px;">{d['strategy']}</div>
+                <div style="font-size:10px;color:var(--text-secondary);line-height:1.4;margin-top:2px;">{d['strategy_reason']}</div>
+            </td>
         </tr>''' for d in rows)
     # 分账户盈亏汇总（优先用权威 account_pnl 快照，含已平仓盈亏）
     acc_order_keys = ("galaxy", "eastmoney", "csc")
@@ -1693,7 +1978,7 @@ def _modal_positions(positions, a_quotes, indicators, account_pnl=None):
                         <th style="text-align:right;padding:4px;">成本</th><th style="text-align:right;padding:4px;">现价</th>
                         <th style="text-align:right;padding:4px;">盈亏%</th><th style="text-align:right;padding:4px;">总盈亏</th><th style="text-align:right;padding:4px;">当日盈亏</th><th style="text-align:right;padding:4px;">RSI</th>
                         <th style="text-align:right;padding:4px;">MACD</th><th style="text-align:right;padding:4px;">量比</th>
-                        <th style="text-align:right;padding:4px;">换手</th><th style="text-align:right;padding:4px;">主力</th><th style="text-align:center;padding:4px;">操作</th>
+                        <th style="text-align:right;padding:4px;">换手</th><th style="text-align:right;padding:4px;">主力</th><th style="text-align:center;padding:4px;">操作</th><th style="text-align:left;padding:4px;">明日策略 / 逻辑</th>
                     </tr></thead>
                     <tbody>{trs}</tbody>
                 </table>
@@ -1723,6 +2008,7 @@ def _modal_watchlist(cfg, a_quotes, indicators):
         score_val = ind.get("score")
         score = f"周 {_fmt_pct(week,1)} · 月 {_fmt_pct(month,1)}"
         score_disp = f"评分 {score_val}" if score_val is not None else "评分 —"
+        reason = _pool_reason(name, ind)
         cards += f'''
             <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:8px 10px;border:1px solid var(--border-color);text-align:center;">
                 <div style="font-weight:600;font-size:12px;color:{_hex(pct)};">{name}</div>
@@ -1730,6 +2016,7 @@ def _modal_watchlist(cfg, a_quotes, indicators):
                 <div style="font-size:11px;font-weight:500;color:{_hex(pct)};">{_fmt_pct(pct)}</div>
                 <div style="font-size:10px;color:var(--text-secondary);">{score}</div>
                 <div style="font-size:11px;font-weight:600;color:{_score_color(score_val)};">{score_disp}</div>
+                <div style="margin-top:5px;font-size:10px;color:#f59e0b;line-height:1.3;text-align:left;">📌 {reason}</div>
             </div>'''
     return {
         "title": "📊 备选股票池 · 实时行情",
@@ -1742,34 +2029,60 @@ def _modal_watchlist(cfg, a_quotes, indicators):
     }
 
 
-def _modal_judgment(overnight, snap, cfg, a_quotes):
-    main, risk, tasks = _build_judgment(overnight, snap, cfg, a_quotes)
-    main_html = "".join(f'<li style="padding:5px 0;font-size:13px;color:#c8d0dc;border-bottom:1px solid rgba(255,255,255,0.03);">▸ {m}</li>' for m in main)
-    risk_html = "".join(f'<li style="padding:5px 0;font-size:13px;color:#c8d0dc;border-bottom:1px solid rgba(255,255,255,0.03);">▸ {r}</li>' for r in risk)
-    task_html = "".join(f'<li>{t}</li>' for t in tasks)
+def _modal_judgment(overnight, snap, cfg, a_quotes, account_pnl=None):
+    j = _build_judgment(overnight, snap, cfg, a_quotes, account_pnl)
+    main_html = "".join(f'<li style="padding:6px 0;font-size:13px;color:#c8d0dc;border-bottom:1px solid rgba(255,255,255,0.03);line-height:1.5;">▸ {m}</li>' for m in j["main_lines"])
+    risk_html = "".join(f'<li style="padding:6px 0;font-size:13px;color:#c8d0dc;border-bottom:1px solid rgba(255,255,255,0.03);line-height:1.5;">▸ {r}</li>' for r in j["risk_lines"])
+    task_html = "".join(f'<li style="padding:4px 0;font-size:13px;color:#c8d0dc;">{t}</li>' for t in j["tasks"])
     return {
-        "title": "🎯 完整策略研判",
+        "title": "🎯 完整策略研判 · 作战逻辑与操作步骤",
         "html": f'''
-            <p class="sub-title">主线方向 · 风险提示 · 核心任务（依据当日真实信号自动生成）</p>
+            <p class="sub-title">主线方向 · 风险提示 · 核心任务 · 仓位建议（依据当日真实信号自动生成）</p>
+            <div style="margin-bottom:14px;padding:14px;background:rgba(245,158,11,0.08);border-radius:8px;border:1px solid rgba(245,158,11,0.15);">
+                <div style="color:#f59e0b;font-size:14px;font-weight:600;">{j["position"]}</div>
+                <div style="margin-top:6px;font-size:12px;color:#c8d0dc;line-height:1.6;">{j["logic"]}</div>
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                 <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:14px;">
-                    <div style="color:#ef4444;">✅ 主线方向</div>
+                    <div style="color:#ef4444;font-weight:600;">✅ 主线方向</div>
                     <ul style="list-style:none;padding:0;margin-top:8px;">{main_html}</ul>
                 </div>
                 <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:14px;">
-                    <div style="color:#22c55e;">⚠️ 风险提示</div>
+                    <div style="color:#22c55e;font-weight:600;">⚠️ 风险提示</div>
                     <ul style="list-style:none;padding:0;margin-top:8px;">{risk_html}</ul>
                 </div>
             </div>
             <div style="margin-top:14px;padding:14px;background:rgba(79,195,247,0.06);border-radius:8px;border:1px solid rgba(79,195,247,0.1);">
-                <div style="color:#4fc3f7;">🎯 核心任务</div>
+                <div style="color:#4fc3f7;font-weight:600;">🎯 核心任务（分阶段操作）</div>
                 <ul class="task-list">{task_html}</ul>
             </div>'''
     }
 
 
 # ----------------------------------------------------------------- ⑧ 每日选股推荐（集合竞价 09:26 / 市场情绪 14:30 双池）
-def _scan_pick_col(data, title, subtitle):
+def _scan_analysis_fallback(s):
+    """对旧版无 analysis 字段的扫描结果，生成简版个股分析。"""
+    reasons = s.get("reasons", "")
+    focus = "开盘后观察分时均线，放量站稳可轻仓跟进；冲高回落则放弃。"
+    risk = ""
+    pct = s.get("change_pct") or 0
+    turn = s.get("turnover") or 0
+    vr = s.get("volume_ratio") or 0
+    if pct >= 5:
+        risk = "当日涨幅较大，追高需谨慎。"
+    if turn >= 15:
+        risk += (" " if risk else "") + "换手率偏高，警惕获利盘兑现。"
+    if vr >= 5:
+        risk += (" " if risk else "") + "量比过大，注意冲高回落。"
+    return {
+        "reason": reasons or "量价条件符合选股规则",
+        "focus": focus,
+        "risk": risk or "常规波动风险",
+        "score_comment": f"综合评分 {s.get('score', '—')}，量价配合待观察",
+    }
+
+
+def _scan_pick_col(data, title, subtitle, empty_note=""):
     """渲染单池卡片内左侧/右侧的紧凑列表（卡片内展示前 10 只）。"""
     stocks = data.get("stocks", []) or []
     rows = ""
@@ -1779,6 +2092,8 @@ def _scan_pick_col(data, title, subtitle):
         pct = s.get("change_pct")
         vr = s.get("volume_ratio")
         score = s.get("score")
+        reason = s.get("reasons", "") or ""
+        reason_short = reason[:16] + "…" if len(reason) > 16 else reason
         rows += f'''
             <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
                 <td style="padding:5px 4px;font-size:13px;color:#e8edf4;white-space:nowrap;">
@@ -1787,9 +2102,10 @@ def _scan_pick_col(data, title, subtitle):
                 <td style="padding:5px 4px;font-size:13px;text-align:right;color:{_pnl_cls(pct)};">{_fmt_pct(pct, 2)}</td>
                 <td style="padding:5px 4px;font-size:12px;text-align:right;color:var(--text-secondary);">{_safe(vr, "—")}</td>
                 <td style="padding:5px 4px;font-size:12px;text-align:right;color:{_pnl_cls(score)};font-weight:600;">{_safe(score, "—")}</td>
+                <td style="padding:5px 4px;font-size:10px;color:#f59e0b;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{reason}">{reason_short or '—'}</td>
             </tr>'''
     if not rows:
-        rows = '<tr><td colspan="4" style="padding:8px;color:var(--text-secondary);font-size:13px;">暂无数据（等待定时扫描生成）</td></tr>'
+        rows = f'<tr><td colspan="5" style="padding:8px;color:var(--text-secondary);font-size:12px;line-height:1.5;">{empty_note or "暂无数据（等待定时扫描生成）"}</td></tr>'
     return f'''
         <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:12px;">
             <div style="font-size:13px;color:#4fc3f7;font-weight:600;margin-bottom:2px;">{title}</div>
@@ -1801,6 +2117,7 @@ def _scan_pick_col(data, title, subtitle):
                         <th style="padding:4px;text-align:right;font-weight:500;">涨幅</th>
                         <th style="padding:4px;text-align:right;font-weight:500;">量比</th>
                         <th style="padding:4px;text-align:right;font-weight:500;">评分</th>
+                        <th style="padding:4px;text-align:left;font-weight:500;">理由</th>
                     </tr>
                 </thead>
                 <tbody>{rows}</tbody>
@@ -1811,8 +2128,10 @@ def _scan_pick_col(data, title, subtitle):
 def _section_scan_picks():
     s26 = _load_cache("scan_0926") or {}
     s30 = _load_cache("scan_1430") or {}
-    col26 = _scan_pick_col(s26, "⏰ 集合竞价优选", "09:26 集合竞价信号")
-    col30 = _scan_pick_col(s30, "📊 市场情绪优选", "14:30 盘中情绪信号")
+    empty26 = "今日 09:26 未产生符合条件的集合竞价信号。<br><span style='font-size:11px;'>原因：早盘集合竞价阶段异动标的较少；已放宽选股条件（高开≥0.5%、竞价成交额≥100万），将于下一交易日重新扫描。</span>"
+    empty30 = "今日 14:30 未产生符合条件的市场情绪信号。<br><span style='font-size:11px;'>原因：盘中强势股未同时满足涨幅/量比/换手率阈值；将于下一交易日重新扫描。</span>"
+    col26 = _scan_pick_col(s26, "⏰ 集合竞价优选", "09:26 集合竞价信号", empty_note=empty26)
+    col30 = _scan_pick_col(s30, "📊 市场情绪优选", "14:30 盘中情绪信号", empty_note=empty30)
     cnt26 = s26.get("count") or len(s26.get("stocks", []))
     cnt30 = s30.get("count") or len(s30.get("stocks", []))
     total26 = s26.get("total_scanned") or "—"
@@ -1853,16 +2172,26 @@ def _modal_scan_picks():
             score = s.get("score")
             price = s.get("price")
             reasons = s.get("reasons", "")
+            ana = s.get("analysis") or _scan_analysis_fallback(s)
+            reason_detail = ana.get("reason", reasons)
+            focus = ana.get("focus", "")
+            risk = ana.get("risk", "")
+            score_comment = ana.get("score_comment", "")
             rows += f'''
               <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
-                <td style="padding:6px 4px;color:var(--text-secondary);font-size:12px;">{i}</td>
-                <td style="padding:6px 4px;font-size:13px;color:#e8edf4;"><b>{name}</b> <span style="color:var(--text-secondary);font-size:11px;">{code}</span></td>
-                <td style="padding:6px 4px;font-size:13px;text-align:right;color:{_pnl_cls(pct)};">{_fmt_pct(pct, 2)}</td>
-                <td style="padding:6px 4px;font-size:12px;text-align:right;color:var(--text-secondary);">{_safe(price, "—")}</td>
-                <td style="padding:6px 4px;font-size:12px;text-align:right;color:var(--text-secondary);">{_safe(vr, "—")}</td>
-                <td style="padding:6px 4px;font-size:12px;text-align:right;color:var(--text-secondary);">{_safe(turn, "—")}%</td>
-                <td style="padding:6px 4px;font-size:12px;text-align:right;color:{_pnl_cls(score)};font-weight:600;">{_safe(score, "—")}</td>
-                <td style="padding:6px 4px;font-size:11px;color:var(--text-secondary);">{reasons}</td>
+                <td style="padding:6px 4px;color:var(--text-secondary);font-size:12px;vertical-align:top;">{i}</td>
+                <td style="padding:6px 4px;font-size:13px;color:#e8edf4;vertical-align:top;"><b>{name}</b> <span style="color:var(--text-secondary);font-size:11px;">{code}</span></td>
+                <td style="padding:6px 4px;font-size:13px;text-align:right;color:{_pnl_cls(pct)};vertical-align:top;">{_fmt_pct(pct, 2)}</td>
+                <td style="padding:6px 4px;font-size:12px;text-align:right;color:var(--text-secondary);vertical-align:top;">{_safe(price, "—")}</td>
+                <td style="padding:6px 4px;font-size:12px;text-align:right;color:var(--text-secondary);vertical-align:top;">{_safe(vr, "—")}</td>
+                <td style="padding:6px 4px;font-size:12px;text-align:right;color:var(--text-secondary);vertical-align:top;">{_safe(turn, "—")}%</td>
+                <td style="padding:6px 4px;font-size:12px;text-align:right;color:{_pnl_cls(score)};font-weight:600;vertical-align:top;">{_safe(score, "—")}</td>
+                <td style="padding:6px 4px;font-size:11px;color:#c8d0dc;vertical-align:top;line-height:1.5;">
+                  <div><b style="color:#f59e0b;">入选：</b>{reason_detail}</div>
+                  <div><b style="color:#4fc3f7;">明日：</b>{focus}</div>
+                  {f'<div><b style="color:#22c55e;">风险：</b>{risk}</div>' if risk else ''}
+                  {f'<div style="margin-top:2px;color:var(--text-secondary);">{score_comment}</div>' if score_comment else ''}
+                </td>
               </tr>'''
         total = data.get("total_scanned", "—")
         cand = data.get("candidates", "—")
@@ -1875,7 +2204,7 @@ def _modal_scan_picks():
               <thead><tr style="font-size:11px;color:var(--text-secondary);text-align:left;">
                 <th style="padding:4px;">#</th><th style="padding:4px;">名称/代码</th><th style="padding:4px;text-align:right;">涨幅</th>
                 <th style="padding:4px;text-align:right;">现价</th><th style="padding:4px;text-align:right;">量比</th>
-                <th style="padding:4px;text-align:right;">换手</th><th style="padding:4px;text-align:right;">评分</th><th style="padding:4px;">入选理由</th>
+                <th style="padding:4px;text-align:right;">换手</th><th style="padding:4px;text-align:right;">评分</th><th style="padding:4px;">个股分析</th>
               </tr></thead>
               <tbody>{rows}</tbody>
             </table>
@@ -1983,7 +2312,7 @@ def build() -> str:
         _section_heatmap(snap, indicators),
         _section_holdings(positions, a_quotes, indicators, account_pnl),
         _section_pool(cfg, a_quotes, indicators),
-        _section_judge(overnight, snap, cfg, a_quotes),
+        _section_judge(overnight, snap, cfg, a_quotes, account_pnl),
         _section_scan_picks(),
     ])
 
@@ -2009,7 +2338,7 @@ def build() -> str:
         "flow": _modal_flow(snap, indicators),
         "positions": _modal_positions(positions, a_quotes, indicators, account_pnl),
         "watchlist": _modal_watchlist(cfg, a_quotes, indicators),
-        "judgment": _modal_judgment(overnight, snap, cfg, a_quotes),
+        "judgment": _modal_judgment(overnight, snap, cfg, a_quotes, account_pnl),
         "scan_picks": _modal_scan_picks(),
     }
 
