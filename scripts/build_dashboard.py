@@ -221,11 +221,20 @@ CSS_RULES = """
         @media (max-width:1024px) { .watchlist-grid { grid-template-columns:1fr 1fr 1fr; } }
         @media (max-width:600px) { .watchlist-grid { grid-template-columns:1fr 1fr; } }
         .watchlist-card { background:rgba(255,255,255,0.02); border-radius:8px; padding:8px 10px; border:1px solid var(--border-color); text-align:center; }
-        .watchlist-card .stock-name { font-weight:600; font-size:12px; color:#ef4444; }
+        .watchlist-card .stock-name { font-weight:600; font-size:12px; color:var(--text-secondary); }
+        .watchlist-card .stock-name.up { color:#ef4444; }
+        .watchlist-card .stock-name.down { color:#22c55e; }
         .watchlist-card .stock-sector { font-size:9px; color:var(--text-secondary); }
-        .watchlist-card .stock-price { font-size:14px; font-weight:700; color:#ef4444; margin-top:2px; }
-        .watchlist-card .stock-change { font-size:11px; font-weight:500; color:#ef4444; }
+        .watchlist-card .stock-price { font-size:14px; font-weight:700; color:var(--text-secondary); margin-top:2px; }
+        .watchlist-card .stock-price.up { color:#ef4444; }
+        .watchlist-card .stock-price.down { color:#22c55e; }
+        .watchlist-card .stock-change { font-size:11px; font-weight:500; color:var(--text-secondary); }
+        .watchlist-card .stock-change.up { color:#ef4444; }
+        .watchlist-card .stock-change.down { color:#22c55e; }
         .watchlist-card .stock-score { font-size:10px; color:var(--text-secondary); margin-top:2px; }
+        .watchlist-card .stock-score.up { color:#ef4444; }
+        .watchlist-card .stock-score.down { color:#22c55e; }
+        .watchlist-card .stock-score.rsi-mid { color:#f59e0b; }
 
         .backtest-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
         @media (max-width:600px) { .backtest-grid { grid-template-columns:1fr; } }
@@ -488,6 +497,19 @@ def _score_cls(v):
     if f < 40:
         return "down"
     return "rsi-mid"
+
+
+def _score_color(v):
+    """综合评分颜色：>=60 强势(红) / 40-60 中性(金) / <40 弱势(绿)。非数字返回灰色。"""
+    try:
+        f = float(v)
+    except Exception:
+        return "var(--text-secondary)"
+    if f >= 60:
+        return "#ef4444"
+    if f < 40:
+        return "#22c55e"
+    return "#f59e0b"
 
 
 # ----------------------------------------------------------------- ① 全球大盘行情
@@ -1083,12 +1105,12 @@ def _section_pool(cfg, a_quotes, indicators):
         score_disp = f"评分 {score_val}" if score_val is not None else "评分 —"
         cards += f'''
                 <div class="watchlist-card">
-                    <div class="stock-name">{name}</div>
+                    <div class="stock-name {_cls(pct)}">{name}</div>
                     <div class="stock-sector">备选</div>
-                    <div class="stock-price">{_safe(price,'—')}</div>
-                    <div class="stock-change">{_fmt_pct(pct)}</div>
+                    <div class="stock-price {_cls(pct)}">{_safe(price,'—')}</div>
+                    <div class="stock-change {_cls(pct)}">{_fmt_pct(pct)}</div>
                     <div class="stock-score">{score}</div>
-                    <div class="stock-score" style="font-weight:600;" class="{_score_cls(score_val)}">{score_disp}</div>
+                    <div class="stock-score {_score_cls(score_val)}" style="font-weight:600;">{score_disp}</div>
                 </div>'''
     return f'''
         <div class="card card-full" onclick="openModal('watchlist')">
@@ -1104,8 +1126,10 @@ def _section_pool(cfg, a_quotes, indicators):
                 <span class="sector-tag">机器人</span><span class="sector-tag">消费电子</span><span class="sector-tag">军工电子</span><span class="sector-tag">材料</span>
             </div>
             <div class="watchlist-grid">{cards}</div>
-            <div style="margin-top:6px;font-size:10px;color:var(--text-secondary);">
-                <i class="fas fa-info-circle"></i> 价格腾讯实时价；周/月动量 + 综合评分(0-100)来自 tushare 真实数据
+            <div style="margin-top:6px;font-size:10px;color:var(--text-secondary);line-height:1.6;">
+                <i class="fas fa-info-circle"></i>
+                价格腾讯实时价；周/月动量 + 综合评分(0-100)来自 tushare 真实数据。
+                <b>上榜理由</b>：聚焦半导体、封测、存储芯片、设备、光模块、IT服务、机器人、消费电子、军工电子、材料等当前热点产业链，按周/月动量与综合评分筛选出的进攻型备选标的。
             </div>
         </div>'''
 
@@ -1701,11 +1725,11 @@ def _modal_watchlist(cfg, a_quotes, indicators):
         score_disp = f"评分 {score_val}" if score_val is not None else "评分 —"
         cards += f'''
             <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:8px 10px;border:1px solid var(--border-color);text-align:center;">
-                <div style="font-weight:600;font-size:12px;color:#ef4444;">{name}</div>
-                <div style="font-size:14px;font-weight:700;color:#ef4444;">{_safe(price,'—')}</div>
+                <div style="font-weight:600;font-size:12px;color:{_hex(pct)};">{name}</div>
+                <div style="font-size:14px;font-weight:700;color:{_hex(pct)};">{_safe(price,'—')}</div>
                 <div style="font-size:11px;font-weight:500;color:{_hex(pct)};">{_fmt_pct(pct)}</div>
                 <div style="font-size:10px;color:var(--text-secondary);">{score}</div>
-                <div style="font-size:11px;font-weight:600;" class="{_score_cls(score_val)}">{score_disp}</div>
+                <div style="font-size:11px;font-weight:600;color:{_score_color(score_val)};">{score_disp}</div>
             </div>'''
     return {
         "title": "📊 备选股票池 · 实时行情",
