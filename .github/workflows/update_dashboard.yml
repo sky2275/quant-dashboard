@@ -58,4 +58,9 @@ jobs:
           git config user.email "bot@quant.local"
           git add index.html cache/*.json
           git commit -m "auto update dashboard $(date +'%Y-%m-%d %H:%M')" || echo "no changes"
+          # 与本地定时刷新(刷新脚本也会推送)并发时优雅合并，避免推送被拒
+          git pull --rebase || true
+          git checkout --ours index.html cache/*.json 2>/dev/null || true
+          git add index.html cache/*.json
+          git commit --amend --no-edit 2>/dev/null || true
           git push
