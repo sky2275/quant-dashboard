@@ -50,6 +50,8 @@ jobs:
       - name: 扫描全A股-市场情绪(14:30)
         if: github.event.schedule == '30 6 * * *'
         run: python scripts/scan_a_shares.py --mode 1430
+      - name: 获取回测用K线数据
+        run: python scripts/fetch_backtest_klines.py
       - name: 生成看板
         run: python scripts/build_dashboard.py
       - name: 提交更新

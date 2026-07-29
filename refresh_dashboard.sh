@@ -60,6 +60,7 @@ if [ "${1:-}" = "run" ]; then
   if [ -n "${DO_SCAN:-}" ]; then
     "$PY" scripts/scan_a_shares.py --mode "$DO_SCAN" >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN scan $DO_SCAN failed" >> "$LOG"
   fi
+  "$PY" scripts/fetch_backtest_klines.py >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN fetch klines failed" >> "$LOG"
   "$PY" scripts/build_dashboard.py >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN build failed" >> "$LOG"
   deploy
   echo "$(date '+%F %T') [run] DONE" >> "$LOG"

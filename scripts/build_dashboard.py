@@ -258,6 +258,72 @@ CSS_RULES = """
             .limit-up-grid { grid-template-columns:1fr; }
             .watchlist-grid { grid-template-columns:1fr 1fr; }
         }
+
+        /* ===================== A股量化雷达 V2.0 三栏模块 ===================== */
+        .radar-grid { display:grid; grid-template-columns: 300px 1fr 360px; gap:16px; margin-bottom:24px; }
+        @media (max-width:1280px) { .radar-grid { grid-template-columns: 1fr; } }
+        .radar-col { display:flex; flex-direction:column; gap:14px; }
+        .radar-card { background:var(--bg-card); border-radius:var(--radius); padding:14px 16px; border:1px solid var(--border-color); }
+        .radar-card .card-title { margin-bottom:10px; }
+
+        .index-mini-item { background:rgba(255,255,255,0.02); border-radius:8px; padding:8px 10px; border:1px solid var(--border-color); margin-bottom:8px; }
+        .index-mini-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+        .index-mini-name { font-size:12px; font-weight:600; color:var(--text-secondary); }
+        .index-mini-values { display:flex; align-items:baseline; gap:8px; }
+        .index-mini-price { font-size:16px; font-weight:700; }
+        .index-mini-change { font-size:12px; font-weight:500; }
+        .index-mini-spark { width:100%; height:32px; display:block; }
+
+        .sentiment-stat-row { display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin:10px 0; }
+        .sentiment-stat { background:rgba(255,255,255,0.02); border-radius:6px; padding:7px; text-align:center; border:1px solid var(--border-color); }
+        .sentiment-stat .label { font-size:10px; color:var(--text-secondary); text-transform:uppercase; }
+        .sentiment-stat .value { font-size:15px; font-weight:700; margin-top:2px; }
+        .sentiment-bar-wrap { width:100%; height:6px; background:var(--border-color); border-radius:3px; overflow:hidden; margin-top:6px; }
+        .sentiment-bar-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,#22c55e,#f59e0b,#ef4444); }
+
+        .sector-heat-item { display:flex; align-items:center; gap:8px; margin-bottom:5px; font-size:11px; }
+        .sector-heat-rank { width:16px; text-align:center; color:var(--text-secondary); font-size:10px; }
+        .sector-heat-name { width:64px; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .sector-heat-bar-wrap { flex:1; height:5px; background:var(--border-color); border-radius:3px; overflow:hidden; }
+        .sector-heat-bar { height:100%; border-radius:3px; }
+        .sector-heat-pct { width:38px; text-align:right; font-weight:500; font-size:10px; }
+        .sector-heat-leader { width:56px; text-align:right; color:var(--text-secondary); font-size:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+        .picks-toolbar { display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+        .picks-toolbar select { background:var(--bg-primary); border:1px solid var(--border-color); color:var(--text-primary); border-radius:6px; padding:5px 8px; font-size:12px; outline:none; }
+        .picks-toolbar .score-slider { flex:1; min-width:120px; display:flex; align-items:center; gap:8px; }
+        .picks-toolbar .score-slider input { flex:1; }
+        .picks-toolbar .score-val { color:var(--accent-gold); font-weight:600; min-width:24px; }
+        .picks-count { margin-left:auto; font-size:11px; color:var(--text-secondary); }
+        .picks-table { width:100%; font-size:11px; border-collapse:collapse; }
+        .picks-table th { color:var(--text-secondary); font-weight:500; text-align:left; padding:6px 4px; border-bottom:1px solid var(--border-color); font-size:10px; }
+        .picks-table td { padding:5px 4px; border-bottom:1px solid rgba(255,255,255,0.03); }
+        .picks-table tbody tr:hover { background:rgba(255,255,255,0.03); cursor:pointer; }
+        .picks-table .strategy-tag { display:inline-block; padding:1px 5px; border-radius:10px; font-size:9px; font-weight:500; }
+        .picks-table .strategy-tag.breakout { background:rgba(79,195,247,0.15); color:var(--accent-blue); }
+        .picks-table .strategy-tag.momentum { background:rgba(245,158,11,0.15); color:var(--accent-gold); }
+        .picks-table .strategy-tag.reversal { background:rgba(168,85,247,0.15); color:#a855f7; }
+        .picks-logic { font-size:10px; color:var(--text-secondary); margin-top:8px; padding-top:8px; border-top:1px solid var(--border-color); }
+
+        .backtest-symbol-row { display:flex; gap:8px; margin-bottom:10px; }
+        .backtest-symbol-row select { flex:1; background:var(--bg-primary); border:1px solid var(--border-color); color:var(--text-primary); border-radius:6px; padding:5px 8px; font-size:12px; outline:none; }
+        .backtest-param-grid { display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px; }
+        .backtest-param { background:rgba(255,255,255,0.02); border-radius:6px; padding:7px; border:1px solid var(--border-color); }
+        .backtest-param label { display:block; font-size:10px; color:var(--text-secondary); margin-bottom:3px; }
+        .backtest-param input { width:100%; background:var(--bg-primary); border:1px solid var(--border-color); color:var(--text-primary); border-radius:4px; padding:4px 6px; font-size:12px; outline:none; }
+        .backtest-btn { width:100%; background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; border:none; border-radius:8px; padding:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:10px; }
+        .backtest-btn:hover { opacity:0.9; }
+        .backtest-chart { width:100%; height:210px; margin-bottom:10px; }
+        .backtest-metrics { display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:6px; margin-bottom:10px; }
+        .backtest-metric { background:rgba(255,255,255,0.02); border-radius:6px; padding:5px 3px; text-align:center; border:1px solid var(--border-color); }
+        .backtest-metric .label { font-size:9px; color:var(--text-secondary); }
+        .backtest-metric .value { font-size:12px; font-weight:700; margin-top:2px; }
+        .backtest-trades { max-height:110px; overflow-y:auto; font-size:10px; }
+        .backtest-trades table { width:100%; border-collapse:collapse; }
+        .backtest-trades th { position:sticky; top:0; background:var(--bg-card); color:var(--text-secondary); font-weight:500; text-align:left; padding:4px; font-size:9px; border-bottom:1px solid var(--border-color); }
+        .backtest-trades td { padding:3px 4px; border-bottom:1px solid rgba(255,255,255,0.03); }
+        .bt-pos { color:#ef4444; }
+        .bt-neg { color:#22c55e; }
 """
 
 
@@ -2059,6 +2125,238 @@ def _modal_judgment(overnight, snap, cfg, a_quotes, account_pnl=None):
     }
 
 
+# ----------------------------------------------------------------- A股量化雷达 V2.0 三栏模块
+
+def _sparkline_svg(values: list, color: str = "#4fc3f7") -> str:
+    """生成内联 SVG 迷你折线，values 为数值列表。"""
+    if not values:
+        return ""
+    try:
+        vals = [float(v) for v in values]
+    except Exception:
+        return ""
+    mn, mx = min(vals), max(vals)
+    if mx == mn:
+        mx, mn = mn + 1, mn - 1
+    w, h = 260, 32
+    pts = []
+    n = len(vals)
+    for i, v in enumerate(vals):
+        x = i / (n - 1) * w if n > 1 else w / 2
+        y = h - (v - mn) / (mx - mn) * (h - 4) - 2
+        pts.append(f"{x:.1f},{y:.1f}")
+    path = "M" + " L".join(pts)
+    return f'<svg class="index-mini-spark" viewBox="0 0 {w} {h}" preserveAspectRatio="none"><path d="{path}" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+
+
+def _left_market_scan(snap):
+    """左侧：大盘扫描（核心指数 + 市场情绪 + 板块热度TOPS）。"""
+    a = snap.get("a_indexes", []) or []
+    breadth = snap.get("market_breadth", {}) or {}
+    sectors = (snap.get("sector_flow", []) or [])
+    # 按涨跌幅取TOP10
+    top_sectors = sorted([s for s in sectors if isinstance(s, dict)], key=lambda x: float(x.get("涨跌幅") or 0), reverse=True)[:10]
+    max_pct = max([float(s.get("涨跌幅") or 0) for s in top_sectors] + [1])
+
+    # 指数卡片
+    index_cards = ""
+    for x in a:
+        name = x.get("name", "—")
+        price = x.get("price")
+        pct = x.get("change_pct")
+        cls = _cls(pct)
+        color = _hex(pct)
+        # 用当前价格构造5个模拟点画折线（视觉近似）
+        base = float(price) if price else 0
+        p = float(pct) if pct else 0
+        spark_vals = [base * (1 - p / 200), base * (1 - p / 400), base, base * (1 + p / 400), base * (1 + p / 200)]
+        spark = _sparkline_svg(spark_vals, color)
+        index_cards += f'''
+        <div class="index-mini-item">
+            <div class="index-mini-header">
+                <span class="index-mini-name">{name}</span>
+                <span class="index-mini-values">
+                    <span class="index-mini-price {cls}">{_safe(price, "—")}</span>
+                    <span class="index-mini-change {cls}">{_fmt_pct(pct)}</span>
+                </span>
+            </div>
+            {spark}
+        </div>'''
+
+    up = breadth.get("up_count")
+    down = breadth.get("down_count")
+    total = (up or 0) + (down or 0)
+    up_pct = up / total * 100 if total else 50
+    limit_up = breadth.get("limit_up_count")
+    limit_down = breadth.get("limit_down_count")
+    amount = _fmt_amount(breadth.get("amount"))
+
+    sector_items = ""
+    for i, s in enumerate(top_sectors, 1):
+        nm = s.get("名称", "—")
+        pct = s.get("涨跌幅", 0)
+        leader = s.get("领涨股") or "—"
+        cls = _cls(pct)
+        bar_pct = min(100, abs(float(pct)) / max_pct * 100) if max_pct else 0
+        bar_color = "#ef4444" if float(pct) >= 0 else "#22c55e"
+        sector_items += f'''
+        <div class="sector-heat-item">
+            <span class="sector-heat-rank">{i}</span>
+            <span class="sector-heat-name" title="{nm}">{nm}</span>
+            <div class="sector-heat-bar-wrap"><div class="sector-heat-bar" style="width:{bar_pct}%;background:{bar_color};"></div></div>
+            <span class="sector-heat-pct {cls}">{_fmt_pct(pct, 1)}</span>
+            <span class="sector-heat-leader" title="{leader}">{leader}</span>
+        </div>'''
+
+    return f'''
+    <div class="radar-card">
+        <div class="card-title"><span class="icon"><i class="fas fa-radar"></i></span> 大盘扫描 <span class="badge">MARKET SCAN</span></div>
+        {index_cards}
+        <div class="sentiment-stat-row">
+            <div class="sentiment-stat"><div class="label">上涨</div><div class="value up">{_safe(up, "—")}</div></div>
+            <div class="sentiment-stat"><div class="label">下跌</div><div class="value down">{_safe(down, "—")}</div></div>
+            <div class="sentiment-stat"><div class="label">涨停</div><div class="value up">{_safe(limit_up, "—")}</div></div>
+            <div class="sentiment-stat"><div class="label">跌停</div><div class="value down">{_safe(limit_down, "—")}</div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-secondary);margin-bottom:4px;">
+            <span>涨跌分布</span><span>成交额 {amount}</span>
+        </div>
+        <div class="sentiment-bar-wrap"><div class="sentiment-bar-fill" style="width:{up_pct:.1f}%;"></div></div>
+        <div style="font-size:10px;color:var(--text-secondary);margin-top:10px;margin-bottom:6px;">板块热度 TOP10</div>
+        {sector_items}
+    </div>'''
+
+
+def _middle_daily_picks():
+    """中间：每日备选股（带策略下拉、评分滑块、策略标签）。"""
+    s26 = _load_cache("scan_0926") or {}
+    s30 = _load_cache("scan_1430") or {}
+    # 合并去重，以 code 为键
+    merged = {}
+    for src, mode in ((s26, "0926"), (s30, "1430")):
+        for s in src.get("stocks", []):
+            code = s.get("code")
+            if not code or code in merged:
+                continue
+            merged[code] = dict(s, mode=mode)
+    all_stocks = list(merged.values())
+    # 输出前15只作为默认展示（JS会按筛选条件重新渲染）
+    rows = ""
+    for s in sorted(all_stocks, key=lambda x: float(x.get("score") or 0), reverse=True)[:15]:
+        code = s.get("code", "")
+        name = s.get("name", "—")
+        price = s.get("price", "—")
+        pct = s.get("change_pct")
+        score = s.get("score")
+        sector = s.get("sector") or "—"
+        mode = s.get("mode", "1430")
+        mode_label = "放量突破" if mode == "1430" else "竞价异动"
+        mode_cls = "breakout" if mode == "1430" else "momentum"
+        rows += f'''
+        <tr data-code="{code}" data-score="{score}" data-mode="{mode}" onclick="selectBacktestSymbol('{code}')">
+            <td><b>{name}</b><br><span style="color:var(--text-secondary);font-size:9px;">{code}</span></td>
+            <td style="text-align:right;">{_safe(price, "—")}</td>
+            <td style="text-align:right;color:{_pnl_cls(pct)};font-weight:600;">{_fmt_pct(pct, 2)}</td>
+            <td style="text-align:right;color:{_score_color(score)};font-weight:600;">{_safe(score, "—")}</td>
+            <td style="text-align:center;"><span class="sector-tag" style="font-size:9px;">{sector}</span></td>
+            <td style="text-align:center;"><span class="strategy-tag {mode_cls}">{mode_label}</span></td>
+        </tr>'''
+    if not rows:
+        rows = '<tr><td colspan="6" style="padding:10px;color:var(--text-secondary);font-size:12px;">暂无选股数据，等待 09:26/14:30 扫描生成。</td></tr>'
+
+    return f'''
+    <div class="radar-card">
+        <div class="card-title"><span class="icon"><i class="fas fa-crosshairs"></i></span> 每日备选股 <span class="badge">DAILY PICKS</span></div>
+        <div class="picks-toolbar">
+            <select id="picksStrategy" onchange="filterPicks()">
+                <option value="all">全部策略</option>
+                <option value="1430">市场情绪 (14:30)</option>
+                <option value="0926">集合竞价 (09:26)</option>
+            </select>
+            <div class="score-slider">
+                <span style="font-size:11px;color:var(--text-secondary);">最低评分</span>
+                <input type="range" id="picksScore" min="0" max="100" value="0" oninput="filterPicks()">
+                <span class="score-val" id="picksScoreVal">0</span>
+            </div>
+            <span class="picks-count" id="picksCount">{len(all_stocks)} 只</span>
+        </div>
+        <div style="max-height:360px;overflow-y:auto;">
+            <table class="picks-table" id="picksTable">
+                <thead>
+                    <tr><th>名称</th><th style="text-align:right;">现价</th><th style="text-align:right;">涨跌幅</th><th style="text-align:right;">评分</th><th style="text-align:center;">板块</th><th style="text-align:center;">策略</th></tr>
+                </thead>
+                <tbody>{rows}</tbody>
+            </table>
+        </div>
+        <div class="picks-logic">
+            <i class="fas fa-lightbulb" style="color:var(--accent-gold);"></i>
+            <b>选股逻辑：</b>09:26 池基于集合竞价高开+量比/换手筛选；14:30 池基于盘中涨幅、量比、换手率、流通市值综合评分。点击任意股票可在右侧「回测引擎」查看历史策略表现。
+        </div>
+    </div>'''
+
+
+def _right_backtest_engine():
+    """右侧：回测引擎（前端 JS 交互）。"""
+    klines = _load_cache("backtest_klines") or {"stocks": {}}
+    symbols = []
+    for code, info in klines.get("stocks", {}).items():
+        symbols.append({"code": code, "name": info.get("name", code), "full": info.get("full_code", code)})
+    symbols.sort(key=lambda x: x["code"])
+    opts = "".join(f'<option value="{s["code"]}">{s["name"]} ({s["code"]})</option>' for s in symbols)
+    return f'''
+    <div class="radar-card">
+        <div class="card-title"><span class="icon"><i class="fas fa-chart-line"></i></span> 回测引擎 <span class="badge">BACKTEST</span></div>
+        <div class="backtest-symbol-row">
+            <select id="btSymbol" onchange="runBacktest()">{opts}</select>
+        </div>
+        <div id="btChart" class="backtest-chart"></div>
+        <div class="backtest-param-grid">
+            <div class="backtest-param"><label>初始资金 (元)</label><input type="number" id="btCapital" value="100000" step="10000"></div>
+            <div class="backtest-param"><label>仓位比例 (%)</label><input type="number" id="btPosition" value="30" min="10" max="100" step="5"></div>
+            <div class="backtest-param"><label>止损比例 (%)</label><input type="number" id="btStopLoss" value="-5" max="0" step="1"></div>
+            <div class="backtest-param"><label>止盈比例 (%)</label><input type="number" id="btTakeProfit" value="15" min="0" step="1"></div>
+            <div class="backtest-param"><label>回测周期 (天)</label><input type="number" id="btPeriod" value="60" min="20" max="120" step="10"></div>
+            <div class="backtest-param"><label>策略</label>
+                <select id="btStrategy" style="width:100%;background:transparent;border:none;color:var(--text-primary);font-size:12px;outline:none;">
+                    <option value="ma">MA5/10 金叉死叉</option>
+                    <option value="rsi">RSI 超卖/超买</option>
+                    <option value="macd">MACD 金叉死叉</option>
+                </select>
+            </div>
+        </div>
+        <button class="backtest-btn" onclick="runBacktest()"><i class="fas fa-play"></i> 开始回测</button>
+        <div class="backtest-metrics" id="btMetrics">
+            <div class="backtest-metric"><div class="label">累计收益</div><div class="value" id="btTotal">—</div></div>
+            <div class="backtest-metric"><div class="label">年化收益</div><div class="value" id="btAnnual">—</div></div>
+            <div class="backtest-metric"><div class="label">胜率</div><div class="value" id="btWinRate">—</div></div>
+            <div class="backtest-metric"><div class="label">最大回撤</div><div class="value" id="btMaxDD">—</div></div>
+            <div class="backtest-metric"><div class="label">盈亏比</div><div class="value" id="btPL">—</div></div>
+            <div class="backtest-metric"><div class="label">夏普比率</div><div class="value" id="btSharpe">—</div></div>
+            <div class="backtest-metric"><div class="label">卡玛比率</div><div class="value" id="btCalmar">—</div></div>
+            <div class="backtest-metric"><div class="label">交易次数</div><div class="value" id="btTrades">—</div></div>
+        </div>
+        <div class="backtest-trades">
+            <table>
+                <thead><tr><th>日期</th><th>方向</th><th>价格</th><th>数量</th><th>盈亏</th></tr></thead>
+                <tbody id="btTradeBody"><tr><td colspan="5" style="color:var(--text-secondary);">点击「开始回测」生成交易明细</td></tr></tbody>
+            </table>
+        </div>
+    </div>'''
+
+
+def _section_radar(snap):
+    """A股量化雷达 V2.0 三栏主体。"""
+    left = _left_market_scan(snap)
+    middle = _middle_daily_picks()
+    right = _right_backtest_engine()
+    return f'''
+    <div class="radar-grid">
+        <div class="radar-col">{left}</div>
+        <div class="radar-col">{middle}</div>
+        <div class="radar-col">{right}</div>
+    </div>'''
+
+
 # ----------------------------------------------------------------- ⑧ 每日选股推荐（集合竞价 09:26 / 市场情绪 14:30 双池）
 def _scan_analysis_fallback(s):
     """对旧版无 analysis 字段的扫描结果，生成简版个股分析。"""
@@ -2306,6 +2604,7 @@ def build() -> str:
     </div>'''
 
     modules = "".join([
+        _section_radar(snap),
         _section_global(snap, us_quotes, overnight),
         _section_transmit(overnight),
         _section_limitup(snap),
@@ -2342,8 +2641,260 @@ def build() -> str:
         "scan_picks": _modal_scan_picks(),
     }
 
+    klines = _load_cache("backtest_klines") or {"stocks": {}}
+
     js = f'''
 function loadDate(date) {{ alert('📅 切换到 ' + date); }}
+window.BT_KLINES = {json.dumps(klines, ensure_ascii=False)};
+let btChart = null;
+
+document.addEventListener('DOMContentLoaded', function() {{
+    const chartDom = document.getElementById('btChart');
+    if (chartDom && typeof echarts !== 'undefined') {{
+        btChart = echarts.init(chartDom);
+        runBacktest();
+    }}
+}});
+
+function filterPicks() {{
+    const strategy = document.getElementById('picksStrategy').value;
+    const minScore = parseInt(document.getElementById('picksScore').value);
+    document.getElementById('picksScoreVal').textContent = minScore;
+    const rows = document.querySelectorAll('#picksTable tbody tr');
+    let visible = 0;
+    rows.forEach(row => {{
+        const code = row.getAttribute('data-code');
+        if (!code) return;
+        const score = parseFloat(row.getAttribute('data-score')) || 0;
+        const mode = row.getAttribute('data-mode');
+        const showStrategy = strategy === 'all' || strategy === mode;
+        const showScore = score >= minScore;
+        row.style.display = (showStrategy && showScore) ? '' : 'none';
+        if (showStrategy && showScore) visible++;
+    }});
+    document.getElementById('picksCount').textContent = visible + ' 只';
+}}
+
+function selectBacktestSymbol(code) {{
+    const sel = document.getElementById('btSymbol');
+    if (sel) sel.value = code;
+    runBacktest();
+}}
+
+function calcMA(data, n) {{
+    const out = [];
+    for (let i = 0; i < data.length; i++) {{
+        if (i < n - 1) {{ out.push(null); continue; }}
+        let sum = 0;
+        for (let j = 0; j < n; j++) sum += data[i - j][2];
+        out.push(sum / n);
+    }}
+    return out;
+}}
+
+function calcRSI(data, n) {{
+    const out = [];
+    let gain = 0, loss = 0;
+    for (let i = 0; i < data.length; i++) {{
+        if (i === 0) {{ out.push(50); continue; }}
+        const change = data[i][2] - data[i-1][2];
+        const g = Math.max(change, 0);
+        const l = Math.max(-change, 0);
+        if (i <= n) {{
+            gain = (gain * (i - 1) + g) / i;
+            loss = (loss * (i - 1) + l) / i;
+        }} else {{
+            gain = (gain * (n - 1) + g) / n;
+            loss = (loss * (n - 1) + l) / n;
+        }}
+        out.push(loss === 0 ? 100 : 100 - 100 / (1 + gain / loss));
+    }}
+    return out;
+}}
+
+function calcMACD(data, fast, slow, signal) {{
+    fast = fast || 12; slow = slow || 26; signal = signal || 9;
+    const ema = (arr, n) => {{
+        const k = 2 / (n + 1);
+        const out = [arr[0]];
+        for (let i = 1; i < arr.length; i++) out.push(arr[i] * k + out[i-1] * (1 - k));
+        return out;
+    }};
+    const closes = data.map(d => d[2]);
+    const emaF = ema(closes, fast);
+    const emaS = ema(closes, slow);
+    const dif = emaF.map((v, i) => v - emaS[i]);
+    const dea = ema(dif, signal);
+    const hist = dif.map((v, i) => 2 * (v - dea[i]));
+    return {{ dif: dif, dea: dea, hist: hist }};
+}}
+
+function runBacktest() {{
+    const code = document.getElementById('btSymbol').value;
+    const capital = parseFloat(document.getElementById('btCapital').value) || 100000;
+    const positionPct = (parseFloat(document.getElementById('btPosition').value) || 30) / 100;
+    const stopLoss = (parseFloat(document.getElementById('btStopLoss').value) || -5) / 100;
+    const takeProfit = (parseFloat(document.getElementById('btTakeProfit').value) || 15) / 100;
+    const period = parseInt(document.getElementById('btPeriod').value) || 60;
+    const strategy = document.getElementById('btStrategy').value;
+
+    const stock = window.BT_KLINES.stocks[code];
+    if (!stock || !stock.kline || stock.kline.length < 30) {{
+        alert('该股票K线数据不足，无法回测');
+        return;
+    }}
+    let data = stock.kline.slice(-period);
+
+    let signals = new Array(data.length).fill(0);
+    if (strategy === 'ma') {{
+        const ma5 = calcMA(data, 5);
+        const ma10 = calcMA(data, 10);
+        for (let i = 1; i < data.length; i++) {{
+            if (ma5[i] > ma10[i] && ma5[i-1] <= ma10[i-1]) signals[i] = 1;
+            else if (ma5[i] < ma10[i] && ma5[i-1] >= ma10[i-1]) signals[i] = -1;
+        }}
+    }} else if (strategy === 'rsi') {{
+        const rsi = calcRSI(data, 14);
+        for (let i = 0; i < data.length; i++) {{
+            if (rsi[i] < 30) signals[i] = 1;
+            else if (rsi[i] > 70) signals[i] = -1;
+        }}
+    }} else if (strategy === 'macd') {{
+        const macd = calcMACD(data);
+        for (let i = 1; i < data.length; i++) {{
+            if (macd.dif[i] > macd.dea[i] && macd.dif[i-1] <= macd.dea[i-1]) signals[i] = 1;
+            else if (macd.dif[i] < macd.dea[i] && macd.dif[i-1] >= macd.dea[i-1]) signals[i] = -1;
+        }}
+    }}
+
+    let cash = capital;
+    const trades = [];
+    let position = null;
+    const equityCurve = [];
+    let maxEquity = capital;
+    let maxDrawdown = 0;
+
+    for (let i = 0; i < data.length; i++) {{
+        const [date, open, close, low, high, vol] = data[i];
+        if (position) {{
+            const stopPrice = position.price * (1 + stopLoss);
+            const profitPrice = position.price * (1 + takeProfit);
+            let exitPrice = null;
+            if (low <= stopPrice) exitPrice = stopPrice;
+            else if (high >= profitPrice) exitPrice = profitPrice;
+            if (exitPrice) {{
+                cash += position.shares * exitPrice;
+                const pnl = (exitPrice - position.price) * position.shares;
+                trades.push({{date: date, type: '卖出', price: exitPrice, shares: position.shares, pnl: pnl}});
+                position = null;
+            }}
+        }}
+        if (signals[i] === 1 && !position && cash > 0) {{
+            const invest = capital * positionPct;
+            const buyPrice = close;
+            let buyShares = Math.floor(invest / buyPrice / 100) * 100;
+            if (buyShares < 100) buyShares = 100;
+            const needed = buyShares * buyPrice;
+            if (needed <= cash) {{
+                cash -= needed;
+                position = {{price: buyPrice, date: date, shares: buyShares}};
+                trades.push({{date: date, type: '买入', price: buyPrice, shares: buyShares, pnl: 0}});
+            }}
+        }} else if (signals[i] === -1 && position) {{
+            cash += position.shares * close;
+            const pnl = (close - position.price) * position.shares;
+            trades.push({{date: date, type: '卖出', price: close, shares: position.shares, pnl: pnl}});
+            position = null;
+        }}
+        const equity = cash + (position ? position.shares * close : 0);
+        equityCurve.push({{date: date, equity: equity}});
+        if (equity > maxEquity) maxEquity = equity;
+        const dd = (maxEquity - equity) / maxEquity;
+        if (dd > maxDrawdown) maxDrawdown = dd;
+    }}
+    if (position) {{
+        const [date, open, close, low, high, vol] = data[data.length - 1];
+        cash += position.shares * close;
+        const pnl = (close - position.price) * position.shares;
+        trades.push({{date: date, type: '卖出', price: close, shares: position.shares, pnl: pnl}});
+        position = null;
+    }}
+    const finalEquity = cash;
+    const totalReturn = (finalEquity - capital) / capital;
+    const annualReturn = totalReturn / data.length * 252;
+    const sellTrades = trades.filter(t => t.type === '卖出');
+    const winTrades = sellTrades.filter(t => t.pnl > 0);
+    const loseTrades = sellTrades.filter(t => t.pnl <= 0);
+    const winRate = sellTrades.length ? winTrades.length / sellTrades.length : 0;
+    const avgWin = winTrades.length ? winTrades.reduce((a, b) => a + b.pnl, 0) / winTrades.length : 0;
+    const avgLoss = loseTrades.length ? Math.abs(loseTrades.reduce((a, b) => a + b.pnl, 0) / loseTrades.length) : 0;
+    const plRatio = avgLoss ? avgWin / avgLoss : 0;
+    const dailyReturns = equityCurve.slice(1).map((v, i) => (v.equity - equityCurve[i].equity) / equityCurve[i].equity);
+    const meanR = dailyReturns.length ? dailyReturns.reduce((a, b) => a + b, 0) / dailyReturns.length : 0;
+    const stdR = dailyReturns.length ? Math.sqrt(dailyReturns.map(r => Math.pow(r - meanR, 2)).reduce((a, b) => a + b, 0) / dailyReturns.length) : 0;
+    const sharpe = stdR ? meanR / stdR * Math.sqrt(252) : 0;
+    const calmar = maxDrawdown ? annualReturn / maxDrawdown : 0;
+
+    const setVal = (id, val, cls) => {{
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = val;
+        el.className = 'value ' + (cls || '');
+    }};
+    setVal('btTotal', (totalReturn * 100).toFixed(2) + '%', totalReturn >= 0 ? 'bt-pos' : 'bt-neg');
+    setVal('btAnnual', (annualReturn * 100).toFixed(2) + '%', annualReturn >= 0 ? 'bt-pos' : 'bt-neg');
+    setVal('btWinRate', (winRate * 100).toFixed(1) + '%', '');
+    setVal('btMaxDD', (-maxDrawdown * 100).toFixed(2) + '%', 'bt-neg');
+    setVal('btPL', plRatio.toFixed(2), plRatio >= 1 ? 'bt-pos' : '');
+    setVal('btSharpe', sharpe.toFixed(2), sharpe >= 1 ? 'bt-pos' : '');
+    setVal('btCalmar', calmar.toFixed(2), calmar >= 1 ? 'bt-pos' : '');
+    setVal('btTrades', sellTrades.length, '');
+
+    const tbody = document.getElementById('btTradeBody');
+    const recent = sellTrades.slice(-10).reverse();
+    tbody.innerHTML = recent.map(t => '<tr><td>' + t.date + '</td><td style="color:' + (t.pnl >= 0 ? '#ef4444' : '#22c55e') + '">' + t.type + '</td><td>' + t.price.toFixed(2) + '</td><td>' + t.shares + '</td><td style="color:' + (t.pnl >= 0 ? '#ef4444' : '#22c55e') + '">' + (t.pnl >= 0 ? '+' : '') + t.pnl.toFixed(0) + '</td></tr>').join('') || '<tr><td colspan="5" style="color:var(--text-secondary);">无交易</td></tr>';
+
+    drawBTChart(code, data, trades, strategy);
+}}
+
+function drawBTChart(code, data, trades, strategy) {{
+    const dates = data.map(d => d[0]);
+    const kdata = data.map(d => [d[1], d[2], d[3], d[4]]);
+    let marks = [];
+    trades.forEach(t => {{
+        const idx = dates.indexOf(t.date);
+        if (idx >= 0) {{
+            marks.push({{
+                name: t.type,
+                coord: [idx, t.type === '买入' ? data[idx][3] : data[idx][4]],
+                value: t.type,
+                itemStyle: {{ color: t.type === '买入' ? '#ef4444' : '#22c55e' }}
+            }});
+        }}
+    }});
+    let series = [{{
+        type: 'candlestick',
+        data: kdata,
+        itemStyle: {{ color: '#ef4444', color0: '#22c55e', borderColor: '#ef4444', borderColor0: '#22c55e' }}
+    }}];
+    if (strategy === 'ma') {{
+        series.push({{ type: 'line', data: calcMA(data, 5), smooth: true, showSymbol: false, lineStyle: {{ color: '#f59e0b', width: 1 }} }});
+        series.push({{ type: 'line', data: calcMA(data, 10), smooth: true, showSymbol: false, lineStyle: {{ color: '#4fc3f7', width: 1 }} }});
+    }}
+    const option = {{
+        backgroundColor: 'transparent',
+        grid: {{ left: 8, right: 8, top: 8, bottom: 20 }},
+        xAxis: {{ data: dates, axisLine: {{ lineStyle: {{ color: '#1e2a3a' }} }}, axisLabel: {{ color: '#8892a0', fontSize: 9 }}, axisTick: {{ show: false }} }},
+        yAxis: {{ scale: true, splitLine: {{ lineStyle: {{ color: '#1e2a3a' }} }}, axisLabel: {{ color: '#8892a0', fontSize: 9 }} }},
+        tooltip: {{ trigger: 'axis', axisPointer: {{ type: 'cross' }}, textStyle: {{ fontSize: 11 }} }},
+        dataZoom: [{{ type: 'inside', start: 50, end: 100 }}],
+        series: series
+    }};
+    if (btChart) btChart.setOption(option, true);
+}}
+
+window.addEventListener('resize', function() {{ if (btChart) btChart.resize(); }});
+
 const modalData = {json.dumps(modal_data, ensure_ascii=False)};
 function openModal(type) {{
     const modal = document.getElementById('modal');
@@ -2393,6 +2944,7 @@ function showShareToast(msg) {{
     <meta http-equiv="Expires" content="0">
     <title>📊 量化交易看板</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>{CSS_RULES}
     </style>
 </head>
