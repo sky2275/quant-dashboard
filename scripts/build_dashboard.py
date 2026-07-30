@@ -2228,10 +2228,9 @@ def _left_market_scan(snap):
 
 
 def _middle_daily_picks():
-    """中间：每日备选股（带策略下拉、评分滑块、策略标签）。"""
+    """中间：每日备选股（策略下拉、市值滑块、评分滑块、开始扫描、策略标签）。"""
     s26 = _load_cache("scan_0926") or {}
     s30 = _load_cache("scan_1430") or {}
-    # 合并去重，以 code 为键
     merged = {}
     for src, mode in ((s26, "0926"), (s30, "1430")):
         for s in src.get("stocks", []):
@@ -2239,10 +2238,10 @@ def _middle_daily_picks():
             if not code or code in merged:
                 continue
             merged[code] = dict(s, mode=mode)
-    all_stocks = list(merged.values())
-    # 输出前15只作为默认展示（JS会按筛选条件重新渲染）
+    all_stocks = sorted(merged.values(), key=lambda x: float(x.get("score") or 0), reverse=True)
+
     rows = ""
-    for s in sorted(all_stocks, key=lambda x: float(x.get("score") or 0), reverse=True)[:15]:
+    for i, s in enumerate(all_stocks[:30], 1):
         code = s.get("code", "")
         name = s.get("name", "—")
         price = s.get("price", "—")
@@ -2250,96 +2249,150 @@ def _middle_daily_picks():
         score = s.get("score")
         sector = s.get("sector") or "—"
         mode = s.get("mode", "1430")
-        mode_label = "放量突破" if mode == "1430" else "竞价异动"
-        mode_cls = "breakout" if mode == "1430" else "momentum"
+        float_cap = float(s.get("float_cap") or 0) / 1e8
+
+        if mode == "1430":
+            if float(score or 0) >= 75:
+                mode_label, mode_cls = "放量突破", "breakout"
+            else:
+                mode_label, mode_cls = "五维强势", "momentum"
+        else:
+            mode_label, mode_cls = "竞价异动", "momentum"
+        if float(pct or 0) <= -3 and float(score or 0) >= 50:
+            mode_label, mode_cls = "超跌反弹", "reversal"
+
         rows += f'''
-        <tr data-code="{code}" data-score="{score}" data-mode="{mode}" onclick="selectBacktestSymbol('{code}')">
-            <td><b>{name}</b><br><span style="color:var(--text-secondary);font-size:9px;">{code}</span></td>
-            <td style="text-align:right;">{_safe(price, "—")}</td>
-            <td style="text-align:right;color:{_pnl_cls(pct)};font-weight:600;">{_fmt_pct(pct, 2)}</td>
-            <td style="text-align:right;color:{_score_color(score)};font-weight:600;">{_safe(score, "—")}</td>
-            <td style="text-align:center;"><span class="sector-tag" style="font-size:9px;">{sector}</span></td>
-            <td style="text-align:center;"><span class="strategy-tag {mode_cls}">{mode_label}</span></td>
+        <tr data-code="{code}" data-score="{score}" data-mode="{mode}" data-cap="{float_cap:.1f}" onclick="selectBacktestSymbol('{code}')">
+            <td><span class="picks-name">{name}</span><span class="picks-code">{code}</span></td>
+            <td class="col-right">{_safe(price, "—")}</td>
+            <td class="col-right" style="color:{_pnl_cls(pct)};font-weight:600;">{_fmt_pct(pct, 2)}</td>
+            <td class="col-center"><span class="picks-score-pill" style="color:{_score_color(score)};border:1px solid {_score_color(score)};">{_safe(score, "—")}</span></td>
+            <td class="col-center"><span class="sector-tag" style="font-size:9px;">{sector}</span></td>
+            <td class="col-center"><span class="strategy-tag {mode_cls}">{mode_label}</span></td>
         </tr>'''
     if not rows:
-        rows = '<tr><td colspan="6" style="padding:10px;color:var(--text-secondary);font-size:12px;">暂无选股数据，等待 09:26/14:30 扫描生成。</td></tr>'
+        rows = '<tr><td colspan="6" style="padding:16px;color:var(--text-secondary);font-size:12px;text-align:center;">暂无选股数据，等待 09:26/14:30 扫描生成。</td></tr>'
 
     return f'''
     <div class="radar-card">
-        <div class="card-title"><span class="icon"><i class="fas fa-crosshairs"></i></span> 每日备选股 <span class="badge">DAILY PICKS</span></div>
-        <div class="picks-toolbar">
-            <select id="picksStrategy" onchange="filterPicks()">
-                <option value="all">全部策略</option>
-                <option value="1430">市场情绪 (14:30)</option>
-                <option value="0926">集合竞价 (09:26)</option>
-            </select>
-            <div class="score-slider">
-                <span style="font-size:11px;color:var(--text-secondary);">最低评分</span>
-                <input type="range" id="picksScore" min="0" max="100" value="0" oninput="filterPicks()">
-                <span class="score-val" id="picksScoreVal">0</span>
-            </div>
-            <span class="picks-count" id="picksCount">{len(all_stocks)} 只</span>
+        <div class="picks-header">
+            <h3>每日备选股 <span>· DAILY PICKS</span></h3>
+            <span class="picks-count-badge" id="picksCount">共 {len(all_stocks)} 只</span>
         </div>
-        <div style="max-height:360px;overflow-y:auto;">
+        <div class="picks-toolbar">
+            <div class="picks-row">
+                <label>选股策略</label>
+                <select id="picksStrategy" onchange="filterPicks()">
+                    <option value="all">全部策略</option>
+                    <option value="breakout">放量突破</option>
+                    <option value="momentum">五维强势 / 竞价异动</option>
+                    <option value="reversal">超跌反弹</option>
+                    <option value="1430">市场情绪 (14:30)</option>
+                    <option value="0926">集合竞价 (09:26)</option>
+                </select>
+                <div class="picks-range">
+                    <div class="picks-range-labels"><span>市值范围 50亿</span><span id="picksCapVal">50 - 2000亿</span></div>
+                    <input type="range" id="picksCap" min="50" max="2000" value="2000" step="50" oninput="filterPicks()">
+                </div>
+            </div>
+            <div class="picks-row">
+                <div class="picks-score-box">
+                    <label>最低评分</label>
+                    <input type="range" id="picksScore" min="0" max="100" value="0" style="width:120px;" oninput="filterPicks()">
+                    <span class="score-val" id="picksScoreVal">0</span><span style="font-size:11px;color:var(--text-secondary);">分</span>
+                </div>
+                <button class="picks-scan-btn" onclick="filterPicks()"><i class="fas fa-bolt"></i> 开始扫描</button>
+            </div>
+        </div>
+        <div class="picks-table-wrap">
             <table class="picks-table" id="picksTable">
                 <thead>
-                    <tr><th>名称</th><th style="text-align:right;">现价</th><th style="text-align:right;">涨跌幅</th><th style="text-align:right;">评分</th><th style="text-align:center;">板块</th><th style="text-align:center;">策略</th></tr>
+                    <tr><th>名称/代码</th><th class="col-right">现价</th><th class="col-right">涨跌幅</th><th class="col-center">评分</th><th class="col-center">板块</th><th class="col-center">策略</th></tr>
                 </thead>
                 <tbody>{rows}</tbody>
             </table>
         </div>
         <div class="picks-logic">
-            <i class="fas fa-lightbulb" style="color:var(--accent-gold);"></i>
-            <b>选股逻辑：</b>09:26 池基于集合竞价高开+量比/换手筛选；14:30 池基于盘中涨幅、量比、换手率、流通市值综合评分。点击任意股票可在右侧「回测引擎」查看历史策略表现。
+            <i class="fas fa-lightbulb" style="color:var(--accent-gold);margin-right:4px;"></i>
+            <b>选股逻辑：</b>基于五维模型综合评分——板块热度(20%)、个股强度(25%)、量能配合(20%)、技术形态(20%)、基本面质量(15%)。每日自动扫描全市场A股，按综合评分排序输出。点击任意股票可在右侧「回测引擎」查看历史策略表现。
+        </div>
+        <div class="picks-risk">
+            <i class="fas fa-exclamation-triangle" style="color:var(--accent-gold);margin-right:4px;"></i>
+            风险提示：本终端数据为模拟演示，不构成投资建议。股市有风险，入市需谨慎。
         </div>
     </div>'''
 
 
 def _right_backtest_engine():
-    """右侧：回测引擎（前端 JS 交互）。"""
+    """右侧：回测引擎（K线+MA+买卖点、策略参数、绩效、交易明细）。"""
     klines = _load_cache("backtest_klines") or {"stocks": {}}
     symbols = []
     for code, info in klines.get("stocks", {}).items():
         symbols.append({"code": code, "name": info.get("name", code), "full": info.get("full_code", code)})
     symbols.sort(key=lambda x: x["code"])
     opts = "".join(f'<option value="{s["code"]}">{s["name"]} ({s["code"]})</option>' for s in symbols)
+    first = symbols[0] if symbols else {"code": "", "name": "—", "full": "—"}
     return f'''
     <div class="radar-card">
-        <div class="card-title"><span class="icon"><i class="fas fa-chart-line"></i></span> 回测引擎 <span class="badge">BACKTEST</span></div>
+        <div class="card-title"><span class="icon"><i class="fas fa-chart-line"></i></span> 回测引擎 <span class="badge">BACKTEST ENGINE</span></div>
+        <div class="bt-header" id="btHeader">
+            <div class="bt-header-info">
+                <div class="bt-header-name" id="btName">{first["name"]}</div>
+                <div class="bt-header-code" id="btCode">{str(first["full"]).upper()}</div>
+            </div>
+            <div class="bt-header-price">
+                <div class="price" id="btPrice">—</div>
+                <div class="pct" id="btPct">—</div>
+            </div>
+        </div>
         <div class="backtest-symbol-row">
             <select id="btSymbol" onchange="runBacktest()">{opts}</select>
         </div>
         <div id="btChart" class="backtest-chart"></div>
+        <div class="backtest-param-title"><i class="fas fa-cog"></i> 策略参数设置</div>
         <div class="backtest-param-grid">
-            <div class="backtest-param"><label>初始资金 (元)</label><input type="number" id="btCapital" value="100000" step="10000"></div>
+            <div class="backtest-param"><label>初始资金（元）</label><input type="number" id="btCapital" value="100000" step="10000"></div>
             <div class="backtest-param"><label>仓位比例 (%)</label><input type="number" id="btPosition" value="30" min="10" max="100" step="5"></div>
             <div class="backtest-param"><label>止损比例 (%)</label><input type="number" id="btStopLoss" value="-5" max="0" step="1"></div>
             <div class="backtest-param"><label>止盈比例 (%)</label><input type="number" id="btTakeProfit" value="15" min="0" step="1"></div>
-            <div class="backtest-param"><label>回测周期 (天)</label><input type="number" id="btPeriod" value="60" min="20" max="120" step="10"></div>
+        </div>
+        <div class="backtest-param-grid">
             <div class="backtest-param"><label>策略</label>
-                <select id="btStrategy" style="width:100%;background:transparent;border:none;color:var(--text-primary);font-size:12px;outline:none;">
+                <select id="btStrategy">
                     <option value="ma">MA5/10 金叉死叉</option>
                     <option value="rsi">RSI 超卖/超买</option>
                     <option value="macd">MACD 金叉死叉</option>
                 </select>
             </div>
+            <div class="backtest-param"><label>回测周期</label>
+                <div class="bt-period-row">
+                    <button type="button" class="bt-period-btn active" data-days="252" onclick="setBTPeriod(this)">1年</button>
+                    <button type="button" class="bt-period-btn" data-days="504" onclick="setBTPeriod(this)">2年</button>
+                    <button type="button" class="bt-period-btn" data-days="756" onclick="setBTPeriod(this)">3年</button>
+                </div>
+                <input type="hidden" id="btPeriod" value="252">
+            </div>
         </div>
         <button class="backtest-btn" onclick="runBacktest()"><i class="fas fa-play"></i> 开始回测</button>
+        <div class="backtest-param-title"><i class="fas fa-trophy"></i> 回测绩效</div>
         <div class="backtest-metrics" id="btMetrics">
             <div class="backtest-metric"><div class="label">累计收益</div><div class="value" id="btTotal">—</div></div>
             <div class="backtest-metric"><div class="label">年化收益</div><div class="value" id="btAnnual">—</div></div>
             <div class="backtest-metric"><div class="label">胜率</div><div class="value" id="btWinRate">—</div></div>
-            <div class="backtest-metric"><div class="label">最大回撤</div><div class="value" id="btMaxDD">—</div></div>
             <div class="backtest-metric"><div class="label">盈亏比</div><div class="value" id="btPL">—</div></div>
+            <div class="backtest-metric"><div class="label">最大回撤</div><div class="value" id="btMaxDD">—</div></div>
             <div class="backtest-metric"><div class="label">夏普比率</div><div class="value" id="btSharpe">—</div></div>
             <div class="backtest-metric"><div class="label">卡玛比率</div><div class="value" id="btCalmar">—</div></div>
             <div class="backtest-metric"><div class="label">交易次数</div><div class="value" id="btTrades">—</div></div>
         </div>
         <div class="backtest-trades">
-            <table>
-                <thead><tr><th>日期</th><th>方向</th><th>价格</th><th>数量</th><th>盈亏</th></tr></thead>
-                <tbody id="btTradeBody"><tr><td colspan="5" style="color:var(--text-secondary);">点击「开始回测」生成交易明细</td></tr></tbody>
-            </table>
+            <div class="trades-title"><i class="fas fa-list" style="margin-right:4px;"></i> 交易明细（近10笔）</div>
+            <div class="trades-wrap">
+                <table>
+                    <thead><tr><th>日期</th><th>方向</th><th>价格</th><th>数量</th><th>盈亏%</th></tr></thead>
+                    <tbody id="btTradeBody"><tr><td colspan="5" style="color:var(--text-secondary);text-align:center;padding:12px;">点击「开始回测」生成交易明细</td></tr></tbody>
+                </table>
+            </div>
         </div>
     </div>'''
 
@@ -2660,6 +2713,8 @@ function filterPicks() {{
     const strategy = document.getElementById('picksStrategy').value;
     const minScore = parseInt(document.getElementById('picksScore').value);
     document.getElementById('picksScoreVal').textContent = minScore;
+    const maxCap = parseFloat(document.getElementById('picksCap').value);
+    document.getElementById('picksCapVal').textContent = '50 - ' + maxCap + '亿';
     const rows = document.querySelectorAll('#picksTable tbody tr');
     let visible = 0;
     rows.forEach(row => {{
@@ -2667,12 +2722,19 @@ function filterPicks() {{
         if (!code) return;
         const score = parseFloat(row.getAttribute('data-score')) || 0;
         const mode = row.getAttribute('data-mode');
-        const showStrategy = strategy === 'all' || strategy === mode;
+        const cap = parseFloat(row.getAttribute('data-cap')) || 0;
+        let showStrategy = false;
+        if (strategy === 'all') showStrategy = true;
+        else if (strategy === mode) showStrategy = true;
+        else if (strategy === 'breakout' && row.querySelector('.strategy-tag.breakout')) showStrategy = true;
+        else if (strategy === 'momentum' && (row.querySelector('.strategy-tag.momentum') || row.querySelector('.strategy-tag.breakout'))) showStrategy = true;
+        else if (strategy === 'reversal' && row.querySelector('.strategy-tag.reversal')) showStrategy = true;
         const showScore = score >= minScore;
-        row.style.display = (showStrategy && showScore) ? '' : 'none';
-        if (showStrategy && showScore) visible++;
+        const showCap = cap <= maxCap && cap >= 50;
+        row.style.display = (showStrategy && showScore && showCap) ? '' : 'none';
+        if (showStrategy && showScore && showCap) visible++;
     }});
-    document.getElementById('picksCount').textContent = visible + ' 只';
+    document.getElementById('picksCount').textContent = '共 ' + visible + ' 只';
 }}
 
 function selectBacktestSymbol(code) {{
@@ -2681,13 +2743,19 @@ function selectBacktestSymbol(code) {{
     runBacktest();
 }}
 
+function setBTPeriod(btn) {{
+    document.querySelectorAll('.bt-period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('btPeriod').value = btn.getAttribute('data-days');
+}}
+
 function calcMA(data, n) {{
     const out = [];
     for (let i = 0; i < data.length; i++) {{
         if (i < n - 1) {{ out.push(null); continue; }}
         let sum = 0;
         for (let j = 0; j < n; j++) sum += data[i - j][2];
-        out.push(sum / n);
+        out.push(parseFloat((sum / n).toFixed(3)));
     }}
     return out;
 }}
@@ -2735,7 +2803,7 @@ function runBacktest() {{
     const positionPct = (parseFloat(document.getElementById('btPosition').value) || 30) / 100;
     const stopLoss = (parseFloat(document.getElementById('btStopLoss').value) || -5) / 100;
     const takeProfit = (parseFloat(document.getElementById('btTakeProfit').value) || 15) / 100;
-    const period = parseInt(document.getElementById('btPeriod').value) || 60;
+    const period = parseInt(document.getElementById('btPeriod').value) || 252;
     const strategy = document.getElementById('btStrategy').value;
 
     const stock = window.BT_KLINES.stocks[code];
@@ -2743,7 +2811,19 @@ function runBacktest() {{
         alert('该股票K线数据不足，无法回测');
         return;
     }}
-    let data = stock.kline.slice(-period);
+    const lastBar = stock.kline[stock.kline.length - 1];
+    const prevBar = stock.kline[stock.kline.length - 2];
+    const curPrice = parseFloat(lastBar[2]);
+    const prePrice = parseFloat(prevBar[2]);
+    const curPct = (curPrice - prePrice) / prePrice;
+    document.getElementById('btName').textContent = stock.name || code;
+    document.getElementById('btCode').textContent = (stock.full_code || code).toUpperCase();
+    document.getElementById('btPrice').textContent = curPrice.toFixed(2);
+    const pctEl = document.getElementById('btPct');
+    pctEl.textContent = (curPct >= 0 ? '+' : '') + (curPct * 100).toFixed(2) + '%';
+    pctEl.className = 'pct ' + (curPct >= 0 ? 'bt-pos' : 'bt-neg');
+
+    let data = stock.kline.slice(-Math.min(period, stock.kline.length));
 
     let signals = new Array(data.length).fill(0);
     if (strategy === 'ma') {{
@@ -2785,7 +2865,8 @@ function runBacktest() {{
             if (exitPrice) {{
                 cash += position.shares * exitPrice;
                 const pnl = (exitPrice - position.price) * position.shares;
-                trades.push({{date: date, type: '卖出', price: exitPrice, shares: position.shares, pnl: pnl}});
+                const pnlPct = (exitPrice - position.price) / position.price * 100;
+                trades.push({{date: date, type: '卖出', price: exitPrice, shares: position.shares, pnl: pnl, pnlPct: pnlPct}});
                 position = null;
             }}
         }}
@@ -2798,12 +2879,13 @@ function runBacktest() {{
             if (needed <= cash) {{
                 cash -= needed;
                 position = {{price: buyPrice, date: date, shares: buyShares}};
-                trades.push({{date: date, type: '买入', price: buyPrice, shares: buyShares, pnl: 0}});
+                trades.push({{date: date, type: '买入', price: buyPrice, shares: buyShares, pnl: 0, pnlPct: 0}});
             }}
         }} else if (signals[i] === -1 && position) {{
             cash += position.shares * close;
             const pnl = (close - position.price) * position.shares;
-            trades.push({{date: date, type: '卖出', price: close, shares: position.shares, pnl: pnl}});
+            const pnlPct = (close - position.price) / position.price * 100;
+            trades.push({{date: date, type: '卖出', price: close, shares: position.shares, pnl: pnl, pnlPct: pnlPct}});
             position = null;
         }}
         const equity = cash + (position ? position.shares * close : 0);
@@ -2816,7 +2898,8 @@ function runBacktest() {{
         const [date, open, close, low, high, vol] = data[data.length - 1];
         cash += position.shares * close;
         const pnl = (close - position.price) * position.shares;
-        trades.push({{date: date, type: '卖出', price: close, shares: position.shares, pnl: pnl}});
+        const pnlPct = (close - position.price) / position.price * 100;
+        trades.push({{date: date, type: '卖出', price: close, shares: position.shares, pnl: pnl, pnlPct: pnlPct}});
         position = null;
     }}
     const finalEquity = cash;
@@ -2852,7 +2935,7 @@ function runBacktest() {{
 
     const tbody = document.getElementById('btTradeBody');
     const recent = sellTrades.slice(-10).reverse();
-    tbody.innerHTML = recent.map(t => '<tr><td>' + t.date + '</td><td style="color:' + (t.pnl >= 0 ? '#ef4444' : '#22c55e') + '">' + t.type + '</td><td>' + t.price.toFixed(2) + '</td><td>' + t.shares + '</td><td style="color:' + (t.pnl >= 0 ? '#ef4444' : '#22c55e') + '">' + (t.pnl >= 0 ? '+' : '') + t.pnl.toFixed(0) + '</td></tr>').join('') || '<tr><td colspan="5" style="color:var(--text-secondary);">无交易</td></tr>';
+    tbody.innerHTML = recent.map(t => '<tr><td>' + t.date + '</td><td class="' + (t.type === '买入' ? 'bt-trade-buy' : 'bt-trade-sell') + '">' + t.type + '</td><td>' + t.price.toFixed(2) + '</td><td>' + t.shares + '</td><td style="color:' + (t.pnlPct >= 0 ? '#ef4444' : '#22c55e') + '">' + (t.pnlPct >= 0 ? '+' : '') + t.pnlPct.toFixed(2) + '%</td></tr>').join('') || '<tr><td colspan="5" style="color:var(--text-secondary);text-align:center;padding:12px;">无交易</td></tr>';
 
     drawBTChart(code, data, trades, strategy);
 }}
@@ -2860,41 +2943,44 @@ function runBacktest() {{
 function drawBTChart(code, data, trades, strategy) {{
     const dates = data.map(d => d[0]);
     const kdata = data.map(d => [d[1], d[2], d[3], d[4]]);
-    let marks = [];
+    let buyMarks = [], sellMarks = [];
     trades.forEach(t => {{
         const idx = dates.indexOf(t.date);
         if (idx >= 0) {{
-            marks.push({{
-                name: t.type,
-                coord: [idx, t.type === '买入' ? data[idx][3] : data[idx][4]],
-                value: t.type,
-                itemStyle: {{ color: t.type === '买入' ? '#ef4444' : '#22c55e' }}
-            }});
+            if (t.type === '买入') {{
+                buyMarks.push([idx, data[idx][3]]);
+            }} else {{
+                sellMarks.push([idx, data[idx][4]]);
+            }}
         }}
     }});
     let series = [{{
         type: 'candlestick',
+        name: 'K线',
         data: kdata,
         itemStyle: {{ color: '#ef4444', color0: '#22c55e', borderColor: '#ef4444', borderColor0: '#22c55e' }}
     }}];
-    if (strategy === 'ma') {{
-        series.push({{ type: 'line', data: calcMA(data, 5), smooth: true, showSymbol: false, lineStyle: {{ color: '#f59e0b', width: 1 }} }});
-        series.push({{ type: 'line', data: calcMA(data, 10), smooth: true, showSymbol: false, lineStyle: {{ color: '#4fc3f7', width: 1 }} }});
+    series.push({{ type: 'line', name: 'MA5', data: calcMA(data, 5), smooth: true, showSymbol: false, lineStyle: {{ color: '#f59e0b', width: 1.5 }} }});
+    series.push({{ type: 'line', name: 'MA10', data: calcMA(data, 10), smooth: true, showSymbol: false, lineStyle: {{ color: '#4fc3f7', width: 1.5 }} }});
+    series.push({{ type: 'line', name: 'MA20', data: calcMA(data, 20), smooth: true, showSymbol: false, lineStyle: {{ color: '#a855f7', width: 1.5 }} }});
+    if (buyMarks.length) {{
+        series.push({{ type: 'scatter', name: '买入', data: buyMarks, symbol: 'triangle', symbolSize: 10, itemStyle: {{ color: '#ef4444' }} }});
+    }}
+    if (sellMarks.length) {{
+        series.push({{ type: 'scatter', name: '卖出', data: sellMarks, symbol: 'triangle', symbolRotate: 180, symbolSize: 10, itemStyle: {{ color: '#22c55e' }} }});
     }}
     const option = {{
         backgroundColor: 'transparent',
-        grid: {{ left: 8, right: 8, top: 8, bottom: 20 }},
+        legend: {{ data: ['K线', 'MA5', 'MA10', 'MA20', '买入', '卖出'], textStyle: {{ color: '#8892a0', fontSize: 9 }}, top: 2, right: 4, itemWidth: 12, itemHeight: 6 }},
+        grid: {{ left: 8, right: 8, top: 28, bottom: 20 }},
         xAxis: {{ data: dates, axisLine: {{ lineStyle: {{ color: '#1e2a3a' }} }}, axisLabel: {{ color: '#8892a0', fontSize: 9 }}, axisTick: {{ show: false }} }},
         yAxis: {{ scale: true, splitLine: {{ lineStyle: {{ color: '#1e2a3a' }} }}, axisLabel: {{ color: '#8892a0', fontSize: 9 }} }},
         tooltip: {{ trigger: 'axis', axisPointer: {{ type: 'cross' }}, textStyle: {{ fontSize: 11 }} }},
-        dataZoom: [{{ type: 'inside', start: 50, end: 100 }}],
+        dataZoom: [{{ type: 'inside', start: Math.max(0, 100 - 252 / data.length * 100), end: 100 }}],
         series: series
     }};
     if (btChart) btChart.setOption(option, true);
 }}
-
-window.addEventListener('resize', function() {{ if (btChart) btChart.resize(); }});
-
 const modalData = {json.dumps(modal_data, ensure_ascii=False)};
 function openModal(type) {{
     const modal = document.getElementById('modal');
