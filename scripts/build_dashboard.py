@@ -261,7 +261,7 @@ CSS_RULES = """
         }
 
         /* ===================== A股量化雷达 V2.0 三栏模块 ===================== */
-        .radar-grid { display:grid; grid-template-columns: minmax(260px,1fr) minmax(480px,2.2fr) minmax(400px,1.5fr); gap:16px; margin-bottom:24px; align-items:stretch; }
+        .radar-grid { display:grid; grid-template-columns: minmax(260px,0.9fr) minmax(520px,2fr) minmax(480px,1.7fr); gap:18px; margin-bottom:24px; align-items:stretch; }
         @media (max-width:1180px) { .radar-grid { grid-template-columns: 1fr; } .radar-col { min-height:auto; } }
         .radar-col { display:flex; flex-direction:column; gap:16px; min-width:0; }
         .radar-col:last-child { max-height:calc(100vh - 40px); overflow-y:auto; padding-right:6px; }
