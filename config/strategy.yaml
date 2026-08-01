@@ -61,15 +61,66 @@ holdings:
   - code: "永安行"
     cost: 18.57
     price: 18.35
+    bucket: short
+    stop: 0.08
   - code: "征和工业"
     cost: 58.28
     price: 68.90
+    bucket: short
+    stop: 0.08
   - code: "长电科技"
     cost: 84.48
     price: 82.90
+    bucket: long
+    stop: 0.15
   - code: "北京君正"
     cost: 151.94
     price: 143.65
+    bucket: long
+    stop: 0.15
   - code: "通富微电"
     cost: 73.60
     price: 69.82
+    bucket: long
+    stop: 0.15
+
+# ============ 三仓策略系统配置 ============
+# 总本金（元）
+capital: 300000
+
+# 三仓目标权重（合计需=100）
+buckets:
+  long:
+    label: "长线核心"
+    weight: 50
+    desc: "行业龙头/ETF，持有6-12月+，吃主升与复利"
+  dividend:
+    label: "高股息"
+    weight: 30
+    desc: "连续分红、股息率=4%，熊市压舱石+现金流"
+  short:
+    label: "短线机动"
+    weight: 20
+    desc: "题材/突破，快进快出，破5日线即走"
+
+# 风控阈值（组合层面）
+risk:
+  single_day_drawdown: 2   # 单日回撤=该%减半仓
+  month_drawdown: 6        # 月回撤=该%清仓休息
+  single_position_max: 25  # 单票占总资金上限%
+
+# 高股息观察池（yield 为最近12个月股息率估算%，实时价由看板刷新）
+dividend_pool:
+  - name: "中国神华"
+    yield: 6.5
+  - name: "长江电力"
+    yield: 3.8
+  - name: "工商银行"
+    yield: 5.2
+  - name: "大秦铁路"
+    yield: 6.0
+  - name: "陕西煤业"
+    yield: 7.0
+  - name: "江苏银行"
+    yield: 5.5
+

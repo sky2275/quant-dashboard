@@ -52,8 +52,8 @@ jobs:
         run: python scripts/scan_a_shares.py --mode 1430
       - name: 获取回测用K线数据
         run: python scripts/fetch_backtest_klines.py
-      - name: 生成看板
-        run: python scripts/build_dashboard.py
+      - name: 生成看板（含三仓策略系统）
+        run: python scripts/build_full.py
       - name: 提交更新
         run: |
           git config user.name "quant-bot"

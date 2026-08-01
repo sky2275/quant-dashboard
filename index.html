@@ -408,6 +408,35 @@
         .backtest-trades th { background:var(--bg-card); }
 
     </style>
+
+    <style>
+    .strat-wrap{padding:4px 2px;}
+    .strat-alloc{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;}
+    .alloc-item{background:var(--bg-tertiary,rgba(255,255,255,0.03));border:1px solid var(--border-color,rgba(255,255,255,0.08));border-radius:10px;padding:10px 12px;position:relative;}
+    .alloc-item .alloc-name{display:block;font-size:12px;color:var(--text-secondary);}
+    .alloc-item .alloc-amt{font-size:18px;font-weight:600;color:var(--text-primary);}
+    .alloc-item .alloc-pct{position:absolute;top:10px;right:12px;font-size:12px;color:var(--accent-blue,#378ADD);}
+    .alloc-item .alloc-desc{display:block;font-size:10px;color:var(--text-tertiary,#888);margin-top:4px;line-height:1.4;}
+    .alloc-long{border-left:3px solid #378ADD;}
+    .alloc-dividend{border-left:3px solid #22c55e;}
+    .alloc-short{border-left:3px solid #f59e0b;}
+    .strat-cols{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
+    .strat-block h4{font-size:12px;color:var(--text-secondary);margin:6px 0 6px;font-weight:500;}
+    .tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;}
+    .tag-long{background:rgba(55,138,221,0.15);color:#85b7eb;}
+    .tag-dividend{background:rgba(34,197,94,0.15);color:#5dcaa5;}
+    .tag-short{background:rgba(245,158,11,0.15);color:#fac775;}
+    .strat-calc{margin-top:12px;border-top:1px solid var(--border-color,rgba(255,255,255,0.08));padding-top:10px;}
+    .strat-calc h4{font-size:12px;color:var(--text-secondary);margin:0 0 6px;font-weight:500;}
+    .calc-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;}
+    .calc-row label{display:flex;flex-direction:column;font-size:10px;color:var(--text-tertiary,#888);}
+    .calc-row input{width:90px;background:var(--bg-tertiary,rgba(255,255,255,0.05));border:1px solid var(--border-color,rgba(255,255,255,0.1));color:var(--text-primary);border-radius:6px;padding:4px 6px;font-size:12px;margin-top:2px;}
+    .calc-row button{background:var(--accent-blue,#378ADD);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;}
+    .calc-out{font-size:12px;color:var(--text-primary);margin-top:6px;}
+    .mono{font-family:var(--font-mono,monospace);font-size:11px;color:var(--text-secondary);}
+    @media(max-width:760px){.strat-alloc{grid-template-columns:1fr;}.strat-cols{grid-template-columns:1fr;}}
+    </style>
+
 </head>
 <body>
 <div class="dashboard">
@@ -898,7 +927,54 @@
         </div>
     </div></div>
     </div>
-        <div class="card card-full" onclick="openModal('market')">
+    
+    <div class="card card-full" id="strategyCard">
+        <div class="card-title">
+            <span class="icon"><i class="fas fa-sitemap"></i></span> 三仓策略执行
+            <span class="badge">STRATEGY EXECUTION</span>
+            <span class="badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;" id="stratDrawdown">组合回撤 —</span>
+            <span class="click-hint">单日≥2%减半 · 月≥6%清仓 · 单票≤25%</span>
+        </div>
+        <div class="strat-wrap">
+            <div class="strat-alloc"><div class="alloc-item alloc-long"><span class="alloc-name">长线核心</span><b class="alloc-amt">15.0万</b><i class="alloc-pct">50%</i><span class="alloc-desc">行业龙头/ETF，持有6-12月+，吃主升与复利</span></div><div class="alloc-item alloc-dividend"><span class="alloc-name">高股息</span><b class="alloc-amt">9.0万</b><i class="alloc-pct">30%</i><span class="alloc-desc">连续分红、股息率=4%，熊市压舱石+现金流</span></div><div class="alloc-item alloc-short"><span class="alloc-name">短线机动</span><b class="alloc-amt">6.0万</b><i class="alloc-pct">20%</i><span class="alloc-desc">题材/突破，快进快出，破5日线即走</span></div></div>
+            <div class="strat-cols">
+                <div class="strat-block">
+                    <h4>持仓分组（止损价随实时价计算）</h4>
+                    <table class="position-table" style="width:100%;">
+                        <thead><tr><th>名称</th><th>代码</th><th>成本</th><th>现价</th><th>止损价</th><th>盈亏%</th><th>仓</th></tr></thead>
+                        <tbody><tr data-code="603776" data-rt="strat" data-cost="18.57" data-stop="0.08"><td><strong>永安行</strong></td><td class="mono">603776</td><td>18.57</td><td class="rt-sprice">18.35</td><td class="rt-sstop">—</td><td class="rt-spct">—</td><td><span class="tag tag-short">短线机动</span></td></tr><tr data-code="003033" data-rt="strat" data-cost="58.28" data-stop="0.08"><td><strong>征和工业</strong></td><td class="mono">003033</td><td>58.28</td><td class="rt-sprice">68.9</td><td class="rt-sstop">—</td><td class="rt-spct">—</td><td><span class="tag tag-short">短线机动</span></td></tr><tr data-code="600584" data-rt="strat" data-cost="84.48" data-stop="0.15"><td><strong>长电科技</strong></td><td class="mono">600584</td><td>84.48</td><td class="rt-sprice">82.9</td><td class="rt-sstop">—</td><td class="rt-spct">—</td><td><span class="tag tag-long">长线核心</span></td></tr><tr data-code="300223" data-rt="strat" data-cost="151.94" data-stop="0.15"><td><strong>北京君正</strong></td><td class="mono">300223</td><td>151.94</td><td class="rt-sprice">143.65</td><td class="rt-sstop">—</td><td class="rt-spct">—</td><td><span class="tag tag-long">长线核心</span></td></tr><tr data-code="002156" data-rt="strat" data-cost="73.6" data-stop="0.15"><td><strong>通富微电</strong></td><td class="mono">002156</td><td>73.60</td><td class="rt-sprice">69.82</td><td class="rt-sstop">—</td><td class="rt-spct">—</td><td><span class="tag tag-long">长线核心</span></td></tr></tbody>
+                    </table>
+                </div>
+                <div class="strat-block">
+                    <h4>高股息观察池</h4>
+                    <table class="position-table" style="width:100%;">
+                        <thead><tr><th>名称</th><th>代码</th><th>现价</th><th>股息率</th><th>涨跌%</th></tr></thead>
+                        <tbody><tr data-code="601088" data-rt="div" data-yield="6.5"><td><strong>中国神华</strong></td><td class="mono">601088</td><td class="rt-sprice">—</td><td>6.5%</td><td class="rt-spct">—</td></tr><tr data-code="600900" data-rt="div" data-yield="3.8"><td><strong>长江电力</strong></td><td class="mono">600900</td><td class="rt-sprice">—</td><td>3.8%</td><td class="rt-spct">—</td></tr><tr data-code="601398" data-rt="div" data-yield="5.2"><td><strong>工商银行</strong></td><td class="mono">601398</td><td class="rt-sprice">—</td><td>5.2%</td><td class="rt-spct">—</td></tr><tr data-code="601006" data-rt="div" data-yield="6.0"><td><strong>大秦铁路</strong></td><td class="mono">601006</td><td class="rt-sprice">—</td><td>6.0%</td><td class="rt-spct">—</td></tr><tr data-code="601225" data-rt="div" data-yield="7.0"><td><strong>陕西煤业</strong></td><td class="mono">601225</td><td class="rt-sprice">—</td><td>7.0%</td><td class="rt-spct">—</td></tr><tr data-code="600919" data-rt="div" data-yield="5.5"><td><strong>江苏银行</strong></td><td class="mono">600919</td><td class="rt-sprice">—</td><td>5.5%</td><td class="rt-spct">—</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="strat-calc">
+                <h4>仓位 / 止损计算器</h4>
+                <div class="calc-row">
+                    <label>总本金<input id="calcCapital" type="number" value="300000"></label>
+                    <label>长线%<input id="calcLong" type="number" value="50"></label>
+                    <label>高股息%<input id="calcDiv" type="number" value="30"></label>
+                    <label>短线%<input id="calcShort" type="number" value="20"></label>
+                    <button onclick="calcAlloc()">算仓位</button>
+                </div>
+                <div id="calcOut" class="calc-out"></div>
+                <div class="calc-row" style="margin-top:8px;">
+                    <label>个股价格<input id="calcPrice" type="number" placeholder="如 68.9"></label>
+                    <label>止损%<input id="calcStop" type="number" value="8"></label>
+                    <label>投入金额<input id="calcAmt" type="number" placeholder="如 60000"></label>
+                    <button onclick="calcStop()">算止损价/股数</button>
+                </div>
+                <div id="calcStopOut" class="calc-out"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-full" onclick="openModal('market')">
             <div class="card-title">
                 <span class="icon"><i class="fas fa-globe-americas"></i></span> ① 全球大盘行情
                 <span class="badge" style="background:rgba(34,197,94,0.15);color:#22c55e;">盘中交易</span>
@@ -3689,5 +3765,95 @@ function startRealtime(){
 }
 
 </script>
+
+    <script>
+    (function(){
+      function toEmSecid(c){
+        if(!c) return null;
+        var m=c.match(/^(sh|sz|bj)(\d+)$/);
+        if(!m) return null;
+        var p={sh:'1',sz:'0',bj:'0'}[m[1]];
+        return p+'.'+m[2];
+      }
+      function em2code(sid){
+        if(!sid||sid.indexOf('.')<0) return sid;
+        var a=sid.split('.');
+        var pre={ '1':'sh','0':'sz' }[a[0]]||'sh';
+        return pre+a[1];
+      }
+      function stratRows(){
+        return document.querySelectorAll('tr[data-rt="strat"],tr[data-rt="div"]');
+      }
+      function applyStrat(data){
+        if(!data) return;
+        Object.keys(data).forEach(function(sid){
+          var d=data[sid];
+          var price=(d.f2!=null)? d.f2/100 : null;
+          var pct=(d.f3!=null)? d.f3/100 : null;
+          var code=em2code(sid);
+          stratRows().forEach(function(tr){
+            if(tr.getAttribute('data-code')!==code) return;
+            var sp=tr.querySelector('.rt-sprice');
+            var sc=tr.querySelector('.rt-spct');
+            var st=tr.querySelector('.rt-sstop');
+            var stop=parseFloat(tr.getAttribute('data-stop')||'0.08');
+            if(sp && price!=null) sp.textContent=price.toFixed(2);
+            if(sc && pct!=null){ sc.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%'; sc.style.color=pct>=0?'#ef4444':'#22c55e'; }
+            if(st && price!=null) st.textContent=(price*(1-stop)).toFixed(2);
+          });
+        });
+        updateStratSummary();
+      }
+      function refreshStrategy(){
+        var secs=[];
+        stratRows().forEach(function(tr){ var s=toEmSecid(tr.getAttribute('data-code')); if(s) secs.push(s); });
+        if(!secs.length || typeof emJsonp==='undefined') return;
+        var cb='strat_'+Math.random().toString(36).slice(2,8);
+        emJsonp(secs, cb).then(function(d){ if(d) applyStrat(d); }).catch(function(){});
+      }
+      function updateStratSummary(){
+        var sum=0,n=0;
+        document.querySelectorAll('tr[data-rt="strat"]').forEach(function(tr){
+          var cost=parseFloat(tr.getAttribute('data-cost'));
+          var sp=tr.querySelector('.rt-sprice');
+          if(cost && sp && sp.textContent!=='—'){
+            var p=parseFloat(sp.textContent);
+            if(!isNaN(p)){ sum+=(p-cost)/cost*100; n++; }
+          }
+        });
+        var el=document.getElementById('stratDrawdown');
+        if(el && n){ var avg=sum/n; el.textContent='组合均值 '+(avg>=0?'+':'')+avg.toFixed(2)+'%'; el.style.color=avg>=0?'#ef4444':'#22c55e'; }
+      }
+      window.calcAlloc=function(){
+        var cap=parseFloat(document.getElementById('calcCapital').value)||0;
+        var wl=parseFloat(document.getElementById('calcLong').value)||0;
+        var wd=parseFloat(document.getElementById('calcDiv').value)||0;
+        var ws=parseFloat(document.getElementById('calcShort').value)||0;
+        document.getElementById('calcOut').textContent=
+          '长线: '+(cap*wl/100).toFixed(0)+'元 | 高股息: '+(cap*wd/100).toFixed(0)+'元 | 短线: '+(cap*ws/100).toFixed(0)+'元';
+      };
+      window.calcStop=function(){
+        var p=parseFloat(document.getElementById('calcPrice').value)||0;
+        var s=parseFloat(document.getElementById('calcStop').value)||0;
+        var amt=parseFloat(document.getElementById('calcAmt').value)||0;
+        if(!p){ document.getElementById('calcStopOut').textContent='请填写个股价格'; return; }
+        var stopP=p*(1-s/100);
+        var shares= amt? Math.floor(amt/p):0;
+        document.getElementById('calcStopOut').textContent='止损价: '+stopP.toFixed(2)+' | 可买股数: '+shares+'（约 '+(shares*p).toFixed(0)+'元）';
+      };
+      // 初始刷新 + 跟随交易时段节奏
+      function startStrat(){
+        refreshStrategy();
+        if(typeof isTrading==='function'){
+          setInterval(refreshStrategy, isTrading()?5000:30000);
+        } else {
+          setInterval(refreshStrategy, 30000);
+        }
+      }
+      if(document.readyState!=='loading') startStrat();
+      else document.addEventListener('DOMContentLoaded', startStrat);
+    })();
+    </script>
+
 </body>
 </html>
