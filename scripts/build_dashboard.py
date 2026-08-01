@@ -2335,8 +2335,16 @@ def _left_market_scan(snap):
         color = _hex(pct)
         # 真实迷你折线：由浏览器端拉取腾讯指数日K绘制（loadIndexSpark）
         full = INDEX_CODE.get(name, "")
+        if full.startswith("sh"):
+            em_secid = "1." + full[2:]
+        elif full.startswith("sz"):
+            em_secid = "0." + full[2:]
+        elif full.startswith("bj"):
+            em_secid = "0." + full[2:]
+        else:
+            em_secid = full
         index_cards += f'''
-        <div class="index-mini-item" data-code="{full}">
+        <div class="index-mini-item" data-code="{full}" data-secid="{em_secid}">
             <div class="index-mini-header">
                 <span class="index-mini-name">{name}</span>
                 <span class="index-mini-values">
@@ -2459,8 +2467,8 @@ def _middle_daily_picks():
         rows += f'''
         <tr data-code="{code}" data-score="{score}" data-mode="{mode}" data-cap="{float_cap:.1f}" data-pred="{pred}" onclick="selectBacktestSymbol('{code}')">
             <td><span class="picks-name">{track_badge}{name}</span><span class="picks-code">{code}</span></td>
-            <td class="col-right">{_safe(price, "—")}</td>
-            <td class="col-right" style="color:{_pnl_cls(pct)};font-weight:600;">{_fmt_pct(pct, 2)}</td>
+            <td class="col-right rt-price">{_safe(price, "—")}</td>
+            <td class="col-right rt-pct" style="color:{_pnl_cls(pct)};font-weight:600;">{_fmt_pct(pct, 2)}</td>
             <td class="col-center"><span class="picks-score-pill" style="color:{_score_color(score)};border:1px solid {_score_color(score)};">{_safe(score, "—")}</span></td>
             <td class="col-center"><span class="picks-pred {pred_cls}">{pred_sign}{pred}%</span></td>
             <td class="col-center"><span class="sector-tag" style="font-size:9px;">{sector}</span></td>
@@ -2853,6 +2861,7 @@ def build() -> str:
                 <input type="date" id="datePicker" value="{date_val}" onchange="loadDate(this.value)">
             </div>
             {status_badge}
+            <span class="live-badge off" id="rtStatus"><i class="dot"></i> 连接中…</span>
         </div>
     </div>'''
 
@@ -2982,6 +2991,7 @@ document.addEventListener('DOMContentLoaded', function() {{
         runBacktest();
     }}
     loadIndexSpark();
+    startRealtime();
 }});
 
 function filterPicks() {{
@@ -3010,6 +3020,7 @@ function filterPicks() {{
         if (showStrategy && showScore && showCap) visible++;
     }});
     document.getElementById('picksCount').textContent = '共 ' + visible + ' 只';
+    if (typeof collectRT === 'function') collectRT();
 }}
 
 function selectBacktestSymbol(code) {{
@@ -3294,6 +3305,142 @@ function showShareToast(msg) {{
   t.textContent = msg; t.style.opacity = '1';
   setTimeout(function(){{ t.style.opacity = '0'; }}, 1800);
 }}'''
+
+    REALTIME_JS = r'''
+(function(){
+  var s=document.createElement('style');
+  s.textContent=''
+    +'.live-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:20px;background:rgba(34,197,94,.15);color:#16a34a;font-weight:500;margin-left:8px;}'
+    +'.live-badge .dot{width:7px;height:7px;border-radius:50%;background:#16a34a;animation:rtpulse 1.4s infinite;}'
+    +'.live-badge.off{background:rgba(148,163,184,.15);color:#94a3b8;}'
+    +'.live-badge.off .dot{background:#94a3b8;animation:none;}'
+    +'@keyframes rtpulse{0%,100%{opacity:1}50%{opacity:.3}}'
+    +'@keyframes rtflashUp{0%{background:rgba(239,68,68,.40)}100%{background:transparent}}'
+    +'@keyframes rtflashDown{0%{background:rgba(34,197,94,.40)}100%{background:transparent}}'
+    +'.rt-flash-up{animation:rtflashUp .9s ease-out;}'
+    +'.rt-flash-down{animation:rtflashDown .9s ease-out;}';
+  document.head.appendChild(s);
+})();
+
+function toEmSecid(code){
+  code=(code||'').trim().toLowerCase();
+  if(code.indexOf('sh')===0) return '1.'+code.slice(2);
+  if(code.indexOf('sz')===0) return '0.'+code.slice(2);
+  if(code.indexOf('bj')===0) return '0.'+code.slice(2);
+  code=code.replace(/[^0-9]/g,'');
+  if(code.length!==6) return '';
+  if(code[0]==='6'||code[0]==='9') return '1.'+code;
+  return '0.'+code;
+}
+function rightSecid(){
+  var c=document.getElementById('btCode');
+  if(!c) return null;
+  var t=(c.textContent||'').trim().toUpperCase();
+  if(t.indexOf('SH')===0) return '1.'+t.slice(2);
+  if(t.indexOf('SZ')===0) return '0.'+t.slice(2);
+  if(t.indexOf('BJ')===0) return '0.'+t.slice(2);
+  return null;
+}
+var RT_INDEX=[], RT_PICK_MAP={};
+function collectRT(){
+  RT_INDEX=[];
+  document.querySelectorAll('.index-mini-item[data-secid]').forEach(function(el){
+    var sid=el.getAttribute('data-secid'); if(sid) RT_INDEX.push(sid);
+  });
+  RT_PICK_MAP={};
+  document.querySelectorAll('#picksTable tbody tr[data-code]').forEach(function(tr){
+    var sid=toEmSecid(tr.getAttribute('data-code'));
+    if(sid) RT_PICK_MAP[sid]=tr;
+  });
+}
+function flashEl(el, up){
+  if(!el) return;
+  el.classList.remove('rt-flash-up','rt-flash-down');
+  void el.offsetWidth;
+  el.classList.add(up?'rt-flash-up':'rt-flash-down');
+}
+function applyRealtime(data){
+  var diff=(data&&data.data&&data.data.diff)||[];
+  var right=rightSecid();
+  diff.forEach(function(d){
+    var sid=d.f13+'.'+d.f12;
+    var price=(d.f2==='-'||d.f2==null)?'—':(d.f2/100).toFixed(2);
+    var pct=(d.f3/100);
+    var pctStr=(pct>=0?'+':'')+pct.toFixed(2)+'%';
+    var up=pct>=0;
+    if(RT_INDEX.indexOf(sid)>=0){
+      var el=document.querySelector('.index-mini-item[data-secid="'+sid+'"]');
+      if(el){
+        var p=el.querySelector('.index-mini-price');
+        var c=el.querySelector('.index-mini-change');
+        if(p)p.textContent=price;
+        if(c){c.textContent=pctStr;c.className='index-mini-change '+(up?'up':'down');}
+      }
+    }
+    var tr=RT_PICK_MAP[sid];
+    if(tr){
+      var tp=tr.querySelector('.rt-price');
+      var pc=tr.querySelector('.rt-pct');
+      if(tp){tp.textContent=price;flashEl(tp,up);}
+      if(pc){pc.textContent=pctStr;pc.style.color=up?'#ef4444':'#22c55e';flashEl(pc,up);}
+    }
+    if(right && sid===right){
+      var bp=document.getElementById('btPrice');
+      var bc=document.getElementById('btPct');
+      if(bp)bp.textContent=price;
+      if(bc){bc.textContent=pctStr;bc.style.color=up?'#ef4444':'#22c55e';}
+    }
+  });
+  updateRtStatus(true);
+}
+function emJsonp(secids, cbName){
+  return new Promise(function(resolve){
+    var s=document.createElement('script');
+    window[cbName]=function(d){ resolve(d); try{delete window[cbName];}catch(e){}; if(s.parentNode)s.parentNode.removeChild(s); };
+    s.src='https://push2.eastmoney.com/api/qt/ulist.np/get?secids='+secids.join(',')+'&fields=f2,f3,f4,f12,f13,f14&invt=2&cb='+cbName+'&_='+Date.now();
+    s.onerror=function(){ resolve(null); if(s.parentNode)s.parentNode.removeChild(s); };
+    document.body.appendChild(s);
+  });
+}
+function isTrading(){
+  var n=new Date(); var day=n.getDay();
+  if(day===0||day===6) return false;
+  var hm=n.getHours()*60+n.getMinutes();
+  return (hm>=570 && hm<=690) || (hm>=780 && hm<=900);
+}
+function updateRtStatus(ok){
+  var el=document.getElementById('rtStatus');
+  if(!el) return;
+  if(ok){ el.className='live-badge'; el.innerHTML='<i class="dot"></i> 实时 · '+(isTrading()?'交易中':'已休市'); }
+  else { el.className='live-badge off'; el.innerHTML='<i class="dot"></i> 连接中…'; }
+}
+var RT_TIMER=null;
+function rtTick(){
+  var secids=RT_INDEX.concat(Object.keys(RT_PICK_MAP));
+  var right=rightSecid(); if(right) secids.push(right);
+  if(!secids.length) return;
+  var batches=[]; for(var i=0;i<secids.length;i+=40) batches.push(secids.slice(i,i+40));
+  var chain=Promise.resolve();
+  batches.forEach(function(b){
+    chain=chain.then(function(){
+      var cb='emrt_'+Math.random().toString(36).slice(2,10);
+      return emJsonp(b,cb).then(function(d){ if(d) applyRealtime(d); });
+    });
+  });
+}
+function startRealtime(){
+  collectRT();
+  updateRtStatus(false);
+  rtTick();
+  if(RT_TIMER) clearInterval(RT_TIMER);
+  RT_TIMER=setInterval(rtTick, isTrading()?5000:30000);
+  setInterval(function(){
+    clearInterval(RT_TIMER);
+    RT_TIMER=setInterval(rtTick, isTrading()?5000:30000);
+  }, 60000);
+}
+'''
+    js = js + REALTIME_JS
 
     html = f'''<!DOCTYPE html>
 <html lang="zh-CN">
