@@ -260,11 +260,17 @@ CSS_RULES = """
         }
 
         /* ===================== A股量化雷达 V2.0 三栏模块 ===================== */
-        .radar-grid { display:grid; grid-template-columns: 300px 1fr 360px; gap:16px; margin-bottom:24px; }
-        @media (max-width:1280px) { .radar-grid { grid-template-columns: 1fr; } }
-        .radar-col { display:flex; flex-direction:column; gap:14px; }
-        .radar-card { background:var(--bg-card); border-radius:var(--radius); padding:14px 16px; border:1px solid var(--border-color); }
-        .radar-card .card-title { margin-bottom:10px; }
+        .radar-grid { display:grid; grid-template-columns: 300px minmax(0,1.6fr) 384px; gap:18px; margin-bottom:24px; align-items:stretch; }
+        @media (max-width:1320px) { .radar-grid { grid-template-columns: 1fr; } .radar-col { min-height:auto; } }
+        .radar-col { display:flex; flex-direction:column; gap:16px; }
+        .radar-card {
+            background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012));
+            border-radius:14px; padding:16px 18px;
+            border:1px solid rgba(255,255,255,0.07);
+            box-shadow:0 2px 10px rgba(0,0,0,0.25);
+            display:flex; flex-direction:column; min-height:0;
+        }
+        .radar-card .card-title { margin-bottom:12px; }
 
         .index-mini-item { background:rgba(255,255,255,0.02); border-radius:8px; padding:8px 10px; border:1px solid var(--border-color); margin-bottom:8px; }
         .index-mini-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
@@ -295,14 +301,37 @@ CSS_RULES = """
         .picks-toolbar .score-slider input { flex:1; }
         .picks-toolbar .score-val { color:var(--accent-gold); font-weight:600; min-width:24px; }
         .picks-count { margin-left:auto; font-size:11px; color:var(--text-secondary); }
-        .picks-table { width:100%; font-size:11px; border-collapse:collapse; }
-        .picks-table th { color:var(--text-secondary); font-weight:500; text-align:left; padding:6px 4px; border-bottom:1px solid var(--border-color); font-size:10px; }
-        .picks-table td { padding:5px 4px; border-bottom:1px solid rgba(255,255,255,0.03); }
-        .picks-table tbody tr:hover { background:rgba(255,255,255,0.03); cursor:pointer; }
-        .picks-table .strategy-tag { display:inline-block; padding:1px 5px; border-radius:10px; font-size:9px; font-weight:500; }
-        .picks-table .strategy-tag.breakout { background:rgba(79,195,247,0.15); color:var(--accent-blue); }
-        .picks-table .strategy-tag.momentum { background:rgba(245,158,11,0.15); color:var(--accent-gold); }
-        .picks-table .strategy-tag.reversal { background:rgba(168,85,247,0.15); color:#a855f7; }
+        .picks-table-wrap { flex:1; min-height:140px; max-height:470px; overflow-y:auto; border-radius:8px; }
+        .picks-table { width:100%; font-size:12px; border-collapse:collapse; }
+        .picks-table thead th {
+            position:sticky; top:0; z-index:1; background:var(--bg-card);
+            color:var(--text-secondary); font-weight:600; text-align:left;
+            padding:9px 6px; border-bottom:1px solid rgba(255,255,255,0.12); font-size:10px;
+            letter-spacing:0.4px; white-space:nowrap;
+        }
+        .picks-table td { padding:8px 6px; border-bottom:1px solid rgba(255,255,255,0.045); vertical-align:middle; }
+        .picks-table tbody tr:hover { background:rgba(79,195,247,0.07); cursor:pointer; }
+        .col-right { text-align:right; font-variant-numeric:tabular-nums; }
+        .col-center { text-align:center; }
+        .picks-name { display:block; font-size:12px; font-weight:600; color:var(--text-primary); line-height:1.3; }
+        .picks-code { display:block; font-size:9px; color:var(--text-secondary); font-variant-numeric:tabular-nums; }
+        .picks-score-pill {
+            display:inline-flex; align-items:center; justify-content:center;
+            min-width:32px; padding:2px 7px; border-radius:11px; font-size:11px; font-weight:700;
+            font-variant-numeric:tabular-nums;
+        }
+        .sector-tag {
+            display:inline-block; max-width:82px; padding:2px 7px; border-radius:6px;
+            background:rgba(255,255,255,0.06); color:var(--text-secondary);
+            white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        }
+        .strategy-tag {
+            display:inline-flex; align-items:center; white-space:nowrap;
+            padding:2px 9px; border-radius:20px; font-size:10px; font-weight:600; line-height:1.4;
+        }
+        .strategy-tag.breakout { background:rgba(79,195,247,0.16); color:#7dd3fc; }
+        .strategy-tag.momentum { background:rgba(245,158,11,0.16); color:#fcd34d; }
+        .strategy-tag.reversal { background:rgba(168,85,247,0.18); color:#d8b4fe; }
         .picks-logic { font-size:10px; color:var(--text-secondary); margin-top:8px; padding-top:8px; border-top:1px solid var(--border-color); }
 
         .backtest-symbol-row { display:flex; gap:8px; margin-bottom:10px; }
@@ -313,17 +342,134 @@ CSS_RULES = """
         .backtest-param input { width:100%; background:var(--bg-primary); border:1px solid var(--border-color); color:var(--text-primary); border-radius:4px; padding:4px 6px; font-size:12px; outline:none; }
         .backtest-btn { width:100%; background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; border:none; border-radius:8px; padding:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:10px; }
         .backtest-btn:hover { opacity:0.9; }
-        .backtest-chart { width:100%; height:210px; margin-bottom:10px; }
+        .backtest-chart {
+            width:100%; height:284px; margin-bottom:14px; border-radius:10px;
+            background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+            border:1px solid rgba(255,255,255,0.07); padding:4px;
+        }
         .backtest-metrics { display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:6px; margin-bottom:10px; }
-        .backtest-metric { background:rgba(255,255,255,0.02); border-radius:6px; padding:5px 3px; text-align:center; border:1px solid var(--border-color); }
-        .backtest-metric .label { font-size:9px; color:var(--text-secondary); }
-        .backtest-metric .value { font-size:12px; font-weight:700; margin-top:2px; }
-        .backtest-trades { max-height:110px; overflow-y:auto; font-size:10px; }
+        .backtest-metric {
+            background:rgba(255,255,255,0.025); border-radius:8px; padding:8px 4px; text-align:center;
+            border:1px solid rgba(255,255,255,0.06); position:relative; overflow:hidden;
+        }
+        .backtest-metric::before {
+            content:""; position:absolute; top:0; left:0; right:0; height:2px;
+            background:linear-gradient(90deg,var(--accent-gold),transparent);
+        }
+        .backtest-metric .label { font-size:9px; color:var(--text-secondary); letter-spacing:0.2px; }
+        .backtest-metric .value { font-size:15px; font-weight:700; margin-top:3px; font-variant-numeric:tabular-nums; }
+        .backtest-trades { flex:1; min-height:70px; max-height:200px; overflow-y:auto; font-size:10px; }
         .backtest-trades table { width:100%; border-collapse:collapse; }
         .backtest-trades th { position:sticky; top:0; background:var(--bg-card); color:var(--text-secondary); font-weight:500; text-align:left; padding:4px; font-size:9px; border-bottom:1px solid var(--border-color); }
         .backtest-trades td { padding:3px 4px; border-bottom:1px solid rgba(255,255,255,0.03); }
         .bt-pos { color:#ef4444; }
         .bt-neg { color:#22c55e; }
+
+        /* ---- 真实行情 / 任意回测 / 预测 相关补充 ---- */
+        .index-mini-spark { width:100%; height:34px; display:block; margin-top:4px; }
+        .sector-heat-list { flex:1; min-height:60px; max-height:260px; overflow-y:auto; margin-top:4px; }
+        .bt-code-input {
+            flex:1; background:var(--bg-primary); border:1px solid var(--border-color);
+            color:var(--text-primary); border-radius:6px; padding:6px 9px; font-size:12px; outline:none;
+        }
+        .bt-code-input::placeholder { color:var(--text-secondary); }
+        .backtest-btn-sm {
+            background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; border:none;
+            border-radius:6px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;
+        }
+        .backtest-btn-sm:hover { opacity:0.9; }
+        .backtest-btn-sm:disabled { opacity:0.6; cursor:default; }
+        .picks-pred { font-weight:700; font-size:12px; font-variant-numeric:tabular-nums; }
+        .picks-pred.up { color:#ef4444; }
+        .picks-pred.down { color:#22c55e; }
+        .tracked-badge {
+            display:inline-block; font-size:9px; font-weight:600; color:#fcd34d;
+            background:rgba(245,158,11,0.16); border-radius:4px; padding:0 4px; margin-right:4px; vertical-align:middle;
+        }
+
+        /* ---- 中栏：表头与工具栏 ---- */
+        .picks-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+        .picks-header h3 { margin:0; font-size:15px; font-weight:700; color:var(--text-primary); display:flex; align-items:baseline; gap:7px; }
+        .picks-header h3 span { font-size:10px; font-weight:500; color:var(--text-secondary); letter-spacing:0.5px; }
+        .picks-count-badge {
+            font-size:11px; font-weight:600; color:var(--accent-gold);
+            background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3);
+            padding:3px 10px; border-radius:20px; white-space:nowrap;
+        }
+        .picks-toolbar { display:flex; flex-direction:column; gap:10px; margin-bottom:12px; }
+        .picks-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+        .picks-row label { font-size:11px; color:var(--text-secondary); white-space:nowrap; }
+        .picks-toolbar select {
+            background:var(--bg-primary); border:1px solid rgba(255,255,255,0.1); color:var(--text-primary);
+            border-radius:8px; padding:6px 10px; font-size:12px; outline:none; cursor:pointer; transition:border-color .2s;
+        }
+        .picks-toolbar select:hover { border-color:var(--accent-blue); }
+        .picks-range { flex:1; min-width:160px; }
+        .picks-range-labels { display:flex; justify-content:space-between; font-size:10px; color:var(--text-secondary); margin-bottom:4px; }
+        .picks-range input[type=range] { width:100%; }
+        .picks-score-box { display:flex; align-items:center; gap:8px; }
+        .score-val { color:var(--accent-gold); font-weight:700; min-width:26px; font-variant-numeric:tabular-nums; }
+        input[type=range] { -webkit-appearance:none; appearance:none; height:4px; border-radius:3px;
+            background:linear-gradient(90deg,var(--accent-gold),rgba(255,255,255,0.12)); outline:none; cursor:pointer; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:15px; height:15px; border-radius:50%;
+            background:#fff; border:3px solid var(--accent-gold); box-shadow:0 1px 4px rgba(0,0,0,0.4); cursor:pointer; }
+        input[type=range]::-moz-range-thumb { width:13px; height:13px; border-radius:50%; background:#fff; border:3px solid var(--accent-gold); cursor:pointer; }
+        .picks-scan-btn {
+            background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; border:none; border-radius:8px;
+            padding:7px 16px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;
+            box-shadow:0 2px 8px rgba(239,68,68,0.3); transition:transform .15s, box-shadow .15s;
+        }
+        .picks-scan-btn:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(239,68,68,0.45); }
+        .picks-scan-btn:active { transform:translateY(0); }
+        .picks-logic, .picks-risk { font-size:10px; color:var(--text-secondary); margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.07); line-height:1.6; }
+        .picks-risk { color:#f0a8a8; border-top:none; padding-top:4px; }
+
+        /* ---- 右栏：回测引擎 ---- */
+        .bt-header {
+            display:flex; align-items:center; justify-content:space-between;
+            background:linear-gradient(135deg, rgba(245,158,11,0.14), rgba(239,68,68,0.1));
+            border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:11px 14px; margin-bottom:12px;
+        }
+        .bt-header-name { font-size:17px; font-weight:700; color:var(--text-primary); }
+        .bt-header-code { font-size:10px; color:var(--text-secondary); letter-spacing:0.5px; font-variant-numeric:tabular-nums; }
+        .bt-header-price { text-align:right; }
+        .bt-header-price .price { font-size:18px; font-weight:700; font-variant-numeric:tabular-nums; }
+        .bt-header-price .pct { font-size:12px; font-weight:600; }
+        .backtest-symbol-row { margin-bottom:12px; }
+        .backtest-symbol-row select {
+            width:100%; background:var(--bg-primary); border:1px solid rgba(255,255,255,0.1);
+            color:var(--text-primary); border-radius:8px; padding:7px 10px; font-size:12px; outline:none; cursor:pointer;
+        }
+        .backtest-symbol-row select:hover { border-color:var(--accent-blue); }
+        .backtest-param-title {
+            font-size:12px; font-weight:600; color:var(--text-primary); margin:6px 0 10px;
+            padding-left:10px; border-left:3px solid var(--accent-gold); line-height:1; display:flex; align-items:center; gap:6px;
+        }
+        .backtest-param-title i { color:var(--accent-gold); font-size:12px; }
+        .backtest-param input, .backtest-param select {
+            width:100%; background:var(--bg-primary); border:1px solid rgba(255,255,255,0.1);
+            color:var(--text-primary); border-radius:6px; padding:5px 7px; font-size:12px; outline:none; font-variant-numeric:tabular-nums;
+        }
+        .backtest-param input:focus, .backtest-param select:focus { border-color:var(--accent-blue); }
+        .bt-period-row { display:flex; gap:6px; }
+        .bt-period-btn {
+            flex:1; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+            color:var(--text-secondary); border-radius:6px; padding:5px 0; font-size:11px; font-weight:600; cursor:pointer; transition:all .18s;
+        }
+        .bt-period-btn:hover { border-color:var(--accent-gold); color:var(--text-primary); }
+        .bt-period-btn.active {
+            background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; border-color:transparent; box-shadow:0 2px 8px rgba(239,68,68,0.35);
+        }
+        .backtest-btn {
+            width:100%; background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; border:none;
+            border-radius:9px; padding:9px; font-size:13px; font-weight:700; cursor:pointer; margin-bottom:14px;
+            box-shadow:0 3px 12px rgba(239,68,68,0.32); transition:transform .15s, box-shadow .15s;
+        }
+        .backtest-btn:hover { transform:translateY(-1px); box-shadow:0 5px 16px rgba(239,68,68,0.5); }
+        .backtest-btn:active { transform:translateY(0); }
+        .trades-title { font-size:12px; font-weight:600; color:var(--text-primary); margin-bottom:8px; display:flex; align-items:center; }
+        .backtest-trades .trades-wrap { max-height:150px; overflow-y:auto; border-radius:8px; }
+        .backtest-trades th { background:var(--bg-card); }
 """
 
 
@@ -2127,8 +2273,10 @@ def _modal_judgment(overnight, snap, cfg, a_quotes, account_pnl=None):
 
 # ----------------------------------------------------------------- A股量化雷达 V2.0 三栏模块
 
-def _sparkline_svg(values: list, color: str = "#4fc3f7") -> str:
-    """生成内联 SVG 迷你折线，values 为数值列表。"""
+_spark_n = [0]
+
+def _sparkline_svg(values, color="#4fc3f7"):
+    """生成内联 SVG 迷你折线（柔和面积填充 + 加粗折线 + 终点圆点）。"""
     if not values:
         return ""
     try:
@@ -2138,15 +2286,27 @@ def _sparkline_svg(values: list, color: str = "#4fc3f7") -> str:
     mn, mx = min(vals), max(vals)
     if mx == mn:
         mx, mn = mn + 1, mn - 1
-    w, h = 260, 32
-    pts = []
+    w, h = 260, 34
     n = len(vals)
+    pts = []
     for i, v in enumerate(vals):
         x = i / (n - 1) * w if n > 1 else w / 2
-        y = h - (v - mn) / (mx - mn) * (h - 4) - 2
-        pts.append(f"{x:.1f},{y:.1f}")
-    path = "M" + " L".join(pts)
-    return f'<svg class="index-mini-spark" viewBox="0 0 {w} {h}" preserveAspectRatio="none"><path d="{path}" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        y = h - (v - mn) / (mx - mn) * (h - 8) - 4
+        pts.append((x, y))
+    d = "M" + " L".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+    area = d + f" L{w:.1f},{h} L0,{h} Z"
+    ex, ey = pts[-1]
+    _spark_n[0] += 1
+    gid = f"sg{_spark_n[0]}"
+    return (
+        f'<svg class="index-mini-spark" viewBox="0 0 {w} {h}" preserveAspectRatio="none">'
+        f'<defs><linearGradient id="{gid}" x1="0" y1="0" x2="0" y2="1">'
+        f'<stop offset="0%" stop-color="{color}" stop-opacity="0.30"/>'
+        f'<stop offset="100%" stop-color="{color}" stop-opacity="0"/></linearGradient></defs>'
+        f'<path d="{area}" fill="url(#{gid})" stroke="none"/>'
+        f'<path d="{d}" fill="none" stroke="{color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>'
+        f'<circle cx="{ex:.1f}" cy="{ey:.1f}" r="2.6" fill="{color}"/></svg>'
+    )
 
 
 def _left_market_scan(snap):
@@ -2158,6 +2318,13 @@ def _left_market_scan(snap):
     top_sectors = sorted([s for s in sectors if isinstance(s, dict)], key=lambda x: float(x.get("涨跌幅") or 0), reverse=True)[:10]
     max_pct = max([float(s.get("涨跌幅") or 0) for s in top_sectors] + [1])
 
+    # 指数代码映射（用于浏览器端拉取真实日K绘制迷你折线）
+    INDEX_CODE = {
+        "上证指数": "sh000001", "深证成指": "sz399001", "创业板指": "sz399006",
+        "沪深300": "sh000300", "上证50": "sh000016", "科创50": "sh000688",
+        "中证500": "sh000905", "深证综指": "sz399106", "北证50": "bj899050",
+    }
+
     # 指数卡片
     index_cards = ""
     for x in a:
@@ -2166,13 +2333,10 @@ def _left_market_scan(snap):
         pct = x.get("change_pct")
         cls = _cls(pct)
         color = _hex(pct)
-        # 用当前价格构造5个模拟点画折线（视觉近似）
-        base = float(price) if price else 0
-        p = float(pct) if pct else 0
-        spark_vals = [base * (1 - p / 200), base * (1 - p / 400), base, base * (1 + p / 400), base * (1 + p / 200)]
-        spark = _sparkline_svg(spark_vals, color)
+        # 真实迷你折线：由浏览器端拉取腾讯指数日K绘制（loadIndexSpark）
+        full = INDEX_CODE.get(name, "")
         index_cards += f'''
-        <div class="index-mini-item">
+        <div class="index-mini-item" data-code="{full}">
             <div class="index-mini-header">
                 <span class="index-mini-name">{name}</span>
                 <span class="index-mini-values">
@@ -2180,7 +2344,7 @@ def _left_market_scan(snap):
                     <span class="index-mini-change {cls}">{_fmt_pct(pct)}</span>
                 </span>
             </div>
-            {spark}
+            <div class="index-mini-spark" id="spark-{full}" data-price="{price}" data-pct="{pct}"></div>
         </div>'''
 
     up = breadth.get("up_count")
@@ -2223,8 +2387,20 @@ def _left_market_scan(snap):
         </div>
         <div class="sentiment-bar-wrap"><div class="sentiment-bar-fill" style="width:{up_pct:.1f}%;"></div></div>
         <div style="font-size:10px;color:var(--text-secondary);margin-top:10px;margin-bottom:6px;">板块热度 TOP10</div>
-        {sector_items}
+        <div class="sector-heat-list">{sector_items}</div>
     </div>'''
+
+
+def _predicted_gain(s):
+    """模型估算个股次日预期涨幅(%)——基于动量/量能/评分的启发式，仅供参考，非投资建议。"""
+    try:
+        pct = float(s.get("change_pct") or 0)
+        vr = float(s.get("volume_ratio") or 1)
+        score = float(s.get("score") or 50)
+    except Exception:
+        return 0.0
+    val = 0.12 * pct + 1.5 * (vr - 1) + (score - 70) * 0.25
+    return round(max(-9.0, min(10.0, val)), 1)
 
 
 def _middle_daily_picks():
@@ -2240,8 +2416,22 @@ def _middle_daily_picks():
             merged[code] = dict(s, mode=mode)
     all_stocks = sorted(merged.values(), key=lambda x: float(x.get("score") or 0), reverse=True)
 
+    # 次日预测涨幅模型：仅保留预测涨幅≥3%的个股构成「明日备选池」，并标记当日双池持续跟踪标的
+    in26 = {s.get("code") for s in s26.get("stocks", []) if s.get("code")}
+    in30 = {s.get("code") for s in s30.get("stocks", []) if s.get("code")}
+    pool = []
+    for s in all_stocks:
+        pred = _predicted_gain(s)
+        if pred >= 3:
+            s = dict(s)
+            s["pred"] = pred
+            s["tracked"] = bool(s.get("code") in in26 and s.get("code") in in30)
+            pool.append(s)
+    pool.sort(key=lambda x: x["pred"], reverse=True)
+    pool = pool[:30]
+
     rows = ""
-    for i, s in enumerate(all_stocks[:30], 1):
+    for i, s in enumerate(pool, 1):
         code = s.get("code", "")
         name = s.get("name", "—")
         price = s.get("price", "—")
@@ -2249,6 +2439,8 @@ def _middle_daily_picks():
         score = s.get("score")
         sector = s.get("sector") or "—"
         mode = s.get("mode", "1430")
+        pred = s.get("pred", 0)
+        tracked = s.get("tracked", False)
         float_cap = float(s.get("float_cap") or 0) / 1e8
 
         if mode == "1430":
@@ -2260,24 +2452,28 @@ def _middle_daily_picks():
             mode_label, mode_cls = "竞价异动", "momentum"
         if float(pct or 0) <= -3 and float(score or 0) >= 50:
             mode_label, mode_cls = "超跌反弹", "reversal"
+        track_badge = '<span class="tracked-badge" title="当日 09:26 与 14:30 双池均入选，已持续跟踪">追踪</span>' if tracked else ""
+        pred_cls = "up" if pred >= 0 else "down"
+        pred_sign = "+" if pred >= 0 else ""
 
         rows += f'''
-        <tr data-code="{code}" data-score="{score}" data-mode="{mode}" data-cap="{float_cap:.1f}" onclick="selectBacktestSymbol('{code}')">
-            <td><span class="picks-name">{name}</span><span class="picks-code">{code}</span></td>
+        <tr data-code="{code}" data-score="{score}" data-mode="{mode}" data-cap="{float_cap:.1f}" data-pred="{pred}" onclick="selectBacktestSymbol('{code}')">
+            <td><span class="picks-name">{track_badge}{name}</span><span class="picks-code">{code}</span></td>
             <td class="col-right">{_safe(price, "—")}</td>
             <td class="col-right" style="color:{_pnl_cls(pct)};font-weight:600;">{_fmt_pct(pct, 2)}</td>
             <td class="col-center"><span class="picks-score-pill" style="color:{_score_color(score)};border:1px solid {_score_color(score)};">{_safe(score, "—")}</span></td>
+            <td class="col-center"><span class="picks-pred {pred_cls}">{pred_sign}{pred}%</span></td>
             <td class="col-center"><span class="sector-tag" style="font-size:9px;">{sector}</span></td>
             <td class="col-center"><span class="strategy-tag {mode_cls}">{mode_label}</span></td>
         </tr>'''
     if not rows:
-        rows = '<tr><td colspan="6" style="padding:16px;color:var(--text-secondary);font-size:12px;text-align:center;">暂无选股数据，等待 09:26/14:30 扫描生成。</td></tr>'
+        rows = '<tr><td colspan="7" style="padding:16px;color:var(--text-secondary);font-size:12px;text-align:center;">当前模型预测次日涨幅≥3%的个股为空（市场偏弱），可放宽评分或等待下次扫描。</td></tr>'
 
     return f'''
     <div class="radar-card">
         <div class="picks-header">
-            <h3>每日备选股 <span>· DAILY PICKS</span></h3>
-            <span class="picks-count-badge" id="picksCount">共 {len(all_stocks)} 只</span>
+            <h3>明日备选池 <span>· TOMORROW PICKS</span></h3>
+            <span class="picks-count-badge" id="picksCount">共 {len(pool)} 只 · 预测涨幅≥3%</span>
         </div>
         <div class="picks-toolbar">
             <div class="picks-row">
@@ -2307,14 +2503,14 @@ def _middle_daily_picks():
         <div class="picks-table-wrap">
             <table class="picks-table" id="picksTable">
                 <thead>
-                    <tr><th>名称/代码</th><th class="col-right">现价</th><th class="col-right">涨跌幅</th><th class="col-center">评分</th><th class="col-center">板块</th><th class="col-center">策略</th></tr>
+                    <tr><th>名称/代码</th><th class="col-right">现价</th><th class="col-right">涨跌幅</th><th class="col-center">评分</th><th class="col-center">明日预测</th><th class="col-center">板块</th><th class="col-center">策略</th></tr>
                 </thead>
                 <tbody>{rows}</tbody>
             </table>
         </div>
         <div class="picks-logic">
             <i class="fas fa-lightbulb" style="color:var(--accent-gold);margin-right:4px;"></i>
-            <b>选股逻辑：</b>基于五维模型综合评分——板块热度(20%)、个股强度(25%)、量能配合(20%)、技术形态(20%)、基本面质量(15%)。每日自动扫描全市场A股，按综合评分排序输出。点击任意股票可在右侧「回测引擎」查看历史策略表现。
+            <b>明日备选逻辑：</b>对全市场扫描入选个股，用「动量(涨跌幅) + 量能(量比) + 五维评分」模型估算次日预期涨幅，仅保留预测涨幅≥3%的个股构成备选池；在 09:26 与 14:30 双池均入选者标记「追踪」。点击任意股票可在右侧「回测引擎」回测任意个股历史策略表现。模型估算仅供参考，非投资建议。
         </div>
         <div class="picks-risk">
             <i class="fas fa-exclamation-triangle" style="color:var(--accent-gold);margin-right:4px;"></i>
@@ -2344,6 +2540,10 @@ def _right_backtest_engine():
                 <div class="price" id="btPrice">—</div>
                 <div class="pct" id="btPct">—</div>
             </div>
+        </div>
+        <div class="backtest-symbol-row">
+            <input type="text" id="btCodeInput" class="bt-code-input" placeholder="输入代码，如 601606 / sh601606" />
+            <button type="button" class="backtest-btn-sm" onclick="fetchAndBacktest()">查询并回测</button>
         </div>
         <div class="backtest-symbol-row">
             <select id="btSymbol" onchange="runBacktest()">{opts}</select>
@@ -2699,6 +2899,80 @@ def build() -> str:
     js = f'''
 function loadDate(date) {{ alert('📅 切换到 ' + date); }}
 window.BT_KLINES = {json.dumps(klines, ensure_ascii=False)};
+
+/* ---- 真实行情：浏览器端拉取腾讯K线（支持回测任意个股 / 指数迷你折线） ---- */
+function toFullCode(code) {{
+  code = (code || '').trim().toLowerCase();
+  if (/^(sh|sz|bj)/.test(code)) return code;
+  code = code.replace(/[^0-9]/g, '');
+  if (code.length !== 6) return '';
+  if (code[0] === '6') return 'sh' + code;
+  if (code[0] === '8' || code[0] === '4' || code[0] === '9') return 'bj' + code;
+  return 'sz' + code;
+}}
+async function fetchTencentKline(full, days) {{
+  const url = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${{full}},day,,,${{days}},qfq`;
+  try {{
+    const r = await fetch(url);
+    const j = await r.json();
+    const node = (j.data && (j.data[full] || j.data[full.toUpperCase()])) || null;
+    if (!node) return null;
+    const arr = node.qfqday || node.day || [];
+    if (!arr.length) return null;
+    return arr.map(x => [x[0], parseFloat(x[1]), parseFloat(x[2]), parseFloat(x[3]), parseFloat(x[4]), parseFloat(x[5])]);
+  }} catch (e) {{ return null; }}
+}}
+async function fetchAndBacktest() {{
+  const raw = document.getElementById('btCodeInput').value.trim();
+  if (!raw) {{ alert('请输入股票代码，如 601606 或 sh601606'); return; }}
+  const full = toFullCode(raw);
+  if (!full) {{ alert('代码格式不正确（支持沪6 / 深0或3 / 北8开头）'); return; }}
+  const code6 = full.replace(/^(sh|sz|bj)/, '');
+  const btn = document.querySelector('.backtest-btn-sm');
+  if (btn) {{ btn.textContent = '获取中…'; btn.disabled = true; }}
+  const k = await fetchTencentKline(full, 500);
+  if (btn) {{ btn.textContent = '查询并回测'; btn.disabled = false; }}
+  if (!k || k.length < 30) {{ alert('未能获取到该股票K线（接口可能被跨域限制或代码有误）。可改用预载列表中的个股。'); return; }}
+  window.BT_KLINES.stocks[code6] = {{ name: raw, full_code: full, kline: k }};
+  const sel = document.getElementById('btSymbol');
+  let opt = sel.querySelector('option[value="' + code6 + '"]');
+  if (!opt) {{ opt = document.createElement('option'); opt.value = code6; sel.appendChild(opt); }}
+  opt.textContent = raw + ' (' + code6 + ')';
+  sel.value = code6;
+  runBacktest();
+}}
+function drawSpark(el, vals, color) {{
+  const w = 260, h = 34, n = vals.length;
+  if (!n) return;
+  const mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
+  const rng = (mx - mn) || 1;
+  let d = '';
+  for (let i = 0; i < n; i++) {{
+    const x = (i / (n - 1) * w).toFixed(1);
+    const y = (h - (vals[i] - mn) / rng * (h - 8) - 4).toFixed(1);
+    d += (i === 0 ? 'M' : ' L') + x + ',' + y;
+  }}
+  el.innerHTML = '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="width:100%;height:34px;display:block"><path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}}
+function drawFakeSpark(el, price, pct) {{
+  if (!isFinite(price)) {{ el.innerHTML = ''; return; }}
+  const p = (pct || 0);
+  const vals = [price * (1 - p/200), price * (1 - p/400), price, price * (1 + p/400), price * (1 + p/200)];
+  drawSpark(el, vals, p >= 0 ? '#ef4444' : '#22c55e');
+}}
+function loadIndexSpark() {{
+  document.querySelectorAll('.index-mini-spark[data-code]').forEach(el => {{
+    const full = el.getAttribute('data-code');
+    const price = parseFloat(el.getAttribute('data-price'));
+    const pct = parseFloat(el.getAttribute('data-pct'));
+    if (!full) {{ drawFakeSpark(el, price, pct); return; }}
+    fetchTencentKline(full, 60).then(k => {{
+      if (!k || !k.length) {{ drawFakeSpark(el, price, pct); return; }}
+      const closes = k.map(d => d[2]);
+      drawSpark(el, closes, pct >= 0 ? '#ef4444' : '#22c55e');
+    }}).catch(() => drawFakeSpark(el, price, pct));
+  }});
+}}
 let btChart = null;
 
 document.addEventListener('DOMContentLoaded', function() {{
@@ -2707,6 +2981,7 @@ document.addEventListener('DOMContentLoaded', function() {{
         btChart = echarts.init(chartDom);
         runBacktest();
     }}
+    loadIndexSpark();
 }});
 
 function filterPicks() {{
