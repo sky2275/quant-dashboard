@@ -264,6 +264,10 @@ CSS_RULES = """
         .radar-grid { display:grid; grid-template-columns: 300px minmax(0,1.6fr) 384px; gap:18px; margin-bottom:24px; align-items:stretch; }
         @media (max-width:1320px) { .radar-grid { grid-template-columns: 1fr; } .radar-col { min-height:auto; } }
         .radar-col { display:flex; flex-direction:column; gap:16px; }
+        .radar-col:last-child { max-height:calc(100vh - 40px); overflow-y:auto; padding-right:6px; }
+        .radar-col:last-child::-webkit-scrollbar { width:5px; }
+        .radar-col:last-child::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:3px; }
+        .radar-col:last-child::-webkit-scrollbar-track { background:transparent; }
         .radar-card {
             background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012));
             border-radius:14px; padding:16px 18px;
@@ -344,7 +348,7 @@ CSS_RULES = """
         .backtest-btn { width:100%; background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; border:none; border-radius:8px; padding:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:10px; }
         .backtest-btn:hover { opacity:0.9; }
         .backtest-chart {
-            width:100%; height:284px; margin-bottom:14px; border-radius:10px;
+            width:100%; height:180px; margin-bottom:10px; border-radius:10px;
             background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
             border:1px solid rgba(255,255,255,0.07); padding:4px;
         }
@@ -471,6 +475,13 @@ CSS_RULES = """
         .trades-title { font-size:12px; font-weight:600; color:var(--text-primary); margin-bottom:8px; display:flex; align-items:center; }
         .backtest-trades .trades-wrap { max-height:150px; overflow-y:auto; border-radius:8px; }
         .backtest-trades th { background:var(--bg-card); }
+        .bt-tabs { display:flex; gap:6px; margin:10px 0 8px; }
+        .bt-tab { flex:1; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:var(--text-secondary); border-radius:7px; padding:6px 0; font-size:11px; font-weight:600; cursor:pointer; transition:all .18s; }
+        .bt-tab:hover { border-color:var(--accent-gold); color:var(--text-primary); }
+        .bt-tab.active { background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; border-color:transparent; box-shadow:0 2px 8px rgba(239,68,68,0.35); }
+        .bt-tab-panel { display:none; animation:btFadeIn .22s ease; }
+        .bt-tab-panel.active { display:block; }
+        @keyframes btFadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
 """
 
 
@@ -2576,50 +2587,61 @@ def _right_backtest_engine():
         <div class="backtest-symbol-row">
             <select id="btSymbol" onchange="runBacktest()">{opts}</select>
         </div>
-        <div id="btChart" class="backtest-chart"></div>
-        <div class="backtest-param-title"><i class="fas fa-cog"></i> 策略参数设置</div>
-        <div class="backtest-param-grid">
-            <div class="backtest-param"><label>初始资金（元）</label><input type="number" id="btCapital" value="100000" step="10000"></div>
-            <div class="backtest-param"><label>仓位比例 (%)</label><input type="number" id="btPosition" value="30" min="10" max="100" step="5"></div>
-            <div class="backtest-param"><label>止损比例 (%)</label><input type="number" id="btStopLoss" value="-5" max="0" step="1"></div>
-            <div class="backtest-param"><label>止盈比例 (%)</label><input type="number" id="btTakeProfit" value="15" min="0" step="1"></div>
+        <div class="bt-tabs">
+            <button type="button" class="bt-tab active" data-tab="params" onclick="switchBTTab('params')"><i class="fas fa-cog"></i> 参数</button>
+            <button type="button" class="bt-tab" data-tab="metrics" onclick="switchBTTab('metrics')"><i class="fas fa-trophy"></i> 绩效</button>
+            <button type="button" class="bt-tab" data-tab="trades" onclick="switchBTTab('trades')"><i class="fas fa-list"></i> 明细</button>
         </div>
-        <div class="backtest-param-grid">
-            <div class="backtest-param"><label>策略</label>
-                <select id="btStrategy">
-                    <option value="ma">MA5/10 金叉死叉</option>
-                    <option value="rsi">RSI 超卖/超买</option>
-                    <option value="macd">MACD 金叉死叉</option>
-                </select>
+        <div id="btTab-params" class="bt-tab-panel active">
+            <div id="btChart" class="backtest-chart"></div>
+            <div class="backtest-param-title"><i class="fas fa-cog"></i> 策略参数设置</div>
+            <div class="backtest-param-grid">
+                <div class="backtest-param"><label>初始资金（元）</label><input type="number" id="btCapital" value="100000" step="10000"></div>
+                <div class="backtest-param"><label>仓位比例 (%)</label><input type="number" id="btPosition" value="30" min="10" max="100" step="5"></div>
+                <div class="backtest-param"><label>止损比例 (%)</label><input type="number" id="btStopLoss" value="-5" max="0" step="1"></div>
+                <div class="backtest-param"><label>止盈比例 (%)</label><input type="number" id="btTakeProfit" value="15" min="0" step="1"></div>
             </div>
-            <div class="backtest-param"><label>回测周期</label>
-                <div class="bt-period-row">
-                    <button type="button" class="bt-period-btn active" data-days="252" onclick="setBTPeriod(this)">1年</button>
-                    <button type="button" class="bt-period-btn" data-days="504" onclick="setBTPeriod(this)">2年</button>
-                    <button type="button" class="bt-period-btn" data-days="756" onclick="setBTPeriod(this)">3年</button>
+            <div class="backtest-param-grid">
+                <div class="backtest-param"><label>策略</label>
+                    <select id="btStrategy">
+                        <option value="ma">MA5/10 金叉死叉</option>
+                        <option value="rsi">RSI 超卖/超买</option>
+                        <option value="macd">MACD 金叉死叉</option>
+                    </select>
                 </div>
-                <input type="hidden" id="btPeriod" value="252">
+                <div class="backtest-param"><label>回测周期</label>
+                    <div class="bt-period-row">
+                        <button type="button" class="bt-period-btn active" data-days="252" onclick="setBTPeriod(this)">1年</button>
+                        <button type="button" class="bt-period-btn" data-days="504" onclick="setBTPeriod(this)">2年</button>
+                        <button type="button" class="bt-period-btn" data-days="756" onclick="setBTPeriod(this)">3年</button>
+                    </div>
+                    <input type="hidden" id="btPeriod" value="252">
+                </div>
+            </div>
+            <button class="backtest-btn" onclick="runBacktest()"><i class="fas fa-play"></i> 开始回测</button>
+        </div>
+        <div id="btTab-metrics" class="bt-tab-panel">
+            <div class="backtest-param-title"><i class="fas fa-trophy"></i> 回测绩效</div>
+            <div class="backtest-metrics" id="btMetrics">
+                <div class="backtest-metric"><div class="label">累计收益</div><div class="value" id="btTotal">—</div></div>
+                <div class="backtest-metric"><div class="label">年化收益</div><div class="value" id="btAnnual">—</div></div>
+                <div class="backtest-metric"><div class="label">胜率</div><div class="value" id="btWinRate">—</div></div>
+                <div class="backtest-metric"><div class="label">盈亏比</div><div class="value" id="btPL">—</div></div>
+                <div class="backtest-metric"><div class="label">最大回撤</div><div class="value" id="btMaxDD">—</div></div>
+                <div class="backtest-metric"><div class="label">夏普比率</div><div class="value" id="btSharpe">—</div></div>
+                <div class="backtest-metric"><div class="label">卡玛比率</div><div class="value" id="btCalmar">—</div></div>
+                <div class="backtest-metric"><div class="label">交易次数</div><div class="value" id="btTrades">—</div></div>
             </div>
         </div>
-        <button class="backtest-btn" onclick="runBacktest()"><i class="fas fa-play"></i> 开始回测</button>
-        <div class="backtest-param-title"><i class="fas fa-trophy"></i> 回测绩效</div>
-        <div class="backtest-metrics" id="btMetrics">
-            <div class="backtest-metric"><div class="label">累计收益</div><div class="value" id="btTotal">—</div></div>
-            <div class="backtest-metric"><div class="label">年化收益</div><div class="value" id="btAnnual">—</div></div>
-            <div class="backtest-metric"><div class="label">胜率</div><div class="value" id="btWinRate">—</div></div>
-            <div class="backtest-metric"><div class="label">盈亏比</div><div class="value" id="btPL">—</div></div>
-            <div class="backtest-metric"><div class="label">最大回撤</div><div class="value" id="btMaxDD">—</div></div>
-            <div class="backtest-metric"><div class="label">夏普比率</div><div class="value" id="btSharpe">—</div></div>
-            <div class="backtest-metric"><div class="label">卡玛比率</div><div class="value" id="btCalmar">—</div></div>
-            <div class="backtest-metric"><div class="label">交易次数</div><div class="value" id="btTrades">—</div></div>
-        </div>
-        <div class="backtest-trades">
-            <div class="trades-title"><i class="fas fa-list" style="margin-right:4px;"></i> 交易明细（近10笔）</div>
-            <div class="trades-wrap">
-                <table>
-                    <thead><tr><th>日期</th><th>方向</th><th>价格</th><th>数量</th><th>盈亏%</th></tr></thead>
-                    <tbody id="btTradeBody"><tr><td colspan="5" style="color:var(--text-secondary);text-align:center;padding:12px;">点击「开始回测」生成交易明细</td></tr></tbody>
-                </table>
+        <div id="btTab-trades" class="bt-tab-panel">
+            <div class="backtest-trades">
+                <div class="trades-title"><i class="fas fa-list" style="margin-right:4px;"></i> 交易明细（近10笔）</div>
+                <div class="trades-wrap">
+                    <table>
+                        <thead><tr><th>日期</th><th>方向</th><th>价格</th><th>数量</th><th>盈亏%</th></tr></thead>
+                        <tbody id="btTradeBody"><tr><td colspan="5" style="color:var(--text-secondary);text-align:center;padding:12px;">点击「开始回测」生成交易明细</td></tr></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>'''
@@ -3054,6 +3076,12 @@ function setBTPeriod(btn) {{
     document.querySelectorAll('.bt-period-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('btPeriod').value = btn.getAttribute('data-days');
+}}
+
+function switchBTTab(tab){{
+    document.querySelectorAll('.bt-tab').forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === tab));
+    document.querySelectorAll('.bt-tab-panel').forEach(p => p.classList.toggle('active', p.id === 'btTab-' + tab));
+    if(window.btChart && tab === 'params'){{ setTimeout(function(){{ window.btChart.resize(); }}, 50); }}
 }}
 
 function calcMA(data, n) {{
