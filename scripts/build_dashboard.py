@@ -91,7 +91,7 @@ CSS_RULES = """
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { background:var(--bg-primary); color:var(--text-primary); font-family:-apple-system,'Segoe UI',Roboto,sans-serif; padding:16px; min-height:100vh; }
-        .dashboard { max-width:1440px; margin:0 auto; }
+        .dashboard { max-width:1440px; min-width:1180px; margin:0 auto; }
 
         .header { display:flex; justify-content:space-between; align-items:center; padding:20px 0 16px 0; border-bottom:1px solid var(--border-color); margin-bottom:24px; flex-wrap:wrap; gap:12px; }
         .header-left { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
@@ -261,23 +261,23 @@ CSS_RULES = """
         }
 
         /* ===================== A股量化雷达 V2.0 三栏模块 ===================== */
-        .radar-grid { display:grid; grid-template-columns: 300px minmax(0,1.6fr) 384px; gap:18px; margin-bottom:24px; align-items:stretch; }
-        @media (max-width:1320px) { .radar-grid { grid-template-columns: 1fr; } .radar-col { min-height:auto; } }
-        .radar-col { display:flex; flex-direction:column; gap:16px; }
+        .radar-grid { display:grid; grid-template-columns: 280px minmax(460px,1.6fr) 360px; gap:16px; margin-bottom:24px; align-items:stretch; }
+        @media (max-width:1180px) { .radar-grid { grid-template-columns: 1fr; } .radar-col { min-height:auto; } }
+        .radar-col { display:flex; flex-direction:column; gap:16px; min-width:0; }
         .radar-col:last-child { max-height:calc(100vh - 40px); overflow-y:auto; padding-right:6px; }
         .radar-col:last-child::-webkit-scrollbar { width:5px; }
         .radar-col:last-child::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:3px; }
         .radar-col:last-child::-webkit-scrollbar-track { background:transparent; }
         .radar-card {
             background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012));
-            border-radius:14px; padding:16px 18px;
+            border-radius:14px; padding:14px 16px;
             border:1px solid rgba(255,255,255,0.07);
             box-shadow:0 2px 10px rgba(0,0,0,0.25);
             display:flex; flex-direction:column; min-height:0;
         }
         .radar-card .card-title { margin-bottom:12px; }
 
-        .index-mini-item { background:rgba(255,255,255,0.02); border-radius:8px; padding:8px 10px; border:1px solid var(--border-color); margin-bottom:8px; }
+        .index-mini-item { background:rgba(255,255,255,0.02); border-radius:8px; padding:7px 9px; border:1px solid var(--border-color); margin-bottom:7px; }
         .index-mini-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
         .index-mini-name { font-size:12px; font-weight:600; color:var(--text-secondary); }
         .index-mini-values { display:flex; align-items:baseline; gap:8px; }
@@ -286,7 +286,7 @@ CSS_RULES = """
         .index-mini-spark { width:100%; height:32px; display:block; }
 
         .sentiment-stat-row { display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin:10px 0; }
-        .sentiment-stat { background:rgba(255,255,255,0.02); border-radius:6px; padding:7px; text-align:center; border:1px solid var(--border-color); }
+        .sentiment-stat { background:rgba(255,255,255,0.02); border-radius:6px; padding:6px 4px; text-align:center; border:1px solid var(--border-color); }
         .sentiment-stat .label { font-size:10px; color:var(--text-secondary); text-transform:uppercase; }
         .sentiment-stat .value { font-size:15px; font-weight:700; margin-top:2px; }
         .sentiment-bar-wrap { width:100%; height:6px; background:var(--border-color); border-radius:3px; overflow:hidden; margin-top:6px; }
@@ -339,10 +339,12 @@ CSS_RULES = """
         .strategy-tag.reversal { background:rgba(168,85,247,0.18); color:#d8b4fe; }
         .picks-logic { font-size:10px; color:var(--text-secondary); margin-top:8px; padding-top:8px; border-top:1px solid var(--border-color); }
 
-        .backtest-symbol-row { display:flex; gap:8px; margin-bottom:10px; }
-        .backtest-symbol-row select { flex:1; background:var(--bg-primary); border:1px solid var(--border-color); color:var(--text-primary); border-radius:6px; padding:5px 8px; font-size:12px; outline:none; }
-        .backtest-param-grid { display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px; }
-        .backtest-param { background:rgba(255,255,255,0.02); border-radius:6px; padding:7px; border:1px solid var(--border-color); }
+        .backtest-symbol-row { display:flex; gap:8px; margin-bottom:10px; align-items:center; }
+        .backtest-symbol-row input, .backtest-symbol-row select { flex:1; min-width:0; background:var(--bg-primary); border:1px solid rgba(255,255,255,0.1); color:var(--text-primary); border-radius:6px; padding:6px 8px; font-size:12px; outline:none; }
+        .backtest-symbol-row select { cursor:pointer; }
+        .backtest-symbol-row select:hover { border-color:var(--accent-blue); }
+        .backtest-param-grid { display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:8px; }
+        .backtest-param { background:rgba(255,255,255,0.02); border-radius:6px; padding:6px; border:1px solid var(--border-color); }
         .backtest-param label { display:block; font-size:10px; color:var(--text-secondary); margin-bottom:3px; }
         .backtest-param input { width:100%; background:var(--bg-primary); border:1px solid var(--border-color); color:var(--text-primary); border-radius:4px; padding:4px 6px; font-size:12px; outline:none; }
         .backtest-btn { width:100%; background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; border:none; border-radius:8px; padding:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:10px; }
@@ -393,16 +395,16 @@ CSS_RULES = """
         }
 
         /* ---- 中栏：表头与工具栏 ---- */
-        .picks-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-        .picks-header h3 { margin:0; font-size:15px; font-weight:700; color:var(--text-primary); display:flex; align-items:baseline; gap:7px; }
-        .picks-header h3 span { font-size:10px; font-weight:500; color:var(--text-secondary); letter-spacing:0.5px; }
+        .picks-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px; }
+        .picks-header h3 { margin:0; font-size:15px; font-weight:700; color:var(--text-primary); display:flex; align-items:baseline; gap:7px; white-space:nowrap; }
+        .picks-header h3 span { font-size:10px; font-weight:500; color:var(--text-secondary); letter-spacing:0.5px; white-space:nowrap; }
         .picks-count-badge {
             font-size:11px; font-weight:600; color:var(--accent-gold);
             background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3);
             padding:3px 10px; border-radius:20px; white-space:nowrap;
         }
-        .picks-toolbar { display:flex; flex-direction:column; gap:10px; margin-bottom:12px; }
-        .picks-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+        .picks-toolbar { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+        .picks-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
         .picks-row label { font-size:11px; color:var(--text-secondary); white-space:nowrap; }
         .picks-toolbar select {
             background:var(--bg-primary); border:1px solid rgba(255,255,255,0.1); color:var(--text-primary);
@@ -433,21 +435,15 @@ CSS_RULES = """
         .bt-header {
             display:flex; align-items:center; justify-content:space-between;
             background:linear-gradient(135deg, rgba(245,158,11,0.14), rgba(239,68,68,0.1));
-            border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:11px 14px; margin-bottom:12px;
+            border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:9px 12px; margin-bottom:10px;
         }
         .bt-header-name { font-size:17px; font-weight:700; color:var(--text-primary); }
         .bt-header-code { font-size:10px; color:var(--text-secondary); letter-spacing:0.5px; font-variant-numeric:tabular-nums; }
         .bt-header-price { text-align:right; }
         .bt-header-price .price { font-size:18px; font-weight:700; font-variant-numeric:tabular-nums; }
         .bt-header-price .pct { font-size:12px; font-weight:600; }
-        .backtest-symbol-row { margin-bottom:12px; }
-        .backtest-symbol-row select {
-            width:100%; background:var(--bg-primary); border:1px solid rgba(255,255,255,0.1);
-            color:var(--text-primary); border-radius:8px; padding:7px 10px; font-size:12px; outline:none; cursor:pointer;
-        }
-        .backtest-symbol-row select:hover { border-color:var(--accent-blue); }
         .backtest-param-title {
-            font-size:12px; font-weight:600; color:var(--text-primary); margin:6px 0 10px;
+            font-size:12px; font-weight:600; color:var(--text-primary); margin:4px 0 8px;
             padding-left:10px; border-left:3px solid var(--accent-gold); line-height:1; display:flex; align-items:center; gap:6px;
         }
         .backtest-param-title i { color:var(--accent-gold); font-size:12px; }
