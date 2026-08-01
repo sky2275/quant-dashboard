@@ -1,11 +1,207 @@
 {
-  "source": "broker_statements",
-  "updated_at": "2026-08-01 15:59:56",
+  "source": "broker_pnl_snapshot_2026-07-29",
+  "updated_at": "2026-07-29 21:20:11",
+  "note": "权威盈亏快照：成本/现价/盈亏均以来源券商后台口径，含分红与已平仓盈亏；账户级总额含已平仓盈亏，不等于个股市值之和。后续每日据此更新。",
   "account_labels": {
     "galaxy": "银河证券",
     "eastmoney": "东方财富",
     "csc": "中信建投"
   },
-  "accounts": {},
-  "positions": []
+  "account_pnl": {
+    "galaxy": {
+      "today": 126.83,
+      "today_pct": null,
+      "total": -24654.12,
+      "pct": -29.24
+    },
+    "eastmoney": {
+      "today": -6492.47,
+      "today_pct": null,
+      "total": -92501.69,
+      "pct": -71.95
+    },
+    "csc": {
+      "today": null,
+      "today_pct": null,
+      "total": 21933.29,
+      "pct": 6.99
+    }
+  },
+  "accounts": {
+    "galaxy": [
+      {
+        "code": "601606",
+        "name": "长城军工",
+        "account": "galaxy",
+        "quantity": 500,
+        "avg_cost": 33.11,
+        "pnl": {
+          "total": 109.83,
+          "pct": 0.66,
+          "today": 109.83,
+          "today_pct": 0.66,
+          "price": 33.3297
+        }
+      },
+      {
+        "code": "603776",
+        "name": "永安行",
+        "account": "galaxy",
+        "quantity": 300,
+        "avg_cost": -31.957,
+        "pnl": {
+          "total": 15329.23,
+          "pct": 0.0,
+          "today": 123,
+          "today_pct": 2.19,
+          "price": 19.1404
+        }
+      },
+      {
+        "code": "003033",
+        "name": "征和工业",
+        "account": "galaxy",
+        "quantity": 100,
+        "avg_cost": 51.745,
+        "pnl": {
+          "total": 945.52,
+          "pct": 18.273,
+          "today": -106,
+          "today_pct": -1.7,
+          "price": 61.2002
+        }
+      }
+    ],
+    "eastmoney": [
+      {
+        "code": "003033",
+        "name": "征和工业",
+        "account": "eastmoney",
+        "quantity": 300,
+        "avg_cost": 13.914,
+        "pnl": {
+          "total": 14185.8,
+          "pct": 339.85,
+          "today": -781,
+          "today_pct": -2.509,
+          "price": 61.2
+        }
+      },
+      {
+        "code": "300223",
+        "name": "北京君正",
+        "account": "eastmoney",
+        "quantity": 3000,
+        "avg_cost": 140.508,
+        "pnl": {
+          "total": -47845,
+          "pct": -11.35,
+          "today": -6826.28,
+          "today_pct": -2.0,
+          "price": 124.5597
+        }
+      },
+      {
+        "code": "603776",
+        "name": "永安行",
+        "account": "eastmoney",
+        "quantity": 3000,
+        "avg_cost": 18.975,
+        "pnl": {
+          "total": 495.08,
+          "pct": 0.87,
+          "today": 1114.81,
+          "today_pct": 1.98,
+          "price": 19.14
+        }
+      }
+    ],
+    "csc": []
+  },
+  "positions": [
+    {
+      "code": "601606",
+      "name": "长城军工",
+      "account": "galaxy",
+      "quantity": 500,
+      "avg_cost": 33.11,
+      "pnl": {
+        "total": 109.83,
+        "pct": 0.66,
+        "today": 109.83,
+        "today_pct": 0.66,
+        "price": 33.3297
+      }
+    },
+    {
+      "code": "603776",
+      "name": "永安行",
+      "account": "galaxy",
+      "quantity": 300,
+      "avg_cost": -31.957,
+      "pnl": {
+        "total": 15329.23,
+        "pct": 0.0,
+        "today": 123,
+        "today_pct": 2.19,
+        "price": 19.1404
+      }
+    },
+    {
+      "code": "003033",
+      "name": "征和工业",
+      "account": "galaxy",
+      "quantity": 100,
+      "avg_cost": 51.745,
+      "pnl": {
+        "total": 945.52,
+        "pct": 18.273,
+        "today": -106,
+        "today_pct": -1.7,
+        "price": 61.2002
+      }
+    },
+    {
+      "code": "003033",
+      "name": "征和工业",
+      "account": "eastmoney",
+      "quantity": 300,
+      "avg_cost": 13.914,
+      "pnl": {
+        "total": 14185.8,
+        "pct": 339.85,
+        "today": -781,
+        "today_pct": -2.509,
+        "price": 61.2
+      }
+    },
+    {
+      "code": "300223",
+      "name": "北京君正",
+      "account": "eastmoney",
+      "quantity": 3000,
+      "avg_cost": 140.508,
+      "pnl": {
+        "total": -47845,
+        "pct": -11.35,
+        "today": -6826.28,
+        "today_pct": -2.0,
+        "price": 124.5597
+      }
+    },
+    {
+      "code": "603776",
+      "name": "永安行",
+      "account": "eastmoney",
+      "quantity": 3000,
+      "avg_cost": 18.975,
+      "pnl": {
+        "total": 495.08,
+        "pct": 0.87,
+        "today": 1114.81,
+        "today_pct": 1.98,
+        "price": 19.14
+      }
+    }
+  ]
 }
