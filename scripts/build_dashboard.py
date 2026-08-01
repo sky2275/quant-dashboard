@@ -19,6 +19,7 @@ import os
 import sys
 import json
 import datetime as dt
+import re
 
 # 北京时间（Asia/Shanghai, UTC+8）统一时间基准，与 feed.py 保持一致
 try:
@@ -603,6 +604,21 @@ def _load_cfg() -> dict:
     return {}
 
 
+def _em_secid(raw):
+    """原始代码('600519' / 'SH600519' / '600519.SH') -> 'sh601606' 供浏览器端 toEmSecid 使用；失败返回 ''。"""
+    if not raw:
+        return ""
+    s = str(raw).strip().upper()
+    digits = re.sub(r"[^0-9]", "", s)
+    if len(digits) != 6:
+        return ""
+    if s.startswith("SH") or digits[0] in ("6", "9"):
+        return "sh" + digits
+    if s.startswith("BJ"):
+        return "bj" + digits
+    return "sz" + digits
+
+
 def _fetch_a_quotes(names):
     """经腾讯行情补充 A股实时价；失败返回 {}。"""
     out = {}
@@ -1141,6 +1157,7 @@ def _flowtop_rows(snap, indicators):
             turnover = _fmt_turnover(ind.get("turnover_rate"))
         rows.append({
             "rank": i,
+            "code": _em_secid(x.get("代码")),
             "stock": x.get("名称", "—"),
             "sector": "—",
             "amount": _fmt_yi(net),
@@ -1163,7 +1180,7 @@ def _section_heatmap(snap, indicators):
         body = '<tr><td colspan="9" style="text-align:center;color:var(--text-secondary);padding:14px;">个股资金流数据暂不可用（非交易日 / 接口限流），云端 Actions 正常时自动显示。</td></tr>'
     else:
         body = "".join(
-            f'''<tr>
+            f'''            <tr data-code="{d['code']}" data-rt="flow">
                 <td><span class="rank-badge">#{d['rank']}</span></td>
                 <td><strong>{d['stock']}</strong></td>
                 <td><span class="sector-tag">{d['sector']}</span></td>
@@ -1273,6 +1290,9 @@ def _position_rows(positions, a_quotes, indicators):
         acc = h.get("account")
         row = {
             "stock": name,
+            "code": NAME_CODE.get(name),
+            "qty_raw": qty,
+            "cost_raw": cost,
             "account": ACCOUNT_LABELS.get(acc, "手动") if acc else "手动",
             "quantity": (f"{int(qty):,}" if isinstance(qty, (int, float)) else "—"),
             "cost": cost,
@@ -1309,7 +1329,7 @@ def _section_holdings(positions, a_quotes, indicators, account_pnl=None):
             <div style="color:var(--text-secondary);font-size:13px;">未检测到持仓（可把三家券商交割单放入 data/statements/galaxy、data/statements/eastmoney、data/statements/csc，或手动在 strategy.yaml 配置 holdings）。</div>
         </div>'''
     body = "".join(
-        f'''<tr>
+        f'''            <tr data-code="{d['code']}" data-rt="pos" data-shares="{d['qty_raw']}" data-cost="{d['cost_raw'] if d['cost_raw'] is not None else ''}">
             <td><span class="acct-tag">{d['account']}</span> <strong>{d['stock']}</strong></td>
             <td>{d['quantity']}</td>
             <td>{_safe(d['cost'],'—')}</td>
@@ -2862,6 +2882,7 @@ def build() -> str:
             </div>
             {status_badge}
             <span class="live-badge off" id="rtStatus"><i class="dot"></i> 连接中…</span>
+            <button id="rtRefreshBtn" class="rt-refresh-btn" onclick="rtManualRefresh()" title="立即刷新所有行情"><i class="fas fa-sync-alt"></i> 立即刷新</button>
         </div>
     </div>'''
 
@@ -3318,7 +3339,12 @@ function showShareToast(msg) {{
     +'@keyframes rtflashUp{0%{background:rgba(239,68,68,.40)}100%{background:transparent}}'
     +'@keyframes rtflashDown{0%{background:rgba(34,197,94,.40)}100%{background:transparent}}'
     +'.rt-flash-up{animation:rtflashUp .9s ease-out;}'
-    +'.rt-flash-down{animation:rtflashDown .9s ease-out;}';
+    +'.rt-flash-down{animation:rtflashDown .9s ease-out;}'
+    +'.rt-refresh-btn{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border-color);background:rgba(79,195,247,.12);color:#4fc3f7;cursor:pointer;font-weight:500;margin-left:8px;transition:.2s;}'
+    +'.rt-refresh-btn:hover{background:rgba(79,195,247,.25);}'
+    +'.rt-refresh-btn:disabled{opacity:.6;cursor:default;}'
+    +'.rt-refresh-btn.spinning i{animation:rtspin .8s linear infinite;}'
+    +'@keyframes rtspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}';
   document.head.appendChild(s);
 })();
 
@@ -3341,7 +3367,7 @@ function rightSecid(){
   if(t.indexOf('BJ')===0) return '0.'+t.slice(2);
   return null;
 }
-var RT_INDEX=[], RT_PICK_MAP={};
+var RT_INDEX=[], RT_PICK_MAP={}, RT_FLOW=[], RT_POS=[];
 function collectRT(){
   RT_INDEX=[];
   document.querySelectorAll('.index-mini-item[data-secid]').forEach(function(el){
@@ -3352,12 +3378,27 @@ function collectRT(){
     var sid=toEmSecid(tr.getAttribute('data-code'));
     if(sid) RT_PICK_MAP[sid]=tr;
   });
+  RT_FLOW=[];
+  document.querySelectorAll('.flow-table tbody tr[data-code]').forEach(function(tr){
+    var sid=toEmSecid(tr.getAttribute('data-code'));
+    if(sid){ tr.setAttribute('data-secid', sid); RT_FLOW.push(sid); }
+  });
+  RT_POS=[];
+  document.querySelectorAll('.position-table tbody tr[data-code]').forEach(function(tr){
+    var sid=toEmSecid(tr.getAttribute('data-code'));
+    if(sid){ tr.setAttribute('data-secid', sid); RT_POS.push(sid); }
+  });
 }
 function flashEl(el, up){
   if(!el) return;
   el.classList.remove('rt-flash-up','rt-flash-down');
   void el.offsetWidth;
   el.classList.add(up?'rt-flash-up':'rt-flash-down');
+}
+function fmtMoney(v){
+  var sign=v>=0?'+':'-'; var a=Math.abs(v);
+  if(a>=10000) return sign+(a/10000).toFixed(2)+'万';
+  return sign+a.toFixed(2);
 }
 function applyRealtime(data){
   var diff=(data&&data.data&&data.data.diff)||[];
@@ -3384,6 +3425,27 @@ function applyRealtime(data){
       if(tp){tp.textContent=price;flashEl(tp,up);}
       if(pc){pc.textContent=pctStr;pc.style.color=up?'#ef4444':'#22c55e';flashEl(pc,up);}
     }
+    var ftr=document.querySelector('.flow-table tbody tr[data-secid="'+sid+'"]');
+    if(ftr){
+      var fc=ftr.children[4];
+      if(fc){fc.textContent=pctStr;fc.style.color=up?'#ef4444':'#22c55e';flashEl(fc,up);}
+    }
+    var ptr=document.querySelector('.position-table tbody tr[data-secid="'+sid+'"]');
+    if(ptr){
+      var pprice=ptr.children[3], pPct=ptr.children[4], pTotal=ptr.children[5], pDay=ptr.children[6];
+      var shares=parseFloat((ptr.getAttribute('data-shares')||'').replace(/[^0-9.]/g,''))||0;
+      var cost=parseFloat(ptr.getAttribute('data-cost')||'NaN');
+      if(pprice){pprice.textContent=price;flashEl(pprice,up);}
+      if(!isNaN(cost)&&cost>0&&shares>0){
+        var px=parseFloat(price);
+        if(pPct){var pp=(px-cost)/cost*100;pPct.textContent=(pp>=0?'+':'')+pp.toFixed(2)+'%';pPct.style.color=pp>=0?'#ef4444':'#22c55e';}
+        if(pTotal){var tot=(px-cost)*shares;pTotal.textContent=fmtMoney(tot);pTotal.style.color=tot>=0?'#ef4444':'#22c55e';}
+      }
+      if(pDay&&d.f18&&d.f18!=='-'&&shares>0){
+        var prev=d.f18/100; var dayPnl=(parseFloat(price)-prev)*shares;
+        pDay.textContent=fmtMoney(dayPnl); pDay.style.color=dayPnl>=0?'#ef4444':'#22c55e';
+      }
+    }
     if(right && sid===right){
       var bp=document.getElementById('btPrice');
       var bc=document.getElementById('btPct');
@@ -3397,7 +3459,7 @@ function emJsonp(secids, cbName){
   return new Promise(function(resolve){
     var s=document.createElement('script');
     window[cbName]=function(d){ resolve(d); try{delete window[cbName];}catch(e){}; if(s.parentNode)s.parentNode.removeChild(s); };
-    s.src='https://push2.eastmoney.com/api/qt/ulist.np/get?secids='+secids.join(',')+'&fields=f2,f3,f4,f12,f13,f14&invt=2&cb='+cbName+'&_='+Date.now();
+    s.src='https://push2.eastmoney.com/api/qt/ulist.np/get?secids='+secids.join(',')+'&fields=f2,f3,f4,f12,f13,f14,f18&invt=2&cb='+cbName+'&_='+Date.now();
     s.onerror=function(){ resolve(null); if(s.parentNode)s.parentNode.removeChild(s); };
     document.body.appendChild(s);
   });
@@ -3416,7 +3478,8 @@ function updateRtStatus(ok){
 }
 var RT_TIMER=null;
 function rtTick(){
-  var secids=RT_INDEX.concat(Object.keys(RT_PICK_MAP));
+  var secids=RT_INDEX.concat(Object.keys(RT_PICK_MAP), RT_FLOW, RT_POS);
+  secids=secids.filter(function(v,i){return secids.indexOf(v)===i;});
   var right=rightSecid(); if(right) secids.push(right);
   if(!secids.length) return;
   var batches=[]; for(var i=0;i<secids.length;i+=40) batches.push(secids.slice(i,i+40));
@@ -3427,6 +3490,13 @@ function rtTick(){
       return emJsonp(b,cb).then(function(d){ if(d) applyRealtime(d); });
     });
   });
+}
+function rtManualRefresh(){
+  var b=document.getElementById('rtRefreshBtn');
+  if(b){ b.disabled=true; b.classList.add('spinning'); }
+  updateRtStatus(false);
+  rtTick();
+  setTimeout(function(){ if(b){ b.disabled=false; b.classList.remove('spinning'); } updateRtStatus(true); }, 1600);
 }
 function startRealtime(){
   collectRT();
