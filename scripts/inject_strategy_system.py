@@ -6,7 +6,7 @@ inject_strategy_system.py —— 把「三仓策略执行系统」注入现有 i
 设计：
   - 读取 config/strategy.yaml 中的 capital / buckets / holdings(bucket,stop) / dividend_pool / risk
   - 用腾讯 smartbox 把持仓名、股息池名解析成代码(sh600900)并写回 data-code
-  - 在「① 全球大盘行情」卡片前插入一张新卡片：三仓分配 + 持仓分组(含止损价) + 高股息观察池 + 仓位/止损计算器 + 组合回撤监控
+  - 在「⑤ 持仓复盘」卡片前插入一张新卡片：三仓分配 + 持仓分组(含止损价) + 高股息观察池 + 仓位/止损计算器 + 组合回撤监控
   - 在 </body> 前注入独立 JS：复用全局 emJsonp 刷新新行，并挂自己的 5s/30s 轮询
   - 不改动原有任何模块，保留已部署的真实数据
 
@@ -159,9 +159,9 @@ def main():
 
     html = open(HTML, encoding="utf-8").read()
 
-    marker = '    <div class="card card-full" onclick="openModal(\'market\')">'
+    marker = '    <div class="card card-full" onclick="openModal(\'positions\')">'
     if marker not in html:
-        print("ERROR: 未找到插入锚点（全球大盘行情卡片）")
+        print("ERROR: 未找到插入锚点（持仓复盘卡片）")
         sys.exit(1)
     if "id=\"strategyCard\"" in html:
         print("WARN: 已注入过 strategyCard，跳过插入")

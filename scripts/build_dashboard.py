@@ -1026,6 +1026,107 @@ def _section_global(snap, us_quotes, overnight):
         </div>'''
 
 
+# ----------------------------------------------------------------- A股 / 美股 独立行情盒子（供重排后的侧边栏菜单复用）
+def _ashare_box(snap):
+    """A股行情总览卡片（原 全球大盘行情 的左半部分）。"""
+    a = snap.get("a_indexes", []) or []
+    a_items = "".join(
+        f'<div class="market-item"><span class="label">{x.get("name","—")}</span>'
+        f'<span class="value {_cls(x.get("change_pct"))}">{_safe(x.get("price"),"—")}</span>'
+        f'<span class="change {_cls(x.get("change_pct"))}">{_fmt_pct(x.get("change_pct"))}</span></div>'
+        for x in a)
+    chg = [float(x["change_pct"]) for x in a if isinstance(x.get("change_pct"), (int, float))]
+    avg = sum(chg) / len(chg) if chg else 0
+    width = max(5, min(95, (avg + 5) / 10 * 100))
+    mood = "乐观" if avg > 0 else ("中性偏弱" if avg > -2 else "悲观")
+    mood_color = "#ef4444" if avg > 0 else ("#f59e0b" if avg > -2 else "#22c55e")
+    breadth = snap.get("market_breadth") or {}
+    amount = up_c = down_c = zt = dt_count = None
+    if isinstance(breadth, dict) and "error" not in breadth:
+        amount = breadth.get("amount")
+        up_c = breadth.get("up_count")
+        down_c = breadth.get("down_count")
+        zt = breadth.get("limit_up_count")
+        dt_count = breadth.get("limit_down_count")
+    return f'''
+                <div class="market-box">
+                    <div class="box-title"><span class="flag">🇨🇳</span> A股 <span class="badge" style="{_session('a')[1]}">{_session('a')[0]}</span></div>
+                    <div class="market-row">
+                        {a_items or '<div class="market-item"><span class="label">数据缺失</span></div>'}
+                        <div class="market-item"><span class="label">成交额</span><span class="value yellow">{_fmt_amount(amount)}</span></div>
+                        <div class="market-item"><span class="label">涨跌</span><span class="value up">{_safe(up_c, "—")}</span><span style="color:var(--text-secondary);">/</span><span class="value down">{_safe(down_c, "—")}</span></div>
+                        <div class="market-item"><span class="label">涨停/跌停</span><span class="value up">{zt or "—"}</span><span style="color:var(--text-secondary);">/</span><span class="value down">{dt_count or "—"}</span></div>
+                    </div>
+                    <div style="margin-top:6px;">
+                        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-secondary);"><span>恐慌</span><span>贪婪</span></div>
+                        <div class="sentiment-bar"><div class="sentiment-fill" style="width:{width:.0f}%;"></div></div>
+                        <div style="font-size:10px;color:var(--text-secondary);margin-top:2px;">市场情绪 <span style="color:{mood_color};">{mood}</span></div>
+                    </div>
+                </div>'''
+
+
+def _us_box(us_quotes, overnight, snap):
+    """美股（隔夜）行情卡片（原 全球大盘行情 的右半部分）。"""
+    us = (snap or {}).get("us_indices", []) or []
+    def _us_row(label, sym=None, val=None, pct=None):
+        if sym and us_quotes.get(sym):
+            q = us_quotes[sym]
+            return (f'<div class="market-item"><span class="label">{label}</span>'
+                    f'<span class="value {_cls(q.get("change_pct"))}">{_safe(q.get("price"),"—")}</span>'
+                    f'<span class="change {_cls(q.get("change_pct"))}">{_fmt_pct(q.get("change_pct"))}</span></div>')
+        if val is not None:
+            return (f'<div class="market-item"><span class="label">{label}</span>'
+                    f'<span class="value {_cls(pct)}">{val}</span>'
+                    f'<span class="change {_cls(pct)}">{_fmt_pct(pct)}</span></div>')
+        return f'<div class="market-item"><span class="label">{label}</span><span class="value">—</span></div>'
+    us_idx_rows = "".join(
+        _us_row(x.get("name", "—"), val=x.get("price"), pct=x.get("change_pct")) for x in us)
+    sectors = (overnight or {}).get("sectors", []) or []
+    sector_rows = ""
+    for s in sectors:
+        name = s.get("a_sector", "—")
+        avg = s.get("avg_change")
+        if avg is None:
+            continue
+        sector_rows += (f'<div class="market-item"><span class="label">{name}</span>'
+                        f'<span class="change {_cls(avg)}">{_fmt_pct(avg)}</span></div>')
+    return f'''
+                <div class="market-box" onclick="event.stopPropagation(); openModal('us_market')">
+                    <div class="box-title"><span class="flag">🇺🇸</span> 美股 (隔夜) <span class="badge" style="{_session('us')[1]}">{_session('us')[0]}</span> <span style="color:var(--accent-blue);font-size:10px;font-weight:400;">👆 点击查看板块龙头 + A股映射</span></div>
+                    <div class="market-row">
+                        {us_idx_rows or '<div class="market-item"><span class="label">数据缺失</span></div>'}
+                        {sector_rows or '<div class="market-item"><span class="label">板块数据缺失</span></div>'}
+                    </div>
+                </div>'''
+
+
+# ----------------------------------------------------------------- 重排后：A股大盘行情 面板（A股总览 + 量化雷达三栏 + 每日选股推荐）
+def _section_ashare(snap, us_quotes, overnight):
+    overview = f'''
+        <div class="card card-full">
+            <div class="card-title"><span class="icon"><i class="fas fa-chart-line"></i></span> A股大盘行情 <span class="badge">MARKET</span></div>
+            <div class="market-grid-2col">
+                {_ashare_box(snap)}
+            </div>
+        </div>'''
+    radar = _section_radar(snap)          # 大盘扫描 + 明日备选池 + 回测引擎
+    picks = _section_scan_picks()         # 每日选股推荐（竞价/情绪双池）
+    return overview + radar + picks
+
+
+# ----------------------------------------------------------------- 重排后：美股行情映射 面板（美股隔夜 + 美股→A股传导）
+def _section_us_map(snap, us_quotes, overnight):
+    overview = f'''
+        <div class="card card-full">
+            <div class="card-title"><span class="icon"><i class="fas fa-globe-americas"></i></span> 美股行情 (隔夜) <span class="badge">US</span></div>
+            <div class="market-grid-2col">
+                {_us_box(us_quotes, overnight, snap)}
+            </div>
+        </div>'''
+    transmit = _section_transmit(overnight)
+    return overview + transmit
+
+
 # ----------------------------------------------------------------- ② 美股 → A股 传导预测
 def _level_color(level):
     if not level:
@@ -2923,18 +3024,16 @@ def build() -> str:
         </div>
     </div>'''
 
-    # 左侧导航 + 右侧内容面板（初版：把原三栏平铺改为侧边栏切换）
+    # 左侧导航 + 右侧内容面板（按用户指定顺序重排为 5 个板块）
     nav_items = [
-        ("nav-radar", "量化雷达", "fa-radar", _section_radar(snap)),
-        ("nav-global", "全球市场", "fa-globe-americas", _section_global(snap, us_quotes, overnight)),
-        ("nav-transmit", "美股传导", "fa-arrow-right-arrow-left", _section_transmit(overnight)),
+        ("nav-ashare", "A股大盘行情", "fa-chart-line", _section_ashare(snap, us_quotes, overnight)),
+        ("nav-usmap", "美股行情映射", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight)),
         ("nav-limitup", "涨停板", "fa-arrow-up", _section_limitup(snap)),
         ("nav-heatmap", "板块热力", "fa-fire", _section_heatmap(snap, indicators)),
-        ("nav-holdings", "持仓复盘", "fa-briefcase", _section_holdings(positions, a_quotes, indicators, account_pnl)),
-        ("nav-pool", "股票池与判断", "fa-star", "".join([
+        ("nav-holdings", "持仓复盘", "fa-briefcase", "".join([
+            _section_holdings(positions, a_quotes, indicators, account_pnl),
             _section_pool(cfg, a_quotes, indicators),
             _section_judge(overnight, snap, cfg, a_quotes, account_pnl),
-            _section_scan_picks(),
         ])),
     ]
 
