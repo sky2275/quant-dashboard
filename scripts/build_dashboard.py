@@ -113,6 +113,7 @@ CSS_RULES = """
         @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
         .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#4fc3f7 0%,#22c55e 50%,#f59e0b 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
         .header .subtitle { color:var(--text-secondary); font-size:13px; }
+        .version-badge { background:rgba(79,195,247,0.12); color:var(--accent-blue); padding:2px 8px; border-radius:10px; font-size:11px; font-family:monospace; border:1px solid rgba(79,195,247,0.25); }
         .header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
 
         .date-picker-wrapper { display:flex; align-items:center; gap:8px; background:var(--bg-card); padding:4px 12px 4px 16px; border-radius:24px; border:1px solid var(--border-color); transition:var(--transition); }
@@ -2903,11 +2904,13 @@ def build() -> str:
                         f'<i class="fas fa-moon"></i> 休市 · 显示 {td_fmt} 收盘数据</span>')
         basis_txt = f"今日休市，展示最近交易日 {td_fmt} 收盘数据"
 
+    build_version = dt.datetime.now().strftime('%Y%m%d-%H%M')
     header = f'''
     <div class="header">
         <div class="header-left">
             <h1>📊 量化交易系统</h1>
             <span class="subtitle">· 完整看板</span>
+            <span class="version-badge" title="页面构建版本">v{build_version}</span>
         </div>
         <div class="header-right">
             <div class="date-picker-wrapper">
