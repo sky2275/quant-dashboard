@@ -51,6 +51,22 @@ NAME_CODE = {
     "领益智造": "sz002600", "鹏鼎控股": "sz002938",
     "永安行": "sh603776", "征和工业": "sz003033", "长电科技": "sh600584",
 }
+
+def _escape_js(s):
+    if s is None:
+        return ""
+    return str(s).replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"')
+
+def _stock_link(name, code):
+    """个股可点击名称：点击打开日K+分时详情弹窗。"""
+    if not name:
+        return "—"
+    if not code:
+        return name
+    name_js = _escape_js(name)
+    code_js = _escape_js(code)
+    return f'<span class="stock-link" onclick="event.stopPropagation(); openStockDetail(\'{code_js}\', \'{name_js}\')">{name}</span>'
+
 US_SYMS = ["NVDA", "AMD", "TSM", "MU", "COHR", "LITE",
            "AAPL", "MSFT", "GOOGL", "AMZN", "META", "TSLA",
            "SOXX", "QQQ", "XLK", "KWEB", "SMH", "BOTZ", "ARKQ",
@@ -197,6 +213,22 @@ CSS_RULES = """
         .modal .detail-row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
         .modal .detail-row .label { color:var(--text-secondary); }
         .modal .detail-row .value { font-weight:500; }
+
+        /* 个股可点击名称 */
+        .stock-link { color:var(--accent-blue); cursor:pointer; text-decoration:underline; text-decoration-color:rgba(79,195,247,0.3); transition:var(--transition); }
+        .stock-link:hover { color:#7dd3fc; text-decoration-color:var(--accent-blue); }
+        /* 个股详情弹窗 */
+        #stockModal .modal { max-width:1020px; width:94%; padding:24px 28px; }
+        .stock-detail-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
+        .stock-detail-title { font-size:20px; font-weight:700; color:var(--text-primary); }
+        .stock-detail-code { color:var(--text-secondary); font-size:13px; margin-left:8px; font-family:monospace; }
+        .stock-detail-tabs { display:flex; gap:8px; margin-bottom:14px; border-bottom:1px solid var(--border-color); padding-bottom:10px; }
+        .stock-detail-tab { padding:7px 16px; border-radius:6px; cursor:pointer; font-size:13px; color:var(--text-secondary); transition:var(--transition); }
+        .stock-detail-tab:hover { background:rgba(255,255,255,0.04); color:var(--text-primary); }
+        .stock-detail-tab.active { background:rgba(79,195,247,0.12); color:var(--accent-blue); }
+        .stock-chart { width:100%; height:460px; border-radius:10px; background:rgba(0,0,0,0.18); border:1px solid var(--border-color); }
+        .stock-detail-info { display:flex; gap:18px; font-size:12px; color:var(--text-secondary); margin-top:12px; flex-wrap:wrap; }
+        .stock-detail-info span b { color:var(--text-primary); font-weight:500; }
 
         .us-sector-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
         @media (max-width:768px) { .us-sector-grid { grid-template-columns:1fr 1fr; } }
@@ -1153,7 +1185,7 @@ def _section_transmit(overnight):
         drivers = s.get("drivers", []) or []
         drv_txt = " · ".join(f'{d["symbol"]} {_fmt_pct(d.get("change_pct"))}' for d in drivers) or "—"
         impact = (f'加权 {_fmt_pct(avg)} · ' if avg is not None else '') + drv_txt
-        cands = " ".join(s.get("a_candidates", []) or [])
+        cands = " ".join(_stock_link(c, NAME_CODE.get(c)) for c in (s.get("a_candidates", []) or []))
         cards += f'''
                 <div class="transmission-card" style="border-left-color:{color};">
                     <div class="sector">🔹 {s.get("a_sector","—")}</div>
@@ -1200,6 +1232,7 @@ def _limitup_sections(limit_up):
         grid = ""
         for x in groups[b]:
             name = x.get("名称", "—")
+            code = x.get("代码") or NAME_CODE.get(name)
             ind = x.get("所属行业", "—")
             seal = _fmt_cap(x.get("封单资金"))
             pct = x.get("涨跌幅")
@@ -1225,7 +1258,7 @@ def _limitup_sections(limit_up):
                 fc_txt = "📊 次日预测: 观察换手"
             grid += f'''
                     <div class="limit-up-card">
-                        <div class="stock-name">{name}</div>
+                        <div class="stock-name">{_stock_link(name, code)}</div>
                         <div class="stock-board">{b}连板 · {ind}</div>
                         <div class="stock-data"><span class="label">封单:</span><span class="value">{seal}</span> <span class="label">涨跌幅:</span><span class="value" style="color:{_hex(pct)};">{_fmt_pct(pct)}</span></div>
                         <div class="stock-data"><span class="label">热度:</span><span class="value" style="color:#ef4444;">{heat}</span></div>
@@ -1307,7 +1340,7 @@ def _section_heatmap(snap, indicators):
         body = "".join(
             f'''            <tr data-code="{d['code']}" data-rt="flow">
                 <td><span class="rank-badge">#{d['rank']}</span></td>
-                <td><strong>{d['stock']}</strong></td>
+                <td><strong>{_stock_link(d['stock'], d['code'])}</strong></td>
                 <td><span class="sector-tag">{d['sector']}</span></td>
                 <td><span class="pos" style="font-weight:600;">{d['amount']}</span></td>
                 <td style="color:{_hex(d['change'])};font-weight:500;">{d['change']}</td>
@@ -1455,7 +1488,7 @@ def _section_holdings(positions, a_quotes, indicators, account_pnl=None):
         </div>'''
     body = "".join(
         f'''            <tr data-code="{d['code']}" data-rt="pos" data-shares="{d['qty_raw']}" data-cost="{d['cost_raw'] if d['cost_raw'] is not None else ''}">
-            <td><span class="acct-tag">{d['account']}</span> <strong>{d['stock']}</strong></td>
+            <td><span class="acct-tag">{d['account']}</span> <strong>{_stock_link(d['stock'], d['code'])}</strong></td>
             <td>{d['quantity']}</td>
             <td>{_safe(d['cost'],'—')}</td>
             <td>{_safe(d['price'],'—')}</td>
@@ -1639,9 +1672,10 @@ def _section_pool(cfg, a_quotes, indicators):
         score = f"周 {_fmt_pct(week,1)} · 月 {_fmt_pct(month,1)}"
         score_disp = f"评分 {score_val}" if score_val is not None else "评分 —"
         reason = _pool_reason(name, ind)
+        code = NAME_CODE.get(name)
         cards += f'''
                 <div class="watchlist-card">
-                    <div class="stock-name {_cls(pct)}">{name}</div>
+                    <div class="stock-name {_cls(pct)}">{_stock_link(name, code)}</div>
                     <div class="stock-sector">备选</div>
                     <div class="stock-price {_cls(pct)}">{_safe(price,'—')}</div>
                     <div class="stock-change {_cls(pct)}">{_fmt_pct(pct)}</div>
@@ -2176,7 +2210,7 @@ def _modal_transmission(overnight):
             f'<div class="us-stock-row"><span class="stock-name">{d["symbol"]}</span><span class="stock-price" style="color:{_hex(d.get("change_pct"))};">{_fmt_pct(d.get("change_pct"))}</span></div>'
             for d in drivers) or '<div class="us-stock-row"><span class="stock-name">—</span></div>'
         cands = " ".join(
-            f'<div class="stock-item"><span class="sname">{c}</span><span class="schange" style="color:var(--text-secondary);">映射</span></div>'
+            f'<div class="stock-item">{_stock_link(c, NAME_CODE.get(c))}<span class="schange" style="color:var(--text-secondary);">映射</span></div>'
             for c in (s.get("a_candidates", []) or []))
         cards += f'''
             <div class="us-sector-card">
@@ -2218,7 +2252,7 @@ def _modal_flow(snap, indicators):
     trs = "".join(
         f'''<tr>
             <td style="padding:4px;">{d['rank']}</td>
-            <td style="padding:4px;font-weight:500;">{d['stock']}</td>
+            <td style="padding:4px;font-weight:500;">{_stock_link(d['stock'], d['code'])}</td>
             <td style="padding:4px;color:#4fc3f7;">{d['sector']}</td>
             <td style="padding:4px;text-align:right;color:#ef4444;">{d['amount']}</td>
             <td style="padding:4px;text-align:right;color:{_hex(d['change'])};">{d['change']}</td>
@@ -2254,7 +2288,7 @@ def _modal_positions(positions, a_quotes, indicators, account_pnl=None):
         return {"title": "💼 持仓详细分析", "html": '<p class="sub-title">含技术指标与资金流向</p><div style="color:var(--text-secondary);">未检测到持仓。</div>'}
     trs = "".join(
         f'''<tr>
-            <td style="padding:4px;"><span class="acct-tag">{d['account']}</span> <b>{d['stock']}</b></td>
+            <td style="padding:4px;"><span class="acct-tag">{d['account']}</span> <b>{_stock_link(d['stock'], d['code'])}</b></td>
             <td style="padding:4px;text-align:right;">{d['quantity']}</td>
             <td style="padding:4px;text-align:right;">{_safe(d['cost'],'—')}</td>
             <td style="padding:4px;text-align:right;">{_safe(d['price'],'—')}</td>
@@ -2366,9 +2400,10 @@ def _modal_watchlist(cfg, a_quotes, indicators):
         score = f"周 {_fmt_pct(week,1)} · 月 {_fmt_pct(month,1)}"
         score_disp = f"评分 {score_val}" if score_val is not None else "评分 —"
         reason = _pool_reason(name, ind)
+        code = NAME_CODE.get(name)
         cards += f'''
             <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:8px 10px;border:1px solid var(--border-color);text-align:center;">
-                <div style="font-weight:600;font-size:12px;color:{_hex(pct)};">{name}</div>
+                <div style="font-weight:600;font-size:12px;color:{_hex(pct)};">{_stock_link(name, code)}</div>
                 <div style="font-size:14px;font-weight:700;color:{_hex(pct)};">{_safe(price,'—')}</div>
                 <div style="font-size:11px;font-weight:500;color:{_hex(pct)};">{_fmt_pct(pct)}</div>
                 <div style="font-size:10px;color:var(--text-secondary);">{score}</div>
@@ -2513,6 +2548,7 @@ def _left_market_scan(snap):
         nm = s.get("名称", "—")
         pct = s.get("涨跌幅", 0)
         leader = s.get("领涨股") or "—"
+        leader_code = NAME_CODE.get(leader)
         cls = _cls(pct)
         bar_pct = min(100, abs(float(pct)) / max_pct * 100) if max_pct else 0
         bar_color = "#ef4444" if float(pct) >= 0 else "#22c55e"
@@ -2522,7 +2558,7 @@ def _left_market_scan(snap):
             <span class="sector-heat-name" title="{nm}">{nm}</span>
             <div class="sector-heat-bar-wrap"><div class="sector-heat-bar" style="width:{bar_pct}%;background:{bar_color};"></div></div>
             <span class="sector-heat-pct {cls}">{_fmt_pct(pct, 1)}</span>
-            <span class="sector-heat-leader" title="{leader}">{leader}</span>
+            <span class="sector-heat-leader" title="{leader}">{_stock_link(leader, leader_code)}</span>
         </div>'''
 
     return f'''
@@ -2611,7 +2647,7 @@ def _middle_daily_picks():
 
         rows += f'''
         <tr data-code="{code}" data-score="{score}" data-mode="{mode}" data-cap="{float_cap:.1f}" data-pred="{pred}" onclick="selectBacktestSymbol('{code}')">
-            <td><span class="picks-name">{track_badge}{name}</span><span class="picks-code">{code}</span></td>
+            <td><span class="picks-name">{track_badge}{_stock_link(name, code)}</span><span class="picks-code">{code}</span></td>
             <td class="col-right rt-price">{_safe(price, "—")}</td>
             <td class="col-right rt-pct" style="color:{_pnl_cls(pct)};font-weight:600;">{_fmt_pct(pct, 2)}</td>
             <td class="col-center"><span class="picks-score-pill" style="color:{_score_color(score)};border:1px solid {_score_color(score)};">{_safe(score, "—")}</span></td>
@@ -2812,7 +2848,7 @@ def _scan_pick_col(data, title, subtitle, empty_note=""):
         rows += f'''
             <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
                 <td style="padding:5px 4px;font-size:13px;color:#e8edf4;white-space:nowrap;">
-                    <b>{name}</b> <span style="color:var(--text-secondary);font-size:11px;">{code}</span>
+                    <b>{_stock_link(name, code)}</b> <span style="color:var(--text-secondary);font-size:11px;">{code}</span>
                 </td>
                 <td style="padding:5px 4px;font-size:13px;text-align:right;color:{_pnl_cls(pct)};">{_fmt_pct(pct, 2)}</td>
                 <td style="padding:5px 4px;font-size:12px;text-align:right;color:var(--text-secondary);">{_safe(vr, "—")}</td>
@@ -2895,7 +2931,7 @@ def _modal_scan_picks():
             rows += f'''
               <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
                 <td style="padding:6px 4px;color:var(--text-secondary);font-size:12px;vertical-align:top;">{i}</td>
-                <td style="padding:6px 4px;font-size:13px;color:#e8edf4;vertical-align:top;"><b>{name}</b> <span style="color:var(--text-secondary);font-size:11px;">{code}</span></td>
+                <td style="padding:6px 4px;font-size:13px;color:#e8edf4;vertical-align:top;"><b>{_stock_link(name, code)}</b> <span style="color:var(--text-secondary);font-size:11px;">{code}</span></td>
                 <td style="padding:6px 4px;font-size:13px;text-align:right;color:{_pnl_cls(pct)};vertical-align:top;">{_fmt_pct(pct, 2)}</td>
                 <td style="padding:6px 4px;font-size:12px;text-align:right;color:var(--text-secondary);vertical-align:top;">{_safe(price, "—")}</td>
                 <td style="padding:6px 4px;font-size:12px;text-align:right;color:var(--text-secondary);vertical-align:top;">{_safe(vr, "—")}</td>
@@ -3030,8 +3066,8 @@ def build() -> str:
         ("nav-us", "美股行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight)),
         ("nav-limitup", "涨停板", "fa-arrow-up", _section_limitup(snap)),
         ("nav-heatmap", "板块热点", "fa-fire", _section_heatmap(snap, indicators)),
-        ("nav-radar", "持仓复盘 量化雷达", "fa-briefcase", "".join([
-            _section_holdings(positions, a_quotes, indicators, account_pnl),
+        ("nav-holdings", "持仓复盘", "fa-briefcase", _section_holdings(positions, a_quotes, indicators, account_pnl)),
+        ("nav-radar", "量化雷达", "fa-radar", "".join([
             _section_pool(cfg, a_quotes, indicators),
             _middle_daily_picks(),            # 明日进攻标的（明日备选池）
             _right_backtest_engine(),         # 回测引擎
@@ -3068,6 +3104,22 @@ def build() -> str:
         <div class="modal">
             <button class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
             <div id="modal-content"></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="stockModal">
+        <div class="modal">
+            <button class="close-btn" onclick="closeStockDetail()"><i class="fas fa-times"></i></button>
+            <div class="stock-detail-header">
+                <div><span class="stock-detail-title" id="stockDetailName">—</span><span class="stock-detail-code" id="stockDetailCode">—</span></div>
+                <div class="live-badge" id="stockDetailLive"><span class="dot"></span>实时行情</div>
+            </div>
+            <div class="stock-detail-tabs">
+                <div class="stock-detail-tab active" onclick="switchStockTab('daily')" id="stockTab-daily">日K线</div>
+                <div class="stock-detail-tab" onclick="switchStockTab('intraday')" id="stockTab-intraday">分时K线</div>
+            </div>
+            <div id="stockChart-daily" class="stock-chart"></div>
+            <div id="stockChart-intraday" class="stock-chart" style="display:none;"></div>
+            <div class="stock-detail-info" id="stockDetailInfo"></div>
         </div>
     </div>'''
 
@@ -3499,6 +3551,177 @@ function showPanel(id) {{
   const nav = document.querySelector('.nav-item[onclick*="' + id + '"]');
   if (nav) nav.classList.add('active');
 }}'''
+
+    STOCK_DETAIL_JS = r'''
+/* ---- 个股详情弹窗：日K + 分时K线 ---- */
+var stockDailyChart = null;
+var stockIntradayChart = null;
+var currentStockSecid = null;
+
+function _stockJsonp(url, cbName) {
+  return new Promise(function(resolve) {
+    var s = document.createElement('script');
+    window[cbName] = function(d) { resolve(d); try { delete window[cbName]; } catch (e) {} if (s.parentNode) s.parentNode.removeChild(s); };
+    s.src = url + '&_=' + Date.now();
+    s.onerror = function() { resolve(null); if (s.parentNode) s.parentNode.removeChild(s); };
+    document.body.appendChild(s);
+  });
+}
+
+function openStockDetail(code, name) {
+  code = (code || '').trim();
+  if (!code) return;
+  var secid = toEmSecid(code);
+  if (!secid) return;
+  currentStockSecid = secid;
+  document.getElementById('stockDetailName').textContent = name || code;
+  document.getElementById('stockDetailCode').textContent = code;
+  document.getElementById('stockChart-daily').innerHTML = '';
+  document.getElementById('stockChart-intraday').innerHTML = '';
+  document.getElementById('stockModal').classList.add('active');
+  switchStockTab('daily');
+  fetchStockDaily(secid, name);
+  fetchStockIntraday(secid, name);
+}
+
+function closeStockDetail() {
+  document.getElementById('stockModal').classList.remove('active');
+  if (stockDailyChart) { stockDailyChart.dispose(); stockDailyChart = null; }
+  if (stockIntradayChart) { stockIntradayChart.dispose(); stockIntradayChart = null; }
+  currentStockSecid = null;
+}
+
+function switchStockTab(tab) {
+  document.querySelectorAll('.stock-detail-tab').forEach(function(el) { el.classList.remove('active'); });
+  var t = document.getElementById('stockTab-' + tab);
+  if (t) t.classList.add('active');
+  document.getElementById('stockChart-daily').style.display = (tab === 'daily') ? 'block' : 'none';
+  document.getElementById('stockChart-intraday').style.display = (tab === 'intraday') ? 'block' : 'none';
+  if (tab === 'daily' && stockDailyChart) stockDailyChart.resize();
+  if (tab === 'intraday' && stockIntradayChart) stockIntradayChart.resize();
+}
+
+function fetchStockDaily(secid, name) {
+  var cb = 'emk_' + Math.random().toString(36).slice(2, 10);
+  var url = 'https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=' + secid + '&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=0&beg=20220101&end=20500101&ut=fa5fd1943c7b386f172d6893dbfba10b&cb=' + cb;
+  _stockJsonp(url, cb).then(function(res) {
+    var data = (res && res.data) ? res.data : null;
+    if (!data || !data.klines || !data.klines.length) {
+      document.getElementById('stockChart-daily').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">日K数据加载失败或暂无数据</div>';
+      return;
+    }
+    renderStockDaily(data, name);
+  });
+}
+
+function _ma(values, n, idx) {
+  if (idx < n - 1) return '-';
+  var sum = 0;
+  for (var j = 0; j < n; j++) sum += values[idx - j][1];
+  return (sum / n).toFixed(3);
+}
+
+function renderStockDaily(data, name) {
+  var klines = data.klines;
+  var dates = [];
+  var values = [];
+  var ma5 = [], ma10 = [], ma20 = [];
+  for (var i = 0; i < klines.length; i++) {
+    var p = klines[i].split(',');
+    dates.push(p[0]);
+    values.push([parseFloat(p[1]), parseFloat(p[2]), parseFloat(p[3]), parseFloat(p[4])]);
+  }
+  for (var i = 0; i < values.length; i++) {
+    ma5.push(_ma(values, 5, i));
+    ma10.push(_ma(values, 10, i));
+    ma20.push(_ma(values, 20, i));
+  }
+  var upColor = '#ef4444', downColor = '#22c55e';
+  var option = {
+    backgroundColor: 'transparent',
+    title: { text: (name || data.name || '') + ' 日K', left: 'center', textStyle: { color: '#e8edf5', fontSize: 14 } },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' }, backgroundColor: 'rgba(17,24,39,0.95)', borderColor: '#1e2a3a', textStyle: { color: '#e8edf5' } },
+    legend: { data: ['K线', 'MA5', 'MA10', 'MA20'], textStyle: { color: '#8892a0' }, top: 24 },
+    grid: { left: 56, right: 16, top: 64, bottom: 32 },
+    xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
+    yAxis: { scale: true, splitLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
+    dataZoom: [{ type: 'inside', start: Math.max(0, 100 - 120 / values.length * 100), end: 100 }],
+    series: [
+      { name: 'K线', type: 'candlestick', data: values, itemStyle: { color: upColor, color0: downColor, borderColor: upColor, borderColor0: downColor } },
+      { name: 'MA5', type: 'line', data: ma5, smooth: true, showSymbol: false, lineStyle: { color: '#f59e0b', width: 1 } },
+      { name: 'MA10', type: 'line', data: ma10, smooth: true, showSymbol: false, lineStyle: { color: '#4fc3f7', width: 1 } },
+      { name: 'MA20', type: 'line', data: ma20, smooth: true, showSymbol: false, lineStyle: { color: '#a78bfa', width: 1 } }
+    ]
+  };
+  var dom = document.getElementById('stockChart-daily');
+  if (stockDailyChart) stockDailyChart.dispose();
+  stockDailyChart = echarts.init(dom);
+  stockDailyChart.setOption(option);
+}
+
+function fetchStockIntraday(secid, name) {
+  var cb = 'emt_' + Math.random().toString(36).slice(2, 10);
+  var url = 'https://push2.eastmoney.com/api/qt/stock/trends2/get?secid=' + secid + '&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&ndays=1&iscr=0&ut=fa5fd1943c7b386f172d6893dbfba10b&cb=' + cb;
+  _stockJsonp(url, cb).then(function(res) {
+    var data = (res && res.data) ? res.data : null;
+    if (!data || !data.trends || !data.trends.length) {
+      document.getElementById('stockChart-intraday').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">分时数据加载失败或暂无数据</div>';
+      return;
+    }
+    renderStockIntraday(data, name);
+  });
+}
+
+function renderStockIntraday(data, name) {
+  var trends = data.trends;
+  var times = [];
+  var prices = [];
+  var avgs = [];
+  var prePrice = data.prePrice || 0;
+  for (var i = 0; i < trends.length; i++) {
+    var p = trends[i].split(',');
+    times.push(p[0]);
+    prices.push(parseFloat(p[1]));
+    avgs.push(parseFloat(p[2]) || null);
+  }
+  var lastPrice = prices[prices.length - 1] || prePrice;
+  var upColor = '#ef4444', downColor = '#22c55e';
+  var lineColor = lastPrice >= prePrice ? upColor : downColor;
+  var areaColor = lastPrice >= prePrice ? 'rgba(239,68,68,0.18)' : 'rgba(34,197,94,0.18)';
+  var option = {
+    backgroundColor: 'transparent',
+    title: { text: (name || data.name || '') + ' 分时', left: 'center', textStyle: { color: '#e8edf5', fontSize: 14 } },
+    tooltip: { trigger: 'axis', backgroundColor: 'rgba(17,24,39,0.95)', borderColor: '#1e2a3a', textStyle: { color: '#e8edf5' } },
+    legend: { data: ['现价', '均价'], textStyle: { color: '#8892a0' }, top: 24 },
+    grid: { left: 56, right: 16, top: 64, bottom: 32 },
+    xAxis: { type: 'category', data: times, axisLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
+    yAxis: { scale: true, splitLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
+    series: [
+      { name: '现价', type: 'line', data: prices, showSymbol: false, lineStyle: { color: lineColor, width: 1.5 }, areaStyle: { color: areaColor } },
+      { name: '均价', type: 'line', data: avgs, showSymbol: false, lineStyle: { color: '#f59e0b', width: 1, type: 'dashed' } }
+    ]
+  };
+  var dom = document.getElementById('stockChart-intraday');
+  if (stockIntradayChart) stockIntradayChart.dispose();
+  stockIntradayChart = echarts.init(dom);
+  stockIntradayChart.setOption(option);
+  updateStockInfo(prePrice, lastPrice, data);
+}
+
+function updateStockInfo(prePrice, lastPrice, data) {
+  var info = document.getElementById('stockDetailInfo');
+  var pct = prePrice ? (((lastPrice - prePrice) / prePrice) * 100).toFixed(2) : '—';
+  var sign = parseFloat(pct) > 0 ? '+' : '';
+  var color = parseFloat(pct) > 0 ? '#ef4444' : (parseFloat(pct) < 0 ? '#22c55e' : '#8892a0');
+  info.innerHTML = '<span><b>昨收:</b> ' + (prePrice || '—') + '</span>'
+    + '<span><b>最新:</b> <b style="color:' + color + ';">' + (lastPrice || '—') + '</b></span>'
+    + '<span><b>涨跌:</b> <b style="color:' + color + ';">' + sign + pct + '%</b></span>'
+    + '<span><b>代码:</b> ' + (data.code || '—') + '</span>';
+}
+
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeStockDetail(); });
+'''
+    js = js + STOCK_DETAIL_JS
 
     REALTIME_JS = r'''
 (function(){
