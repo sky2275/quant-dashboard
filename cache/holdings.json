@@ -1,7 +1,7 @@
 {
-  "source": "broker_pnl_snapshot_2026-07-29",
-  "updated_at": "2026-07-29 21:20:11",
-  "note": "权威盈亏快照：成本/现价/盈亏均以来源券商后台口径，含分红与已平仓盈亏；账户级总额含已平仓盈亏，不等于个股市值之和。后续每日据此更新。",
+  "source": "mobile_broker_snapshot_2026-08-02",
+  "updated_at": "2026-08-02 23:56:00",
+  "note": "2026-08-02 手机端双券商持仓刷新。成本价/现价以来源券商口径；负成本为分红/做T后成本，pct按市值收益率计。账户级总额(account_pnl)沿用2026-07-29快照（手机端未提供账户汇总，含已平仓盈亏），仅个股权盈亏按本次刷新。",
   "account_labels": {
     "galaxy": "银河证券",
     "eastmoney": "东方财富",
@@ -30,31 +30,31 @@
   "accounts": {
     "galaxy": [
       {
-        "code": "601606",
-        "name": "长城军工",
-        "account": "galaxy",
-        "quantity": 500,
-        "avg_cost": 33.11,
-        "pnl": {
-          "total": 109.83,
-          "pct": 0.66,
-          "today": 109.83,
-          "today_pct": 0.66,
-          "price": 33.3297
-        }
-      },
-      {
         "code": "603776",
         "name": "永安行",
         "account": "galaxy",
         "quantity": 300,
         "avg_cost": -31.957,
         "pnl": {
-          "total": 15329.23,
-          "pct": 0.0,
-          "today": 123,
-          "today_pct": 2.19,
-          "price": 19.1404
+          "total": 15254.1,
+          "pct": 269.17,
+          "today": null,
+          "today_pct": null,
+          "price": 18.89
+        }
+      },
+      {
+        "code": "300223",
+        "name": "北京君正",
+        "account": "galaxy",
+        "quantity": 100,
+        "avg_cost": 127.35,
+        "pnl": {
+          "total": -54.0,
+          "pct": -0.42,
+          "today": null,
+          "today_pct": null,
+          "price": 126.81
         }
       },
       {
@@ -64,11 +64,11 @@
         "quantity": 100,
         "avg_cost": 51.745,
         "pnl": {
-          "total": 945.52,
-          "pct": 18.273,
-          "today": -106,
-          "today_pct": -1.7,
-          "price": 61.2002
+          "total": 499.5,
+          "pct": 9.65,
+          "today": null,
+          "today_pct": null,
+          "price": 56.74
         }
       }
     ],
@@ -77,14 +77,14 @@
         "code": "003033",
         "name": "征和工业",
         "account": "eastmoney",
-        "quantity": 300,
-        "avg_cost": 13.914,
+        "quantity": 100,
+        "avg_cost": -70.553,
         "pnl": {
-          "total": 14185.8,
-          "pct": 339.85,
-          "today": -781,
-          "today_pct": -2.509,
-          "price": 61.2
+          "total": 12729.3,
+          "pct": 224.34,
+          "today": null,
+          "today_pct": null,
+          "price": 56.74
         }
       },
       {
@@ -92,13 +92,13 @@
         "name": "北京君正",
         "account": "eastmoney",
         "quantity": 3000,
-        "avg_cost": 140.508,
+        "avg_cost": 137.809,
         "pnl": {
-          "total": -47845,
-          "pct": -11.35,
-          "today": -6826.28,
-          "today_pct": -2.0,
-          "price": 124.5597
+          "total": -32997.0,
+          "pct": -7.98,
+          "today": null,
+          "today_pct": null,
+          "price": 126.81
         }
       },
       {
@@ -106,13 +106,13 @@
         "name": "永安行",
         "account": "eastmoney",
         "quantity": 3000,
-        "avg_cost": 18.975,
+        "avg_cost": 18.957,
         "pnl": {
-          "total": 495.08,
-          "pct": 0.87,
-          "today": 1114.81,
-          "today_pct": 1.98,
-          "price": 19.14
+          "total": -201.0,
+          "pct": -0.35,
+          "today": null,
+          "today_pct": null,
+          "price": 18.89
         }
       }
     ],
@@ -120,31 +120,31 @@
   },
   "positions": [
     {
-      "code": "601606",
-      "name": "长城军工",
-      "account": "galaxy",
-      "quantity": 500,
-      "avg_cost": 33.11,
-      "pnl": {
-        "total": 109.83,
-        "pct": 0.66,
-        "today": 109.83,
-        "today_pct": 0.66,
-        "price": 33.3297
-      }
-    },
-    {
       "code": "603776",
       "name": "永安行",
       "account": "galaxy",
       "quantity": 300,
       "avg_cost": -31.957,
       "pnl": {
-        "total": 15329.23,
-        "pct": 0.0,
-        "today": 123,
-        "today_pct": 2.19,
-        "price": 19.1404
+        "total": 15254.1,
+        "pct": 269.17,
+        "today": null,
+        "today_pct": null,
+        "price": 18.89
+      }
+    },
+    {
+      "code": "300223",
+      "name": "北京君正",
+      "account": "galaxy",
+      "quantity": 100,
+      "avg_cost": 127.35,
+      "pnl": {
+        "total": -54.0,
+        "pct": -0.42,
+        "today": null,
+        "today_pct": null,
+        "price": 126.81
       }
     },
     {
@@ -154,25 +154,25 @@
       "quantity": 100,
       "avg_cost": 51.745,
       "pnl": {
-        "total": 945.52,
-        "pct": 18.273,
-        "today": -106,
-        "today_pct": -1.7,
-        "price": 61.2002
+        "total": 499.5,
+        "pct": 9.65,
+        "today": null,
+        "today_pct": null,
+        "price": 56.74
       }
     },
     {
       "code": "003033",
       "name": "征和工业",
       "account": "eastmoney",
-      "quantity": 300,
-      "avg_cost": 13.914,
+      "quantity": 100,
+      "avg_cost": -70.553,
       "pnl": {
-        "total": 14185.8,
-        "pct": 339.85,
-        "today": -781,
-        "today_pct": -2.509,
-        "price": 61.2
+        "total": 12729.3,
+        "pct": 224.34,
+        "today": null,
+        "today_pct": null,
+        "price": 56.74
       }
     },
     {
@@ -180,13 +180,13 @@
       "name": "北京君正",
       "account": "eastmoney",
       "quantity": 3000,
-      "avg_cost": 140.508,
+      "avg_cost": 137.809,
       "pnl": {
-        "total": -47845,
-        "pct": -11.35,
-        "today": -6826.28,
-        "today_pct": -2.0,
-        "price": 124.5597
+        "total": -32997.0,
+        "pct": -7.98,
+        "today": null,
+        "today_pct": null,
+        "price": 126.81
       }
     },
     {
@@ -194,13 +194,13 @@
       "name": "永安行",
       "account": "eastmoney",
       "quantity": 3000,
-      "avg_cost": 18.975,
+      "avg_cost": 18.957,
       "pnl": {
-        "total": 495.08,
-        "pct": 0.87,
-        "today": 1114.81,
-        "today_pct": 1.98,
-        "price": 19.14
+        "total": -201.0,
+        "pct": -0.35,
+        "today": null,
+        "today_pct": null,
+        "price": 18.89
       }
     }
   ]
