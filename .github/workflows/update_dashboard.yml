@@ -21,12 +21,25 @@ on:
       - "index.html"           # 看板产物变更触发重建
       - ".github/workflows/update_dashboard.yml"
 
+# 部署 GitHub Pages 需要 pages: write 与 id-token: write；
+# 提交数据更新需要 contents: write
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+# 串行部署，避免多次并发触发互相覆盖
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    # 防止机器人自身提交触发的无限循环：仅当提交信息不含 [bot-deploy-skip] 时才构建
+    if: >-
+      github.event_name != 'push' ||
+      !contains(github.event.head_commit.message, '[bot-deploy-skip]')
     env:
       TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
     steps:
@@ -79,13 +92,13 @@ jobs:
       - name: 生成看板（含三仓策略系统）
         if: github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true'
         run: python scripts/build_full.py
-      - name: 提交更新
+      - name: 提交数据更新
         run: |
           git config user.name "quant-bot"
           git config user.email "bot@quant.local"
           git add index.html cache/*.json
           # 仅当有变更才提交；避免对无变化的产物反复重写历史
-          if git commit -m "auto update dashboard $(date +'%Y-%m-%d %H:%M')"; then
+          if git commit -m "auto update dashboard $(date +'%Y-%m-%d %H:%M') [bot-deploy-skip]"; then
             # 与本地定时刷新(刷新脚本也会推送)并发时，最多重试 3 次：
             # 每次 rebase 后以本次生成的 index.html/cache 为准(--ours)，再推送。
             for i in 1 2 3; do
@@ -102,3 +115,35 @@ jobs:
           else
             echo "no changes to commit"
           fi
+      - name: 准备部署产物
+        run: |
+          mkdir -p dist
+          cp index.html dist/
+          touch dist/.nojekyll
+      - name: 上传 Pages 产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: 切换 Pages 源为 GitHub Actions 模式
+        # 用 GITHUB_TOKEN（已授予 pages: write）调用 REST API，将部署方式切到 workflow。
+        # 幂等：已为 workflow 模式时返回当前配置，不改变。
+        run: |
+          curl -L -X PUT \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/pages \
+            -d '{"build_type":"workflow","source":{"branch":"main","path":"/"}}'
+          echo "Pages source switched to GitHub Actions (workflow)"
+          sleep 10
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
