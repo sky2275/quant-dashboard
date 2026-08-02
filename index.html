@@ -68,8 +68,12 @@
 
         .market-grid-2col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
         @media (max-width:600px) { .market-grid-2col { grid-template-columns:1fr; } }
-        .ashare-combined-grid { display:grid; grid-template-columns:minmax(320px,1fr) 1fr; gap:16px; align-items:start; }
+        .ashare-combined-grid { display:grid; grid-template-columns:minmax(360px,1.35fr) minmax(300px,1fr); gap:14px; align-items:stretch; }
         @media (max-width:900px) { .ashare-combined-grid { grid-template-columns:1fr; } }
+        .scan-embed-box { display:flex; flex-direction:column; padding:10px 12px; gap:8px; }
+        .scan-embed-box .sentiment-stat-row { margin:0; }
+        .scan-embed-box .sector-heat-cols { flex:1; min-height:0; }
+        .scan-embed-box .sector-heat-list { max-height:none; }
         .market-box { background:rgba(255,255,255,0.02); border-radius:10px; padding:12px 14px; border:1px solid var(--border-color); }
         .market-box .box-title { font-size:12px; font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
         .market-row { display:flex; flex-wrap:wrap; gap:4px 12px; }
@@ -348,10 +352,12 @@
 
         /* ---- 真实行情 / 任意回测 / 预测 相关补充 ---- */
         .index-mini-spark { width:100%; height:34px; display:block; margin-top:4px; }
-        .sector-heat-cols { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .sector-heat-cols { display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:stretch; }
         @media (max-width:900px) { .sector-heat-cols { grid-template-columns:1fr; } }
-        .sector-heat-col-title { font-size:11px; color:var(--text-secondary); margin:8px 0 4px; }
+        .sector-heat-cols > div { display:flex; flex-direction:column; min-height:0; }
+        .sector-heat-col-title { font-size:11px; color:var(--text-secondary); margin:8px 0 4px; flex-shrink:0; }
         .sector-heat-list { flex:1; min-height:60px; max-height:260px; overflow-y:auto; margin-top:4px; }
+        .scan-embed-box .sector-heat-list { max-height:none; }
         .bt-code-input {
             flex:1; background:var(--bg-primary); border:1px solid var(--border-color);
             color:var(--text-primary); border-radius:6px; padding:6px 9px; font-size:12px; outline:none;
@@ -494,7 +500,7 @@
         <div class="header-left">
             <h1>📊 量化交易系统</h1>
             <span class="subtitle">· 完整看板</span>
-            <span class="version-badge" title="页面构建版本">v20260802-1323</span>
+            <span class="version-badge" title="页面构建版本">v20260802-1353</span>
         </div>
         <div class="header-right">
             <div class="date-picker-wrapper">
@@ -527,49 +533,9 @@
                         <div style="font-size:10px;color:var(--text-secondary);margin-top:2px;">市场情绪 <span style="color:#ef4444;">乐观</span></div>
                     </div>
                 </div>
-                <div class="market-box" style="padding:10px 12px;">
+                <div class="market-box scan-embed-box">
                     
         
-        <div class="index-mini-item" data-code="sh000001" data-secid="1.000001">
-            <div class="index-mini-header">
-                <span class="index-mini-name">上证指数</span>
-                <span class="index-mini-values">
-                    <span class="index-mini-price up">3832.26</span>
-                    <span class="index-mini-change up">+0.72%</span>
-                </span>
-            </div>
-            <div class="index-mini-spark" id="spark-sh000001" data-price="3832.26" data-pct="0.72"></div>
-        </div>
-        <div class="index-mini-item" data-code="sz399001" data-secid="0.399001">
-            <div class="index-mini-header">
-                <span class="index-mini-name">深证成指</span>
-                <span class="index-mini-values">
-                    <span class="index-mini-price up">13578.93</span>
-                    <span class="index-mini-change up">+2.21%</span>
-                </span>
-            </div>
-            <div class="index-mini-spark" id="spark-sz399001" data-price="13578.93" data-pct="2.21"></div>
-        </div>
-        <div class="index-mini-item" data-code="sz399006" data-secid="0.399006">
-            <div class="index-mini-header">
-                <span class="index-mini-name">创业板指</span>
-                <span class="index-mini-values">
-                    <span class="index-mini-price up">3343.96</span>
-                    <span class="index-mini-change up">+3.06%</span>
-                </span>
-            </div>
-            <div class="index-mini-spark" id="spark-sz399006" data-price="3343.96" data-pct="3.06"></div>
-        </div>
-        <div class="index-mini-item" data-code="sh000688" data-secid="1.000688">
-            <div class="index-mini-header">
-                <span class="index-mini-name">科创50</span>
-                <span class="index-mini-values">
-                    <span class="index-mini-price up">1635.96</span>
-                    <span class="index-mini-change up">+2.99%</span>
-                </span>
-            </div>
-            <div class="index-mini-spark" id="spark-sh000688" data-price="1635.96" data-pct="2.99"></div>
-        </div>
         <div class="sentiment-stat-row">
             <div class="sentiment-stat"><div class="label">上涨</div><div class="value up">4690</div></div>
             <div class="sentiment-stat"><div class="label">下跌</div><div class="value down">728</div></div>
@@ -3646,9 +3612,12 @@ function renderIndexIntraday(data, name) {
 
 function updateIdxInfo(prePrice, lastPrice, data) {
   var info = document.getElementById('idxDetailInfo');
+  if (!info) return;
+  prePrice = parseFloat(prePrice) || 0;
+  lastPrice = parseFloat(lastPrice) || 0;
   var pct = prePrice ? (((lastPrice - prePrice) / prePrice) * 100).toFixed(2) : '—';
-  var sign = parseFloat(pct) > 0 ? '+' : '';
-  var color = parseFloat(pct) > 0 ? '#ef4444' : (parseFloat(pct) < 0 ? '#22c55e' : '#8892a0');
+  var sign = (pct !== '—' && parseFloat(pct) > 0) ? '+' : '';
+  var color = (pct !== '—' && parseFloat(pct) > 0) ? '#ef4444' : ((pct !== '—' && parseFloat(pct) < 0) ? '#22c55e' : '#8892a0');
   info.innerHTML = '<span><b>昨收:</b> ' + (prePrice || '—') + '</span>'
     + '<span><b>最新:</b> <b style="color:' + color + ';">' + (lastPrice || '—') + '</b></span>'
     + '<span><b>涨跌:</b> <b style="color:' + color + ';">' + sign + pct + '%</b></span>';

@@ -149,8 +149,12 @@ CSS_RULES = """
 
         .market-grid-2col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
         @media (max-width:600px) { .market-grid-2col { grid-template-columns:1fr; } }
-        .ashare-combined-grid { display:grid; grid-template-columns:minmax(320px,1fr) 1fr; gap:16px; align-items:start; }
+        .ashare-combined-grid { display:grid; grid-template-columns:minmax(360px,1.35fr) minmax(300px,1fr); gap:14px; align-items:stretch; }
         @media (max-width:900px) { .ashare-combined-grid { grid-template-columns:1fr; } }
+        .scan-embed-box { display:flex; flex-direction:column; padding:10px 12px; gap:8px; }
+        .scan-embed-box .sentiment-stat-row { margin:0; }
+        .scan-embed-box .sector-heat-cols { flex:1; min-height:0; }
+        .scan-embed-box .sector-heat-list { max-height:none; }
         .market-box { background:rgba(255,255,255,0.02); border-radius:10px; padding:12px 14px; border:1px solid var(--border-color); }
         .market-box .box-title { font-size:12px; font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
         .market-row { display:flex; flex-wrap:wrap; gap:4px 12px; }
@@ -429,10 +433,12 @@ CSS_RULES = """
 
         /* ---- 真实行情 / 任意回测 / 预测 相关补充 ---- */
         .index-mini-spark { width:100%; height:34px; display:block; margin-top:4px; }
-        .sector-heat-cols { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .sector-heat-cols { display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:stretch; }
         @media (max-width:900px) { .sector-heat-cols { grid-template-columns:1fr; } }
-        .sector-heat-col-title { font-size:11px; color:var(--text-secondary); margin:8px 0 4px; }
+        .sector-heat-cols > div { display:flex; flex-direction:column; min-height:0; }
+        .sector-heat-col-title { font-size:11px; color:var(--text-secondary); margin:8px 0 4px; flex-shrink:0; }
         .sector-heat-list { flex:1; min-height:60px; max-height:260px; overflow-y:auto; margin-top:4px; }
+        .scan-embed-box .sector-heat-list { max-height:none; }
         .bt-code-input {
             flex:1; background:var(--bg-primary); border:1px solid var(--border-color);
             color:var(--text-primary); border-radius:6px; padding:6px 9px; font-size:12px; outline:none;
@@ -1143,16 +1149,19 @@ def _us_box(us_quotes, overnight, snap):
 
 # ----------------------------------------------------------------- 重排后：A股大盘行情 面板（A股总览 + 指数K线 + 大盘扫描）
 def _section_index_kline():
-    """A股主要指数：分时K线 + 日K线（浏览器端东方财富实时拉取）。"""
+    """A股主要指数：分时K线 + 日K线（浏览器端东方财富实时拉取）。
+    secid 规则：沪市指数前缀 1.（000xxx），深市/北交所指数前缀 0.（399xxx/899xxx）。
+    8 个指数均已在东方财富 push2his(kline) 与 push2(trends2) 接口验证可正常打开。
+    """
     INDEX_LIST = [
-        ("上证指数", "1.000001"),
-        ("深证成指", "0.399001"),
-        ("创业板指", "0.399006"),
-        ("沪深300", "1.000300"),
-        ("上证50", "1.000016"),
-        ("科创50", "1.000688"),
-        ("中证500", "1.000905"),
-        ("北证50", "0.899050"),
+        ("上证指数", "1.000001"),   # 沪市大盘
+        ("深证成指", "0.399001"),   # 深市大盘
+        ("创业板指", "0.399006"),   # 深市创业板
+        ("沪深300", "1.000300"),    # 沪市蓝筹
+        ("上证50", "1.000016"),     # 沪市超大盘
+        ("科创50", "1.000688"),     # 沪市科创板
+        ("中证500", "1.000905"),    # 沪市中盘
+        ("北证50", "0.899050"),     # 北交所（深市前缀规则）
     ]
     chips = ""
     for i, (nm, secid) in enumerate(INDEX_LIST):
@@ -1176,14 +1185,16 @@ def _section_index_kline():
 
 
 def _section_ashare(snap, us_quotes, overnight):
-    """A股大盘行情：A股行情总览 + 大盘扫描 合并为同一卡片，下方放指数K线。"""
-    scan_inner = _left_market_scan(snap, standalone=False)
+    """A股大盘行情：A股行情总览 + 大盘扫描 合并为同一卡片，下方放指数K线。
+    不显示右侧指数迷你卡片（A股总览已包含指数），避免重复与留白。
+    """
+    scan_inner = _left_market_scan(snap, standalone=False, show_index_cards=False)
     overview = f'''
         <div class="card card-full">
             <div class="card-title"><span class="icon"><i class="fas fa-chart-line"></i></span> A股大盘行情 <span class="badge">MARKET</span></div>
             <div class="ashare-combined-grid">
                 {_ashare_box(snap)}
-                <div class="market-box" style="padding:10px 12px;">
+                <div class="market-box scan-embed-box">
                     {scan_inner}
                 </div>
             </div>
@@ -2594,8 +2605,11 @@ def _sparkline_svg(values, color="#4fc3f7"):
     )
 
 
-def _left_market_scan(snap, standalone=True):
-    """大盘扫描：核心指数 + 市场情绪 + 板块强弱TOP10。standalone=False 时返回内嵌内容（供 A股大盘行情 合并使用）。"""
+def _left_market_scan(snap, standalone=True, show_index_cards=True):
+    """大盘扫描：核心指数 + 市场情绪 + 板块强弱TOP10。
+    standalone=False 时返回内嵌内容（供 A股大盘行情 合并使用）。
+    show_index_cards=False 时隐藏指数迷你卡片（A股总览已展示指数，避免重复）。
+    """
     a = snap.get("a_indexes", []) or []
     breadth = snap.get("market_breadth", {}) or {}
     sectors = (snap.get("sector_flow", []) or [])
@@ -2613,34 +2627,36 @@ def _left_market_scan(snap, standalone=True):
         "中证500": "sh000905", "深证综指": "sz399106", "北证50": "bj899050",
     }
 
-    # 指数卡片
-    index_cards = ""
-    for x in a:
-        name = x.get("name", "—")
-        price = x.get("price")
-        pct = x.get("change_pct")
-        cls = _cls(pct)
-        # 真实迷你折线：由浏览器端拉取腾讯指数日K绘制（loadIndexSpark）
-        full = INDEX_CODE.get(name, "")
-        if full.startswith("sh"):
-            em_secid = "1." + full[2:]
-        elif full.startswith("sz"):
-            em_secid = "0." + full[2:]
-        elif full.startswith("bj"):
-            em_secid = "0." + full[2:]
-        else:
-            em_secid = full
-        index_cards += f'''
-        <div class="index-mini-item" data-code="{full}" data-secid="{em_secid}">
-            <div class="index-mini-header">
-                <span class="index-mini-name">{name}</span>
-                <span class="index-mini-values">
-                    <span class="index-mini-price {cls}">{_safe(price, "—")}</span>
-                    <span class="index-mini-change {cls}">{_fmt_pct(pct)}</span>
-                </span>
-            </div>
-            <div class="index-mini-spark" id="spark-{full}" data-price="{price}" data-pct="{pct}"></div>
-        </div>'''
+    # 指数迷你卡片（量化雷达需要；A股大盘行情因已有总览而隐藏）
+    index_cards_html = ""
+    if show_index_cards:
+        index_cards = ""
+        for x in a:
+            name = x.get("name", "—")
+            price = x.get("price")
+            pct = x.get("change_pct")
+            cls = _cls(pct)
+            full = INDEX_CODE.get(name, "")
+            if full.startswith("sh"):
+                em_secid = "1." + full[2:]
+            elif full.startswith("sz"):
+                em_secid = "0." + full[2:]
+            elif full.startswith("bj"):
+                em_secid = "0." + full[2:]
+            else:
+                em_secid = full
+            index_cards += f'''
+            <div class="index-mini-item" data-code="{full}" data-secid="{em_secid}">
+                <div class="index-mini-header">
+                    <span class="index-mini-name">{name}</span>
+                    <span class="index-mini-values">
+                        <span class="index-mini-price {cls}">{_safe(price, "—")}</span>
+                        <span class="index-mini-change {cls}">{_fmt_pct(pct)}</span>
+                    </span>
+                </div>
+                <div class="index-mini-spark" id="spark-{full}" data-price="{price}" data-pct="{pct}"></div>
+            </div>'''
+        index_cards_html = f'<div class="scan-index-cards">{index_cards}</div>'
 
     up = breadth.get("up_count")
     down = breadth.get("down_count")
@@ -2686,7 +2702,7 @@ def _left_market_scan(snap, standalone=True):
         </div>'''
 
     inner = f'''
-        {index_cards}
+        {index_cards_html}
         <div class="sentiment-stat-row">
             <div class="sentiment-stat"><div class="label">上涨</div><div class="value up">{_safe(up, "—")}</div></div>
             <div class="sentiment-stat"><div class="label">下跌</div><div class="value down">{_safe(down, "—")}</div></div>
@@ -3986,9 +4002,12 @@ function renderIndexIntraday(data, name) {
 
 function updateIdxInfo(prePrice, lastPrice, data) {
   var info = document.getElementById('idxDetailInfo');
+  if (!info) return;
+  prePrice = parseFloat(prePrice) || 0;
+  lastPrice = parseFloat(lastPrice) || 0;
   var pct = prePrice ? (((lastPrice - prePrice) / prePrice) * 100).toFixed(2) : '—';
-  var sign = parseFloat(pct) > 0 ? '+' : '';
-  var color = parseFloat(pct) > 0 ? '#ef4444' : (parseFloat(pct) < 0 ? '#22c55e' : '#8892a0');
+  var sign = (pct !== '—' && parseFloat(pct) > 0) ? '+' : '';
+  var color = (pct !== '—' && parseFloat(pct) > 0) ? '#ef4444' : ((pct !== '—' && parseFloat(pct) < 0) ? '#22c55e' : '#8892a0');
   info.innerHTML = '<span><b>昨收:</b> ' + (prePrice || '—') + '</span>'
     + '<span><b>最新:</b> <b style="color:' + color + ';">' + (lastPrice || '—') + '</b></span>'
     + '<span><b>涨跌:</b> <b style="color:' + color + ';">' + sign + pct + '%</b></span>';
