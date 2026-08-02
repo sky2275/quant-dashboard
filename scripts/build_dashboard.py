@@ -1102,6 +1102,7 @@ def _us_box(us_quotes, overnight, snap):
 
 # ----------------------------------------------------------------- 重排后：A股大盘行情 面板（A股总览 + 量化雷达三栏 + 每日选股推荐）
 def _section_ashare(snap, us_quotes, overnight):
+    """A股大盘行情：A股行情总览（含涨跌分布/成交额）+ 大盘扫描（含板块热度TOP10）。"""
     overview = f'''
         <div class="card card-full">
             <div class="card-title"><span class="icon"><i class="fas fa-chart-line"></i></span> A股大盘行情 <span class="badge">MARKET</span></div>
@@ -1109,9 +1110,8 @@ def _section_ashare(snap, us_quotes, overnight):
                 {_ashare_box(snap)}
             </div>
         </div>'''
-    radar = _section_radar(snap)          # 大盘扫描 + 明日备选池 + 回测引擎
-    picks = _section_scan_picks()         # 每日选股推荐（竞价/情绪双池）
-    return overview + radar + picks
+    scan = _left_market_scan(snap)        # 大盘扫描（核心指数 + 涨跌分布 + 成交额 + 板块热度TOP10）
+    return overview + scan
 
 
 # ----------------------------------------------------------------- 重排后：美股行情映射 面板（美股隔夜 + 美股→A股传导）
@@ -3027,12 +3027,14 @@ def build() -> str:
     # 左侧导航 + 右侧内容面板（按用户指定顺序重排为 5 个板块）
     nav_items = [
         ("nav-ashare", "A股大盘行情", "fa-chart-line", _section_ashare(snap, us_quotes, overnight)),
-        ("nav-usmap", "美股行情映射", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight)),
+        ("nav-us", "美股行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight)),
         ("nav-limitup", "涨停板", "fa-arrow-up", _section_limitup(snap)),
-        ("nav-heatmap", "板块热力", "fa-fire", _section_heatmap(snap, indicators)),
-        ("nav-holdings", "持仓复盘", "fa-briefcase", "".join([
+        ("nav-heatmap", "板块热点", "fa-fire", _section_heatmap(snap, indicators)),
+        ("nav-radar", "持仓复盘 量化雷达", "fa-briefcase", "".join([
             _section_holdings(positions, a_quotes, indicators, account_pnl),
             _section_pool(cfg, a_quotes, indicators),
+            _middle_daily_picks(),            # 明日进攻标的（明日备选池）
+            _right_backtest_engine(),         # 回测引擎
             _section_judge(overnight, snap, cfg, a_quotes, account_pnl),
         ])),
     ]
