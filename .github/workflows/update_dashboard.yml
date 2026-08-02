@@ -2,16 +2,14 @@ name: 量化复盘看板自动更新
 
 on:
   schedule:
-    # 固定更新时间（北京时间 → UTC，标准时 UTC+8）。GitHub Actions cron 最小粒度为分钟，秒级 05 无法实现，已按 09:25 / 14:30 分钟级触发。
+    # 固定更新时间（北京时间 → UTC，标准时 UTC+8）。仅周一至周五触发，运行时再判断是否为交易日。
     # 注：Actions 定时任务平台有 0~15 分钟抖动延迟，无法精确到秒。
-    - cron: "0 0 * * *"    # 08:00 北京时间（UTC 00:00）美股隔夜
-    - cron: "25 1 * * *"   # 09:25 北京时间（UTC 01:25）盘前
-    - cron: "26 1 * * *"   # 09:26 北京时间（UTC 01:26）集合竞价扫描
-    - cron: "30 2 * * *"   # 10:30 北京时间（UTC 02:30）早盘
-    - cron: "0 4 * * *"    # 12:00 北京时间（UTC 04:00）午盘
-    - cron: "30 6 * * *"   # 14:30 北京时间（UTC 06:30）尾盘进攻
-    - cron: "0 8 * * *"    # 16:00 北京时间（UTC 08:00）收盘复盘
-    - cron: "30 13 * * *"   # 21:30 北京时间（UTC 13:30，美股常规开盘·复盘兜底刷新）
+    - cron: "0 0 * * 1-5"    # 08:00  开盘前/美股隔夜传导
+    - cron: "26 1 * * 1-5"   # 09:26  集合竞价扫描
+    - cron: "30 2 * * 1-5"   # 10:30  早盘刷新
+    - cron: "0 4 * * 1-5"    # 12:00  午盘刷新
+    - cron: "30 6 * * 1-5"   # 14:30  市场情绪扫描
+    - cron: "0 14 * * 1-5"   # 22:00  美股收盘/隔夜复盘
   workflow_dispatch:         # 允许手动触发
   push:
     branches: [main]
@@ -40,19 +38,34 @@ jobs:
           python-version: "3.11"
       - name: 安装依赖
         run: pip install akshare pandas pyyaml tushare requests openpyxl xlrd
+      - name: 检查是否为交易日
+        id: trade_check
+        run: |
+          python - <<'PY'
+          from scripts.feed import get_trade_context
+          ctx = get_trade_context()
+          print(f"today={ctx['today']}, trade_date={ctx['trade_date']}, is_trade_day={ctx['is_trade_day']}")
+          import os
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"is_trade_day={str(ctx['is_trade_day']).lower()}\n")
+          PY
       - name: 拉取行情数据
+        if: github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true'
         run: python scripts/feed.py
       - name: 美股→A股传导预测(08:00)
+        if: github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true'
         run: python scripts/us_overnight.py
       - name: 扫描全A股-集合竞价(09:26)
-        if: github.event.schedule == '26 1 * * *'
+        if: (github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true') && github.event.schedule == '26 1 * * 1-5'
         run: python scripts/scan_a_shares.py --mode 0926
       - name: 扫描全A股-市场情绪(14:30)
-        if: github.event.schedule == '30 6 * * *'
+        if: (github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true') && github.event.schedule == '30 6 * * 1-5'
         run: python scripts/scan_a_shares.py --mode 1430
       - name: 获取回测用K线数据
+        if: github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true'
         run: python scripts/fetch_backtest_klines.py
       - name: 生成看板（含三仓策略系统）
+        if: github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true'
         run: python scripts/build_full.py
       - name: 提交更新
         run: |

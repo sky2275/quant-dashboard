@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 量化看板自动刷新包装器
-# 由 WorkBuddy 定时任务每 30 分钟调用一次；只在交易时段关键窗口才真正拉取数据，
-# 其余时间直接退出，避免对东财/腾讯接口造成无谓请求与限流。
+# 由 WorkBuddy 定时任务在交易日的 08:00/09:26/10:30/12:00/14:30/22:00 触发；
+# 非交易日或不在上述窗口时直接退出，避免对数据源造成无谓请求与限流。
 # 命中窗口后，真正的拉取+生成在后台执行，本脚本立即返回（避免任何超时）。
 # 后台任务结束自动清理锁目录。
 #
@@ -83,9 +83,10 @@ dow=${BJ#* }
 hh=${now:0:2}
 mm=${now:3:2}
 
-# 周末不刷新
-if [ "$dow" -ge 6 ]; then
-  echo "$(date '+%F %T') skip: weekend ($now)" >> "$LOG"
+# 交易日判断（周末或法定节假日均跳过）
+IS_TRADE_DAY=$("$PY" -c "import sys; sys.path.insert(0,'.'); from scripts.feed import get_trade_context; print('true' if get_trade_context()['is_trade_day'] else 'false')" 2>/dev/null)
+if [ "$IS_TRADE_DAY" != "true" ]; then
+  echo "$(date '+%F %T') skip: non-trade day ($now)" >> "$LOG"
   rmdir "$LOCKDIR"
   exit 0
 fi
@@ -102,13 +103,11 @@ in_window() {
 
 DO_FEED=0; DO_US=0; DO_SCAN=""
 in_window "08:00" && { DO_FEED=1; DO_US=1; }
-in_window "09:25" && { DO_FEED=1; DO_SCAN="0926"; }
 in_window "09:26" && { DO_FEED=1; DO_SCAN="0926"; }
 in_window "10:30" && DO_FEED=1
 in_window "12:00" && DO_FEED=1
 in_window "14:30" && { DO_FEED=1; DO_SCAN="1430"; }
-in_window "16:00" && DO_FEED=1
-in_window "21:30" && { DO_FEED=1; DO_US=1; }
+in_window "22:00" && { DO_FEED=1; DO_US=1; }
 
 if [ "$DO_FEED" -eq 0 ]; then
   echo "$(date '+%F %T') skip: no window ($now)" >> "$LOG"
