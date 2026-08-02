@@ -91,20 +91,41 @@ US_SECTOR_INDEX = {
 
 # ----------------------------------------------------------------- 原版 CSS（1:1 复刻）
 CSS_RULES = """
-        :root {
-            --bg-primary: #0a0e17;
-            --bg-card: #111827;
-            --border-color: #1e2a3a;
-            --text-primary: #e8edf5;
-            --text-secondary: #8892a0;
-            --accent-blue: #4fc3f7;
-            --accent-red: #ef4444;
-            --accent-green: #22c55e;
-            --accent-gold: #f59e0b;
-            --radius: 14px;
-            --shadow: 0 8px 32px rgba(0,0,0,0.4);
-            --transition: all 0.3s ease;
+        :root, [data-theme="dark"] {
+            /* 原型双主题 TOKEN（深色默认） */
+            --bg-base:#0B0E14; --bg-app:#0E131C; --bg-surface:#141B26; --bg-surface-2:#1B2433;
+            --bg-hover:rgba(255,255,255,.04); --bg-active:rgba(45,212,191,.10);
+            --border:#232C3C; --border-soft:#1A2230;
+            --text-1:#E8ECF4; --text-2:#9AA6B8; --text-3:#5C6779;
+            --accent:#2DD4BF; --accent-2:#4F9CFF; --accent-ink:#06231F;
+            --up:#FF4D4F; --down:#00C896; --warn:#FFB020; --info:#4F9CFF;
+            --shadow:0 8px 28px rgba(0,0,0,.45); --shadow-sm:0 2px 10px rgba(0,0,0,.35);
+            --radius:14px; --r-inset:10px; --r-chip:999px; --r-btn:9px;
+            --sidebar-w:232px; --topbar-h:60px;
+            --transition: all 0.25s ease;
+            --font-sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+            --font-num:"SF Mono","JetBrains Mono","Roboto Mono",ui-monospace,Menlo,monospace;
+            --spark-grid:rgba(255,255,255,.05);
+            /* 向后兼容别名：现有旧类规则继续解析 */
+            --bg-primary:var(--bg-base); --bg-card:var(--bg-surface); --border-color:var(--border);
+            --text-primary:var(--text-1); --text-secondary:var(--text-2); --text-tertiary:var(--text-3);
+            --accent-blue:var(--accent-2); --accent-red:var(--up); --accent-green:var(--down); --accent-gold:var(--warn);
         }
+        [data-theme="light"] {
+            --bg-base:#EEF1F6; --bg-app:#F5F7FA; --bg-surface:#FFFFFF; --bg-surface-2:#F1F4F9;
+            --bg-hover:rgba(20,30,50,.04); --bg-active:rgba(14,165,160,.10);
+            --border:#E4E9F1; --border-soft:#EDF1F6;
+            --text-1:#16202E; --text-2:#5A6678; --text-3:#97A1B2;
+            --accent:#0EA5A0; --accent-2:#3B82F6; --accent-ink:#FFFFFF;
+            --up:#E5484D; --down:#12A150; --warn:#D98A00; --info:#3B82F6;
+            --shadow:0 10px 30px rgba(31,45,70,.10); --shadow-sm:0 2px 10px rgba(31,45,70,.07);
+            --spark-grid:rgba(20,30,50,.06);
+            --bg-primary:var(--bg-base); --bg-card:var(--bg-surface); --border-color:var(--border);
+            --text-primary:var(--text-1); --text-secondary:var(--text-2); --text-tertiary:var(--text-3);
+            --accent-blue:var(--accent-2); --accent-red:var(--up); --accent-green:var(--down); --accent-gold:var(--warn);
+        }
+        .num { font-family:var(--font-num); font-variant-numeric:tabular-nums; letter-spacing:-.3px; }
+        .up { color:var(--up); } .down { color:var(--down); } .muted { color:var(--text-2); }
         * { margin:0; padding:0; box-sizing:border-box; }
         html, body { height:100%; overflow:hidden; }
         body { background:var(--bg-primary); color:var(--text-primary); font-family:-apple-system,'Segoe UI',Roboto,sans-serif; min-height:100vh; }
@@ -542,6 +563,158 @@ CSS_RULES = """
         .bt-tab-panel { display:none; animation:btFadeIn .22s ease; }
         .bt-tab-panel.active { display:block; }
         @keyframes btFadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+
+        /* ============================================================
+           设计系统重skin（原型 v1）：双主题 · 卡片 · 组件
+           向后兼容旧类，JS 依赖的类(.modal/.stock-detail-*/.idx-chip/.idx-tab)保留
+           ============================================================ */
+        body { font-family:var(--font-sans); font-size:13px; line-height:1.5; -webkit-font-smoothing:antialiased; transition:background var(--transition), color var(--transition); }
+        .dashboard { min-width:0; }
+        .header { height:var(--topbar-h); display:flex; align-items:center; gap:16px; padding:0 22px; border-bottom:1px solid var(--border); background:var(--bg-app); position:sticky; top:0; z-index:5; flex-wrap:nowrap; }
+        .header-left { display:flex; align-items:center; gap:12px; flex:1; }
+        .header h1 { font-size:16px; background:none; -webkit-text-fill-color:var(--text-1); color:var(--text-1); font-weight:700; }
+        .header .subtitle { display:none; }
+        .header-right, .topbar-right { display:flex; align-items:center; gap:14px; }
+        .date-picker-wrapper { display:flex; align-items:center; gap:10px; flex:1; background:transparent; border:none; padding:0; border-radius:0; }
+        .date-picker-wrapper:hover { border:none; }
+        .date-picker-wrapper input[type="date"] { appearance:none; -webkit-appearance:none; border:1px solid var(--border); background:var(--bg-surface); color:var(--text-1); border-radius:var(--r-btn); padding:7px 12px; font-family:var(--font-num); font-size:12.5px; cursor:pointer; outline:none; min-width:150px; transition:border-color var(--transition), background var(--transition); }
+        .date-picker-wrapper input[type="date"]:hover, .date-picker-wrapper input[type="date"]:focus { border-color:var(--accent); }
+        .date-picker-wrapper input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(0.55); cursor:pointer; }
+        [data-theme="light"] .date-picker-wrapper input[type="date"]::-webkit-calendar-picker-indicator { filter:none; }
+        .status-badge { background:var(--bg-surface); padding:6px 14px; border-radius:var(--r-chip); font-size:11px; display:flex; align-items:center; gap:6px; color:var(--down); border:1px solid var(--border); }
+        .live-badge { background:var(--bg-surface); padding:6px 12px; border-radius:var(--r-chip); font-size:11px; border:1px solid var(--border); display:flex; align-items:center; gap:6px; color:var(--text-2); }
+        .live-badge .dot, .status-badge .dot, .live-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 var(--accent); animation:pulse 2s infinite; }
+        .live-badge.off .dot { background:var(--text-3); animation:none; }
+        @keyframes pulse { 0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent);} 70%{box-shadow:0 0 0 7px transparent;} 100%{box-shadow:0 0 0 0 transparent;} }
+        .rt-refresh-btn, .btn-ghost { padding:7px 12px; border-radius:var(--r-btn); border:1px solid var(--border); background:var(--bg-surface); color:var(--text-2); cursor:pointer; font-size:12px; display:flex; align-items:center; gap:6px; transition:var(--transition); }
+        .rt-refresh-btn:hover, .btn-ghost:hover { color:var(--text-1); border-color:var(--accent); }
+        .version-badge { background:var(--bg-active); color:var(--accent); padding:2px 8px; border-radius:10px; font-size:11px; font-family:var(--font-num); border:1px solid color-mix(in srgb,var(--accent) 25%,transparent); }
+
+        .sidebar { width:var(--sidebar-w); flex-shrink:0; background:var(--bg-app); border-right:1px solid var(--border); overflow-y:auto; padding:14px 12px; display:flex; flex-direction:column; }
+        .sidebar-logo { display:none; }
+        .brand { display:flex; align-items:center; gap:10px; padding:6px 8px 16px; }
+        .brand .logo { width:34px; height:34px; border-radius:9px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:grid; place-items:center; color:#fff; font-weight:800; font-size:16px; box-shadow:var(--shadow-sm); }
+        .brand .name { font-size:15px; font-weight:700; }
+        .brand .sub { font-size:10px; color:var(--text-3); letter-spacing:.5px; }
+        .nav { display:flex; flex-direction:column; gap:3px; margin-top:6px; }
+        .nav-item { display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:10px; cursor:pointer; color:var(--text-2); font-size:13.5px; font-weight:500; border-left:3px solid transparent; transition:var(--transition); user-select:none; background:transparent; margin:0; }
+        .nav-item:hover { background:var(--bg-hover); color:var(--text-1); transform:none; }
+        .nav-item.active { background:var(--bg-active); color:var(--accent); border-left-color:var(--accent); }
+        .nav-item .nav-icon { width:18px; text-align:center; font-size:14px; }
+        .nav-item .nav-label { flex:1; }
+        .nav-item .nav-status { margin-left:auto; width:7px; height:7px; border-radius:50%; background:var(--border); }
+        .nav-item.active .nav-status { background:var(--accent); box-shadow:0 0 8px var(--accent); }
+        .side-foot { margin-top:auto; display:flex; flex-direction:column; gap:8px; padding-top:12px; border-top:1px solid var(--border-soft); }
+        .theme-toggle { display:flex; align-items:center; gap:8px; padding:9px 12px; border-radius:9px; background:var(--bg-surface); border:1px solid var(--border); cursor:pointer; color:var(--text-2); font-size:12px; transition:var(--transition); }
+        .theme-toggle:hover { color:var(--text-1); border-color:var(--accent); }
+        .env-tag { font-size:10px; color:var(--text-3); text-align:center; letter-spacing:.4px; }
+
+        .content { flex:1; min-width:0; overflow-y:auto; padding:22px; }
+        .content-panel { display:none; animation:fadeIn 0.25s ease; }
+        .content-panel.active { display:block; }
+
+        .card { background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow-sm); cursor:default; transition:var(--transition); }
+        .card:hover { transform:none; border-color:var(--border); box-shadow:var(--shadow-sm); }
+        .card-full { grid-column:span 2; }
+        .card-title { font-size:13.5px; font-weight:650; color:var(--text-1); margin-bottom:14px; display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+        .card-title .icon { color:var(--accent); }
+        .card-title .badge { margin-left:auto; font-size:10px; font-weight:600; padding:3px 9px; border-radius:var(--r-chip); background:var(--bg-surface-2); color:var(--text-2); letter-spacing:.4px; }
+        .card-title .click-hint { color:var(--text-3); font-size:10px; font-weight:400; margin-left:auto; display:flex; align-items:center; gap:4px; }
+
+        /* HERO 指数卡 */
+        .hero { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:18px; }
+        .idx-card { background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius); padding:15px 16px; position:relative; overflow:hidden; transition:transform var(--transition), border-color var(--transition); }
+        .idx-card:hover { transform:translateY(-2px); border-color:var(--accent); }
+        .idx-card .nm { font-size:12.5px; color:var(--text-2); }
+        .idx-card .px { font-size:26px; font-weight:650; margin:6px 0 2px; font-family:var(--font-num); font-variant-numeric:tabular-nums; }
+        .idx-card .row { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; }
+        .idx-card svg { position:absolute; right:0; bottom:0; width:100%; height:46px; opacity:.9; }
+
+        /* 板块主页内指数行情条（原顶部跑马灯下移） */
+        .section-index-bar { display:flex; align-items:center; gap:14px; padding:11px 14px; }
+        .section-index-bar .bar-label { font-size:11.5px; color:var(--text-3); white-space:nowrap; font-weight:600; }
+        .section-index-bar .bar-items { display:flex; flex-wrap:wrap; gap:10px; flex:1; }
+        .bar-item { display:flex; align-items:baseline; gap:6px; padding:6px 11px; border-radius:var(--r-chip); background:var(--bg-surface-2); border:1px solid var(--border); font-size:12px; transition:var(--transition); }
+        .bar-item:hover { border-color:var(--accent); background:var(--bg-active); }
+        .bar-item .nm { color:var(--text-2); }
+        .bar-item .px { font-weight:700; color:var(--text-1); margin-left:2px; font-family:var(--font-num); }
+        .bar-item .pct { font-weight:700; font-size:11.5px; }
+
+        .grid-2 { display:grid; grid-template-columns:1.15fr 1fr; gap:16px; margin-bottom:18px; }
+        @media(max-width:1080px){ .hero{grid-template-columns:repeat(2,1fr);} .grid-2{grid-template-columns:1fr;} }
+
+        /* 涨跌分布 + 四宫格 */
+        .breadth { display:flex; flex-direction:column; gap:12px; }
+        .bw-bar { height:12px; border-radius:var(--r-chip); overflow:hidden; display:flex; background:var(--bg-surface-2); }
+        .bw-bar .up { background:var(--up); }
+        .bw-bar .down { background:var(--down); }
+        .bw-bar .flat { background:var(--text-3); opacity:.4; }
+        .stats4 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+        .stat { background:var(--bg-surface-2); border-radius:var(--r-inset); padding:11px; text-align:center; }
+        .stat .l { font-size:11px; color:var(--text-2); }
+        .stat .v { font-size:18px; font-weight:700; margin-top:3px; font-family:var(--font-num); }
+
+        /* 板块强弱 */
+        .heat-cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+        .heat-col h4 { font-size:11.5px; color:var(--text-2); margin-bottom:8px; font-weight:600; }
+        .heat-row { display:flex; align-items:center; gap:9px; padding:6px 0; }
+        .heat-rank { width:16px; color:var(--text-3); font-size:11px; }
+        .heat-nm { width:84px; font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .heat-bar { flex:1; height:7px; border-radius:var(--r-chip); background:var(--bg-surface-2); overflow:hidden; }
+        .heat-bar i { display:block; height:100%; border-radius:var(--r-chip); }
+        .heat-pct { width:54px; text-align:right; font-size:12px; font-weight:600; }
+
+        /* 指数K线：分段控件 / chip（保留 .idx-chip / .idx-tab 类，JS 依赖） */
+        .idx-chips { display:flex; flex-wrap:wrap; gap:7px; margin:14px 0; }
+        .idx-chip { padding:6px 12px; border-radius:var(--r-chip); font-size:12px; background:var(--bg-surface-2); border:1px solid var(--border); cursor:pointer; color:var(--text-2); transition:var(--transition); user-select:none; }
+        .idx-chip:hover { color:var(--text-1); border-color:var(--accent); }
+        .idx-chip.active { background:var(--bg-active); color:var(--accent); border-color:var(--accent); font-weight:600; }
+        .stock-detail-tabs { display:flex; gap:8px; margin:6px 0 14px; }
+        .idx-tab, .stock-detail-tab { padding:6px 16px; border-radius:var(--r-btn); cursor:pointer; font-size:13px; color:var(--text-2); transition:var(--transition); background:var(--bg-surface-2); border:1px solid var(--border); }
+        .idx-tab:hover, .stock-detail-tab:hover { color:var(--text-1); }
+        .idx-tab.active, .stock-detail-tab.active { background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:600; }
+        .stock-chart { width:100%; height:460px; border-radius:var(--r-inset); background:var(--bg-surface-2); border:1px solid var(--border); }
+
+        /* 热力图（板块热点屏） */
+        .heatmap-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(108px,1fr)); gap:8px; }
+        .hm { aspect-ratio:1.6; border-radius:10px; padding:10px; display:flex; flex-direction:column; justify-content:space-between; color:#fff; font-size:12px; cursor:pointer; transition:transform var(--transition); }
+        .hm:hover { transform:scale(1.04); }
+        .hm .nm { font-weight:600; }
+        .hm .pct { font-size:15px; font-weight:700; }
+
+        /* 通用 tab / chip（量化雷达等复用） */
+        .tabs { display:inline-flex; background:var(--bg-surface-2); border-radius:var(--r-chip); padding:3px; gap:2px; }
+        .tab { padding:5px 14px; border-radius:var(--r-chip); font-size:12px; cursor:pointer; color:var(--text-2); font-weight:500; }
+        .tab.active { background:var(--accent); color:var(--accent-ink); font-weight:600; }
+        .chip { padding:6px 12px; border-radius:var(--r-chip); font-size:12px; background:var(--bg-surface-2); border:1px solid var(--border); cursor:pointer; color:var(--text-2); transition:var(--transition); }
+        .chip:hover { color:var(--text-1); border-color:var(--accent); }
+        .chip.active { background:var(--bg-active); color:var(--accent); border-color:var(--accent); font-weight:600; }
+        .chart { height:300px; border-radius:var(--r-inset); background:var(--bg-surface-2); position:relative; overflow:hidden; }
+
+        /* 板块页眉（每个面板顶部：标题 + 副说明 + 状态徽标） */
+        .screen-head { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:18px; flex-wrap:wrap; }
+        .screen-head h1 { font-size:20px; font-weight:700; letter-spacing:-.3px; color:var(--text-1); margin:0; }
+        .screen-head .desc { font-size:12px; color:var(--text-3); margin-top:3px; }
+        .screen-head .head-badge { font-size:10.5px; font-weight:600; padding:5px 11px; border-radius:var(--r-chip); background:var(--bg-surface-2); color:var(--text-2); border:1px solid var(--border); letter-spacing:.4px; white-space:nowrap; }
+
+        /* HERO 指数大卡内的迷你走势线定位 */
+        .idx-card .spark-wrap { position:absolute; left:0; right:0; bottom:0; height:46px; opacity:.85; pointer-events:none; }
+        .idx-card .spark-wrap .index-mini-spark { width:100%; height:46px; margin:0; }
+        .idx-card .px { line-height:1.15; }
+        .idx-card .row .chg { color:var(--text-2); font-weight:500; }
+
+        /* 涨跌分布条内的三段（覆盖全局 .up/.down 文字色，这里要背景色） */
+        .bw-bar > i { display:block; height:100%; }
+        .bw-bar > i.seg-up { background:var(--up); }
+        .bw-bar > i.seg-down { background:var(--down); }
+        .bw-bar > i.seg-flat { background:var(--text-3); opacity:.4; }
+        .breadth .bw-legend { font-size:11px; color:var(--text-2); display:flex; justify-content:space-between; }
+
+        /* 热力全景图单元（板块热点） */
+        .hm .sub { font-size:10.5px; opacity:.85; font-weight:500; }
+        .heatmap-legend { display:flex; align-items:center; gap:8px; margin-top:12px; font-size:11px; color:var(--text-3); }
+        .heatmap-legend .sc { display:flex; height:10px; border-radius:var(--r-chip); overflow:hidden; width:190px; }
+        .heatmap-legend .sc i { flex:1; }
 """
 
 
@@ -1054,7 +1227,6 @@ def _section_global(snap, us_quotes, overnight):
                 <div class="market-box" onclick="event.stopPropagation(); openModal('us_market')">
                     <div class="box-title"><span class="flag">🇺🇸</span> 美股 (隔夜) <span class="badge" style="{_session('us')[1]}">{_session('us')[0]}</span> <span style="color:var(--accent-blue);font-size:10px;font-weight:400;">👆 点击查看板块龙头 + A股映射</span></div>
                     <div class="market-row">
-                        {us_idx_rows or '<div class="market-item"><span class="label">数据缺失</span></div>'}
                         {sector_rows or '<div class="market-item"><span class="label">板块数据缺失</span></div>'}
                     </div>
                 </div>'''
@@ -1075,13 +1247,8 @@ def _section_global(snap, us_quotes, overnight):
 
 # ----------------------------------------------------------------- A股 / 美股 独立行情盒子（供重排后的侧边栏菜单复用）
 def _ashare_box(snap):
-    """A股行情总览卡片（原 全球大盘行情 的左半部分）。"""
+    """A股行情总览卡片：成交额/涨跌/涨停 + 市场情绪（指数行情已上移到板块顶部 bar）。"""
     a = snap.get("a_indexes", []) or []
-    a_items = "".join(
-        f'<div class="market-item"><span class="label">{x.get("name","—")}</span>'
-        f'<span class="value {_cls(x.get("change_pct"))}">{_safe(x.get("price"),"—")}</span>'
-        f'<span class="change {_cls(x.get("change_pct"))}">{_fmt_pct(x.get("change_pct"))}</span></div>'
-        for x in a)
     chg = [float(x["change_pct"]) for x in a if isinstance(x.get("change_pct"), (int, float))]
     avg = sum(chg) / len(chg) if chg else 0
     width = max(5, min(95, (avg + 5) / 10 * 100))
@@ -1099,7 +1266,6 @@ def _ashare_box(snap):
                 <div class="market-box">
                     <div class="box-title"><span class="flag">🇨🇳</span> A股 <span class="badge" style="{_session('a')[1]}">{_session('a')[0]}</span></div>
                     <div class="market-row">
-                        {a_items or '<div class="market-item"><span class="label">数据缺失</span></div>'}
                         <div class="market-item"><span class="label">成交额</span><span class="value yellow">{_fmt_amount(amount)}</span></div>
                         <div class="market-item"><span class="label">涨跌</span><span class="value up">{_safe(up_c, "—")}</span><span style="color:var(--text-secondary);">/</span><span class="value down">{_safe(down_c, "—")}</span></div>
                         <div class="market-item"><span class="label">涨停/跌停</span><span class="value up">{zt or "—"}</span><span style="color:var(--text-secondary);">/</span><span class="value down">{dt_count or "—"}</span></div>
@@ -1141,7 +1307,6 @@ def _us_box(us_quotes, overnight, snap):
                 <div class="market-box" onclick="event.stopPropagation(); openModal('us_market')">
                     <div class="box-title"><span class="flag">🇺🇸</span> 美股 (隔夜) <span class="badge" style="{_session('us')[1]}">{_session('us')[0]}</span> <span style="color:var(--accent-blue);font-size:10px;font-weight:400;">👆 点击查看板块龙头 + A股映射</span></div>
                     <div class="market-row">
-                        {us_idx_rows or '<div class="market-item"><span class="label">数据缺失</span></div>'}
                         {sector_rows or '<div class="market-item"><span class="label">板块数据缺失</span></div>'}
                     </div>
                 </div>'''
@@ -1184,27 +1349,248 @@ def _section_index_kline():
         </div>'''
 
 
-def _section_ashare(snap, us_quotes, overnight):
-    """A股大盘行情：A股行情总览 + 大盘扫描 合并为同一卡片，下方放指数K线。
-    不显示右侧指数迷你卡片（A股总览已包含指数），避免重复与留白。
+# ================================================================= 新设计系统组件（原型落地）
+# 指数中文名 → 腾讯行情代码（sparkline 真实日K）/ 东财 secid（点击看大图）
+INDEX_CODE_MAP = {
+    "上证指数": "sh000001", "深证成指": "sz399001", "创业板指": "sz399006",
+    "沪深300": "sh000300", "上证50": "sh000016", "科创50": "sh000688",
+    "中证500": "sh000905", "深证综指": "sz399106", "北证50": "bj899050",
+}
+
+
+def _to_secid(full: str) -> str:
+    """腾讯代码 → 东方财富 secid（沪市 1.xxx / 深市·北交所 0.xxx）。"""
+    if not full:
+        return ""
+    if full.startswith("sh"):
+        return "1." + full[2:]
+    if full.startswith(("sz", "bj")):
+        return "0." + full[2:]
+    return full
+
+
+def _screen_head(title: str, desc: str, badge: str = "") -> str:
+    """每个板块面板顶部的页眉：标题 + 副说明 + 右侧状态徽标。"""
+    badge_html = f'<div class="head-badge">{badge}</div>' if badge else ""
+    return f'''
+        <div class="screen-head">
+            <div><h1>{title}</h1><div class="desc">{desc}</div></div>
+            {badge_html}
+        </div>'''
+
+
+def _hero_index_cards(items, limit=4, clickable=True):
+    """HERO 指数大卡：价格 + 涨跌额 + 涨跌幅 + 真实日K迷你走势线。
+    走势线复用既有 .index-mini-spark[data-code] 机制（浏览器端拉腾讯真实K线）。
     """
-    scan_inner = _left_market_scan(snap, standalone=False, show_index_cards=False)
-    overview = f'''
-        <div class="card card-full">
-            <div class="card-title"><span class="icon"><i class="fas fa-chart-line"></i></span> A股大盘行情 <span class="badge">MARKET</span></div>
-            <div class="ashare-combined-grid">
-                {_ashare_box(snap)}
-                <div class="market-box scan-embed-box">
-                    {scan_inner}
+    if not items:
+        return ""
+    cards = ""
+    for x in items[:limit]:
+        name = x.get("name", "—")
+        price = x.get("price")
+        pct = x.get("change_pct")
+        chg = x.get("change")
+        cls = _cls(pct)
+        full = INDEX_CODE_MAP.get(name, "")
+        secid = _to_secid(full)
+        chg_txt = f"{float(chg):+.2f}" if isinstance(chg, (int, float)) else "—"
+        # A股指数可点击打开指数K线详情；美股指数无 secid 时不绑定点击
+        click = (f' onclick="openIndexDetail(\'{secid}\', \'{_escape_js(name)}\')" style="cursor:pointer;"'
+                 if (clickable and secid) else "")
+        spark = (f'<div class="spark-wrap"><div class="index-mini-spark" data-code="{full}" '
+                 f'data-price="{price}" data-pct="{pct}"></div></div>') if full else ""
+        cards += f'''
+            <div class="idx-card"{click}>
+                <div class="nm">{name}</div>
+                <div class="px num {cls}">{_safe(price, "—")}</div>
+                <div class="row {cls}"><span class="chg">{chg_txt}</span><span>{_fmt_pct(pct)}</span></div>
+                {spark}
+            </div>'''
+    return f'<div class="hero">{cards}</div>'
+
+
+def _breadth_card(snap):
+    """市场情绪卡：涨跌分布条 + 涨停/跌停/成交额/情绪 四宫格。"""
+    breadth = snap.get("market_breadth") or {}
+    if not isinstance(breadth, dict) or "error" in breadth:
+        breadth = {}
+    up = breadth.get("up_count")
+    down = breadth.get("down_count")
+    zt = breadth.get("limit_up_count")
+    dt_c = breadth.get("limit_down_count")
+    amount = breadth.get("amount")
+    total = (up or 0) + (down or 0)
+    up_w = (up or 0) / total * 100 if total else 50
+    down_w = (down or 0) / total * 100 if total else 50
+    # 情绪判定：以涨家数占比为主，涨停家数为辅
+    if total:
+        if up_w >= 65:
+            mood, mood_cls = "乐观", "up"
+        elif up_w >= 45:
+            mood, mood_cls = "中性", ""
+        else:
+            mood, mood_cls = "偏弱", "down"
+    else:
+        mood, mood_cls = "—", ""
+    return f'''
+        <div class="card">
+            <div class="card-title"><span class="icon"><i class="fas fa-chart-simple"></i></span> 市场情绪 <span class="badge">BREADTH</span></div>
+            <div class="breadth">
+                <div class="bw-bar"><i class="seg-up" style="width:{up_w:.1f}%"></i><i class="seg-down" style="width:{down_w:.1f}%"></i></div>
+                <div class="bw-legend"><span>上涨 <b class="up">{_safe(up, "—")}</b></span><span>下跌 <b class="down">{_safe(down, "—")}</b></span><span>涨家占比 {up_w:.0f}%</span></div>
+                <div class="stats4">
+                    <div class="stat"><div class="l">涨停</div><div class="v up num">{_safe(zt, "—")}</div></div>
+                    <div class="stat"><div class="l">跌停</div><div class="v down num">{_safe(dt_c, "—")}</div></div>
+                    <div class="stat"><div class="l">成交额</div><div class="v num" style="font-size:15px;">{_fmt_amount(amount)}</div></div>
+                    <div class="stat"><div class="l">情绪</div><div class="v {mood_cls}" style="font-size:15px;">{mood}</div></div>
                 </div>
             </div>
         </div>'''
+
+
+def _sector_strength_card(snap, topn=8):
+    """板块强弱 TOP 卡：强势/弱势双列条形，含领涨股可点击。"""
+    sectors = [s for s in (snap.get("sector_flow", []) or []) if isinstance(s, dict)]
+    if not sectors:
+        return f'''
+        <div class="card">
+            <div class="card-title"><span class="icon"><i class="fas fa-fire"></i></span> 板块强弱 TOP <span class="badge">STRONG / WEAK</span></div>
+            <div class="muted" style="font-size:12.5px;">板块资金流数据暂不可用。</div>
+        </div>'''
+    top = sorted(sectors, key=lambda x: float(x.get("涨跌幅") or 0), reverse=True)[:topn]
+    weak = sorted(sectors, key=lambda x: float(x.get("涨跌幅") or 0))[:topn]
+    ref_top = max([abs(float(s.get("涨跌幅") or 0)) for s in top] + [1])
+    ref_weak = max([abs(float(s.get("涨跌幅") or 0)) for s in weak] + [1])
+
+    def _rows(lst, ref):
+        out = ""
+        for i, s in enumerate(lst, 1):
+            nm = s.get("名称", "—")
+            pct = float(s.get("涨跌幅") or 0)
+            cls = _cls(pct)
+            w = min(100, abs(pct) / ref * 100) if ref else 0
+            color = "var(--up)" if pct >= 0 else "var(--down)"
+            leader = s.get("领涨股") or ""
+            leader_html = (f'<span class="heat-lead" style="font-size:11px;color:var(--text-3);width:60px;'
+                           f'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;">'
+                           f'{_stock_link(leader, NAME_CODE.get(leader))}</span>') if leader else ""
+            out += (f'<div class="heat-row"><span class="heat-rank">{i}</span>'
+                    f'<span class="heat-nm" title="{nm}">{nm}</span>'
+                    f'<div class="heat-bar"><i style="width:{w:.0f}%;background:{color};"></i></div>'
+                    f'<span class="heat-pct {cls}">{_fmt_pct(pct, 1)}</span>{leader_html}</div>')
+        return out
+
+    return f'''
+        <div class="card">
+            <div class="card-title"><span class="icon"><i class="fas fa-fire"></i></span> 板块强弱 TOP <span class="badge">STRONG / WEAK</span></div>
+            <div class="heat-cols">
+                <div class="heat-col"><h4>强势 TOP{topn}</h4>{_rows(top, ref_top)}</div>
+                <div class="heat-col"><h4>弱势 TOP{topn}</h4>{_rows(weak, ref_weak)}</div>
+            </div>
+        </div>'''
+
+
+def _heat_color(pct: float) -> str:
+    """涨跌幅 → 热力色阶渐变（红涨绿跌，强度分 4 档）。"""
+    try:
+        p = float(pct)
+    except Exception:
+        p = 0.0
+    if p >= 4:
+        return "linear-gradient(135deg,#FF4D4F,#C62828)"
+    if p >= 2:
+        return "linear-gradient(135deg,#FF6B4D,#D84315)"
+    if p >= 1:
+        return "linear-gradient(135deg,#FF8A5C,#E64A19)"
+    if p > 0:
+        return "linear-gradient(135deg,#FFB020,#E09100)"
+    if p == 0:
+        return "linear-gradient(135deg,#5C6779,#3A4350)"
+    if p > -1:
+        return "linear-gradient(135deg,#2DD4BF,#0E9E8E)"
+    if p > -2:
+        return "linear-gradient(135deg,#00C896,#00936E)"
+    if p > -4:
+        return "linear-gradient(135deg,#00A86B,#007A4D)"
+    return "linear-gradient(135deg,#00875A,#00603F)"
+
+
+def _sector_heatmap_panel(snap, limit=40):
+    """A股板块资金流热力全景图（按净流入排序，色阶按涨跌幅）。"""
+    sectors = [s for s in (snap.get("sector_flow", []) or []) if isinstance(s, dict)]
+    if not sectors:
+        return ""
+    ranked = sorted(sectors, key=lambda x: float(x.get("净流入") or 0), reverse=True)[:limit]
+    cells = ""
+    for s in ranked:
+        nm = s.get("名称", "—")
+        pct = s.get("涨跌幅") or 0
+        net = s.get("净流入")
+        cells += (f'<div class="hm" style="background:{_heat_color(pct)};" title="{nm} · 净流入 {_fmt_amount(net)}">'
+                  f'<span class="nm">{nm}</span>'
+                  f'<div><div class="pct">{_fmt_pct(pct, 1)}</div>'
+                  f'<div class="sub">{_fmt_amount(net)}</div></div></div>')
+    return f'''
+        <div class="card card-full" style="margin-bottom:16px;">
+            <div class="card-title"><span class="icon"><i class="fas fa-fire"></i></span> A股热力全景图 <span class="badge">资金流向前{len(ranked)}</span>
+                <span class="click-hint">面积块按净流入排序 · 颜色深浅代表涨跌强度</span>
+            </div>
+            <div class="heatmap-grid">{cells}</div>
+            <div class="heatmap-legend">
+                <span>跌</span>
+                <span class="sc">
+                    <i style="background:#00875A"></i><i style="background:#00A86B"></i><i style="background:#00C896"></i><i style="background:#2DD4BF"></i>
+                    <i style="background:#5C6779"></i>
+                    <i style="background:#FFB020"></i><i style="background:#FF8A5C"></i><i style="background:#FF6B4D"></i><i style="background:#FF4D4F"></i>
+                </span>
+                <span>涨</span>
+            </div>
+        </div>'''
+
+
+def _index_quote_bar(items, label):
+    """板块主页顶部的指数行情条（原顶部跑马灯下移，避免留白与重复）。"""
+    if not items:
+        return ""
+    bar = ""
+    for x in items:
+        name = x.get("name", "—")
+        price = x.get("price")
+        pct = x.get("change_pct")
+        cls = _cls(pct)
+        color = _hex(pct)
+        bar += (f'<div class="bar-item"><span class="nm">{name}</span>'
+                f'<span class="px num">{_safe(price, "—")}</span>'
+                f'<span class="pct {cls}" style="color:{color};">{_fmt_pct(pct)}</span></div>')
+    return f'''
+        <div class="card section-index-bar" style="margin-bottom:16px;">
+            <div class="bar-label">{label}</div>
+            <div class="bar-items">{bar}</div>
+        </div>'''
+
+
+def _section_ashare(snap, us_quotes, overnight):
+    """A股大盘行情：页眉 + 指数行情条 + HERO指数大卡 + 市场情绪/板块强弱 + 指数K线。"""
+    a_idx = snap.get("a_indexes", []) or []
+    head = _screen_head("A股大盘行情", "核心指数 · 市场情绪 · 板块强弱 · 指数K线", _session('a')[0])
+    idx_bar = _index_quote_bar(a_idx, "核心指数")
+    hero = _hero_index_cards(a_idx, limit=4)
+    grid = f'''
+        <div class="grid-2">
+            {_breadth_card(snap)}
+            {_sector_strength_card(snap, topn=8)}
+        </div>'''
     idx_kline = _section_index_kline()     # 指数K线（分时 + 日K）
-    return overview + idx_kline
+    return head + idx_bar + hero + grid + idx_kline
 
 
 # ----------------------------------------------------------------- 重排后：美股行情映射 面板（美股隔夜 + 美股→A股传导）
 def _section_us_map(snap, us_quotes, overnight):
+    us_idx = snap.get("us_indices", []) or []
+    head = _screen_head("美股行情", "隔夜三大指数 · 板块表现 · 美股→A股传导映射", _session('us')[0])
+    idx_bar = _index_quote_bar(us_idx, "隔夜指数")
+    hero = _hero_index_cards(us_idx, limit=4, clickable=False)
     overview = f'''
         <div class="card card-full">
             <div class="card-title"><span class="icon"><i class="fas fa-globe-americas"></i></span> 美股行情 (隔夜) <span class="badge">US</span></div>
@@ -1213,7 +1599,7 @@ def _section_us_map(snap, us_quotes, overnight):
             </div>
         </div>'''
     transmit = _section_transmit(overnight)
-    return overview + transmit
+    return head + idx_bar + hero + overview + transmit
 
 
 # ----------------------------------------------------------------- ② 美股 → A股 传导预测
@@ -1409,7 +1795,7 @@ def _section_heatmap(snap, indicators):
     return f'''
         <div class="card card-full" onclick="openModal('flow')">
             <div class="card-title">
-                <span class="icon"><i class="fas fa-fire"></i></span> ④ A股热力全景图 · 资金流向前50名
+                <span class="icon"><i class="fas fa-arrow-trend-up"></i></span> 个股资金流 TOP50
                 <span class="badge">Top 50</span>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 查看完整50名</span>
             </div>
@@ -3188,40 +3574,56 @@ def build() -> str:
 
     build_version = dt.datetime.now().strftime('%Y%m%d-%H%M')
     header = f'''
-    <div class="header">
+    <header class="header">
         <div class="header-left">
-            <h1>📊 量化交易系统</h1>
-            <span class="subtitle">· 完整看板</span>
-            <span class="version-badge" title="页面构建版本">v{build_version}</span>
-        </div>
-        <div class="header-right">
             <div class="date-picker-wrapper">
-                <span class="icon"><i class="far fa-calendar-alt"></i></span>
+                <label for="datePicker" style="font-size:12.5px;color:var(--text-2);display:flex;align-items:center;gap:6px;user-select:none;">📅 日期</label>
                 <input type="date" id="datePicker" value="{date_val}" onchange="loadDate(this.value)">
             </div>
+        </div>
+        <div class="header-right">
             {status_badge}
             <span class="live-badge off" id="rtStatus"><i class="dot"></i> 连接中…</span>
             <button id="rtRefreshBtn" class="rt-refresh-btn" onclick="rtManualRefresh()" title="立即刷新所有行情"><i class="fas fa-sync-alt"></i> 立即刷新</button>
+            <span class="version-badge" title="页面构建版本">v{build_version}</span>
         </div>
-    </div>'''
+    </header>'''
 
     # 左侧导航 + 右侧内容面板（按用户指定顺序重排为 5 个板块）
+    # 涨停家数（用于涨停板页眉徽标）
+    _lu_all = [x for x in (snap.get("limit_up", []) or []) if isinstance(x, dict) and "error" not in x]
+    _lu_badge = f"{len(_lu_all)} 家涨停" if _lu_all else "无涨停数据"
+    _sf_cnt = len([s for s in (snap.get("sector_flow", []) or []) if isinstance(s, dict)])
+    _pos_cnt = len(positions or [])
+
     nav_items = [
         ("nav-ashare", "A股大盘行情", "fa-chart-line", _section_ashare(snap, us_quotes, overnight)),
         ("nav-us", "美股行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight)),
-        ("nav-limitup", "涨停板", "fa-arrow-up", _section_limitup(snap)),
-        ("nav-heatmap", "板块热点", "fa-fire", _section_heatmap(snap, indicators)),
-        ("nav-holdings", "持仓复盘", "fa-briefcase", _section_holdings(positions, a_quotes, indicators, account_pnl, daily_review_cache)),
-        ("nav-radar", "量化雷达", "fa-radar", "".join([
-            _section_pool(cfg, a_quotes, indicators),
-            _middle_daily_picks(),            # 明日进攻标的（明日备选池）
-            _right_backtest_engine(),         # 回测引擎
-            _section_judge(overnight, snap, cfg, a_quotes, account_pnl),
-        ])),
+        ("nav-limitup", "涨停板", "fa-arrow-up",
+         _screen_head("涨停板", "涨停家数 · 封单强度 · 连板梯队", _lu_badge)
+         + _section_limitup(snap)),
+        ("nav-heatmap", "板块热点", "fa-fire",
+         _screen_head("板块热点", "资金流向热力全景 · 板块强弱 · 个股资金流 TOP50",
+                      f"{_sf_cnt} 个板块" if _sf_cnt else "板块数据缺失")
+         + _sector_heatmap_panel(snap, limit=40)
+         + _section_heatmap(snap, indicators)),
+        ("nav-holdings", "持仓复盘", "fa-briefcase",
+         _screen_head("持仓复盘", "多账户合并盈亏 · 持仓明细 · 盘后复盘总结",
+                      f"{_pos_cnt} 只持仓" if _pos_cnt else "无持仓")
+         + _section_holdings(positions, a_quotes, indicators, account_pnl, daily_review_cache)),
+        ("nav-radar", "量化雷达", "fa-radar",
+         _screen_head("量化雷达", "进攻池 · 明日备选 · 回测引擎 · 核心判断", "STRATEGY")
+         + "".join([
+             _section_pool(cfg, a_quotes, indicators),
+             _middle_daily_picks(),            # 明日进攻标的（明日备选池）
+             _right_backtest_engine(),         # 回测引擎
+             _section_judge(overnight, snap, cfg, a_quotes, account_pnl),
+         ])),
     ]
 
-    sidebar_html = '<div class="sidebar">' \
-        '<div class="sidebar-logo">交易看板</div>' \
+    sidebar_html = '<aside class="sidebar">' \
+        '<div class="brand"><div class="logo">Q</div><div><div class="name">量化看板</div><div class="sub">QUANT DASHBOARD</div></div></div>' \
+        '<nav class="nav">' \
         + "".join(
             f'<div class="nav-item{" active" if i==0 else ""}" onclick="showPanel(&quot;{nid}&quot;)">'
             f'<span class="nav-icon"><i class="fas {icon}"></i></span>'
@@ -3229,7 +3631,12 @@ def build() -> str:
             f'<span class="nav-status"></span></div>'
             for i, (nid, label, icon, _) in enumerate(nav_items)
         ) \
-        + '</div>'
+        + '</nav>' \
+        '<div class="side-foot">' \
+        '<div class="theme-toggle" id="themeToggle"><span id="themeIcon">🌙</span> <span id="themeLabel">深色主题</span></div>' \
+        '<div class="env-tag">量化看板 · 实时行情</div>' \
+        '</div>' \
+        + '</aside>'
 
     content_html = '<main class="content">' \
         + "".join(
@@ -4203,7 +4610,7 @@ function startRealtime(){
     js = js + REALTIME_JS
 
     html = f'''<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -4234,6 +4641,22 @@ function startRealtime(){
 </script>
 </body>
 </html>'''
+    theme_js = '''
+<script>
+  (function(){
+    var root = document.documentElement;
+    var ti = document.getElementById('themeIcon'), tl = document.getElementById('themeLabel');
+    var tgl = document.getElementById('themeToggle');
+    if (tgl) tgl.addEventListener('click', function(){
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      if (ti) ti.textContent = next === 'dark' ? '🌙' : '☀️';
+      if (tl) tl.textContent = next === 'dark' ? '深色主题' : '浅色主题';
+    });
+  })();
+</script>
+'''
+    html = html.replace('</body>', theme_js + '\n</body>')
 
     out = os.path.join(REPO_ROOT, "index.html")
     with open(out, "w", encoding="utf-8") as f:
