@@ -90,11 +90,27 @@ CSS_RULES = """
             --transition: all 0.3s ease;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:var(--bg-primary); color:var(--text-primary); font-family:-apple-system,'Segoe UI',Roboto,sans-serif; padding:12px; min-height:100vh; }
-        .dashboard { width:100%; min-width:1180px; }
+        html, body { height:100%; overflow:hidden; }
+        body { background:var(--bg-primary); color:var(--text-primary); font-family:-apple-system,'Segoe UI',Roboto,sans-serif; min-height:100vh; }
+        .dashboard { width:100%; height:100vh; min-width:1180px; display:flex; flex-direction:column; }
 
-        .header { display:flex; justify-content:space-between; align-items:center; padding:20px 0 16px 0; border-bottom:1px solid var(--border-color); margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+        .header { display:flex; justify-content:space-between; align-items:center; padding:16px 24px; border-bottom:1px solid var(--border-color); flex-wrap:wrap; gap:12px; background:var(--bg-primary); }
         .header-left { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+
+        /* 左侧导航 + 右侧内容 布局 */
+        .app-layout { display:flex; flex:1; min-height:0; }
+        .sidebar { width:230px; flex-shrink:0; background:rgba(255,255,255,0.015); border-right:1px solid var(--border-color); overflow-y:auto; padding:12px 0; }
+        .sidebar-logo { padding:0 18px 14px; font-size:13px; font-weight:700; color:var(--text-secondary); letter-spacing:0.5px; border-bottom:1px solid var(--border-color); margin-bottom:10px; }
+        .nav-item { display:flex; align-items:center; gap:10px; padding:12px 18px; margin:2px 10px; border-radius:8px; cursor:pointer; transition:var(--transition); font-size:13px; color:var(--text-secondary); border-left:3px solid transparent; }
+        .nav-item:hover { background:rgba(255,255,255,0.04); color:var(--text-primary); }
+        .nav-item.active { background:rgba(79,195,247,0.10); color:var(--accent-blue); border-left-color:var(--accent-blue); }
+        .nav-item .nav-icon { width:18px; text-align:center; }
+        .nav-item .nav-status { margin-left:auto; width:7px; height:7px; border-radius:50%; background:var(--border-color); }
+        .nav-item.active .nav-status { background:var(--accent-blue); box-shadow:0 0 6px var(--accent-blue); }
+        .content { flex:1; min-width:0; overflow-y:auto; padding:20px 24px; }
+        .content-panel { display:none; animation:fadeIn 0.25s ease; }
+        .content-panel.active { display:block; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
         .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#4fc3f7 0%,#22c55e 50%,#f59e0b 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
         .header .subtitle { color:var(--text-secondary); font-size:13px; }
         .header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
@@ -2904,17 +2920,38 @@ def build() -> str:
         </div>
     </div>'''
 
-    modules = "".join([
-        _section_radar(snap),
-        _section_global(snap, us_quotes, overnight),
-        _section_transmit(overnight),
-        _section_limitup(snap),
-        _section_heatmap(snap, indicators),
-        _section_holdings(positions, a_quotes, indicators, account_pnl),
-        _section_pool(cfg, a_quotes, indicators),
-        _section_judge(overnight, snap, cfg, a_quotes, account_pnl),
-        _section_scan_picks(),
-    ])
+    # 左侧导航 + 右侧内容面板（初版：把原三栏平铺改为侧边栏切换）
+    nav_items = [
+        ("nav-radar", "量化雷达", "fa-radar", _section_radar(snap)),
+        ("nav-global", "全球市场", "fa-globe-americas", _section_global(snap, us_quotes, overnight)),
+        ("nav-transmit", "美股传导", "fa-arrow-right-arrow-left", _section_transmit(overnight)),
+        ("nav-limitup", "涨停板", "fa-arrow-up", _section_limitup(snap)),
+        ("nav-heatmap", "板块热力", "fa-fire", _section_heatmap(snap, indicators)),
+        ("nav-holdings", "持仓复盘", "fa-briefcase", _section_holdings(positions, a_quotes, indicators, account_pnl)),
+        ("nav-pool", "股票池与判断", "fa-star", "".join([
+            _section_pool(cfg, a_quotes, indicators),
+            _section_judge(overnight, snap, cfg, a_quotes, account_pnl),
+            _section_scan_picks(),
+        ])),
+    ]
+
+    sidebar_html = '<div class="sidebar">' \
+        '<div class="sidebar-logo">交易看板</div>' \
+        + "".join(
+            f'<div class="nav-item{" active" if i==0 else ""}" onclick="showPanel(&quot;{nid}&quot;)">'
+            f'<span class="nav-icon"><i class="fas {icon}"></i></span>'
+            f'<span class="nav-label">{label}</span>'
+            f'<span class="nav-status"></span></div>'
+            for i, (nid, label, icon, _) in enumerate(nav_items)
+        ) \
+        + '</div>'
+
+    content_html = '<main class="content">' \
+        + "".join(
+            f'<div id="{nid}" class="content-panel{" active" if i==0 else ""}">{body}</div>'
+            for i, (nid, _, _, body) in enumerate(nav_items)
+        ) \
+        + '</main>'
 
     footer = f'''
     <div class="footer">
@@ -3349,6 +3386,14 @@ function showShareToast(msg) {{
   if (!t) return;
   t.textContent = msg; t.style.opacity = '1';
   setTimeout(function(){{ t.style.opacity = '0'; }}, 1800);
+}}
+function showPanel(id) {{
+  document.querySelectorAll('.content-panel').forEach(function(p){{ p.classList.remove('active'); }});
+  document.querySelectorAll('.nav-item').forEach(function(n){{ n.classList.remove('active'); }});
+  const panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  const nav = document.querySelector('.nav-item[onclick*="' + id + '"]');
+  if (nav) nav.classList.add('active');
 }}'''
 
     REALTIME_JS = r'''
@@ -3553,8 +3598,9 @@ function startRealtime(){
 <body>
 <div class="dashboard">
 {header}
-    <div class="grid">
-{modules}
+    <div class="app-layout">
+{sidebar_html}
+{content_html}
     </div>
 {footer}
 </div>
