@@ -149,6 +149,8 @@ CSS_RULES = """
 
         .market-grid-2col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
         @media (max-width:600px) { .market-grid-2col { grid-template-columns:1fr; } }
+        .ashare-combined-grid { display:grid; grid-template-columns:minmax(320px,1fr) 1fr; gap:16px; align-items:start; }
+        @media (max-width:900px) { .ashare-combined-grid { grid-template-columns:1fr; } }
         .market-box { background:rgba(255,255,255,0.02); border-radius:10px; padding:12px 14px; border:1px solid var(--border-color); }
         .market-box .box-title { font-size:12px; font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
         .market-row { display:flex; flex-wrap:wrap; gap:4px 12px; }
@@ -427,6 +429,9 @@ CSS_RULES = """
 
         /* ---- 真实行情 / 任意回测 / 预测 相关补充 ---- */
         .index-mini-spark { width:100%; height:34px; display:block; margin-top:4px; }
+        .sector-heat-cols { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        @media (max-width:900px) { .sector-heat-cols { grid-template-columns:1fr; } }
+        .sector-heat-col-title { font-size:11px; color:var(--text-secondary); margin:8px 0 4px; }
         .sector-heat-list { flex:1; min-height:60px; max-height:260px; overflow-y:auto; margin-top:4px; }
         .bt-code-input {
             flex:1; background:var(--bg-primary); border:1px solid var(--border-color);
@@ -1161,27 +1166,30 @@ def _section_index_kline():
             </div>
             <div class="idx-chips">{chips}</div>
             <div class="stock-detail-tabs" style="margin-top:12px;">
-                <div class="idx-tab stock-detail-tab active" onclick="switchIndexTab('daily')" id="idxTab-daily">日K线</div>
-                <div class="idx-tab stock-detail-tab" onclick="switchIndexTab('intraday')" id="idxTab-intraday">分时K线</div>
+                <div class="idx-tab stock-detail-tab active" onclick="switchIndexTab('intraday')" id="idxTab-intraday">分时K线</div>
+                <div class="idx-tab stock-detail-tab" onclick="switchIndexTab('daily')" id="idxTab-daily">日K线</div>
             </div>
-            <div id="idxChart-daily" class="stock-chart"></div>
-            <div id="idxChart-intraday" class="stock-chart" style="display:none;"></div>
+            <div id="idxChart-intraday" class="stock-chart"></div>
+            <div id="idxChart-daily" class="stock-chart" style="display:none;"></div>
             <div class="stock-detail-info" id="idxDetailInfo"></div>
         </div>'''
 
 
 def _section_ashare(snap, us_quotes, overnight):
-    """A股大盘行情：A股行情总览（含涨跌分布/成交额）+ 指数K线 + 大盘扫描（含板块热度TOP10）。"""
+    """A股大盘行情：A股行情总览 + 大盘扫描 合并为同一卡片，下方放指数K线。"""
+    scan_inner = _left_market_scan(snap, standalone=False)
     overview = f'''
         <div class="card card-full">
             <div class="card-title"><span class="icon"><i class="fas fa-chart-line"></i></span> A股大盘行情 <span class="badge">MARKET</span></div>
-            <div class="market-grid-2col">
+            <div class="ashare-combined-grid">
                 {_ashare_box(snap)}
+                <div class="market-box" style="padding:10px 12px;">
+                    {scan_inner}
+                </div>
             </div>
         </div>'''
     idx_kline = _section_index_kline()     # 指数K线（分时 + 日K）
-    scan = _left_market_scan(snap)        # 大盘扫描（核心指数 + 涨跌分布 + 成交额 + 板块热度TOP10）
-    return overview + idx_kline + scan
+    return overview + idx_kline
 
 
 # ----------------------------------------------------------------- 重排后：美股行情映射 面板（美股隔夜 + 美股→A股传导）
@@ -2586,14 +2594,17 @@ def _sparkline_svg(values, color="#4fc3f7"):
     )
 
 
-def _left_market_scan(snap):
-    """左侧：大盘扫描（核心指数 + 市场情绪 + 板块热度TOPS）。"""
+def _left_market_scan(snap, standalone=True):
+    """大盘扫描：核心指数 + 市场情绪 + 板块强弱TOP10。standalone=False 时返回内嵌内容（供 A股大盘行情 合并使用）。"""
     a = snap.get("a_indexes", []) or []
     breadth = snap.get("market_breadth", {}) or {}
     sectors = (snap.get("sector_flow", []) or [])
-    # 按涨跌幅取TOP10
-    top_sectors = sorted([s for s in sectors if isinstance(s, dict)], key=lambda x: float(x.get("涨跌幅") or 0), reverse=True)[:10]
-    max_pct = max([float(s.get("涨跌幅") or 0) for s in top_sectors] + [1])
+    valid_sectors = [s for s in sectors if isinstance(s, dict)]
+    # 强势 / 弱势 TOP10
+    top_sectors = sorted(valid_sectors, key=lambda x: float(x.get("涨跌幅") or 0), reverse=True)[:10]
+    weak_sectors = sorted(valid_sectors, key=lambda x: float(x.get("涨跌幅") or 0))[:10]
+    max_pct_top = max([float(s.get("涨跌幅") or 0) for s in top_sectors] + [1])
+    max_pct_weak = max([abs(float(s.get("涨跌幅") or 0)) for s in weak_sectors] + [1])
 
     # 指数代码映射（用于浏览器端拉取真实日K绘制迷你折线）
     INDEX_CODE = {
@@ -2609,7 +2620,6 @@ def _left_market_scan(snap):
         price = x.get("price")
         pct = x.get("change_pct")
         cls = _cls(pct)
-        color = _hex(pct)
         # 真实迷你折线：由浏览器端拉取腾讯指数日K绘制（loadIndexSpark）
         full = INDEX_CODE.get(name, "")
         if full.startswith("sh"):
@@ -2640,16 +2650,17 @@ def _left_market_scan(snap):
     limit_down = breadth.get("limit_down_count")
     amount = _fmt_amount(breadth.get("amount"))
 
-    sector_items = ""
-    for i, s in enumerate(top_sectors, 1):
-        nm = s.get("名称", "—")
-        pct = s.get("涨跌幅", 0)
-        leader = s.get("领涨股") or "—"
-        leader_code = NAME_CODE.get(leader)
-        cls = _cls(pct)
-        bar_pct = min(100, abs(float(pct)) / max_pct * 100) if max_pct else 0
-        bar_color = "#ef4444" if float(pct) >= 0 else "#22c55e"
-        sector_items += f'''
+    def _heat_items(sector_list, ref_max):
+        items = ""
+        for i, s in enumerate(sector_list, 1):
+            nm = s.get("名称", "—")
+            pct = s.get("涨跌幅", 0)
+            leader = s.get("领涨股") or "—"
+            leader_code = NAME_CODE.get(leader)
+            cls = _cls(pct)
+            bar_pct = min(100, abs(float(pct)) / ref_max * 100) if ref_max else 0
+            bar_color = "#ef4444" if float(pct) >= 0 else "#22c55e"
+            items += f'''
         <div class="sector-heat-item">
             <span class="sector-heat-rank">{i}</span>
             <span class="sector-heat-name" title="{nm}">{nm}</span>
@@ -2657,10 +2668,24 @@ def _left_market_scan(snap):
             <span class="sector-heat-pct {cls}">{_fmt_pct(pct, 1)}</span>
             <span class="sector-heat-leader" title="{leader}">{_stock_link(leader, leader_code)}</span>
         </div>'''
+        return items
 
-    return f'''
-    <div class="radar-card">
-        <div class="card-title"><span class="icon"><i class="fas fa-radar"></i></span> 大盘扫描 <span class="badge">MARKET SCAN</span></div>
+    top_items = _heat_items(top_sectors, max_pct_top)
+    weak_items = _heat_items(weak_sectors, max_pct_weak)
+
+    heat_section = f'''
+        <div class="sector-heat-cols">
+            <div>
+                <div class="sector-heat-col-title">强势 TOP10</div>
+                <div class="sector-heat-list">{top_items}</div>
+            </div>
+            <div>
+                <div class="sector-heat-col-title">弱势 TOP10</div>
+                <div class="sector-heat-list">{weak_items}</div>
+            </div>
+        </div>'''
+
+    inner = f'''
         {index_cards}
         <div class="sentiment-stat-row">
             <div class="sentiment-stat"><div class="label">上涨</div><div class="value up">{_safe(up, "—")}</div></div>
@@ -2672,9 +2697,15 @@ def _left_market_scan(snap):
             <span>涨跌分布</span><span>成交额 {amount}</span>
         </div>
         <div class="sentiment-bar-wrap"><div class="sentiment-bar-fill" style="width:{up_pct:.1f}%;"></div></div>
-        <div style="font-size:10px;color:var(--text-secondary);margin-top:10px;margin-bottom:6px;">板块热度 TOP10</div>
-        <div class="sector-heat-list">{sector_items}</div>
+        {heat_section}'''
+
+    if standalone:
+        return f'''
+    <div class="radar-card">
+        <div class="card-title"><span class="icon"><i class="fas fa-radar"></i></span> 大盘扫描 <span class="badge">MARKET SCAN</span></div>
+        {inner}
     </div>'''
+    return inner
 
 
 def _predicted_gain(s):
@@ -3846,6 +3877,7 @@ function openIndexDetail(secid, name) {
   document.getElementById('idxChart-intraday').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">加载中…</div>';
   fetchIndexDaily(secid, name);
   fetchIndexIntraday(secid, name);
+  switchIndexTab('intraday');
 }
 
 function switchIndexTab(tab) {
