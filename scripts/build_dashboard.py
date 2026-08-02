@@ -1516,7 +1516,66 @@ def _position_rows(positions, a_quotes, indicators):
     return rows
 
 
-def _section_holdings(positions, a_quotes, indicators, account_pnl=None):
+def _section_daily_review(dr: dict | None) -> str:
+    """盘后复盘（交易日 22:00 由 daily_review.py 生成）。无数据则提示。"""
+    if not dr or not isinstance(dr, dict):
+        return ('<div class="card card-full" style="border-style:dashed;">'
+                '<div class="card-title"><span class="icon"><i class="fas fa-history"></i></span> 盘后复盘总结 '
+                '<span class="badge">每日 22:00 生成</span></div>'
+                '<div style="color:var(--text-secondary);padding:14px 4px;">暂无复盘数据。交易日 22:00 自动扫描后生成'
+                '（大势总结 / 板块资金流向 / 涨停榜 / 持仓复盘 / 次日监控池与作战策略）。</div></div>')
+    summary = dr.get("summary") or {}
+    strategy = dr.get("strategy") or {}
+    watch = dr.get("watch_pool") or []
+    trend = summary.get("trend", "—")
+    tcolor = {"red": "#ef5350", "orange": "#ffa726", "green": "#26a69a", "neutral": "#90a4ae"}.get(
+        summary.get("trend_color"), "#90a4ae")
+    idx_rows = ""
+    for ix in summary.get("indexes", []):
+        cp = ix.get("change_pct")
+        idx_rows += (f'<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;'
+                     f'border-bottom:1px solid rgba(255,255,255,0.04);">'
+                     f'<span>{ix.get("name")}</span>'
+                     f'<span style="color:{_cls(cp)};">{ix.get("price")} ({_fmt_pct(cp)})</span></div>')
+    breadth = summary.get("breadth") or {}
+    br = (f'涨跌 {breadth.get("up", "-")}/{breadth.get("down", "-")} · '
+          f'涨停 {breadth.get("limit_up", "-")} · 跌停 {breadth.get("limit_down", "-")}')
+    tactics = "".join(f'<li style="margin:4px 0;color:var(--text-secondary);font-size:12px;">{t}</li>'
+                      for t in (strategy.get("tactics") or []))
+    wp = ""
+    for w in watch[:12]:
+        cp = w.get("change_pct")
+        wp += (f'<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;'
+               f'padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">'
+               f'<span class="stock-link" onclick="openStockDetail(\'{w.get("code")}\',\'{w.get("name")}\')" '
+               f'title="查看日K/分时">{w.get("name")}</span>'
+               f'<span style="color:{_cls(cp)};">{_fmt_pct(cp)} · 评分{w.get("score") or "—"}</span></div>')
+    dr_date = dr.get("date", "—")
+    return f'''
+        <div class="card card-full">
+            <div class="card-title"><span class="icon"><i class="fas fa-history"></i></span> 盘后复盘总结
+                <span class="badge">交易日 22:00</span>
+                <span style="color:var(--text-secondary);font-size:11px;margin-left:6px;">{dr_date}</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div>
+                    <div style="font-size:15px;font-weight:700;color:{tcolor};margin-bottom:6px;">{trend}
+                        （均 {_fmt_pct(summary.get("avg_change_pct"))}）</div>
+                    {idx_rows}
+                    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px;">{br}</div>
+                    <div style="margin-top:10px;font-size:13px;color:#e8edf4;">{strategy.get("overall", "")}</div>
+                    <div style="font-size:12px;color:#4fc3f7;margin-top:4px;">{strategy.get("position", "")}</div>
+                    <ul style="margin:8px 0 0;padding-left:18px;">{tactics}</ul>
+                </div>
+                <div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">次日监控池
+                        （{strategy.get("watch_count", len(watch))} 只，合并 14:30+22:00 扫描）</div>
+                    {wp if wp else '<div style="color:var(--text-secondary);font-size:12px;">—</div>'}
+                </div>
+            </div>
+        </div>'''
+
+
+def _section_holdings(positions, a_quotes, indicators, account_pnl=None, daily_review=None):
     rows = _position_rows(positions, a_quotes, indicators)
     if not rows:
         return '''
@@ -1660,7 +1719,7 @@ def _section_holdings(positions, a_quotes, indicators, account_pnl=None):
         acc_cards.append(card)
     acc_cards_html = "".join(acc_cards)
 
-    return f'''
+    return _section_daily_review(daily_review) + f'''
         <div class="card card-full" onclick="openModal('positions')">
             <div class="card-title">
                 <span class="icon"><i class="fas fa-briefcase"></i></span> ⑤ 持仓复盘（银河证券 / 东财 / 中信建投 三账号合并）
@@ -3037,6 +3096,7 @@ def build() -> str:
     broker_positions = holdings_cache.get("positions") or []
     positions = _unified_positions(cfg, broker_positions)
     account_pnl = holdings_cache.get("account_pnl")   # 分账户权威盈亏（含已平仓盈亏）
+    daily_review_cache = _load_cache("daily_review")  # 交易日 22:00 盘后复盘
 
     # 实时价补充（失败则优雅降级为占位）
     pool_names = list(cfg.get("attack_pool", []) or [])
@@ -3104,7 +3164,7 @@ def build() -> str:
         ("nav-us", "美股行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight)),
         ("nav-limitup", "涨停板", "fa-arrow-up", _section_limitup(snap)),
         ("nav-heatmap", "板块热点", "fa-fire", _section_heatmap(snap, indicators)),
-        ("nav-holdings", "持仓复盘", "fa-briefcase", _section_holdings(positions, a_quotes, indicators, account_pnl)),
+        ("nav-holdings", "持仓复盘", "fa-briefcase", _section_holdings(positions, a_quotes, indicators, account_pnl, daily_review_cache)),
         ("nav-radar", "量化雷达", "fa-radar", "".join([
             _section_pool(cfg, a_quotes, indicators),
             _middle_daily_picks(),            # 明日进攻标的（明日备选池）

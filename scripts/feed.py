@@ -585,7 +585,7 @@ def get_a_indexes() -> list[dict]:
     try:
         q = tencent_quotes(list(_A_INDEX_CODES))
         out = [{"name": _A_INDEX_CODES[c], "price": v["price"],
-                "change_pct": v["change_pct"]} for c, v in q.items() if c in _A_INDEX_CODES]
+                "change_pct": v["change_pct"], "change": v.get("change")} for c, v in q.items() if c in _A_INDEX_CODES]
         if out:
             return out
     except Exception:

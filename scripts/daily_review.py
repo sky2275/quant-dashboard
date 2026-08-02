@@ -103,13 +103,13 @@ def _market_summary(snapshot: dict) -> dict[str, Any]:
 
 
 def _sector_flow(snapshot: dict) -> dict[str, Any]:
-    """板块资金流向 Top10。"""
+    """板块资金流向 Top10。feed.py 输出的字段为「净流入」(元)，此处对齐。"""
     flows = snapshot.get("sector_flow", []) or []
-    inflow = sorted([s for s in flows if s.get("net", 0) > 0], key=lambda x: -x.get("net", 0))[:10]
-    outflow = sorted([s for s in flows if s.get("net", 0) < 0], key=lambda x: x.get("net", 0))[:10]
+    inflow = sorted([s for s in flows if float(s.get("净流入", 0) or 0) > 0], key=lambda x: -float(x.get("净流入", 0) or 0))[:10]
+    outflow = sorted([s for s in flows if float(s.get("净流入", 0) or 0) < 0], key=lambda x: float(x.get("净流入", 0) or 0))[:10]
     return {
-        "top_inflow": [{"name": s.get("name"), "net": _fmt_yi(s.get("net", 0)), "change_pct": s.get("change_pct")} for s in inflow],
-        "top_outflow": [{"name": s.get("name"), "net": _fmt_yi(s.get("net", 0)), "change_pct": s.get("change_pct")} for s in outflow],
+        "top_inflow": [{"name": s.get("名称"), "net": _fmt_yi(s.get("净流入", 0)), "change_pct": s.get("涨跌幅")} for s in inflow],
+        "top_outflow": [{"name": s.get("名称"), "net": _fmt_yi(s.get("净流入", 0)), "change_pct": s.get("涨跌幅")} for s in outflow],
     }
 
 
