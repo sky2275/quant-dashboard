@@ -223,9 +223,13 @@ CSS_RULES = """
         .stock-detail-title { font-size:20px; font-weight:700; color:var(--text-primary); }
         .stock-detail-code { color:var(--text-secondary); font-size:13px; margin-left:8px; font-family:monospace; }
         .stock-detail-tabs { display:flex; gap:8px; margin-bottom:14px; border-bottom:1px solid var(--border-color); padding-bottom:10px; }
-        .stock-detail-tab { padding:7px 16px; border-radius:6px; cursor:pointer; font-size:13px; color:var(--text-secondary); transition:var(--transition); }
-        .stock-detail-tab:hover { background:rgba(255,255,255,0.04); color:var(--text-primary); }
-        .stock-detail-tab.active { background:rgba(79,195,247,0.12); color:var(--accent-blue); }
+        .stock-detail-tab, .idx-tab { padding:7px 16px; border-radius:6px; cursor:pointer; font-size:13px; color:var(--text-secondary); transition:var(--transition); }
+        .stock-detail-tab:hover, .idx-tab:hover { background:rgba(255,255,255,0.04); color:var(--text-primary); }
+        .stock-detail-tab.active, .idx-tab.active { background:rgba(79,195,247,0.12); color:var(--accent-blue); }
+        .idx-chips { display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 2px; }
+        .idx-chip { padding:6px 14px; border-radius:20px; cursor:pointer; font-size:13px; color:var(--text-secondary); background:rgba(255,255,255,0.04); border:1px solid var(--border-color); transition:var(--transition); user-select:none; }
+        .idx-chip:hover { color:var(--text-primary); border-color:rgba(79,195,247,0.4); }
+        .idx-chip.active { background:rgba(79,195,247,0.15); color:var(--accent-blue); border-color:var(--accent-blue); }
         .stock-chart { width:100%; height:460px; border-radius:10px; background:rgba(0,0,0,0.18); border:1px solid var(--border-color); }
         .stock-detail-info { display:flex; gap:18px; font-size:12px; color:var(--text-secondary); margin-top:12px; flex-wrap:wrap; }
         .stock-detail-info span b { color:var(--text-primary); font-weight:500; }
@@ -1132,9 +1136,42 @@ def _us_box(us_quotes, overnight, snap):
                 </div>'''
 
 
-# ----------------------------------------------------------------- 重排后：A股大盘行情 面板（A股总览 + 量化雷达三栏 + 每日选股推荐）
+# ----------------------------------------------------------------- 重排后：A股大盘行情 面板（A股总览 + 指数K线 + 大盘扫描）
+def _section_index_kline():
+    """A股主要指数：分时K线 + 日K线（浏览器端东方财富实时拉取）。"""
+    INDEX_LIST = [
+        ("上证指数", "1.000001"),
+        ("深证成指", "0.399001"),
+        ("创业板指", "0.399006"),
+        ("沪深300", "1.000300"),
+        ("上证50", "1.000016"),
+        ("科创50", "1.000688"),
+        ("中证500", "1.000905"),
+        ("北证50", "0.899050"),
+    ]
+    chips = ""
+    for i, (nm, secid) in enumerate(INDEX_LIST):
+        active = " active" if i == 0 else ""
+        chips += (f'<span class="idx-chip{active}" data-secid="{secid}" data-name="{nm}" '
+                  f'onclick="openIndexDetail(\'{secid}\', \'{nm}\')">{nm}</span>')
+    return f'''
+        <div class="card card-full">
+            <div class="card-title"><span class="icon"><i class="fas fa-chart-area"></i></span> 指数K线 <span class="badge">分时 / 日K</span>
+                <span class="click-hint">点击上方指数切换</span>
+            </div>
+            <div class="idx-chips">{chips}</div>
+            <div class="stock-detail-tabs" style="margin-top:12px;">
+                <div class="idx-tab stock-detail-tab active" onclick="switchIndexTab('daily')" id="idxTab-daily">日K线</div>
+                <div class="idx-tab stock-detail-tab" onclick="switchIndexTab('intraday')" id="idxTab-intraday">分时K线</div>
+            </div>
+            <div id="idxChart-daily" class="stock-chart"></div>
+            <div id="idxChart-intraday" class="stock-chart" style="display:none;"></div>
+            <div class="stock-detail-info" id="idxDetailInfo"></div>
+        </div>'''
+
+
 def _section_ashare(snap, us_quotes, overnight):
-    """A股大盘行情：A股行情总览（含涨跌分布/成交额）+ 大盘扫描（含板块热度TOP10）。"""
+    """A股大盘行情：A股行情总览（含涨跌分布/成交额）+ 指数K线 + 大盘扫描（含板块热度TOP10）。"""
     overview = f'''
         <div class="card card-full">
             <div class="card-title"><span class="icon"><i class="fas fa-chart-line"></i></span> A股大盘行情 <span class="badge">MARKET</span></div>
@@ -1142,8 +1179,9 @@ def _section_ashare(snap, us_quotes, overnight):
                 {_ashare_box(snap)}
             </div>
         </div>'''
+    idx_kline = _section_index_kline()     # 指数K线（分时 + 日K）
     scan = _left_market_scan(snap)        # 大盘扫描（核心指数 + 涨跌分布 + 成交额 + 板块热度TOP10）
-    return overview + scan
+    return overview + idx_kline + scan
 
 
 # ----------------------------------------------------------------- 重排后：美股行情映射 面板（美股隔夜 + 美股→A股传导）
@@ -3550,6 +3588,10 @@ function showPanel(id) {{
   if (panel) panel.classList.add('active');
   const nav = document.querySelector('.nav-item[onclick*="' + id + '"]');
   if (nav) nav.classList.add('active');
+  if (id === 'nav-ashare') {{
+    if (!idxDailyChart && !idxIntradayChart) {{ loadIndexDefault(); }}
+    else {{ if (idxDailyChart) idxDailyChart.resize(); if (idxIntradayChart) idxIntradayChart.resize(); }}
+  }}
 }}'''
 
     STOCK_DETAIL_JS = r'''
@@ -3722,6 +3764,147 @@ function updateStockInfo(prePrice, lastPrice, data) {
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeStockDetail(); });
 '''
     js = js + STOCK_DETAIL_JS
+
+    INDEX_CHART_JS = r'''
+/* ---- 指数K线：分时 + 日K（浏览器端东方财富 JSONP） ---- */
+var idxDailyChart = null, idxIntradayChart = null;
+
+function loadIndexDefault() {
+  var first = document.querySelector('.idx-chip');
+  if (!first) return;
+  openIndexDetail(first.getAttribute('data-secid'), first.getAttribute('data-name'));
+}
+
+function openIndexDetail(secid, name) {
+  secid = (secid || '').trim();
+  name = name || secid;
+  if (!secid) return;
+  document.querySelectorAll('.idx-chip').forEach(function(c){ c.classList.remove('active'); });
+  var el = document.querySelector('.idx-chip[data-secid="' + secid + '"]');
+  if (el) el.classList.add('active');
+  document.getElementById('idxChart-daily').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">加载中…</div>';
+  document.getElementById('idxChart-intraday').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">加载中…</div>';
+  fetchIndexDaily(secid, name);
+  fetchIndexIntraday(secid, name);
+}
+
+function switchIndexTab(tab) {
+  document.querySelectorAll('.idx-tab').forEach(function(el){ el.classList.remove('active'); });
+  var t = document.getElementById('idxTab-' + tab);
+  if (t) t.classList.add('active');
+  document.getElementById('idxChart-daily').style.display = (tab === 'daily') ? 'block' : 'none';
+  document.getElementById('idxChart-intraday').style.display = (tab === 'intraday') ? 'block' : 'none';
+  if (tab === 'daily' && idxDailyChart) idxDailyChart.resize();
+  if (tab === 'intraday' && idxIntradayChart) idxIntradayChart.resize();
+}
+
+function fetchIndexDaily(secid, name) {
+  var cb = 'idxk_' + Math.random().toString(36).slice(2, 10);
+  var url = 'https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=' + secid + '&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=0&beg=20220101&end=20500101&ut=fa5fd1943c7b386f172d6893dbfba10b&cb=' + cb;
+  _stockJsonp(url, cb).then(function(res) {
+    var data = (res && res.data) ? res.data : null;
+    if (!data || !data.klines || !data.klines.length) {
+      document.getElementById('idxChart-daily').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">日K数据加载失败或暂无数据</div>';
+      return;
+    }
+    renderIndexDaily(data, name);
+  });
+}
+
+function renderIndexDaily(data, name) {
+  var klines = data.klines;
+  var dates = [], values = [], ma5 = [], ma10 = [], ma20 = [];
+  for (var i = 0; i < klines.length; i++) {
+    var p = klines[i].split(',');
+    dates.push(p[0]);
+    values.push([parseFloat(p[1]), parseFloat(p[2]), parseFloat(p[3]), parseFloat(p[4])]);
+  }
+  for (var i = 0; i < values.length; i++) {
+    ma5.push(_ma(values, 5, i)); ma10.push(_ma(values, 10, i)); ma20.push(_ma(values, 20, i));
+  }
+  var upColor = '#ef4444', downColor = '#22c55e';
+  var option = {
+    backgroundColor: 'transparent',
+    title: { text: (name || data.name || '') + ' 日K', left: 'center', textStyle: { color: '#e8edf5', fontSize: 14 } },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' }, backgroundColor: 'rgba(17,24,39,0.95)', borderColor: '#1e2a3a', textStyle: { color: '#e8edf5' } },
+    legend: { data: ['K线', 'MA5', 'MA10', 'MA20'], textStyle: { color: '#8892a0' }, top: 24 },
+    grid: { left: 56, right: 16, top: 64, bottom: 32 },
+    xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
+    yAxis: { scale: true, splitLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
+    dataZoom: [{ type: 'inside', start: Math.max(0, 100 - 120 / values.length * 100), end: 100 }],
+    series: [
+      { name: 'K线', type: 'candlestick', data: values, itemStyle: { color: upColor, color0: downColor, borderColor: upColor, borderColor0: downColor } },
+      { name: 'MA5', type: 'line', data: ma5, smooth: true, showSymbol: false, lineStyle: { color: '#f59e0b', width: 1 } },
+      { name: 'MA10', type: 'line', data: ma10, smooth: true, showSymbol: false, lineStyle: { color: '#4fc3f7', width: 1 } },
+      { name: 'MA20', type: 'line', data: ma20, smooth: true, showSymbol: false, lineStyle: { color: '#a78bfa', width: 1 } }
+    ]
+  };
+  var dom = document.getElementById('idxChart-daily');
+  if (idxDailyChart) idxDailyChart.dispose();
+  idxDailyChart = echarts.init(dom);
+  idxDailyChart.setOption(option);
+}
+
+function fetchIndexIntraday(secid, name) {
+  var cb = 'idxt_' + Math.random().toString(36).slice(2, 10);
+  var url = 'https://push2.eastmoney.com/api/qt/stock/trends2/get?secid=' + secid + '&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&ndays=1&iscr=0&ut=fa5fd1943c7b386f172d6893dbfba10b&cb=' + cb;
+  _stockJsonp(url, cb).then(function(res) {
+    var data = (res && res.data) ? res.data : null;
+    if (!data || !data.trends || !data.trends.length) {
+      document.getElementById('idxChart-intraday').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">分时数据加载失败或暂无数据</div>';
+      return;
+    }
+    renderIndexIntraday(data, name);
+  });
+}
+
+function renderIndexIntraday(data, name) {
+  var trends = data.trends;
+  var times = [], prices = [], avgs = [];
+  var prePrice = data.prePrice || 0;
+  for (var i = 0; i < trends.length; i++) {
+    var p = trends[i].split(',');
+    times.push(p[0]);
+    prices.push(parseFloat(p[1]));
+    avgs.push(parseFloat(p[2]) || null);
+  }
+  var lastPrice = prices[prices.length - 1] || prePrice;
+  var upColor = '#ef4444', downColor = '#22c55e';
+  var lineColor = lastPrice >= prePrice ? upColor : downColor;
+  var areaColor = lastPrice >= prePrice ? 'rgba(239,68,68,0.18)' : 'rgba(34,197,94,0.18)';
+  var option = {
+    backgroundColor: 'transparent',
+    title: { text: (name || data.name || '') + ' 分时', left: 'center', textStyle: { color: '#e8edf5', fontSize: 14 } },
+    tooltip: { trigger: 'axis', backgroundColor: 'rgba(17,24,39,0.95)', borderColor: '#1e2a3a', textStyle: { color: '#e8edf5' } },
+    legend: { data: ['现价', '均价'], textStyle: { color: '#8892a0' }, top: 24 },
+    grid: { left: 56, right: 16, top: 64, bottom: 32 },
+    xAxis: { type: 'category', data: times, axisLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
+    yAxis: { scale: true, splitLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
+    series: [
+      { name: '现价', type: 'line', data: prices, showSymbol: false, lineStyle: { color: lineColor, width: 1.5 }, areaStyle: { color: areaColor } },
+      { name: '均价', type: 'line', data: avgs, showSymbol: false, lineStyle: { color: '#f59e0b', width: 1, type: 'dashed' } }
+    ]
+  };
+  var dom = document.getElementById('idxChart-intraday');
+  if (idxIntradayChart) idxIntradayChart.dispose();
+  idxIntradayChart = echarts.init(dom);
+  idxIntradayChart.setOption(option);
+  updateIdxInfo(prePrice, lastPrice, data);
+}
+
+function updateIdxInfo(prePrice, lastPrice, data) {
+  var info = document.getElementById('idxDetailInfo');
+  var pct = prePrice ? (((lastPrice - prePrice) / prePrice) * 100).toFixed(2) : '—';
+  var sign = parseFloat(pct) > 0 ? '+' : '';
+  var color = parseFloat(pct) > 0 ? '#ef4444' : (parseFloat(pct) < 0 ? '#22c55e' : '#8892a0');
+  info.innerHTML = '<span><b>昨收:</b> ' + (prePrice || '—') + '</span>'
+    + '<span><b>最新:</b> <b style="color:' + color + ';">' + (lastPrice || '—') + '</b></span>'
+    + '<span><b>涨跌:</b> <b style="color:' + color + ';">' + sign + pct + '%</b></span>';
+}
+
+window.addEventListener('load', function(){ loadIndexDefault(); });
+'''
+    js = js + INDEX_CHART_JS
 
     REALTIME_JS = r'''
 (function(){
