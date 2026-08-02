@@ -56,6 +56,42 @@ PRESETS = {
             "cap_fit": 0.10,
         },
     },
+    "1030": {
+        "label": "早盘趋势",
+        "change_pct": (1.5, 7.0),      # 早盘已启动但未涨停
+        "amount_min": 15_000_000,      # 成交额 ≥ 1500万
+        "turnover_min": 2.0,           # 换手 ≥ 2%
+        "volume_ratio_min": 1.2,       # 量比 ≥ 1.2
+        "turnover_max": 22.0,
+        "float_cap": (1.5e9, 5.0e11),  # 流通市值 15亿-500亿
+        "exclude_bj": False,
+        "exclude_kc": False,
+        "score_weights": {
+            "change_pct": 0.30,
+            "amount": 0.20,
+            "turnover": 0.20,
+            "volume_ratio": 0.20,
+            "cap_fit": 0.10,
+        },
+    },
+    "1200": {
+        "label": "午盘趋势",
+        "change_pct": (2.0, 8.0),      # 上午持续走强
+        "amount_min": 20_000_000,      # 成交额 ≥ 2000万
+        "turnover_min": 2.5,           # 换手 ≥ 2.5%
+        "volume_ratio_min": 1.3,       # 量比 ≥ 1.3
+        "turnover_max": 22.0,
+        "float_cap": (1.5e9, 5.0e11),  # 流通市值 15亿-500亿
+        "exclude_bj": False,
+        "exclude_kc": False,
+        "score_weights": {
+            "change_pct": 0.30,
+            "amount": 0.20,
+            "turnover": 0.20,
+            "volume_ratio": 0.20,
+            "cap_fit": 0.10,
+        },
+    },
     "1430": {
         "label": "市场情绪",
         "change_pct": (3.0, 8.0),      # 强势股，未涨停(>8%保留观察)
@@ -65,6 +101,24 @@ PRESETS = {
         "turnover_max": 20.0,
         "float_cap": (2.0e9, 5.0e11),  # 流通市值 20亿-500亿
         "exclude_bj": False,           # 14:30 允许北交所(但会单独标注)
+        "exclude_kc": False,
+        "score_weights": {
+            "change_pct": 0.30,
+            "amount": 0.20,
+            "turnover": 0.20,
+            "volume_ratio": 0.20,
+            "cap_fit": 0.10,
+        },
+    },
+    "2200": {
+        "label": "盘后复盘",
+        "change_pct": (2.0, 10.0),     # 收盘强势股/涨停附近复盘
+        "amount_min": 30_000_000,      # 成交额 ≥ 3000万
+        "turnover_min": 3.0,           # 换手 ≥ 3%
+        "volume_ratio_min": 1.5,       # 量比 ≥ 1.5
+        "turnover_max": 25.0,
+        "float_cap": (1.5e9, 8.0e11),  # 流通市值 15亿-800亿
+        "exclude_bj": False,
         "exclude_kc": False,
         "score_weights": {
             "change_pct": 0.30,
@@ -132,7 +186,7 @@ def _load_spot() -> list[dict[str, Any]]:
 
 
 def _analysis(mode: str, r: dict, score: float) -> dict[str, str]:
-    """为入选股票生成推荐理由与明日关注点。"""
+    """为入选股票生成推荐理由与对应时间窗口的作战策略。"""
     reasons = []
     if mode == "0926":
         reasons.append(f"集合竞价高开 {r['change_pct']:+.2f}%，开盘异动")
@@ -142,6 +196,30 @@ def _analysis(mode: str, r: dict, score: float) -> dict[str, str]:
             reasons.append(f"换手 {r['turnover']:.2f}%，竞价有承接")
         if 1.5e9 <= r["float_cap"] <= 8.0e10:
             reasons.append("流通市值适中，易于拉升")
+    elif mode == "1030":
+        reasons.append(f"早盘涨幅 {r['change_pct']:+.2f}%，资金已开始进攻")
+        if r["turnover"] >= 3.0:
+            reasons.append(f"换手 {r['turnover']:.2f}%，交投活跃")
+        if r["volume_ratio"] >= 1.5:
+            reasons.append(f"量比 {r['volume_ratio']:.2f}，放量上攻")
+        if r["amount"] >= 2.0e7:
+            reasons.append(f"成交额 {_fmt_yi(r['amount'])}")
+    elif mode == "1200":
+        reasons.append(f"上午收盘涨 {r['change_pct']:+.2f}%，午盘有望延续")
+        if r["turnover"] >= 3.0:
+            reasons.append(f"换手 {r['turnover']:.2f}%，承接有力")
+        if r["volume_ratio"] >= 1.5:
+            reasons.append(f"量比 {r['volume_ratio']:.2f}，量价齐升")
+        if r["amount"] >= 2.5e7:
+            reasons.append(f"成交额 {_fmt_yi(r['amount'])}")
+    elif mode == "2200":
+        reasons.append(f"当日收盘涨 {r['change_pct']:+.2f}%，收盘强势标的")
+        if r["turnover"] >= 5.0:
+            reasons.append(f"换手 {r['turnover']:.2f}%，全天活跃")
+        if r["volume_ratio"] >= 2.0:
+            reasons.append(f"量比 {r['volume_ratio']:.2f}，资金聚焦")
+        if r["amount"] >= 5.0e7:
+            reasons.append(f"成交额 {_fmt_yi(r['amount'])}")
     else:
         reasons.append(f"盘中涨幅 {r['change_pct']:+.2f}%，走势偏强")
         if r["turnover"] >= 5.0:
@@ -157,6 +235,15 @@ def _analysis(mode: str, r: dict, score: float) -> dict[str, str]:
     if mode == "0926":
         focus.append("开盘后观察能否站稳分时均线，回踩不破开盘价可轻仓试错")
         focus.append("若30分钟内放量拉升且量比>1.5，可加仓；跌破开盘价且反抽无力则放弃")
+    elif mode == "1030":
+        focus.append("10:30 后若维持均线上方运行，可视为早盘强势；跌破均价线减半")
+        focus.append("午后若放量突破早盘高点，可轻仓跟进；缩量回落则放弃")
+    elif mode == "1200":
+        focus.append("午后开盘观察30分钟能否继续新高，不能新高则止盈/减仓")
+        focus.append("若下午回踩不破上午低点，明日可继续跟踪；跌破则剔除")
+    elif mode == "2200":
+        focus.append("复盘纳入明日重点监控池；次日高开不追，回踩今日涨停价/均线再考虑")
+        focus.append("关注板块效应：同板块多股上榜则形成主线，可加大仓位；独苗则谨慎")
     else:
         focus.append("14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进")
         focus.append("明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有")
@@ -318,15 +405,18 @@ def save(result: dict[str, Any]) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="A股全市场扫描选股")
-    parser.add_argument("--mode", required=True, choices=list(PRESETS.keys()), help="扫描模式: 0926/1430")
+    parser.add_argument("--mode", required=True, choices=list(PRESETS.keys()), help="扫描模式: 0926/1030/1200/1430/2200")
     parser.add_argument("--top", type=int, default=15, help="输出股票数量上限(默认15)")
     parser.add_argument("--no-save", action="store_true", help="不写入 cache，仅打印")
+    parser.add_argument("--force", action="store_true", help="非交易日也强制写入空结果")
     args = parser.parse_args()
 
     result = run(args.mode, top_n=args.top)
-    if not args.no_save:
+    if not args.no_save and (result.get("is_trade_day") or args.force):
         path = save(result)
         print(f"saved: {path}")
+    elif not result.get("is_trade_day") and not args.force:
+        print("skip save: non-trade day (use --force to override)")
     else:
         print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0

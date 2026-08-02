@@ -53,14 +53,26 @@ jobs:
         if: github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true'
         run: python scripts/feed.py
       - name: 美股→A股传导预测(08:00)
-        if: github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true'
+        if: (github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true') && github.event.schedule == '0 0 * * 1-5'
         run: python scripts/us_overnight.py
       - name: 扫描全A股-集合竞价(09:26)
         if: (github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true') && github.event.schedule == '26 1 * * 1-5'
         run: python scripts/scan_a_shares.py --mode 0926
+      - name: 扫描全A股-早盘趋势(10:30)
+        if: (github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true') && github.event.schedule == '30 2 * * 1-5'
+        run: python scripts/scan_a_shares.py --mode 1030
+      - name: 扫描全A股-午盘趋势(12:00)
+        if: (github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true') && github.event.schedule == '0 4 * * 1-5'
+        run: python scripts/scan_a_shares.py --mode 1200
       - name: 扫描全A股-市场情绪(14:30)
         if: (github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true') && github.event.schedule == '30 6 * * 1-5'
         run: python scripts/scan_a_shares.py --mode 1430
+      - name: 扫描全A股-盘后复盘(22:00)
+        if: (github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true') && github.event.schedule == '0 14 * * 1-5'
+        run: python scripts/scan_a_shares.py --mode 2200
+      - name: A股盘后复盘总结(22:00)
+        if: (github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true') && github.event.schedule == '0 14 * * 1-5'
+        run: python scripts/daily_review.py
       - name: 获取回测用K线数据
         if: github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true'
         run: python scripts/fetch_backtest_klines.py

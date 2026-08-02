@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # 量化看板自动刷新包装器
-# 由 WorkBuddy 定时任务在交易日的 08:00/09:26/10:30/12:00/14:30/22:00 触发；
+# 由 WorkBuddy 定时任务在交易日的以下 6 个时点触发：
+#   08:00 美股隔夜传导 → feed + us_overnight
+#   09:26 集合竞价扫描 → feed + scan_a_shares --mode 0926
+#   10:30 早盘趋势扫描 → feed + scan_a_shares --mode 1030
+#   12:00 午盘趋势扫描 → feed + scan_a_shares --mode 1200
+#   14:30 市场情绪扫描 → feed + scan_a_shares --mode 1430
+#   22:00 A股盘后复盘  → feed + daily_review
 # 非交易日或不在上述窗口时直接退出，避免对数据源造成无谓请求与限流。
 # 命中窗口后，真正的拉取+生成在后台执行，本脚本立即返回（避免任何超时）。
 # 后台任务结束自动清理锁目录。
@@ -60,6 +66,9 @@ if [ "${1:-}" = "run" ]; then
   if [ -n "${DO_SCAN:-}" ]; then
     "$PY" scripts/scan_a_shares.py --mode "$DO_SCAN" >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN scan $DO_SCAN failed" >> "$LOG"
   fi
+  if [ "${DO_REVIEW:-0}" = "1" ]; then
+    "$PY" scripts/daily_review.py >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN daily_review failed" >> "$LOG"
+  fi
   "$PY" scripts/fetch_backtest_klines.py >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN fetch klines failed" >> "$LOG"
   "$PY" scripts/build_dashboard.py >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN build failed" >> "$LOG"
   deploy
@@ -101,13 +110,13 @@ in_window() {
   [ $diff -le 30 ]
 }
 
-DO_FEED=0; DO_US=0; DO_SCAN=""
-in_window "08:00" && { DO_FEED=1; DO_US=1; }
-in_window "09:26" && { DO_FEED=1; DO_SCAN="0926"; }
-in_window "10:30" && DO_FEED=1
-in_window "12:00" && DO_FEED=1
-in_window "14:30" && { DO_FEED=1; DO_SCAN="1430"; }
-in_window "22:00" && { DO_FEED=1; DO_US=1; }
+DO_FEED=0; DO_US=0; DO_SCAN=""; DO_REVIEW=0
+in_window "08:00" && { DO_FEED=1; DO_US=1; }          # 开盘前：美股隔夜传导
+in_window "09:26" && { DO_FEED=1; DO_SCAN="0926"; }   # 集合竞价扫描
+in_window "10:30" && { DO_FEED=1; DO_SCAN="1030"; }   # 早盘趋势扫描
+in_window "12:00" && { DO_FEED=1; DO_SCAN="1200"; }   # 午盘趋势扫描
+in_window "14:30" && { DO_FEED=1; DO_SCAN="1430"; }   # 市场情绪扫描
+in_window "22:00" && { DO_FEED=1; DO_REVIEW=1; }      # A股盘后复盘
 
 if [ "$DO_FEED" -eq 0 ]; then
   echo "$(date '+%F %T') skip: no window ($now)" >> "$LOG"
@@ -117,6 +126,6 @@ fi
 
 echo "$(date '+%F %T') TRIGGER feed=$DO_FEED us=$DO_US scan=$DO_SCAN" >> "$LOG"
 # 后台启动真正刷新，导出本次窗口标记，立即返回
-DO_FEED=$DO_FEED DO_US=$DO_US DO_SCAN="$DO_SCAN" nohup "$0" run >> "$LOG" 2>&1 &
+DO_FEED=$DO_FEED DO_US=$DO_US DO_SCAN="$DO_SCAN" DO_REVIEW=$DO_REVIEW nohup "$0" run >> "$LOG" 2>&1 &
 echo "$(date '+%F %T') launched background refresh (pid $!)" >> "$LOG"
 exit 0
