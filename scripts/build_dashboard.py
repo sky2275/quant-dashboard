@@ -2199,10 +2199,16 @@ def _section_pool(cfg, a_quotes, indicators):
                 <span class="sector-tag">机器人</span><span class="sector-tag">消费电子</span><span class="sector-tag">军工电子</span><span class="sector-tag">材料</span>
             </div>
             <div class="watchlist-grid">{cards}</div>
-            <div style="margin-top:6px;font-size:10px;color:var(--text-secondary);line-height:1.6;">
-                <i class="fas fa-info-circle"></i>
-                价格腾讯实时价；周/月动量 + 综合评分(0-100)来自 tushare 真实数据。
-                <b>上榜理由</b>：聚焦半导体、封测、存储芯片、设备、光模块、IT服务、机器人、消费电子、军工电子、材料等当前热点产业链，按周/月动量与综合评分筛选出的进攻型备选标的。
+            <div class="pool-logic" style="margin-top:10px;padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:3px solid var(--up);">
+                <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">📊 推荐逻辑分析说明汇总</div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:8px;font-size:10px;color:var(--text-secondary);line-height:1.6;">
+                    <div><b style="color:var(--text-primary);">数据来源</b><br>腾讯实时价 + tushare 周/月动量、综合评分(0-100)、RSI。</div>
+                    <div><b style="color:var(--text-primary);">选股范围</b><br>聚焦科技成长主线：半导体、封测、存储芯片、设备、光模块、IT服务、机器人、消费电子、军工电子、材料。</div>
+                    <div><b style="color:var(--text-primary);">评分维度</b><br>综合评分 ≥60 强势（红色）；40-60 中性（金色）；&lt;40 弱势（绿色）。RSI ≥65 强势，≤35 超卖待反弹。</div>
+                    <div><b style="color:var(--text-primary);">入选标准</b><br>综合评分 ≥40；周/月动量至少一项为正；排除 RSI 严重超买（&gt;75）且放量滞涨标的。</div>
+                    <div><b style="color:var(--text-primary);">买入信号</b><br>次日开盘回踩 5 日线，或分时带量突破今日收盘价；主线爆发日可放宽至 3% 内低吸。</div>
+                    <div><b style="color:var(--text-primary);">风控提示</b><br>跌破今日低点或板块指数回撤 2% 以上止损；单票仓位建议 ≤15%，总进攻仓位 ≤60%。</div>
+                </div>
             </div>
         </div>'''
 
@@ -3123,7 +3129,7 @@ def _predicted_gain(s):
 
 
 def _mainforce_pool_card(snap):
-    """主力资金备选池：基于 snapshot.heatmap（个股资金流 TOP50）按 8/3 主力净流入排序，供次日低吸参考。"""
+    """主力资金备选池：基于 snapshot.heatmap（个股资金流 TOP50）按主力净流入排序，取前 12 名，用卡片式 UI 展示。"""
     hm = snap.get("heatmap", []) or []
     if not hm:
         return ""
@@ -3133,8 +3139,8 @@ def _mainforce_pool_card(snap):
         except Exception:
             return 0.0
     hm_sorted = sorted(hm, key=lambda x: num(x.get("主力净流入-净额", 0)), reverse=True)[:12]
-    rows = ""
-    for x in hm_sorted:
+    cards = ""
+    for idx, x in enumerate(hm_sorted, 1):
         name = x.get("名称", "—")
         code = x.get("代码", "")
         net = num(x.get("主力净流入-净额", 0)) / 1e8
@@ -3142,19 +3148,39 @@ def _mainforce_pool_card(snap):
         price = x.get("最新价", "—")
         turnover = x.get("换手率", "—")
         pct_cls = "down" if num(pct) < 0 else "up"
-        limit_tag = ' <span style="display:inline-block;padding:1px 6px;border-radius:999px;font-size:11px;background:rgba(255,77,79,.12);color:var(--up);">涨停谨慎</span>' if num(pct) >= 9.9 else ""
-        rows += (f'<tr><td>{name}{limit_tag}</td><td class="num">{code}</td>'
-                 f'<td class="num up">{net:.2f}亿</td><td class="num {pct_cls}">{pct}</td>'
-                 f'<td class="num">{price}</td><td class="num">{turnover}</td></tr>')
+        limit_tag = ' <span style="display:inline-block;padding:1px 6px;border-radius:999px;font-size:10px;background:rgba(255,77,79,.12);color:var(--up);">涨停谨慎</span>' if num(pct) >= 9.9 else ""
+        # 推荐理由：净流入排名 + 金额 + 换手活跃度
+        turnover_num = num(turnover)
+        liquidity_note = "流动性充足" if turnover_num >= 3 else "换手偏低注意承接"
+        reason = f"净流入第{idx} · {net:.2f}亿 · {liquidity_note}"
+        cards += f'''
+                <div class="watchlist-card">
+                    <div class="stock-name {pct_cls}">{_stock_link(name, code)}{limit_tag}</div>
+                    <div class="stock-sector">{code}</div>
+                    <div class="stock-price up">{net:.2f}亿</div>
+                    <div class="stock-change {pct_cls}">{pct}</div>
+                    <div class="stock-score">现价 {_safe(price)}</div>
+                    <div class="stock-score">换手 {_safe(turnover)}</div>
+                    <div style="margin-top:4px;font-size:9px;color:var(--text-secondary);line-height:1.3;border-top:1px solid rgba(255,255,255,0.04);padding-top:4px;">📌 {reason}</div>
+                </div>'''
     return f'''
     <div class="card card-full">
-        <div class="card-title"><span class="icon"><i class="fas fa-money-bill-wave"></i></span> 主力资金备选池 <span class="badge">8/3 净流入 TOP</span></div>
-        <p class="sub-title">基于 8/3 收盘个股资金流 TOP50，按主力净流入排序，供 8/4 低吸参考（非投资建议）</p>
-        <div class="table-wrap">
-        <table class="data-table">
-            <thead><tr><th>标的</th><th>代码</th><th>净流入</th><th>涨跌幅</th><th>现价</th><th>换手</th></tr></thead>
-            <tbody>{rows}</tbody>
-        </table>
+        <div class="card-title"><span class="icon"><i class="fas fa-money-bill-wave"></i></span> 主力资金备选池 <span class="badge">{len(hm_sorted)}只标的</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+            <span style="font-size:10px;color:var(--text-secondary);">🔥 资金主线:</span>
+            <span class="sector-tag">主力净流入</span><span class="sector-tag">大单主动买入</span><span class="sector-tag">短线进攻</span>
+        </div>
+        <div class="watchlist-grid">{cards}</div>
+        <div class="pool-logic" style="margin-top:10px;padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:3px solid var(--up);">
+            <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">📊 推荐逻辑分析说明汇总</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:8px;font-size:10px;color:var(--text-secondary);line-height:1.6;">
+                <div><b style="color:var(--text-primary);">数据来源</b><br>东方财富个股资金流 TOP50，取收盘后主力净流入（大单+超大单）金额前 12 名。</div>
+                <div><b style="color:var(--text-primary);">选股范围</b><br>全 A 股中当日大资金主动进攻标的，覆盖科技硬件、半导体、CPO、消费电子等当日资金扎堆方向。</div>
+                <div><b style="color:var(--text-primary);">评分维度</b><br>主力净流入金额（权重 50%）、涨跌幅（权重 25%）、换手率（权重 25%）。净流入越大、换手 3%-10% 越健康。</div>
+                <div><b style="color:var(--text-primary);">入选标准</b><br>主力净流入 &gt;5 亿优先；涨幅 5%-9% 最佳（避免涨停追高）；换手 ≥3% 保证流动性。</div>
+                <div><b style="color:var(--text-primary);">买入信号</b><br>次日分时缩量回踩今日阳线实体 1/3 处，或开盘 30 分钟内带量突破今日收盘价，可低吸试错。</div>
+                <div><b style="color:var(--text-primary);">风控提示</b><br>涨停标红提示"涨停谨慎"，避免次日高开低走；跌破今日低点或净流入榜单快速掉队需止损；持仓周期 1-3 天。</div>
+            </div>
         </div>
     </div>'''
 
