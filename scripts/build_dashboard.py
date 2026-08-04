@@ -564,6 +564,15 @@ CSS_RULES = """
         .bt-tab-panel.active { display:block; }
         @keyframes btFadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
 
+        /* ---- 回测引擎增强：分时/日K 切换、年份选择、策略逻辑面板 ---- */
+        .bt-kline-tab { flex:1; text-align:center; padding:6px 0; font-size:12px; cursor:pointer; border-radius:7px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:var(--text-secondary); transition:all .18s; }
+        .bt-kline-tab:hover { border-color:var(--accent-gold); color:var(--text-primary); }
+        .bt-kline-tab.active { background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; border-color:transparent; }
+        .bt-logic-item { background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:8px; padding:10px 12px; }
+        .bt-logic-item.active { border-color:var(--accent-gold); background:rgba(245,158,11,0.06); }
+        .logic-item { padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.03); }
+        .logic-item:last-child { border-bottom:none; }
+
         /* ============================================================
            设计系统重skin（原型 v1）：双主题 · 卡片 · 组件
            向后兼容旧类，JS 依赖的类(.modal/.stock-detail-*/.idx-chip/.idx-tab)保留
@@ -3257,87 +3266,121 @@ def _paper_trade_card():
 
 
 def _middle_daily_picks():
-    """中间：每日备选股（策略下拉、市值滑块、评分滑块、开始扫描、策略标签）。"""
-    s26 = _load_cache("scan_0926") or {}
-    s30 = _load_cache("scan_1430") or {}
-    merged = {}
-    for src, mode in ((s26, "0926"), (s30, "1430")):
-        for s in src.get("stocks", []):
-            code = s.get("code")
-            if not code or code in merged:
-                continue
-            merged[code] = dict(s, mode=mode)
-    all_stocks = sorted(merged.values(), key=lambda x: float(x.get("score") or 0), reverse=True)
+    """中间：每日备选股（策略下拉、市值滑块、评分滑块、开始扫描、策略标签、入选/退出逻辑）。"""
+    engine = _load_cache("backtest_engine_data") or {}
+    picks = engine.get("tomorrow_picks") or []
+    ctx = engine.get("market_context") or {}
+    trade_date = ctx.get("trade_date") or ""
+    updated_at = engine.get("updated_at", "")[:19].replace("T", " ")
 
-    # 次日预测涨幅模型：仅保留预测涨幅≥3%的个股构成「明日备选池」，并标记当日双池持续跟踪标的
-    in26 = {s.get("code") for s in s26.get("stocks", []) if s.get("code")}
-    in30 = {s.get("code") for s in s30.get("stocks", []) if s.get("code")}
-    pool = []
-    for s in all_stocks:
-        pred = _predicted_gain(s)
-        if pred >= 3:
-            s = dict(s)
-            s["pred"] = pred
-            s["tracked"] = bool(s.get("code") in in26 and s.get("code") in in30)
-            pool.append(s)
-    pool.sort(key=lambda x: x["pred"], reverse=True)
-    pool = pool[:30]
+    # 兼容旧模式：无 engine 数据时回退到 scan 合并
+    if not picks:
+        s26 = _load_cache("scan_0926") or {}
+        s30 = _load_cache("scan_1430") or {}
+        merged = {}
+        for src, mode in ((s26, "0926"), (s30, "1430")):
+            for s in src.get("stocks", []):
+                code = s.get("code")
+                if not code or code in merged:
+                    continue
+                merged[code] = dict(s, mode=mode)
+        in26 = {s.get("code") for s in s26.get("stocks", []) if s.get("code")}
+        in30 = {s.get("code") for s in s30.get("stocks", []) if s.get("code")}
+        for code, s in merged.items():
+            pred = _predicted_gain(s)
+            if pred >= 2:
+                mode = s.get("mode", "1430")
+                if mode == "1430":
+                    sk, sn = ("breakout", "放量突破") if float(s.get("score") or 0) >= 75 else ("momentum", "五维强势")
+                else:
+                    sk, sn = "momentum", "竞价异动"
+                if float(s.get("change_pct") or 0) <= -3 and float(s.get("score") or 0) >= 50:
+                    sk, sn = "reversal", "超跌反弹"
+                picks.append({
+                    "code": code,
+                    "name": s.get("name", "—"),
+                    "price": s.get("price"),
+                    "change_pct": s.get("change_pct"),
+                    "score": s.get("score"),
+                    "pred": pred,
+                    "sector": s.get("sector") or "—",
+                    "strategy_key": sk,
+                    "strategy": sn,
+                    "entry_logic": "开盘站稳分时均线且量比>1.2 可轻仓；冲高回落或跌破开盘价止损。",
+                    "exit_logic": "止盈 +5%~+8%；止损 -4% 或跌破分时均线。",
+                    "tracked": bool(code in in26 and code in in30),
+                    "float_cap": s.get("float_cap"),
+                })
+        picks.sort(key=lambda x: x["pred"], reverse=True)
+        picks = picks[:40]
 
     rows = ""
-    for i, s in enumerate(pool, 1):
-        code = s.get("code", "")
-        name = s.get("name", "—")
-        price = s.get("price", "—")
-        pct = s.get("change_pct")
-        score = s.get("score")
-        sector = s.get("sector") or "—"
-        mode = s.get("mode", "1430")
-        pred = s.get("pred", 0)
-        tracked = s.get("tracked", False)
-        float_cap = float(s.get("float_cap") or 0) / 1e8
-
-        if mode == "1430":
-            if float(score or 0) >= 75:
-                mode_label, mode_cls = "放量突破", "breakout"
-            else:
-                mode_label, mode_cls = "五维强势", "momentum"
-        else:
-            mode_label, mode_cls = "竞价异动", "momentum"
-        if float(pct or 0) <= -3 and float(score or 0) >= 50:
-            mode_label, mode_cls = "超跌反弹", "reversal"
+    for p in picks:
+        code = p.get("code", "")
+        name = p.get("name", "—")
+        price = p.get("price", "—")
+        pct = p.get("change_pct")
+        score = p.get("score")
+        sector = p.get("sector") or "—"
+        pred = p.get("pred", 0)
+        strategy_key = p.get("strategy_key", "momentum")
+        strategy = p.get("strategy", "五维强势")
+        tracked = p.get("tracked", False)
+        float_cap = float(p.get("float_cap") or 0) / 1e8
+        entry = p.get("entry_logic", "")
+        exit_ = p.get("exit_logic", "")
+        mode_cls = strategy_key
         track_badge = '<span class="tracked-badge" title="当日 09:26 与 14:30 双池均入选，已持续跟踪">追踪</span>' if tracked else ""
         pred_cls = "up" if pred >= 0 else "down"
         pred_sign = "+" if pred >= 0 else ""
+        entry_exit = f"入选：{entry}｜退出：{exit_}".replace('"', '&quot;')
 
         rows += f'''
-        <tr data-code="{code}" data-score="{score}" data-mode="{mode}" data-cap="{float_cap:.1f}" data-pred="{pred}" onclick="selectBacktestSymbol('{code}')">
+        <tr data-code="{code}" data-score="{score}" data-strategy="{strategy_key}" data-cap="{float_cap:.1f}" data-pred="{pred}" title="{entry_exit}" onclick="selectBacktestSymbol('{code}')">
             <td><span class="picks-name">{track_badge}{_stock_link(name, code)}</span><span class="picks-code">{code}</span></td>
             <td class="col-right rt-price">{_safe(price, "—")}</td>
             <td class="col-right rt-pct" style="color:{_pnl_cls(pct)};font-weight:600;">{_fmt_pct(pct, 2)}</td>
             <td class="col-center"><span class="picks-score-pill" style="color:{_score_color(score)};border:1px solid {_score_color(score)};">{_safe(score, "—")}</span></td>
             <td class="col-center"><span class="picks-pred {pred_cls}">{pred_sign}{pred}%</span></td>
             <td class="col-center"><span class="sector-tag" style="font-size:9px;">{sector}</span></td>
-            <td class="col-center"><span class="strategy-tag {mode_cls}">{mode_label}</span></td>
+            <td class="col-center"><span class="strategy-tag {mode_cls}">{strategy}</span></td>
         </tr>'''
     if not rows:
-        rows = '<tr><td colspan="7" style="padding:16px;color:var(--text-secondary);font-size:12px;text-align:center;">当前模型预测次日涨幅≥3%的个股为空（市场偏弱），可放宽评分或等待下次扫描。</td></tr>'
+        rows = '<tr><td colspan="7" style="padding:16px;color:var(--text-secondary);font-size:12px;text-align:center;">当前模型预测次日涨幅≥2%的个股为空（市场偏弱），可放宽评分或等待下次扫描。</td></tr>'
+
+    strategy_options = ''.join(
+        f'<option value="{k}">{v["name"]}</option>' for k, v in (
+            engine.get("strategy_catalog") or {
+                "all": {"name": "全部策略"},
+                "breakout": {"name": "放量突破"},
+                "momentum": {"name": "五维强势 / 竞价异动"},
+                "reversal": {"name": "超跌反弹"},
+                "ma_bull": {"name": "均线多头"},
+                "macd_golden": {"name": "MACD金叉"},
+                "main_force": {"name": "主力吸筹"},
+            }
+        ).items()
+    )
+
+    # 进入/退出逻辑汇总面板
+    logic_items = ""
+    for k, v in (engine.get("strategy_catalog") or {}).items():
+        logic_items += f'<div class="logic-item"><b>{v["name"]}</b>：<span style="color:var(--text-secondary);">{v["logic"]}</span></div>'
+    if not logic_items:
+        logic_items = '<div class="logic-item">放量突破：成交量>2倍均量+涨幅>3%；五维强势：集合竞价/市场情绪扫描高分标的；超跌反弹：跌幅较大但评分仍维持的修复博弈。</div>'
 
     return f'''
     <div class="radar-card">
         <div class="picks-header">
             <h3>明日备选池 <span>· TOMORROW PICKS</span></h3>
-            <span class="picks-count-badge" id="picksCount">共 {len(pool)} 只 · 预测涨幅≥3%</span>
+            <span class="picks-count-badge" id="picksCount">共 {len(picks)} 只 · 预测涨幅≥2%</span>
         </div>
         <div class="picks-toolbar">
             <div class="picks-row">
                 <label>选股策略</label>
                 <select id="picksStrategy" onchange="filterPicks()">
                     <option value="all">全部策略</option>
-                    <option value="breakout">放量突破</option>
-                    <option value="momentum">五维强势 / 竞价异动</option>
-                    <option value="reversal">超跌反弹</option>
-                    <option value="1430">市场情绪 (14:30)</option>
-                    <option value="0926">集合竞价 (09:26)</option>
+                    {strategy_options}
                 </select>
                 <div class="picks-range">
                     <div class="picks-range-labels"><span>市值范围 50亿</span><span id="picksCapVal">50 - 2000亿</span></div>
@@ -3363,24 +3406,64 @@ def _middle_daily_picks():
         </div>
         <div class="picks-logic">
             <i class="fas fa-lightbulb" style="color:var(--accent-gold);margin-right:4px;"></i>
-            <b>明日备选逻辑：</b>对全市场扫描入选个股，用「动量(涨跌幅) + 量能(量比) + 五维评分」模型估算次日预期涨幅，仅保留预测涨幅≥3%的个股构成备选池；在 09:26 与 14:30 双池均入选者标记「追踪」。点击任意股票可在右侧「回测引擎」回测任意个股历史策略表现。模型估算仅供参考，非投资建议。
+            <b>明日备选逻辑：</b>对全市场扫描入选个股，用「动量(涨跌幅) + 量能(量比) + 五维评分」模型估算次日预期涨幅，仅保留预测涨幅≥2%的个股构成备选池；策略标签由技术/资金信号自动判定（放量突破、均线多头、MACD金叉、主力吸筹、超跌反弹等）。在 09:26 与 14:30 双池均入选者标记「追踪」。点击任意股票可在右侧「回测引擎」回测历史策略表现。模型估算仅供参考，非投资建议。
+        </div>
+        <div class="picks-logic" style="margin-top:6px;">
+            <i class="fas fa-code-branch" style="color:var(--accent-blue);margin-right:4px;"></i>
+            <b>策略入选 / 退出逻辑：</b>
+            <div style="margin-top:6px;display:grid;grid-template-columns:1fr;gap:6px;font-size:11px;line-height:1.5;">
+                {logic_items}
+            </div>
         </div>
         <div class="picks-risk">
             <i class="fas fa-exclamation-triangle" style="color:var(--accent-gold);margin-right:4px;"></i>
             风险提示：本终端数据为模拟演示，不构成投资建议。股市有风险，入市需谨慎。
+            <span style="float:right;font-size:10px;color:var(--text-secondary);">每日更新：{updated_at} · 数据日 {trade_date}</span>
         </div>
     </div>'''
 
 
 def _right_backtest_engine():
-    """右侧：回测引擎（K线+MA+买卖点、策略参数、绩效、交易明细）。"""
+    """右侧：回测引擎（分时K线/日K线、年份选择、机构策略、进入/退出逻辑、绩效、交易明细）。"""
     klines = _load_cache("backtest_klines") or {"stocks": {}}
+    engine = _load_cache("backtest_engine_data") or {}
     symbols = []
     for code, info in klines.get("stocks", {}).items():
         symbols.append({"code": code, "name": info.get("name", code), "full": info.get("full_code", code)})
     symbols.sort(key=lambda x: x["code"])
     opts = "".join(f'<option value="{s["code"]}">{s["name"]} ({s["code"]})</option>' for s in symbols)
     first = symbols[0] if symbols else {"code": "", "name": "—", "full": "—"}
+
+    # 策略选项：覆盖机构/主力常用策略
+    strategy_catalog = engine.get("strategy_catalog") or {
+        "ma": {"name": "MA5/10 金叉死叉"},
+        "macd": {"name": "MACD 金叉死叉"},
+        "rsi": {"name": "RSI 超卖/超买"},
+        "breakout": {"name": "放量突破"},
+        "ma_bull": {"name": "均线多头"},
+        "main_force": {"name": "主力吸筹"},
+        "oversold_bounce": {"name": "超跌反弹"},
+        "macd_divergence": {"name": "MACD 底背离"},
+    }
+    strategy_opts = "".join(f'<option value="{k}">{v["name"]}</option>' for k, v in strategy_catalog.items())
+
+    # 年份选项：根据 K 线实际日期范围生成
+    years = set()
+    for info in klines.get("stocks", {}).values():
+        for row in (info.get("kline") or [])[:1]:
+            years.add(row[0][:4])
+        for row in (info.get("kline") or [])[-1:]:
+            years.add(row[0][:4])
+    year_opts = '<option value="all">全部可用</option>'
+    for y in sorted(years, reverse=True):
+        year_opts += f'<option value="{y}">{y}年</option>'
+    year_opts += '<option value="last1">近1年</option><option value="last2">近2年</option><option value="last3">近3年</option>'
+
+    # 进入/退出逻辑面板
+    logic_html = ""
+    for k, v in strategy_catalog.items():
+        logic_html += f'<div class="bt-logic-item" data-strategy="{k}"><b>{v.get("name", k)}</b><br><span style="color:var(--text-secondary);font-size:11px;">逻辑：{v.get("logic", "—")}</span><br><span style="color:#22c55e;font-size:11px;">进入：{v.get("entry", "—")}</span><br><span style="color:#ef4444;font-size:11px;">退出：{v.get("exit", "—")}</span></div>'
+
     return f'''
     <div class="radar-card">
         <div class="card-title"><span class="icon"><i class="fas fa-chart-line"></i></span> 回测引擎 <span class="badge">BACKTEST ENGINE</span></div>
@@ -3405,8 +3488,14 @@ def _right_backtest_engine():
             <button type="button" class="bt-tab active" data-tab="params" onclick="switchBTTab('params')"><i class="fas fa-cog"></i> 参数</button>
             <button type="button" class="bt-tab" data-tab="metrics" onclick="switchBTTab('metrics')"><i class="fas fa-trophy"></i> 绩效</button>
             <button type="button" class="bt-tab" data-tab="trades" onclick="switchBTTab('trades')"><i class="fas fa-list"></i> 明细</button>
+            <button type="button" class="bt-tab" data-tab="logic" onclick="switchBTTab('logic')"><i class="fas fa-code-branch"></i> 逻辑</button>
         </div>
         <div id="btTab-params" class="bt-tab-panel active">
+            <!-- 分时 / 日K 切换 -->
+            <div class="stock-detail-tabs" style="margin-bottom:8px;">
+                <div class="bt-kline-tab stock-detail-tab active" data-type="daily" onclick="switchBTKlineTab('daily')">日K线</div>
+                <div class="bt-kline-tab stock-detail-tab" data-type="minute" onclick="switchBTKlineTab('minute')">分时K线</div>
+            </div>
             <div id="btChart" class="backtest-chart"></div>
             <div class="backtest-param-title"><i class="fas fa-cog"></i> 策略参数设置</div>
             <div class="backtest-param-grid">
@@ -3417,18 +3506,14 @@ def _right_backtest_engine():
             </div>
             <div class="backtest-param-grid">
                 <div class="backtest-param"><label>策略</label>
-                    <select id="btStrategy">
-                        <option value="ma">MA5/10 金叉死叉</option>
-                        <option value="rsi">RSI 超卖/超买</option>
-                        <option value="macd">MACD 金叉死叉</option>
+                    <select id="btStrategy" onchange="updateBTLogicPanel()">
+                        {strategy_opts}
                     </select>
                 </div>
-                <div class="backtest-param"><label>回测周期</label>
-                    <div class="bt-period-row">
-                        <button type="button" class="bt-period-btn active" data-days="252" onclick="setBTPeriod(this)">1年</button>
-                        <button type="button" class="bt-period-btn" data-days="504" onclick="setBTPeriod(this)">2年</button>
-                        <button type="button" class="bt-period-btn" data-days="756" onclick="setBTPeriod(this)">3年</button>
-                    </div>
+                <div class="backtest-param"><label>回测周期 / 年份</label>
+                    <select id="btYear" onchange="runBacktest()" style="width:100%;">
+                        {year_opts}
+                    </select>
                     <input type="hidden" id="btPeriod" value="252">
                 </div>
             </div>
@@ -3456,6 +3541,12 @@ def _right_backtest_engine():
                         <tbody id="btTradeBody"><tr><td colspan="5" style="color:var(--text-secondary);text-align:center;padding:12px;">点击「开始回测」生成交易明细</td></tr></tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+        <div id="btTab-logic" class="bt-tab-panel">
+            <div class="backtest-param-title"><i class="fas fa-code-branch"></i> 策略进入 / 退出逻辑</div>
+            <div id="btLogicPanel" style="display:grid;gap:10px;font-size:12px;line-height:1.6;">
+                {logic_html}
             </div>
         </div>
     </div>'''
@@ -3825,11 +3916,13 @@ def build() -> str:
 
     klines = _load_cache("backtest_klines") or {"stocks": {}}
 
+    engine_data = _load_cache("backtest_engine_data") or {}
     js = f'''
 function loadDate(date) {{ alert('📅 切换到 ' + date); }}
 window.BT_KLINES = {json.dumps(klines, ensure_ascii=False)};
+window.BT_ENGINE_DATA = {json.dumps(engine_data, ensure_ascii=False)};
 
-/* ---- 真实行情：浏览器端拉取腾讯K线（支持回测任意个股 / 指数迷你折线） ---- */
+/* ---- 真实行情：浏览器端拉取腾讯K线 / 东财分时（支持回测任意个股 / 指数迷你折线） ---- */
 function toFullCode(code) {{
   code = (code || '').trim().toLowerCase();
   if (/^(sh|sz|bj)/.test(code)) return code;
@@ -3868,7 +3961,77 @@ async function fetchAndBacktest() {{
   if (!opt) {{ opt = document.createElement('option'); opt.value = code6; sel.appendChild(opt); }}
   opt.textContent = raw + ' (' + code6 + ')';
   sel.value = code6;
+  window.BT_KLINE_TYPE = 'daily';
+  document.querySelectorAll('.bt-kline-tab').forEach(t => t.classList.toggle('active', t.getAttribute('data-type') === 'daily'));
   runBacktest();
+}}
+
+function toEastmoneySecid(full) {{
+  // sh600519 -> 1.600519; sz000001 -> 0.000001
+  if (!full) return '';
+  const code = full.replace(/^(sh|sz|bj)/, '');
+  if (full.startsWith('sh') || full.startsWith('bj')) return '1.' + code;
+  return '0.' + code;
+}}
+
+function _btJsonp(url, cb) {{
+  return new Promise((resolve, reject) => {{
+    const script = document.createElement('script');
+    script.src = url;
+    script.onerror = reject;
+    window[cb] = function(data) {{ resolve(data); delete window[cb]; document.head.removeChild(script); }};
+    document.head.appendChild(script);
+    setTimeout(() => {{ reject(new Error('timeout')); }}, 10000);
+  }});
+}}
+
+async function fetchBTIntraday(code) {{
+  const stock = window.BT_KLINES.stocks[code];
+  if (!stock) return;
+  const secid = toEastmoneySecid(stock.full_code);
+  const cb = 'btmin_' + Math.random().toString(36).slice(2, 10);
+  const url = 'https://push2.eastmoney.com/api/qt/stock/trends2/get?secid=' + secid + '&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&ndays=1&iscr=0&ut=fa5fd1943c7b386f172d6893dbfba10b&cb=' + cb;
+  try {{
+    const res = await _btJsonp(url, cb);
+    const data = (res && res.data) ? res.data : null;
+    if (!data || !data.trends || !data.trends.length) {{
+      drawBTMinuteChart(code, []);
+      return;
+    }}
+    const lastClose = parseFloat(data.preClose) || 0;
+    const points = data.trends.map(t => {{
+      const parts = t.split(',');
+      return {{ time: parts[0], price: parseFloat(parts[2]) || 0, avg: parseFloat(parts[3]) || 0, vol: parseFloat(parts[4]) || 0 }};
+    }});
+    drawBTMinuteChart(code, points, lastClose);
+  }} catch (e) {{
+    drawBTMinuteChart(code, []);
+  }}
+}}
+
+function drawBTMinuteChart(code, points, preClose) {{
+  if (!btChart) return;
+  const times = points.map(p => p.time);
+  const prices = points.map(p => p.price);
+  const avgs = points.map(p => p.avg);
+  const color = preClose && points.length ? (points[points.length-1].price >= preClose ? '#ef4444' : '#22c55e') : '#f59e0b';
+  const option = {{
+    backgroundColor: 'transparent',
+    grid: {{ left: 8, right: 8, top: 28, bottom: 20 }},
+    xAxis: {{ type: 'category', data: times, axisLine: {{ lineStyle: {{ color: '#1e2a3a' }} }}, axisLabel: {{ color: '#8892a0', fontSize: 9, interval: 29 }}, axisTick: {{ show: false }} }},
+    yAxis: {{ scale: true, splitLine: {{ lineStyle: {{ color: '#1e2a3a' }} }}, axisLabel: {{ color: '#8892a0', fontSize: 9, formatter: v => v.toFixed(2) }} }},
+    tooltip: {{ trigger: 'axis', textStyle: {{ fontSize: 11 }} }},
+    legend: {{ data: ['价格', '均价'], textStyle: {{ color: '#8892a0', fontSize: 9 }}, top: 2, right: 4, itemWidth: 12, itemHeight: 6 }},
+    series: [
+      {{ type: 'line', name: '价格', data: prices, showSymbol: false, lineStyle: {{ color: color, width: 1.5 }}, areaStyle: {{ color: {{ type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{{ offset: 0, color: color + '33' }}, {{ offset: 1, color: color + '05' }}] }} }} }},
+      {{ type: 'line', name: '均价', data: avgs, showSymbol: false, lineStyle: {{ color: '#4fc3f7', width: 1, type: 'dashed' }} }}
+    ]
+  }};
+  if (preClose) {{
+    option.series.push({{ type: 'line', name: '昨收', data: times.map(() => preClose), showSymbol: false, lineStyle: {{ color: '#8892a0', width: 1, type: 'dotted' }} }});
+    option.legend.data.push('昨收');
+  }}
+  btChart.setOption(option, true);
 }}
 function drawSpark(el, vals, color) {{
   const w = 260, h = 34, n = vals.length;
@@ -3906,10 +4069,12 @@ let btChart = null;
 
 document.addEventListener('DOMContentLoaded', function() {{
     const chartDom = document.getElementById('btChart');
+    window.BT_KLINE_TYPE = 'daily';
     if (chartDom && typeof echarts !== 'undefined') {{
         btChart = echarts.init(chartDom);
         runBacktest();
     }}
+    updateBTLogicPanel();
     loadIndexSpark();
     startRealtime();
 }});
@@ -3926,11 +4091,12 @@ function filterPicks() {{
         const code = row.getAttribute('data-code');
         if (!code) return;
         const score = parseFloat(row.getAttribute('data-score')) || 0;
-        const mode = row.getAttribute('data-mode');
+        const rowStrategy = row.getAttribute('data-strategy') || '';
         const cap = parseFloat(row.getAttribute('data-cap')) || 0;
         let showStrategy = false;
         if (strategy === 'all') showStrategy = true;
-        else if (strategy === mode) showStrategy = true;
+        else if (strategy === rowStrategy) showStrategy = true;
+        // 兼容旧模式：breakout / momentum / reversal 仍可通过 class 匹配
         else if (strategy === 'breakout' && row.querySelector('.strategy-tag.breakout')) showStrategy = true;
         else if (strategy === 'momentum' && (row.querySelector('.strategy-tag.momentum') || row.querySelector('.strategy-tag.breakout'))) showStrategy = true;
         else if (strategy === 'reversal' && row.querySelector('.strategy-tag.reversal')) showStrategy = true;
@@ -3949,10 +4115,27 @@ function selectBacktestSymbol(code) {{
     runBacktest();
 }}
 
-function setBTPeriod(btn) {{
-    document.querySelectorAll('.bt-period-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('btPeriod').value = btn.getAttribute('data-days');
+function setBTYear() {{
+    // 由年份下拉触发 runBacktest，内部按年份过滤
+    runBacktest();
+}}
+
+function switchBTKlineTab(type) {{
+    document.querySelectorAll('.bt-kline-tab').forEach(t => t.classList.toggle('active', t.getAttribute('data-type') === type));
+    window.BT_KLINE_TYPE = type;
+    const code = document.getElementById('btSymbol').value;
+    if (type === 'minute') {{
+        fetchBTIntraday(code);
+    }} else {{
+        runBacktest();
+    }}
+}}
+
+function updateBTLogicPanel() {{
+    const strategy = document.getElementById('btStrategy').value;
+    document.querySelectorAll('#btLogicPanel .bt-logic-item').forEach(el => {{
+        el.classList.toggle('active', el.getAttribute('data-strategy') === strategy);
+    }});
 }}
 
 function switchBTTab(tab){{
@@ -4009,13 +4192,21 @@ function calcMACD(data, fast, slow, signal) {{
     return {{ dif: dif, dea: dea, hist: hist }};
 }}
 
+function filterByYear(data) {{
+    const year = document.getElementById('btYear').value;
+    if (year === 'all') return data;
+    if (year === 'last1') return data.slice(-252);
+    if (year === 'last2') return data.slice(-504);
+    if (year === 'last3') return data.slice(-756);
+    return data.filter(d => d[0].startsWith(year));
+}}
+
 function runBacktest() {{
     const code = document.getElementById('btSymbol').value;
     const capital = parseFloat(document.getElementById('btCapital').value) || 100000;
     const positionPct = (parseFloat(document.getElementById('btPosition').value) || 30) / 100;
     const stopLoss = (parseFloat(document.getElementById('btStopLoss').value) || -5) / 100;
     const takeProfit = (parseFloat(document.getElementById('btTakeProfit').value) || 15) / 100;
-    const period = parseInt(document.getElementById('btPeriod').value) || 252;
     const strategy = document.getElementById('btStrategy').value;
 
     const stock = window.BT_KLINES.stocks[code];
@@ -4023,6 +4214,22 @@ function runBacktest() {{
         alert('该股票K线数据不足，无法回测');
         return;
     }}
+
+    // 当前切换到分时 K 线则不跑日K回测，仅刷新头部价格
+    if (window.BT_KLINE_TYPE === 'minute') {{
+        const lastBar = stock.kline[stock.kline.length - 1];
+        const prevBar = stock.kline[stock.kline.length - 2];
+        document.getElementById('btName').textContent = stock.name || code;
+        document.getElementById('btCode').textContent = (stock.full_code || code).toUpperCase();
+        document.getElementById('btPrice').textContent = parseFloat(lastBar[2]).toFixed(2);
+        const curPct = (parseFloat(lastBar[2]) - parseFloat(prevBar[2])) / parseFloat(prevBar[2]);
+        const pctEl = document.getElementById('btPct');
+        pctEl.textContent = (curPct >= 0 ? '+' : '') + (curPct * 100).toFixed(2) + '%';
+        pctEl.className = 'pct ' + (curPct >= 0 ? 'bt-pos' : 'bt-neg');
+        fetchBTIntraday(code);
+        return;
+    }}
+
     const lastBar = stock.kline[stock.kline.length - 1];
     const prevBar = stock.kline[stock.kline.length - 2];
     const curPrice = parseFloat(lastBar[2]);
@@ -4035,27 +4242,74 @@ function runBacktest() {{
     pctEl.textContent = (curPct >= 0 ? '+' : '') + (curPct * 100).toFixed(2) + '%';
     pctEl.className = 'pct ' + (curPct >= 0 ? 'bt-pos' : 'bt-neg');
 
-    let data = stock.kline.slice(-Math.min(period, stock.kline.length));
+    let rawData = stock.kline;
+    let data = filterByYear(rawData);
+    if (data.length < 30) data = rawData.slice(-30);
 
     let signals = new Array(data.length).fill(0);
+    const ma5 = calcMA(data, 5);
+    const ma10 = calcMA(data, 10);
+    const ma20 = calcMA(data, 20);
+    const ma60 = calcMA(data, 60);
+    const macd = calcMACD(data);
+    const rsi = calcRSI(data, 14);
+    const volMa20 = calcMA(data.map(d => [d[0], d[1], d[5], d[3], d[4], d[5]]), 20); // 用成交量算 MA
+
     if (strategy === 'ma') {{
-        const ma5 = calcMA(data, 5);
-        const ma10 = calcMA(data, 10);
         for (let i = 1; i < data.length; i++) {{
             if (ma5[i] > ma10[i] && ma5[i-1] <= ma10[i-1]) signals[i] = 1;
             else if (ma5[i] < ma10[i] && ma5[i-1] >= ma10[i-1]) signals[i] = -1;
         }}
     }} else if (strategy === 'rsi') {{
-        const rsi = calcRSI(data, 14);
         for (let i = 0; i < data.length; i++) {{
             if (rsi[i] < 30) signals[i] = 1;
             else if (rsi[i] > 70) signals[i] = -1;
         }}
     }} else if (strategy === 'macd') {{
-        const macd = calcMACD(data);
         for (let i = 1; i < data.length; i++) {{
             if (macd.dif[i] > macd.dea[i] && macd.dif[i-1] <= macd.dea[i-1]) signals[i] = 1;
             else if (macd.dif[i] < macd.dea[i] && macd.dif[i-1] >= macd.dea[i-1]) signals[i] = -1;
+        }}
+    }} else if (strategy === 'breakout') {{
+        for (let i = 1; i < data.length; i++) {{
+            const prevClose = data[i-1][2];
+            const changePct = (data[i][2] - prevClose) / prevClose * 100;
+            const volRatio = data[i][5] / (volMa20[i] || data[i][5]);
+            if (volRatio > 2 && changePct > 3 && !signals[i]) signals[i] = 1;
+            else if (data[i][2] < ma10[i] && data[i-1][2] >= ma10[i-1]) signals[i] = -1;
+        }}
+    }} else if (strategy === 'ma_bull') {{
+        for (let i = 1; i < data.length; i++) {{
+            const bullNow = ma5[i] > ma10[i] && ma10[i] > ma20[i] && ma20[i] > ma60[i];
+            const bullPrev = ma5[i-1] > ma10[i-1] && ma10[i-1] > ma20[i-1] && ma20[i-1] > ma60[i-1];
+            if (bullNow && !bullPrev) signals[i] = 1;
+            else if (!bullNow && bullPrev) signals[i] = -1;
+        }}
+    }} else if (strategy === 'main_force') {{
+        for (let i = 1; i < data.length; i++) {{
+            const prevClose = data[i-1][2];
+            const changePct = (data[i][2] - prevClose) / prevClose * 100;
+            const volRatio = data[i][5] / (volMa20[i] || data[i][5]);
+            const bullNow = ma5[i] > ma10[i] && ma10[i] > ma20[i];
+            const upperHalf = data[i][2] > (data[i][1] + data[i][4]) / 2;
+            if (volRatio > 2 && changePct > 3 && bullNow && upperHalf) signals[i] = 1;
+            else if (data[i][2] < ma20[i]) signals[i] = -1;
+        }}
+    }} else if (strategy === 'oversold_bounce') {{
+        for (let i = 5; i < data.length; i++) {{
+            const drop5d = (data[i][2] - data[i-5][2]) / data[i-5][2] * 100;
+            if (drop5d < -8 && rsi[i] < 35) signals[i] = 1;
+            else if (rsi[i] > 55) signals[i] = -1;
+        }}
+    }} else if (strategy === 'macd_divergence') {{
+        for (let i = 20; i < data.length; i++) {{
+            const recentLowIdx = i - 19 + data.slice(i-19, i+1).map(d => d[3]).indexOf(Math.min(...data.slice(i-19, i+1).map(d => d[3])));
+            const prevLowIdx = Math.max(0, i - 39) + data.slice(Math.max(0, i-39), Math.max(1, i-19)).map(d => d[3]).indexOf(Math.min(...data.slice(Math.max(0, i-39), Math.max(1, i-19)).map(d => d[3])));
+            if (recentLowIdx > prevLowIdx && data[recentLowIdx][3] < data[prevLowIdx][3] * 0.98 && macd.dif[recentLowIdx] > macd.dif[prevLowIdx]) {{
+                signals[i] = 1;
+            }} else if (macd.dif[i] < macd.dea[i] && macd.dif[i-1] >= macd.dea[i-1]) {{
+                signals[i] = -1;
+            }}
         }}
     }}
 
@@ -4116,7 +4370,8 @@ function runBacktest() {{
     }}
     const finalEquity = cash;
     const totalReturn = (finalEquity - capital) / capital;
-    const annualReturn = totalReturn / data.length * 252;
+    const years = data.length / 252;
+    const annualReturn = years > 0 ? totalReturn / years : totalReturn;
     const sellTrades = trades.filter(t => t.type === '卖出');
     const winTrades = sellTrades.filter(t => t.pnl > 0);
     const loseTrades = sellTrades.filter(t => t.pnl <= 0);

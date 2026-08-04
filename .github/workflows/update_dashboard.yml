@@ -89,6 +89,9 @@ jobs:
       - name: 获取回测用K线数据
         if: github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true'
         run: python scripts/fetch_backtest_klines.py
+      - name: 生成回测引擎数据(明日备选池+机构策略目录)
+        if: github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true'
+        run: python scripts/build_backtest_engine_data.py
       - name: 生成看板（含三仓策略系统）
         if: github.event_name != 'schedule' || steps.trade_check.outputs.is_trade_day == 'true'
         run: python scripts/build_full.py
