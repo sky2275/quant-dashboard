@@ -1,0 +1,12 @@
+{
+  "meta": {
+    "created_at": "2026-08-04 00:40:00",
+    "updated_at": "2026-08-04 00:40:00",
+    "init_cash": 1000000,
+    "cash": 1000000,
+    "base": "CNY",
+    "note": "本地模拟交易账户（非真实券商持仓）。盈亏基于开仓成本 vs 标记价(last_price)。标记价初始=开仓价，可用 `mark` 或 `refresh` 更新为真实行情。"
+  },
+  "trades": [],
+  "positions": []
+}

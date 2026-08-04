@@ -1,34 +1,34 @@
 {
-  "date": "20260731",
-  "is_trade_day": false,
-  "updated_at": "2026-08-02T12:13:14.293214",
+  "date": "20260804",
+  "is_trade_day": true,
+  "updated_at": "2026-08-04T21:57:25.500588",
   "summary": {
     "trend": "强势上涨",
     "trend_color": "red",
-    "avg_change_pct": 2.25,
+    "avg_change_pct": 3.33,
     "indexes": [
       {
         "name": "上证指数",
-        "price": 3832.26,
-        "change_pct": 0.72,
+        "price": 3822.28,
+        "change_pct": 0.33,
         "change_amount": null
       },
       {
         "name": "深证成指",
-        "price": 13578.93,
-        "change_pct": 2.21,
+        "price": 13885.71,
+        "change_pct": 3.25,
         "change_amount": null
       },
       {
         "name": "创业板指",
-        "price": 3343.96,
-        "change_pct": 3.06,
+        "price": 3488.97,
+        "change_pct": 5.64,
         "change_amount": null
       },
       {
         "name": "科创50",
-        "price": 1635.96,
-        "change_pct": 2.99,
+        "price": 1616.36,
+        "change_pct": 4.09,
         "change_amount": null
       }
     ],
@@ -42,111 +42,111 @@
   "sector_flow": {
     "top_inflow": [
       {
-        "name": "软件开发",
-        "net": "82.51亿",
-        "change_pct": 6.15
+        "name": "半导体",
+        "net": "219.35亿",
+        "change_pct": 6.01
       },
       {
-        "name": "文化传媒",
-        "net": "51.87亿",
-        "change_pct": 5.28
+        "name": "通信设备",
+        "net": "182.80亿",
+        "change_pct": 5.4
       },
       {
-        "name": "IT服务",
-        "net": "50.86亿",
-        "change_pct": 6.29
+        "name": "元件",
+        "net": "81.68亿",
+        "change_pct": 7.07
       },
       {
-        "name": "计算机设备",
-        "net": "27.81亿",
-        "change_pct": 4.6
+        "name": "消费电子",
+        "net": "47.95亿",
+        "change_pct": 3.55
       },
       {
-        "name": "工业金属",
-        "net": "25.09亿",
-        "change_pct": 1.98
+        "name": "光学光电子",
+        "net": "47.58亿",
+        "change_pct": 3.62
+      },
+      {
+        "name": "自动化设备",
+        "net": "34.49亿",
+        "change_pct": 3.93
       },
       {
         "name": "通用设备",
-        "net": "24.77亿",
-        "change_pct": 3.68
+        "net": "24.52亿",
+        "change_pct": 2.95
       },
       {
-        "name": "汽车零部件",
-        "net": "24.09亿",
-        "change_pct": 2.7
+        "name": "小金属",
+        "net": "24.45亿",
+        "change_pct": 3.43
       },
       {
-        "name": "游戏",
-        "net": "23.46亿",
-        "change_pct": 4.5
+        "name": "计算机设备",
+        "net": "22.95亿",
+        "change_pct": 3.1
       },
       {
-        "name": "贵金属",
-        "net": "18.16亿",
-        "change_pct": 4.0
-      },
-      {
-        "name": "通信服务",
-        "net": "16.95亿",
-        "change_pct": 4.47
+        "name": "电子化学品",
+        "net": "22.71亿",
+        "change_pct": 6.57
       }
     ],
     "top_outflow": [
       {
-        "name": "半导体",
-        "net": "-159.81亿",
-        "change_pct": 4.23
+        "name": "银行",
+        "net": "-70.13亿",
+        "change_pct": -2.69
       },
       {
-        "name": "元件",
-        "net": "-44.89亿",
-        "change_pct": 4.33
+        "name": "电力",
+        "net": "-32.77亿",
+        "change_pct": 0.2
       },
       {
-        "name": "建筑装饰",
-        "net": "-22.04亿",
-        "change_pct": 2.83
+        "name": "汽车整车",
+        "net": "-27.80亿",
+        "change_pct": -1.69
       },
       {
-        "name": "电池",
-        "net": "-16.83亿",
-        "change_pct": 1.66
+        "name": "保险",
+        "net": "-26.48亿",
+        "change_pct": -2.46
       },
       {
         "name": "证券",
-        "net": "-14.21亿",
-        "change_pct": 0.25
+        "net": "-22.09亿",
+        "change_pct": 0.04
       },
       {
-        "name": "消费电子",
-        "net": "-11.13亿",
-        "change_pct": 3.49
+        "name": "白酒",
+        "net": "-19.00亿",
+        "change_pct": -1.34
       },
       {
-        "name": "电子化学品",
-        "net": "-7.10亿",
-        "change_pct": 3.41
+        "name": "建筑装饰",
+        "net": "-16.07亿",
+        "change_pct": 1.3
       },
       {
-        "name": "化学制品",
-        "net": "-7.07亿",
-        "change_pct": 1.57
+        "name": "房地产",
+        "net": "-11.26亿",
+        "change_pct": -0.03
       },
       {
-        "name": "能源金属",
-        "net": "-6.80亿",
-        "change_pct": -0.68
+        "name": "零售",
+        "net": "-9.97亿",
+        "change_pct": -0.01
       },
       {
-        "name": "农化制品",
-        "net": "-6.25亿",
-        "change_pct": -0.07
+        "name": "石油加工贸易",
+        "net": "-8.70亿",
+        "change_pct": 0.19
       }
     ]
   },
   "limit_up": {
-    "count": 115,
+    "count": 164,
     "top": [
       {
         "code": null,
@@ -228,8 +228,8 @@
   "holding_review": {
     "positions": [
       {
-        "code": "601606",
-        "name": "长城军工",
+        "code": "603776",
+        "name": "永安行",
         "shares": null,
         "cost": null,
         "price": null,
@@ -238,8 +238,8 @@
         "bucket": "long"
       },
       {
-        "code": "603776",
-        "name": "永安行",
+        "code": "300223",
+        "name": "北京君正",
         "shares": null,
         "cost": null,
         "price": null,
@@ -555,8 +555,8 @@
     "overall": "大势偏强，明日可维持偏高仓位，重点做主线进攻。",
     "position": "长线/高股息底仓不动；短线仓位可提升至 25%-30%。",
     "tactics": [
-      "重点进攻方向：软件开发, 文化传媒, IT服务（资金净流入前三）。",
-      "回避方向：半导体, 元件, 建筑装饰（资金净流出前三）。",
+      "重点进攻方向：半导体, 通信设备, 元件（资金净流入前三）。",
+      "回避方向：银行, 电力, 汽车整车（资金净流出前三）。",
       "今日涨停 0 家，情绪偏冷，次日以首板/反包低吸为主，少做高位接力。",
       "监控池标的次日高开不追，等回踩分时均线或昨日涨停价附近再考虑；低开低走直接剔除。"
     ],

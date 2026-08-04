@@ -3122,6 +3122,114 @@ def _predicted_gain(s):
     return round(max(-9.0, min(10.0, val)), 1)
 
 
+def _mainforce_pool_card(snap):
+    """主力资金备选池：基于 snapshot.heatmap（个股资金流 TOP50）按 8/3 主力净流入排序，供次日低吸参考。"""
+    hm = snap.get("heatmap", []) or []
+    if not hm:
+        return ""
+    def num(x):
+        try:
+            return float(str(x).replace("%", "").replace(",", ""))
+        except Exception:
+            return 0.0
+    hm_sorted = sorted(hm, key=lambda x: num(x.get("主力净流入-净额", 0)), reverse=True)[:12]
+    rows = ""
+    for x in hm_sorted:
+        name = x.get("名称", "—")
+        code = x.get("代码", "")
+        net = num(x.get("主力净流入-净额", 0)) / 1e8
+        pct = x.get("涨跌幅", "—")
+        price = x.get("最新价", "—")
+        turnover = x.get("换手率", "—")
+        pct_cls = "down" if num(pct) < 0 else "up"
+        limit_tag = ' <span style="display:inline-block;padding:1px 6px;border-radius:999px;font-size:11px;background:rgba(255,77,79,.12);color:var(--up);">涨停谨慎</span>' if num(pct) >= 9.9 else ""
+        rows += (f'<tr><td>{name}{limit_tag}</td><td class="num">{code}</td>'
+                 f'<td class="num up">{net:.2f}亿</td><td class="num {pct_cls}">{pct}</td>'
+                 f'<td class="num">{price}</td><td class="num">{turnover}</td></tr>')
+    return f'''
+    <div class="card card-full">
+        <div class="card-title"><span class="icon"><i class="fas fa-money-bill-wave"></i></span> 主力资金备选池 <span class="badge">8/3 净流入 TOP</span></div>
+        <p class="sub-title">基于 8/3 收盘个股资金流 TOP50，按主力净流入排序，供 8/4 低吸参考（非投资建议）</p>
+        <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>标的</th><th>代码</th><th>净流入</th><th>涨跌幅</th><th>现价</th><th>换手</th></tr></thead>
+            <tbody>{rows}</tbody>
+        </table>
+        </div>
+    </div>'''
+
+
+def _paper_trade_card():
+    """本地模拟交易账户卡片：读取 cache/paper_trades.json，展示总资产/收益率/持仓盈亏。
+    非真实券商持仓，仅本地策略执行闭环的模拟记录。"""
+    import json as _json
+    db_path = os.path.join(feed.CACHE_DIR, "paper_trades.json")
+    if not os.path.exists(db_path):
+        return ""
+    try:
+        d = _json.load(open(db_path, encoding="utf-8"))
+    except Exception:
+        return ""
+    meta = d.get("meta", {})
+    init = float(meta.get("init_cash", 0) or 0)
+    cash = float(meta.get("cash", 0) or 0)
+    positions = d.get("positions", []) or []
+
+    def _n(x):
+        try:
+            return float(str(x).replace(",", "").replace("%", ""))
+        except Exception:
+            return 0.0
+
+    mv_total = 0.0
+    rows = ""
+    for p in positions:
+        qty = int(p.get("qty", 0))
+        cost = _n(p.get("avg_cost"))
+        lp = _n(p.get("last_price", cost))
+        mv = round(lp * qty, 2)
+        fp = round((lp - cost) * qty, 2)
+        if cost > 0:
+            pct = round((lp / cost - 1) * 100, 2)
+        else:
+            pct = round(fp / mv * 100, 2) if mv else 0.0
+        mv_total += mv
+        pcls = "down" if fp < 0 else "up"
+        rows += (f'<tr><td>{p.get("name","—")}</td><td class="num">{p.get("code","")}</td>'
+                 f'<td class="num">{qty}</td><td class="num">{cost:.2f}</td>'
+                 f'<td class="num">{lp:.2f}</td><td class="num">{mv:,.0f}</td>'
+                 f'<td class="num {pcls}">{fp:+,.0f}</td><td class="num {pcls}">{("+" if pct>=0 else "")}{pct:.2f}%</td></tr>')
+
+    total_assets = round(cash + mv_total, 2)
+    ret = round((total_assets / init - 1) * 100, 2) if init else 0.0
+    ret_cls = "down" if ret < 0 else "up"
+
+    if positions:
+        body = f'''
+        <div class="table-wrap">
+        <table class="data-table">
+            <thead><tr><th>标的</th><th>代码</th><th>数量</th><th>成本</th><th>标记价</th><th>市值</th><th>浮动盈亏</th><th>盈亏%</th></tr></thead>
+            <tbody>{rows}</tbody>
+        </table>
+        </div>'''
+    else:
+        body = '<p class="sub-title">暂无模拟持仓。用 CLI 建仓后自动刷新：<br>' \
+               '<code>python scripts/paper_trade.py buy 300308 中际旭创 185.20 100 "8/4备选池"</code></p>'
+
+    return f'''
+    <div class="card card-full">
+        <div class="card-title"><span class="icon"><i class="fas fa-wallet"></i></span> 本地模拟交易 <span class="badge">PAPER</span></div>
+        <div class="stats4" style="margin:8px 0 14px;">
+            <div class="stat"><div class="stat-v num">{total_assets:,.0f}</div><div class="stat-l">总资产</div></div>
+            <div class="stat"><div class="stat-v num {ret_cls}">{("+" if ret>=0 else "")}{ret:.2f}%</div><div class="stat-l">总收益率</div></div>
+            <div class="stat"><div class="stat-v num">{cash:,.0f}</div><div class="stat-l">可用现金</div></div>
+            <div class="stat"><div class="stat-v num">{len(positions)}</div><div class="stat-l">持仓数</div></div>
+        </div>
+        {body}
+        <p class="sub-title" style="margin-top:10px;color:var(--text-3);">非真实券商持仓 · 盈亏基于开仓成本 vs 标记价 · 数据 cache/paper_trades.json</p>
+    </div>'''
+
+
 def _middle_daily_picks():
     """中间：每日备选股（策略下拉、市值滑块、评分滑块、开始扫描、策略标签）。"""
     s26 = _load_cache("scan_0926") or {}
@@ -3614,8 +3722,10 @@ def build() -> str:
         ("nav-radar", "量化雷达", "fa-radar",
          _screen_head("量化雷达", "进攻池 · 明日备选 · 回测引擎 · 核心判断", "STRATEGY")
          + "".join([
-             _section_pool(cfg, a_quotes, indicators),
-             _middle_daily_picks(),            # 明日进攻标的（明日备选池）
+            _section_pool(cfg, a_quotes, indicators),
+            _mainforce_pool_card(snap),       # 8/3 主力资金备选池（重点）
+            _paper_trade_card(),              # 本地模拟交易账户（PAPER）
+            _middle_daily_picks(),            # 明日进攻标的（明日备选池）
              _right_backtest_engine(),         # 回测引擎
              _section_judge(overnight, snap, cfg, a_quotes, account_pnl),
          ])),
