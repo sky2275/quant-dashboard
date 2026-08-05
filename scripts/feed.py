@@ -430,7 +430,8 @@ def get_indicators(items: list[tuple]) -> dict:
     """
     批量获取技术指标（RSI14 / MACD / 量比 / 换手 / 主力净流入 / 周月动量 / 评分）。
     items: list of (name, ts_code)，ts_code 形如 '600584.SH'。
-    优先 tushare（3 次批量调用：daily / daily_basic / moneyflow）；否则 akshare 逐只兜底；少量缺失自动补齐。
+    优先 tushare（3 次批量调用：daily / daily_basic / moneyflow）；否则 akshare 逐只兜底；
+    最后腾讯 K线 fallback（仅 RSI/MACD/MA/量比）。少量缺失自动补齐。
     返回 {ts_code: {rsi, macd_dif, macd_dea, macd_hist, volume_ratio, turnover_rate,
                      main_flow(元), week_pct, month_pct, score(0-100)}}
     """
@@ -438,6 +439,7 @@ def get_indicators(items: list[tuple]) -> dict:
     if not valid:
         return {}
     pro = _tushare_pro()
+    out = {}
     if pro:
         ts_codes = [t for _, t in valid]
         out = _tushare_indicators(pro, ts_codes)
@@ -449,8 +451,115 @@ def get_indicators(items: list[tuple]) -> dict:
                 base = out.get(t, {})
                 base.update({k: v for k, v in rec.items() if v is not None})
                 out[t] = base
-        return out
-    return _akshare_indicators(valid)
+            out = out or _akshare_indicators(valid)
+    else:
+        out = _akshare_indicators(valid)
+    # 兜底：腾讯 K线（RSI/MACD/MA/量比）
+    still_missing = [(n, t) for n, t in valid if t not in out or not out.get(t) or out.get(t, {}).get("rsi") is None]
+    if still_missing:
+        qt = _tencent_kline_indicators(still_missing)
+        for t, rec in qt.items():
+            base = out.get(t, {})
+            base.update({k: v for k, v in rec.items() if v is not None})
+            out[t] = base
+    return out
+
+
+def _rsi(closes, period=14):
+    if len(closes) < period + 1:
+        return None
+    gains, losses = 0.0, 0.0
+    for i in range(-period, 0):
+        d = closes[i] - closes[i - 1]
+        if d >= 0:
+            gains += d
+        else:
+            losses -= d
+    ag = gains / period
+    al = losses / period
+    if al == 0:
+        return 100.0
+    rs = ag / al
+    return round(100 - 100 / (1 + rs), 2)
+
+
+def _ema(values, period):
+    if not values:
+        return None
+    k = 2 / (period + 1)
+    ema = values[0]
+    for v in values[1:]:
+        ema = v * k + ema * (1 - k)
+    return ema
+
+
+def _macd(closes, fast=12, slow=26, signal=9):
+    if len(closes) < slow + signal:
+        return None, None, None
+    fast_ema = []
+    slow_ema = []
+    kf = 2 / (fast + 1)
+    ks = 2 / (slow + 1)
+    ef = closes[0]
+    es = closes[0]
+    for c in closes:
+        ef = c * kf + ef * (1 - kf)
+        es = c * ks + es * (1 - ks)
+        fast_ema.append(ef)
+        slow_ema.append(es)
+    dif = [f - s for f, s in zip(fast_ema, slow_ema)]
+    dea = []
+    kd = 2 / (signal + 1)
+    ed = dif[0]
+    for d in dif:
+        ed = d * kd + ed * (1 - kd)
+        dea.append(ed)
+    hist = [d - e for d, e in zip(dif, dea)]
+    return round(dif[-1], 4), round(dea[-1], 4), round(hist[-1], 4)
+
+
+def _tencent_kline_indicators(items):
+    """腾讯 K线 fallback：计算 RSI14/MACD/MA5-20/量比。换手率/主力净额不在K线中无法计算。"""
+    out = {}
+    UA = {"User-Agent": "Mozilla/5.0", "Referer": "https://gu.qq.com/"}
+    for name, ts in items:
+        if not ts:
+            continue
+        # ts = '600584.SH' -> 'sh600584'
+        code = ts.split(".")[0]
+        mkt = ts.split(".")[1]
+        prefix = "sh" if mkt == "SH" else ("sz" if mkt == "SZ" else "bj")
+        full = f"{prefix}{code}"
+        try:
+            import requests as _req
+            url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={full},day,,,60,qfq"
+            r = _req.get(url, timeout=8, headers=UA)
+            j = r.json()
+            kl = (j.get("data", {}).get(full, {}).get("qfqday") or
+                  j.get("data", {}).get(full, {}).get("day") or [])
+            if len(kl) < 20:
+                continue
+            closes = [float(k[2]) for k in kl]
+            vols = [float(k[5]) for k in kl]
+            ma5 = round(sum(closes[-5:]) / 5, 3) if len(closes) >= 5 else None
+            ma10 = round(sum(closes[-10:]) / 10, 3) if len(closes) >= 10 else None
+            ma20 = round(sum(closes[-20:]) / 20, 3) if len(closes) >= 20 else None
+            rsi = _rsi(closes, 14)
+            macd_dif, macd_dea, macd_hist = _macd(closes)
+            vol_ratio = None
+            if len(vols) >= 6:
+                avg5 = sum(vols[-6:-1]) / 5
+                if avg5 > 0:
+                    vol_ratio = round(vols[-1] / avg5, 2)
+            out[ts] = {
+                "rsi": rsi,
+                "macd_dif": macd_dif, "macd_dea": macd_dea, "macd_hist": macd_hist,
+                "volume_ratio": vol_ratio,
+                "ma5": ma5, "ma10": ma10, "ma20": ma20,
+            }
+        except Exception as e:
+            print(f"[tencent_kline_indicators] {name} {ts}: {e}")
+    return out
 
 
 def enrich_heatmap(heat: list, trade_date: str | None = None) -> list:
