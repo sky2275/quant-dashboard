@@ -761,6 +761,26 @@ CSS_RULES = """
         .pager-btn:disabled { opacity:.4; cursor:not-allowed; }
         .astock-empty { padding:30px; text-align:center; color:var(--text-3); font-size:13px; }
         @media (max-width: 1100px) { .sector-layout { grid-template-columns:1fr; } }
+
+        /* ---- 量化雷达：扫描卫星图标 + 刷新时间徽章 ---- */
+        .nav-icon.fa-satellite-dish { display:inline-block; transform-origin:center center; color:var(--accent-2); transition:color .2s ease; }
+        .nav-item:hover .nav-icon.fa-satellite-dish { color:var(--accent); }
+        .nav-item.active .nav-icon.fa-satellite-dish { animation:radar-scan 2.4s linear infinite; color:var(--accent); filter:drop-shadow(0 0 5px rgba(45,212,191,.55)); }
+        @keyframes radar-scan { 0% { transform:rotate(0deg) scale(1); } 50% { transform:rotate(180deg) scale(1.08); } 100% { transform:rotate(360deg) scale(1); } }
+        @media (prefers-reduced-motion: reduce) { .nav-item.active .nav-icon.fa-satellite-dish { animation:none; } }
+
+        /* 备选池卡片：刷新时间条 */
+        .refresh-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:6px 12px; margin:-6px 0 12px; border-radius:var(--r-btn); background:var(--bg-surface-2); border:1px solid var(--border); font-size:11px; color:var(--text-2); line-height:1.4; }
+        .refresh-meta .rm-dot { width:8px; height:8px; border-radius:50%; background:var(--text-3); box-shadow:0 0 0 0 rgba(0,0,0,0); flex-shrink:0; transition:background .3s ease, box-shadow .3s ease; }
+        .refresh-meta.fresh .rm-dot { background:#22c55e; box-shadow:0 0 6px rgba(34,197,94,.55); }
+        .refresh-meta.warn  .rm-dot { background:#f59e0b; box-shadow:0 0 6px rgba(245,158,11,.55); }
+        .refresh-meta.stale .rm-dot { background:#ef4444; box-shadow:0 0 8px rgba(239,68,68,.7); animation:radar-pulse 1.2s ease-in-out infinite; }
+        @keyframes radar-pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.4); } }
+        .refresh-meta .rm-time { font-family:var(--font-num); color:var(--text-1); font-weight:600; }
+        .refresh-meta .rm-rel { font-family:var(--font-num); color:var(--text-2); }
+        .refresh-meta .rm-trade { padding:1px 7px; border-radius:var(--r-chip); background:rgba(79,156,255,.12); color:var(--accent-blue); font-weight:600; }
+        .refresh-meta .rm-btn { margin-left:auto; padding:3px 10px; border-radius:var(--r-btn); border:1px solid var(--border); background:transparent; color:var(--text-2); cursor:pointer; font-size:11px; transition:var(--transition); }
+        .refresh-meta .rm-btn:hover { border-color:var(--accent); color:var(--accent); }
 """
 
 
@@ -3174,6 +3194,28 @@ def _predicted_gain(s):
     return round(max(-9.0, min(10.0, val)), 1)
 
 
+def _refresh_meta(updated_at, trade_date="", label=""):
+    """雷达池卡片顶部刷新时间徽章：数据时间 + 相对时间（JS tick） + 刷新按钮。
+    updated_at 可为 ISO 字符串（如 '2026-08-05T22:04:21' 或 '2026-08-05 22:04:21'）。"""
+    if not updated_at:
+        return ""
+    # 归一化为浏览器可解析的时间字符串（避免 JS Date 解析失败）
+    ts = str(updated_at).strip().replace("/", "-").replace("T", " ").split("+")[0].split(".")[0]
+    if len(ts) == 10:  # 仅日期，补 T00:00:00
+        ts = ts + " 00:00:00"
+    label_html = f'<span style="color:var(--text-3);">{label}</span>' if label else ''
+    trade_html = f'<span class="rm-trade">数据日 {trade_date}</span>' if trade_date else ''
+    return (
+        f'<div class="refresh-meta" data-freshness="0" data-time="{ts}">'
+        f'  <span class="rm-dot"></span>'
+        f'  <span>📅 数据时间</span><span class="rm-time">{ts}</span>'
+        f'  <span class="rm-rel">· <span class="rm-rel-val">加载中…</span></span>'
+        f'  {trade_html}'
+        f'  {label_html}'
+        f'  <button class="rm-btn" onclick="location.reload()">↻ 刷新数据</button>'
+        f'</div>')
+
+
 def _mainforce_pool_card(snap):
     """主力资金备选池：基于 snapshot.heatmap（个股资金流 TOP50）按主力净流入排序，取前 12 名，用卡片式 UI 展示。"""
     hm = snap.get("heatmap", []) or []
@@ -3212,6 +3254,7 @@ def _mainforce_pool_card(snap):
     return f'''
     <div class="card card-full">
         <div class="card-title"><span class="icon"><i class="fas fa-money-bill-wave"></i></span> 主力资金备选池 <span class="badge">{len(hm_sorted)}只标的</span></div>
+        {_refresh_meta(snap.get("updated_at", ""), trade_date=snap.get("trade_ctx", {}).get("trade_date", ""), label="主力资金流快照")}
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
             <span style="font-size:10px;color:var(--text-secondary);">🔥 资金主线:</span>
             <span class="sector-tag">主力净流入</span><span class="sector-tag">大单主动买入</span><span class="sector-tag">短线进攻</span>
@@ -3545,6 +3588,7 @@ def _middle_daily_picks():
             <h3>明日备选池 <span>· TOMORROW PICKS</span></h3>
             <span class="picks-count-badge" id="picksCount">共 {len(picks)} 只 · 预测涨幅≥2%</span>
         </div>
+        {_refresh_meta(updated_at, trade_date=trade_date, label="策略模型预测 · 每个交易日 09:26/10:30/12:00/14:30 扫描更新")}
         <div class="picks-toolbar">
             <div class="picks-row">
                 <label>选股策略</label>
@@ -4014,7 +4058,7 @@ def build() -> str:
          _screen_head("持仓复盘", "多账户合并盈亏 · 持仓明细 · 盘后复盘总结",
                       f"{_pos_cnt} 只持仓" if _pos_cnt else "无持仓")
          + _section_holdings(positions, a_quotes, indicators, account_pnl, daily_review_cache)),
-        ("nav-radar", "量化雷达", "fa-radar",
+        ("nav-radar", "量化雷达", "fa-satellite-dish",
          _screen_head("量化雷达", "进攻池 · 明日备选 · 回测引擎 · 核心判断", "STRATEGY")
          + "".join([
             _section_pool(cfg, a_quotes, indicators),
@@ -4349,6 +4393,11 @@ document.addEventListener('DOMContentLoaded', function() {{
     startRealtime();
     astockLoad();
     astockApply();
+    // 量化雷达池卡片：相对时间 + 鲜度等级（基于看板刷新时间自动更新）
+    tickRefreshTime();
+    setInterval(tickRefreshTime, 30000);
+    // 过期超过 60 分钟且页面打开超过 30 分钟 → 弹窗提醒刷新（基于看板的刷新时间自动更新）
+    setTimeout(function() {{ setInterval(checkStaleReload, 60000); }}, 5 * 60000);
     // A股浏览器个股链接：事件委托（data-code/data-name）避免内联引号转义问题
     document.addEventListener('click', function(e) {{
         const el = e.target && e.target.closest ? e.target.closest('.stock-link[data-code]') : null;
@@ -4358,6 +4407,41 @@ document.addEventListener('DOMContentLoaded', function() {{
         }}
     }});
 }});
+
+/* ---- 量化雷达池：刷新时间相对值 + 鲜度等级 ---- */
+const RF_PAGE_LOADED = Date.now();
+function tickRefreshTime() {{
+  const metas = document.querySelectorAll('.refresh-meta');
+  const now = Date.now();
+  metas.forEach(m => {{
+    const t = m.getAttribute('data-time');
+    if (!t) return;
+    const ts = Date.parse(t.replace(/-/g, '/'));
+    const relEl = m.querySelector('.rm-rel-val');
+    if (!isFinite(ts)) {{ if (relEl) relEl.textContent = '时间异常'; return; }}
+    const diffMs = now - ts;
+    const min = Math.floor(diffMs / 60000);
+    let rel, cls;
+    if (min < 1)       {{ rel = '刚刚更新'; cls = 'fresh'; }}
+    else if (min < 30) {{ rel = min + ' 分钟前'; cls = 'fresh'; }}
+    else if (min < 60) {{ rel = min + ' 分钟前'; cls = 'warn'; }}
+    else if (min < 240){{ const h = Math.floor(min/60); rel = h + ' 小时 ' + (min%60) + ' 分钟前'; cls = 'warn'; }}
+    else               {{ const h = Math.floor(min/60); rel = h + ' 小时前'; cls = 'stale'; }}
+    if (relEl) relEl.textContent = rel;
+    m.classList.remove('fresh','warn','stale');
+    m.classList.add(cls);
+  }});
+}}
+let RF_STALE_PROMPTED = false;
+function checkStaleReload() {{
+  if (RF_STALE_PROMPTED) return;
+  const metas = document.querySelectorAll('.refresh-meta.stale');
+  if (!metas.length) return;
+  if ((Date.now() - RF_PAGE_LOADED) < 30 * 60000) return;  // 页面打开不足 30 分钟不打扰
+  RF_STALE_PROMPTED = true;
+  const ok = window.confirm('📡 雷达池数据已超过 1 小时未更新，是否刷新页面以获取最新数据？');
+  if (ok) location.reload();
+}}
 
 function filterPicks() {{
     const strategy = document.getElementById('picksStrategy').value;
