@@ -724,6 +724,43 @@ CSS_RULES = """
         .heatmap-legend { display:flex; align-items:center; gap:8px; margin-top:12px; font-size:11px; color:var(--text-3); }
         .heatmap-legend .sc { display:flex; height:10px; border-radius:var(--r-chip); overflow:hidden; width:190px; }
         .heatmap-legend .sc i { flex:1; }
+
+        /* ---- 板块&龙头股 ---- */
+        .stat-strip { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+        .stat-pill { flex:1; min-width:150px; padding:12px 14px; border-radius:var(--r-inset); background:var(--bg-surface-2); border:1px solid var(--border); }
+        .stat-pill .lbl { font-size:10.5px; color:var(--text-3); }
+        .stat-pill .val { font-size:18px; font-weight:700; margin-top:3px; font-variant-numeric:tabular-nums; }
+        .sector-layout { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+        .sector-table-wrap { overflow:auto; max-height:580px; border:1px solid var(--border); border-radius:var(--r-inset); background:var(--bg-surface); }
+        .sector-table { width:100%; border-collapse:collapse; font-size:12px; white-space:nowrap; }
+        .sector-table th { position:sticky; top:0; background:var(--bg-surface-2); color:var(--text-3); font-weight:600; text-align:left; padding:8px 10px; font-size:10.5px; letter-spacing:.3px; z-index:1; }
+        .sector-table td { padding:7px 10px; border-top:1px solid var(--border-soft); }
+        .sector-table tbody tr:hover { background:var(--bg-hover); }
+        .rank-badge { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:7px; font-size:10.5px; font-weight:700; flex-shrink:0; }
+        .rank-badge.in { background:rgba(255,77,79,.12); color:var(--up); }
+        .rank-badge.out { background:rgba(0,200,150,.12); color:var(--down); }
+        .leader-chip { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:var(--r-chip); background:var(--bg-surface-2); border:1px solid var(--border); font-size:11px; color:var(--text-1); }
+        .leader-chip .ld-chg { font-size:10.5px; font-weight:600; }
+        .astock-toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+        .astock-search { flex:1; min-width:200px; padding:8px 12px; border-radius:var(--r-btn); border:1px solid var(--border); background:var(--bg-surface-2); color:var(--text-1); font-size:12.5px; outline:none; }
+        .astock-search:focus { border-color:var(--accent); }
+        .astock-search::placeholder { color:var(--text-3); }
+        .astock-sort-chip { padding:5px 10px; border-radius:var(--r-chip); background:var(--bg-surface-2); border:1px solid var(--border); color:var(--text-2); font-size:11.5px; cursor:pointer; }
+        .astock-sort-chip:hover { color:var(--text-1); border-color:var(--accent); }
+        .astock-sort-chip.active { background:var(--bg-active); color:var(--accent); border-color:var(--accent); }
+        .astock-table { width:100%; border-collapse:collapse; font-size:12px; white-space:nowrap; }
+        .astock-table th { position:sticky; top:0; background:var(--bg-surface-2); color:var(--text-3); font-weight:600; text-align:left; padding:7px 8px; font-size:10.5px; cursor:pointer; user-select:none; }
+        .astock-table th:hover { color:var(--accent); }
+        .astock-table th .arr { font-size:9px; margin-left:2px; }
+        .astock-table td { padding:6px 8px; border-top:1px solid var(--border-soft); }
+        .astock-table tbody tr:hover { background:var(--bg-hover); }
+        .astock-wrap { max-height:560px; overflow:auto; border:1px solid var(--border); border-radius:var(--r-inset); }
+        .astock-pager { display:flex; align-items:center; gap:8px; justify-content:flex-end; margin-top:10px; font-size:12px; color:var(--text-2); flex-wrap:wrap; }
+        .pager-btn { padding:4px 12px; border-radius:var(--r-btn); background:var(--bg-surface-2); border:1px solid var(--border); color:var(--text-1); cursor:pointer; font-size:12px; }
+        .pager-btn:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); }
+        .pager-btn:disabled { opacity:.4; cursor:not-allowed; }
+        .astock-empty { padding:30px; text-align:center; color:var(--text-3); font-size:13px; }
+        @media (max-width: 1100px) { .sector-layout { grid-template-columns:1fr; } }
 """
 
 
@@ -3194,6 +3231,139 @@ def _mainforce_pool_card(snap):
     </div>'''
 
 
+def _section_sector_leader(data):
+    """板块&龙头股：板块资金流入/流出 TOP30（含领涨龙头股）+ A股全量浏览器。
+    数据源：桌面 Table-板块.xls（板块资金流向）+ Tabl-A股e.xls（A股全量）→ cache/sector_leader_data.json。
+    """
+    if not data or not isinstance(data, dict):
+        return ('<div class="card card-full" style="border-style:dashed;">'
+                '<div class="card-title"><span class="icon"><i class="fas fa-cubes"></i></span> 板块&龙头股 '
+                '<span class="badge">数据缺失</span></div>'
+                '<div style="color:var(--text-secondary);padding:14px 4px;">暂无板块/个股数据。'
+                '请把 Table-板块.xls 与 Tabl-A股e.xls 放到桌面并重新构建看板。</div></div>')
+
+    top_in = data.get("top_inflow") or []
+    top_out = data.get("top_outflow") or []
+    astock_n = data.get("astock_count") or 0
+    sector_n = data.get("sector_count") or 0
+    updated = str(data.get("updated_at") or "")[:16].replace("T", " ")
+
+    def _sector_rows(items, cls_tag):
+        if not items:
+            return '<tr><td colspan="8" style="padding:20px;text-align:center;color:var(--text-3);">无数据</td></tr>'
+        rows = ""
+        for i, s in enumerate(items, 1):
+            name = s.get("name", "—")
+            chg = s.get("chg")
+            main_amt = s.get("main_amount")
+            limit_up = s.get("limit_up")
+            up_c = s.get("up_count")
+            down_c = s.get("down_count")
+            leader = s.get("leader") or "—"
+            leader_code = s.get("leader_code")
+            leader_chg = s.get("leader_chg")
+            chg5d = s.get("chg5d")
+            leader_html = f'<span class="leader-chip">{_stock_link(leader, leader_code)}'
+            if leader_chg is not None:
+                leader_html += f'<span class="ld-chg {_cls(leader_chg)}">{_fmt_pct(leader_chg, 1)}</span>'
+            leader_html += '</span>'
+            rows += (
+                f'<tr>'
+                f'<td><span class="rank-badge {cls_tag}">{i}</span></td>'
+                f'<td><b style="color:var(--text-1);">{name}</b></td>'
+                f'<td class="num {_cls(chg)}">{_fmt_pct(chg, 1)}</td>'
+                f'<td class="num {_cls(main_amt)}">{_fmt_yi(main_amt)}</td>'
+                f'<td class="num">{_safe(limit_up, 0)}</td>'
+                f'<td class="num muted">{_safe(up_c, 0)}/{_safe(down_c, 0)}</td>'
+                f'<td>{leader_html}</td>'
+                f'<td class="num muted">{_fmt_pct(chg5d, 1)}</td>'
+                f'</tr>')
+        return rows
+
+    def _amount_sum(items):
+        return sum((s.get("main_amount") or 0) for s in items)
+
+    in_sum = _amount_sum(top_in)
+    out_sum = _amount_sum(top_out)
+
+    inflow_html = f'''
+    <div class="card">
+        <div class="card-title"><span class="icon"><i class="fas fa-arrow-trend-up"></i></span> 板块资金流入 TOP30
+            <span class="badge">净流入 {_fmt_yi(in_sum)}</span></div>
+        <div class="sector-table-wrap">
+            <table class="sector-table">
+                <thead><tr>
+                    <th>#</th><th>板块</th><th>今日涨幅</th><th>主力净额</th><th>涨停</th><th>涨/跌家</th><th>领涨龙头</th><th>5日涨幅</th>
+                </tr></thead>
+                <tbody>{_sector_rows(top_in, "in")}</tbody>
+            </table>
+        </div>
+    </div>'''
+
+    outflow_html = f'''
+    <div class="card">
+        <div class="card-title"><span class="icon"><i class="fas fa-arrow-trend-down"></i></span> 板块资金流出 TOP30
+            <span class="badge">净流出 {_fmt_yi(out_sum)}</span></div>
+        <div class="sector-table-wrap">
+            <table class="sector-table">
+                <thead><tr>
+                    <th>#</th><th>板块</th><th>今日涨幅</th><th>主力净额</th><th>涨停</th><th>涨/跌家</th><th>领涨龙头</th><th>5日涨幅</th>
+                </tr></thead>
+                <tbody>{_sector_rows(top_out, "out")}</tbody>
+            </table>
+        </div>
+    </div>'''
+
+    astock_html = f'''
+    <div class="card card-full">
+        <div class="card-title"><span class="icon"><i class="fas fa-table"></i></span> A股全量浏览器
+            <span class="badge">{astock_n} 只</span>
+            <span style="font-size:10px;color:var(--text-3);font-weight:400;">搜索代码/名称/行业 · 点击表头排序 · 分页浏览</span></div>
+        <div class="astock-toolbar">
+            <input class="astock-search" id="astockSearch" placeholder="🔍 输入代码 / 名称 / 行业关键词，如：300223 / 北京君正 / 半导体" oninput="astockApply()">
+            <span class="astock-sort-chip" data-sort="amount" onclick="astockSetSort('amount')">成交额</span>
+            <span class="astock-sort-chip" data-sort="chg" onclick="astockSetSort('chg')">涨幅</span>
+            <span class="astock-sort-chip" data-sort="turnover" onclick="astockSetSort('turnover')">换手率</span>
+            <span class="astock-sort-chip" data-sort="vol_ratio" onclick="astockSetSort('vol_ratio')">量比</span>
+            <span class="astock-sort-chip" data-sort="float_cap" onclick="astockSetSort('float_cap')">流通市值</span>
+        </div>
+        <div class="astock-wrap">
+            <table class="astock-table">
+                <thead><tr>
+                    <th onclick="astockSetSort('code')">代码<span class="arr" id="arr-code"></span></th>
+                    <th onclick="astockSetSort('name')">名称<span class="arr" id="arr-name"></span></th>
+                    <th onclick="astockSetSort('price')">现价<span class="arr" id="arr-price"></span></th>
+                    <th onclick="astockSetSort('chg')">涨幅<span class="arr" id="arr-chg"></span></th>
+                    <th onclick="astockSetSort('vol_ratio')">量比<span class="arr" id="arr-vol_ratio"></span></th>
+                    <th onclick="astockSetSort('turnover')">换手%<span class="arr" id="arr-turnover"></span></th>
+                    <th>所属行业</th>
+                    <th onclick="astockSetSort('amount')">成交额<span class="arr" id="arr-amount"></span></th>
+                    <th onclick="astockSetSort('pe')">市盈(动)<span class="arr" id="arr-pe"></span></th>
+                    <th onclick="astockSetSort('float_cap')">流通市值<span class="arr" id="arr-float_cap"></span></th>
+                </tr></thead>
+                <tbody id="astockBody"></tbody>
+            </table>
+            <div class="astock-empty" id="astockEmpty" style="display:none;">未找到匹配个股，换个关键词试试</div>
+        </div>
+        <div class="astock-pager">
+            <span id="astockPageInfo">—</span>
+            <button class="pager-btn" id="astockPrev" onclick="astockPage(-1)">‹ 上一页</button>
+            <button class="pager-btn" id="astockNext" onclick="astockPage(1)">下一页 ›</button>
+        </div>
+    </div>'''
+
+    return f'''
+    <div class="stat-strip">
+        <div class="stat-pill"><div class="lbl">收录板块</div><div class="val">{sector_n}</div></div>
+        <div class="stat-pill"><div class="lbl">A股全量</div><div class="val">{astock_n}</div></div>
+        <div class="stat-pill"><div class="lbl" style="color:var(--up);">流入TOP30净额</div><div class="val" style="color:var(--up);">{_fmt_yi(in_sum)}</div></div>
+        <div class="stat-pill"><div class="lbl" style="color:var(--down);">流出TOP30净额</div><div class="val" style="color:var(--down);">{_fmt_yi(out_sum)}</div></div>
+        <div class="stat-pill"><div class="lbl">数据时间</div><div class="val" style="font-size:13px;line-height:1.9;">{updated or "—"}</div></div>
+    </div>
+    <div class="sector-layout">{inflow_html}{outflow_html}</div>
+    {astock_html}'''
+
+
 def _paper_trade_card():
     """本地模拟交易账户卡片：读取 cache/paper_trades.json，展示总资产/收益率/持仓盈亏。
     非真实券商持仓，仅本地策略执行闭环的模拟记录。"""
@@ -3821,6 +3991,10 @@ def build() -> str:
     _sf_cnt = len([s for s in (snap.get("sector_flow", []) or []) if isinstance(s, dict)])
     _pos_cnt = len(positions or [])
 
+    # 板块&龙头股数据（桌面 Table-板块.xls / Tabl-A股e.xls → sector_leader_data.json）
+    sector_leader = _load_cache("sector_leader_data") or {}
+    _sl_cnt = sector_leader.get("sector_count") or 0
+
     nav_items = [
         ("nav-ashare", "A股大盘行情", "fa-chart-line", _section_ashare(snap, us_quotes, overnight)),
         ("nav-us", "美股行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight)),
@@ -3832,6 +4006,10 @@ def build() -> str:
                       f"{_sf_cnt} 个板块" if _sf_cnt else "板块数据缺失")
          + _sector_heatmap_panel(snap, limit=40)
          + _section_heatmap(snap, indicators)),
+        ("nav-sector", "板块&龙头股", "fa-cubes",
+         _screen_head("板块&龙头股", "每日板块资金流入/流出 TOP30 · 龙头股 · A股全量浏览器",
+                      f"{_sl_cnt} 个板块" if _sl_cnt else "板块数据缺失")
+         + _section_sector_leader(sector_leader)),
         ("nav-holdings", "持仓复盘", "fa-briefcase",
          _screen_head("持仓复盘", "多账户合并盈亏 · 持仓明细 · 盘后复盘总结",
                       f"{_pos_cnt} 只持仓" if _pos_cnt else "无持仓")
@@ -3921,6 +4099,98 @@ def build() -> str:
 function loadDate(date) {{ alert('📅 切换到 ' + date); }}
 window.BT_KLINES = {json.dumps(klines, ensure_ascii=False)};
 window.BT_ENGINE_DATA = {json.dumps(engine_data, ensure_ascii=False)};
+window.SECTOR_LEADER = {json.dumps(sector_leader, ensure_ascii=False)};
+
+/* ---- 板块&龙头股：A股全量浏览器（搜索/排序/分页） ---- */
+const ASTOCK_PAGE_SIZE = 60;
+let astockRows = [];
+let astockRowsFiltered = [];
+let astockSortKey = 'amount';
+let astockSortDesc = true;
+let astockCur = 0;
+
+function astockLoad() {{
+  const d = window.SECTOR_LEADER || {{}};
+  astockRows = d.astocks || [];
+}}
+
+function astockApply() {{
+  const kw = (document.getElementById('astockSearch').value || '').trim().toLowerCase();
+  let rows = astockRows;
+  if (kw) {{
+    rows = rows.filter(r => (r.code || '').toLowerCase().includes(kw)
+      || (r.name || '').toLowerCase().includes(kw)
+      || (r.industry || '').toLowerCase().includes(kw));
+  }}
+  astockRowsFiltered = rows;
+  astockCur = 0;
+  astockRender();
+}}
+
+function astockSetSort(key) {{
+  if (astockSortKey === key) {{ astockSortDesc = !astockSortDesc; }}
+  else {{ astockSortKey = key; astockSortDesc = true; }}
+  document.querySelectorAll('.astock-sort-chip').forEach(c => c.classList.toggle('active', c.getAttribute('data-sort') === key));
+  ['code','name','price','chg','vol_ratio','turnover','amount','pe','float_cap'].forEach(k => {{
+    const el = document.getElementById('arr-' + k);
+    if (el) el.textContent = (k === key) ? (astockSortDesc ? '▼' : '▲') : '';
+  }});
+  astockCur = 0;
+  astockRender();
+}}
+
+function astockPage(delta) {{
+  astockCur = Math.max(0, astockCur + delta);
+  astockRender();
+}}
+
+function astockRender() {{
+  const tbody = document.getElementById('astockBody');
+  const empty = document.getElementById('astockEmpty');
+  const info = document.getElementById('astockPageInfo');
+  const prev = document.getElementById('astockPrev');
+  const next = document.getElementById('astockNext');
+  if (!tbody) return;
+  let rows = astockRowsFiltered || astockRows;
+  rows = rows.slice().sort((a, b) => {{
+    let va = a[astockSortKey], vb = b[astockSortKey];
+    if (typeof va === 'string') return astockSortDesc ? vb.localeCompare(va, 'zh') : va.localeCompare(vb, 'zh');
+    va = (va == null) ? -Infinity : va;
+    vb = (vb == null) ? -Infinity : vb;
+    return astockSortDesc ? vb - va : va - vb;
+  }});
+  const total = rows.length;
+  const pages = Math.max(1, Math.ceil(total / ASTOCK_PAGE_SIZE));
+  astockCur = Math.min(astockCur, pages - 1);
+  const start = astockCur * ASTOCK_PAGE_SIZE;
+  const pageRows = rows.slice(start, start + ASTOCK_PAGE_SIZE);
+  if (!pageRows.length && total) {{ astockCur = pages - 1; astockRender(); return; }}
+  tbody.innerHTML = pageRows.map(r => {{
+    const chg = r.chg == null ? '—' : r.chg;
+    const cls = (typeof chg === 'number') ? (chg > 0 ? 'up' : (chg < 0 ? 'down' : '')) : '';
+    const chgTxt = (typeof chg === 'number') ? (chg > 0 ? '+' + chg.toFixed(2) + '%' : chg.toFixed(2) + '%') : '—';
+    const fmtYi = v => (v == null) ? '—' : (Math.abs(v) >= 1e8 ? (v / 1e8).toFixed(1) + '亿' : (v / 1e4).toFixed(0) + '万');
+    const name = (r.name || '');
+    const code = (r.code || '');
+    const linkName = code ? '<span class="stock-link" data-code="' + code + '" data-name="' + name + '">' + name + '</span>' : name;
+    return '<tr>' +
+      '<td class="num muted">' + code + '</td>' +
+      '<td>' + linkName + '</td>' +
+      '<td class="num">' + (r.price == null ? '—' : r.price) + '</td>' +
+      '<td class="num ' + cls + '">' + chgTxt + '</td>' +
+      '<td class="num">' + (r.vol_ratio == null ? '—' : r.vol_ratio) + '</td>' +
+      '<td class="num">' + (r.turnover == null ? '—' : r.turnover) + '</td>' +
+      '<td class="muted">' + (r.industry || '—') + '</td>' +
+      '<td class="num">' + fmtYi(r.amount) + '</td>' +
+      '<td class="num">' + (r.pe == null ? '—' : r.pe) + '</td>' +
+      '<td class="num">' + fmtYi(r.float_cap) + '</td>' +
+      '</tr>';
+  }}).join('');
+  empty.style.display = total ? 'none' : 'block';
+  info.textContent = total ? ('共 ' + total + ' 只 · 第 ' + (astockPage + 1) + '/' + pages + ' 页') : '—';
+  prev.disabled = astockPage <= 0;
+  next.disabled = astockPage >= pages - 1;
+}}
 
 /* ---- 真实行情：浏览器端拉取腾讯K线 / 东财分时（支持回测任意个股 / 指数迷你折线） ---- */
 function toFullCode(code) {{
@@ -4077,6 +4347,16 @@ document.addEventListener('DOMContentLoaded', function() {{
     updateBTLogicPanel();
     loadIndexSpark();
     startRealtime();
+    astockLoad();
+    astockApply();
+    // A股浏览器个股链接：事件委托（data-code/data-name）避免内联引号转义问题
+    document.addEventListener('click', function(e) {{
+        const el = e.target && e.target.closest ? e.target.closest('.stock-link[data-code]') : null;
+        if (el) {{
+            e.stopPropagation();
+            openStockDetail(el.getAttribute('data-code'), el.getAttribute('data-name'));
+        }}
+    }});
 }});
 
 function filterPicks() {{
