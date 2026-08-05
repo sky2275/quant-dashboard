@@ -83,6 +83,12 @@ def _market_summary(snapshot: dict) -> dict[str, Any]:
         color = "green"
 
     breadth = snapshot.get("market_breadth", {})
+    # 兼容两套键名：旧版 up/down/limit_up/limit_down，新版 up_count/down_count/limit_up_count/limit_down_count
+    def _b(*names, default=0):
+        for n in names:
+            if breadth.get(n) is not None:
+                return breadth[n]
+        return default
     return {
         "trend": trend,
         "trend_color": color,
@@ -94,10 +100,10 @@ def _market_summary(snapshot: dict) -> dict[str, Any]:
             {"name": "科创50", "price": kc.get("price"), "change_pct": kc.get("change_pct"), "change_amount": kc.get("change_amount")},
         ],
         "breadth": {
-            "up": breadth.get("up", 0),
-            "down": breadth.get("down", 0),
-            "limit_up": breadth.get("limit_up", 0),
-            "limit_down": breadth.get("limit_down", 0),
+            "up": _b("up", "up_count"),
+            "down": _b("down", "down_count"),
+            "limit_up": _b("limit_up", "limit_up_count"),
+            "limit_down": _b("limit_down", "limit_down_count"),
         },
     }
 
