@@ -1,83 +1,83 @@
 {
-  "updated_at": "2026-08-05T08:00:41.797900+08:00",
+  "updated_at": "2026-08-05T18:11:10.846617+08:00",
   "trade_date": "20260729",
   "market_context": {
     "trade_date": "20260729",
-    "updated_at": "2026-08-05T08:00:41.797900+08:00",
+    "updated_at": "2026-08-05T18:11:10.846617+08:00",
     "a_up": null,
     "a_down": null,
     "a_limit_up": null,
     "a_amount": null,
     "top_sectors": [
       {
-        "名称": "元件",
-        "净流入": 8168000000.000001,
-        "流入资金": 45348000000.0,
-        "流出资金": 37180000000.0,
-        "涨跌幅": 7.07
+        "名称": "贵金属",
+        "净流入": 6988000000.0,
+        "流入资金": 17938000000.0,
+        "流出资金": 10951000000.0,
+        "涨跌幅": 7.72
       },
       {
         "名称": "电子化学品",
-        "净流入": 2271000000.0,
-        "流入资金": 16063000000.0,
-        "流出资金": 13791999999.999998,
-        "涨跌幅": 6.57
+        "净流入": 2416000000.0,
+        "流入资金": 21537000000.0,
+        "流出资金": 19122000000.0,
+        "涨跌幅": 7.53
+      },
+      {
+        "名称": "小金属",
+        "净流入": 295000000.0,
+        "流入资金": 14719000000.0,
+        "流出资金": 14424000000.0,
+        "涨跌幅": 6.12
       },
       {
         "名称": "半导体",
-        "净流入": 21935000000.0,
-        "流入资金": 143742000000.0,
-        "流出资金": 121806000000.0,
-        "涨跌幅": 6.01
+        "净流入": 9881000000.0,
+        "流入资金": 171635000000.0,
+        "流出资金": 161754000000.0,
+        "涨跌幅": 5.63
       },
       {
-        "名称": "医疗服务",
-        "净流入": -252000000.0,
-        "流入资金": 12370000000.0,
-        "流出资金": 12622000000.0,
-        "涨跌幅": 5.54
-      },
-      {
-        "名称": "通信设备",
-        "净流入": 18280000000.0,
-        "流入资金": 86628000000.0,
-        "流出资金": 68348000000.0,
+        "名称": "非金属材料",
+        "净流入": 263000000.0,
+        "流入资金": 1835000000.0000002,
+        "流出资金": 1572000000.0,
         "涨跌幅": 5.4
       },
       {
+        "名称": "元件",
+        "净流入": 4243000000.0,
+        "流入资金": 58365000000.0,
+        "流出资金": 54122000000.0,
+        "涨跌幅": 5.12
+      },
+      {
         "名称": "其他电子",
-        "净流入": 1473000000.0,
-        "流入资金": 5775000000.0,
-        "流出资金": 4302000000.0,
-        "涨跌幅": 4.55
+        "净流入": 168000000.0,
+        "流入资金": 6452000000.0,
+        "流出资金": 6284000000.0,
+        "涨跌幅": 4.01
       },
       {
-        "名称": "互联网电商",
-        "净流入": 272000000.0,
-        "流入资金": 3638000000.0000005,
-        "流出资金": 3365999999.9999995,
-        "涨跌幅": 4.23
+        "名称": "消费电子",
+        "净流入": 3492000000.0,
+        "流入资金": 30066000000.000004,
+        "流出资金": 26573000000.0,
+        "涨跌幅": 3.81
       },
       {
-        "名称": "游戏",
-        "净流入": 933000000.0,
-        "流入资金": 7606000000.0,
-        "流出资金": 6672000000.0,
-        "涨跌幅": 4.22
-      },
-      {
-        "名称": "通信服务",
-        "净流入": 803999999.9999999,
-        "流入资金": 8068000000.000001,
-        "流出资金": 7265000000.000001,
-        "涨跌幅": 3.99
+        "名称": "能源金属",
+        "净流入": 271000000.0,
+        "流入资金": 4831000000.0,
+        "流出资金": 4559000000.0,
+        "涨跌幅": 3.76
       },
       {
         "名称": "自动化设备",
-        "净流入": 3449000000.0,
-        "流入资金": 16588999999.999998,
-        "流出资金": 13140000000.0,
-        "涨跌幅": 3.93
+        "净流入": 776000000.0,
+        "流入资金": 19908000000.0,
+        "流出资金": 19132000000.0,
+        "涨跌幅": 3.48
       }
     ],
     "summary": "基于 2026-07-29 收盘数据，全市场共扫描 5201 只；备选池保留预测次日涨幅 ≥ 2% 且具备明确技术/资金信号的标的。"
@@ -161,8 +161,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 61.14,
-        "volume_ratio": 1.47,
+        "rsi14": 60.88,
+        "volume_ratio": 1.04,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -187,10 +187,10 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 65.0,
-        "volume_ratio": 2.65,
+        "rsi14": 60.43,
+        "volume_ratio": 1.96,
         "ma_bull_arrange": false,
-        "volume_breakout": true
+        "volume_breakout": false
       }
     },
     {
@@ -213,8 +213,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 52.42,
-        "volume_ratio": 0.9,
+        "rsi14": 52.68,
+        "volume_ratio": 0.93,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -239,8 +239,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 54.39,
-        "volume_ratio": 1.28,
+        "rsi14": 53.61,
+        "volume_ratio": 1.09,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -265,8 +265,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 62.29,
-        "volume_ratio": 2.1,
+        "rsi14": 59.75,
+        "volume_ratio": 1.63,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -291,8 +291,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 56.12,
-        "volume_ratio": 0.86,
+        "rsi14": 58.86,
+        "volume_ratio": 0.89,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -317,8 +317,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 59.21,
-        "volume_ratio": 1.05,
+        "rsi14": 58.98,
+        "volume_ratio": 0.82,
         "ma_bull_arrange": true,
         "volume_breakout": false
       }
@@ -343,8 +343,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 51.29,
-        "volume_ratio": 1.47,
+        "rsi14": 53.72,
+        "volume_ratio": 1.28,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -369,8 +369,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 48.83,
-        "volume_ratio": 1.78,
+        "rsi14": 51.75,
+        "volume_ratio": 1.41,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -395,8 +395,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 57.35,
-        "volume_ratio": 0.81,
+        "rsi14": 59.52,
+        "volume_ratio": 1.03,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -421,8 +421,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 68.62,
-        "volume_ratio": 1.55,
+        "rsi14": 68.37,
+        "volume_ratio": 1.15,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -447,8 +447,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 57.84,
-        "volume_ratio": 3.0,
+        "rsi14": 56.54,
+        "volume_ratio": 1.98,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -473,8 +473,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 60.21,
-        "volume_ratio": 1.02,
+        "rsi14": 61.36,
+        "volume_ratio": 0.79,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -499,8 +499,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 58.48,
-        "volume_ratio": 0.82,
+        "rsi14": 58.55,
+        "volume_ratio": 0.69,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -525,8 +525,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 51.9,
-        "volume_ratio": 1.3,
+        "rsi14": 53.71,
+        "volume_ratio": 1.18,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -551,8 +551,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 55.22,
-        "volume_ratio": 1.1,
+        "rsi14": 58.49,
+        "volume_ratio": 1.52,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -566,19 +566,19 @@
       "score": 86.8,
       "pred": 4.28,
       "sector": "—",
-      "strategy_key": "momentum",
-      "strategy": "竞价异动",
-      "entry_logic": "开盘站稳分时均线且量比>1.2 可轻仓；冲高回落或跌破开盘价止损。",
-      "exit_logic": "止盈：+5%~+8%；止损：-4% 或跌破分时均线。",
+      "strategy_key": "macd_golden",
+      "strategy": "MACD金叉",
+      "entry_logic": "MACD 金叉后首日放量阳线跟进；DIF 拐头向下或死叉减仓。",
+      "exit_logic": "止盈：+8%~+12%；止损：MACD 死叉或 -5%。",
       "tracked": true,
       "float_cap": 37822128000.0,
       "volume_ratio": 1.5,
       "turnover": 8.33,
       "signal": {
         "ma_cross": "none",
-        "macd_cross": "none",
-        "rsi14": 41.78,
-        "volume_ratio": 1.25,
+        "macd_cross": "golden",
+        "rsi14": 47.43,
+        "volume_ratio": 0.92,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -603,8 +603,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 59.33,
-        "volume_ratio": 1.58,
+        "rsi14": 59.13,
+        "volume_ratio": 1.19,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -629,8 +629,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 55.45,
-        "volume_ratio": 0.9,
+        "rsi14": 55.08,
+        "volume_ratio": 0.75,
         "ma_bull_arrange": true,
         "volume_breakout": false
       }
@@ -656,7 +656,7 @@
         "ma_cross": "none",
         "macd_cross": "none",
         "rsi14": 61.51,
-        "volume_ratio": 0.73,
+        "volume_ratio": 0.68,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -681,8 +681,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 59.74,
-        "volume_ratio": 1.63,
+        "rsi14": 62.56,
+        "volume_ratio": 1.9,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -707,8 +707,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 57.4,
-        "volume_ratio": 1.05,
+        "rsi14": 65.17,
+        "volume_ratio": 1.88,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -733,8 +733,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 47.2,
-        "volume_ratio": 0.85,
+        "rsi14": 50.29,
+        "volume_ratio": 0.99,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -757,10 +757,10 @@
       "volume_ratio": 1.12,
       "turnover": 12.81,
       "signal": {
-        "ma_cross": "golden",
+        "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 53.43,
-        "volume_ratio": 1.29,
+        "rsi14": 52.15,
+        "volume_ratio": 1.48,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -774,19 +774,19 @@
       "score": 63.8,
       "pred": 3.54,
       "sector": "—",
-      "strategy_key": "macd_golden",
-      "strategy": "MACD金叉",
-      "entry_logic": "MACD 金叉后首日放量阳线跟进；DIF 拐头向下或死叉减仓。",
-      "exit_logic": "止盈：+8%~+12%；止损：MACD 死叉或 -5%。",
+      "strategy_key": "momentum",
+      "strategy": "五维强势",
+      "entry_logic": "开盘站稳分时均线且量比>1.2 可轻仓；冲高回落或跌破开盘价止损。",
+      "exit_logic": "止盈：+5%~+8%；止损：-4% 或跌破分时均线。",
       "tracked": false,
       "float_cap": 3295867721.6,
       "volume_ratio": 1.71,
       "turnover": 6.02,
       "signal": {
-        "ma_cross": "none",
-        "macd_cross": "golden",
-        "rsi14": 41.15,
-        "volume_ratio": 0.67,
+        "ma_cross": "death",
+        "macd_cross": "none",
+        "rsi14": 43.58,
+        "volume_ratio": 0.7,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -811,8 +811,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 52.27,
-        "volume_ratio": 0.99,
+        "rsi14": 54.8,
+        "volume_ratio": 1.07,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -838,7 +838,7 @@
         "ma_cross": "none",
         "macd_cross": "none",
         "rsi14": 52.33,
-        "volume_ratio": 1.2,
+        "volume_ratio": 0.96,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -863,8 +863,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 49.69,
-        "volume_ratio": 0.78,
+        "rsi14": 53.59,
+        "volume_ratio": 1.22,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -878,19 +878,19 @@
       "score": 84.3,
       "pred": 3.21,
       "sector": "—",
-      "strategy_key": "momentum",
-      "strategy": "竞价异动",
-      "entry_logic": "开盘站稳分时均线且量比>1.2 可轻仓；冲高回落或跌破开盘价止损。",
-      "exit_logic": "止盈：+5%~+8%；止损：-4% 或跌破分时均线。",
+      "strategy_key": "macd_golden",
+      "strategy": "MACD金叉",
+      "entry_logic": "MACD 金叉后首日放量阳线跟进；DIF 拐头向下或死叉减仓。",
+      "exit_logic": "止盈：+8%~+12%；止损：MACD 死叉或 -5%。",
       "tracked": false,
       "float_cap": 50468889169.12,
       "volume_ratio": 1.06,
       "turnover": 15.98,
       "signal": {
-        "ma_cross": "golden",
-        "macd_cross": "none",
-        "rsi14": 44.88,
-        "volume_ratio": 1.23,
+        "ma_cross": "none",
+        "macd_cross": "golden",
+        "rsi14": 51.42,
+        "volume_ratio": 1.52,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -904,19 +904,19 @@
       "score": 83.3,
       "pred": 2.53,
       "sector": "—",
-      "strategy_key": "momentum",
-      "strategy": "竞价异动",
-      "entry_logic": "开盘站稳分时均线且量比>1.2 可轻仓；冲高回落或跌破开盘价止损。",
-      "exit_logic": "止盈：+5%~+8%；止损：-4% 或跌破分时均线。",
+      "strategy_key": "macd_golden",
+      "strategy": "MACD金叉",
+      "entry_logic": "MACD 金叉后首日放量阳线跟进；DIF 拐头向下或死叉减仓。",
+      "exit_logic": "止盈：+8%~+12%；止损：MACD 死叉或 -5%。",
       "tracked": false,
       "float_cap": 42412666274.6,
       "volume_ratio": 1.85,
       "turnover": 22.22,
       "signal": {
         "ma_cross": "none",
-        "macd_cross": "none",
-        "rsi14": 46.37,
-        "volume_ratio": 1.17,
+        "macd_cross": "golden",
+        "rsi14": 52.54,
+        "volume_ratio": 1.39,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
