@@ -50,6 +50,10 @@ NAME_CODE = {
     "立讯精密": "sz002475", "歌尔股份": "sz002241",
     "领益智造": "sz002600", "鹏鼎控股": "sz002938",
     "永安行": "sh603776", "征和工业": "sz003033", "长电科技": "sh600584",
+    "科大讯飞": "sz002230",
+    # 高股息池（默认 dividend_pool 6 只）
+    "中装建设": "sz002822", "长高电力": "sz002452", "工商银行": "sh601398",
+    "大秦铁路": "sh601006", "陕西煤业": "sh601225", "江苏银行": "sh600919",
 }
 
 def _escape_js(s):
@@ -3993,6 +3997,15 @@ def build() -> str:
         if ts and ts not in seen:
             seen.add(ts)
             items.append((n, ts))
+    # 高股息池：注入指标计算
+    div_names = [d.get("name") for d in (cfg.get("dividend_pool", []) or []) if d.get("name")]
+    for n in div_names:
+        if n in seen:
+            continue
+        ts = _name_to_ts(n)
+        if ts:
+            seen.add(ts)
+            items.append((n, ts))
     indicators = feed.get_indicators(items)
 
     updated_at = snap.get("updated_at", "—")
@@ -5252,13 +5265,14 @@ function fmtMoney(v){
   if(a>=10000) return sign+(a/10000).toFixed(2)+'万';
   return sign+a.toFixed(2);
 }
-function applyRealtime(data){
-  var diff=(data&&data.data&&data.data.diff)||[];
+function applyRealtime(qtMap){
+  if(!qtMap) return;
   var right=rightSecid();
-  diff.forEach(function(d){
-    var sid=d.f13+'.'+d.f12;
-    var price=(d.f2==='-'||d.f2==null)?'—':(d.f2/100).toFixed(2);
-    var pct=(d.f3/100);
+  Object.keys(qtMap).forEach(function(code){
+    var d=qtMap[code];
+    var sid=codeToSecid(code);
+    var price=d.price.toFixed(2);
+    var pct=d.change_pct;
     var pctStr=(pct>=0?'+':'')+pct.toFixed(2)+'%';
     var up=pct>=0;
     if(RT_INDEX.indexOf(sid)>=0){
@@ -5293,8 +5307,8 @@ function applyRealtime(data){
         if(pPct){var pp=(px-cost)/cost*100;pPct.textContent=(pp>=0?'+':'')+pp.toFixed(2)+'%';pPct.style.color=pp>=0?'#ef4444':'#22c55e';}
         if(pTotal){var tot=(px-cost)*shares;pTotal.textContent=fmtMoney(tot);pTotal.style.color=tot>=0?'#ef4444':'#22c55e';}
       }
-      if(pDay&&d.f18&&d.f18!=='-'&&shares>0){
-        var prev=d.f18/100; var dayPnl=(parseFloat(price)-prev)*shares;
+      if(pDay && shares>0 && d.prev_close){
+        var dayPnl=(parseFloat(price)-d.prev_close)*shares;
         pDay.textContent=fmtMoney(dayPnl); pDay.style.color=dayPnl>=0?'#ef4444':'#22c55e';
       }
     }
@@ -5307,14 +5321,42 @@ function applyRealtime(data){
   });
   updateRtStatus(true);
 }
-function emJsonp(secids, cbName){
-  return new Promise(function(resolve){
-    var s=document.createElement('script');
-    window[cbName]=function(d){ resolve(d); try{delete window[cbName];}catch(e){}; if(s.parentNode)s.parentNode.removeChild(s); };
-    s.src='https://push2.eastmoney.com/api/qt/ulist.np/get?secids='+secids.join(',')+'&fields=f2,f3,f4,f12,f13,f14,f18&invt=2&cb='+cbName+'&_='+Date.now();
-    s.onerror=function(){ resolve(null); if(s.parentNode)s.parentNode.removeChild(s); };
-    document.body.appendChild(s);
-  });
+function codeToSecid(code){
+  if(!code||code.length<8) return null;
+  var pre=code.slice(0,2);
+  var num=code.slice(2);
+  var m={'sh':'1','sz':'0','bj':'0'}[pre];
+  return m? m+'.'+num : null;
+}
+function secidToCode(sid){
+  if(!sid||sid.indexOf('.')<0) return null;
+  var a=sid.split('.');
+  var pre={'1':'sh','0':'sz'}[a[0]]||'sz';
+  return pre+a[1];
+}
+async function fetchQtQuotes(codes){
+  if(!codes.length) return {};
+  try{
+    var url='https://qt.gtimg.cn/q='+codes.join(',');
+    var resp=await fetch(url);
+    var text=await resp.text();
+    var out={};
+    var re=/v_([a-z]{2}\\d{6})="([^"]+)"/g;
+    var m;
+    while((m=re.exec(text))){
+      var code=m[1];
+      var p=m[2].split('~');
+      if(p.length<35) continue;
+      out[code]={
+        name:p[1], code:p[2],
+        price:parseFloat(p[3]),
+        prev_close:parseFloat(p[4]),
+        change:parseFloat(p[31])/100,
+        change_pct:parseFloat(p[32])/100
+      };
+    }
+    return out;
+  }catch(e){ console.warn('fetchQtQuotes:',e); return {}; }
 }
 function isTrading(){
   var n=new Date(); var day=n.getDay();
@@ -5329,19 +5371,20 @@ function updateRtStatus(ok){
   else { el.className='live-badge off'; el.innerHTML='<i class="dot"></i> 连接中…'; }
 }
 var RT_TIMER=null;
-function rtTick(){
+async function rtTick(){
   var secids=RT_INDEX.concat(Object.keys(RT_PICK_MAP), RT_FLOW, RT_POS);
   secids=secids.filter(function(v,i){return secids.indexOf(v)===i;});
   var right=rightSecid(); if(right) secids.push(right);
   if(!secids.length) return;
-  var batches=[]; for(var i=0;i<secids.length;i+=40) batches.push(secids.slice(i,i+40));
-  var chain=Promise.resolve();
-  batches.forEach(function(b){
-    chain=chain.then(function(){
-      var cb='emrt_'+Math.random().toString(36).slice(2,10);
-      return emJsonp(b,cb).then(function(d){ if(d) applyRealtime(d); });
-    });
-  });
+  var codes=secids.map(secidToCode).filter(Boolean);
+  if(!codes.length) return;
+  var all={};
+  for(var i=0;i<codes.length;i+=40){
+    var batch=codes.slice(i,i+40);
+    try{ var d=await fetchQtQuotes(batch); Object.assign(all, d); }
+    catch(e){ console.warn('rtTick batch:',e); }
+  }
+  if(Object.keys(all).length) applyRealtime(all);
 }
 function rtManualRefresh(){
   var b=document.getElementById('rtRefreshBtn');

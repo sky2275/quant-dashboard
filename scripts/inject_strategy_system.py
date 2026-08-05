@@ -7,7 +7,7 @@ inject_strategy_system.py —— 把「三仓策略执行系统」注入现有 i
   - 读取 config/strategy.yaml 中的 capital / buckets / holdings(bucket,stop) / dividend_pool / risk
   - 用腾讯 smartbox 把持仓名、股息池名解析成代码(sh600900)并写回 data-code
   - 在「⑤ 持仓复盘」卡片前插入一张新卡片：三仓分配 + 持仓分组(含止损价) + 高股息观察池 + 仓位/止损计算器 + 组合回撤监控
-  - 在 </body> 前注入独立 JS：复用全局 emJsonp 刷新新行，并挂自己的 5s/30s 轮询
+  - 在 </body> 前注入独立 JS：自带的 fetchQtQuotes 刷新新行（腾讯 qt.gtimg.cn），并挂 5s/30s 轮询
   - 不改动原有任何模块，保留已部署的真实数据
 
 用法：
@@ -25,18 +25,26 @@ UA = {"User-Agent": "Mozilla/5.0"}
 
 
 def resolve_code(name: str):
-    """腾讯 smartbox 名称->代码(sh600900 / sz000001)。"""
+    """名称->完整代码(sh600900/sz000001)。腾讯 smartbox 优先，本地硬编码兜底。"""
+    fallback = {
+        "永安行": "sh603776", "北京君正": "sz300223", "绿的谐波": "sh688017",
+        "征和工业": "sz003033", "科大讯飞": "sz002230",
+        "长电科技": "sh600584", "通富微电": "sz002156",
+        "中装建设": "sz002822", "长高电力": "sz002452",
+        "工商银行": "sh601398", "大秦铁路": "sh601006",
+        "陕西煤业": "sh601225", "江苏银行": "sh600919",
+    }
     try:
         r = requests.get("https://smartbox.gtimg.cn/s3/", params={"v": 2, "t": "all", "q": name},
                          headers=UA, timeout=10)
         m = re.search(r'v_hint="([^"]+)"', r.text)
         if m:
             parts = m.group(1).split("~")
-            if len(parts) >= 2 and parts[1]:
-                return parts[1]
+            if len(parts) >= 2 and parts[0] in ("sh", "sz", "bj") and parts[1]:
+                return parts[0] + parts[1]
     except Exception:
         pass
-    return None
+    return fallback.get(name)
 
 
 def main():
@@ -221,32 +229,54 @@ def main():
       function stratRows(){
         return document.querySelectorAll('tr[data-rt="strat"],tr[data-rt="div"]');
       }
-      function applyStrat(data){
-        if(!data) return;
-        Object.keys(data).forEach(function(sid){
-          var d=data[sid];
-          var price=(d.f2!=null)? d.f2/100 : null;
-          var pct=(d.f3!=null)? d.f3/100 : null;
-          var code=em2code(sid);
+      async function fetchQtQuotes(codes){
+        if(!codes.length) return {};
+        try{
+          var r=await fetch('https://qt.gtimg.cn/q='+codes.join(','));
+          var text=await r.text();
+          var out={};
+          var re=/v_([a-z]{2}\\d{6})="([^"]+)"/g;
+          var m;
+          while((m=re.exec(text))){
+            var code=m[1];
+            var p=m[2].split('~');
+            if(p.length<35) continue;
+            out[code]={ name:p[1], code:p[2],
+              price:parseFloat(p[3]),
+              prev_close:parseFloat(p[4]),
+              change_pct:parseFloat(p[32])/100 };
+          }
+          return out;
+        }catch(e){ console.warn('inject fetchQtQuotes:',e); return {}; }
+      }
+      function applyStrat(qtMap){
+        if(!qtMap) return;
+        Object.keys(qtMap).forEach(function(code){
+          var d=qtMap[code];
+          var price=d.price, pct=d.change_pct;
           stratRows().forEach(function(tr){
             if(tr.getAttribute('data-code')!==code) return;
             var sp=tr.querySelector('.rt-sprice');
             var sc=tr.querySelector('.rt-spct');
             var st=tr.querySelector('.rt-sstop');
             var stop=parseFloat(tr.getAttribute('data-stop')||'0.08');
-            if(sp && price!=null) sp.textContent=price.toFixed(2);
-            if(sc && pct!=null){ sc.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%'; sc.style.color=pct>=0?'#ef4444':'#22c55e'; }
-            if(st && price!=null) st.textContent=(price*(1-stop)).toFixed(2);
+            if(sp && !isNaN(price)) sp.textContent=price.toFixed(2);
+            if(sc && !isNaN(pct)){ sc.textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%'; sc.style.color=pct>=0?'#ef4444':'#22c55e'; }
+            if(st && !isNaN(price)) st.textContent=(price*(1-stop)).toFixed(2);
           });
         });
         updateStratSummary();
       }
-      function refreshStrategy(){
-        var secs=[];
-        stratRows().forEach(function(tr){ var s=toEmSecid(tr.getAttribute('data-code')); if(s) secs.push(s); });
-        if(!secs.length || typeof emJsonp==='undefined') return;
-        var cb='strat_'+Math.random().toString(36).slice(2,8);
-        emJsonp(secs, cb).then(function(d){ if(d) applyStrat(d); }).catch(function(){});
+      async function refreshStrategy(){
+        var codes=[];
+        stratRows().forEach(function(tr){ var c=tr.getAttribute('data-code'); if(c) codes.push(c); });
+        if(!codes.length) return;
+        var all={};
+        for(var i=0;i<codes.length;i+=40){
+          var b=codes.slice(i,i+40);
+          try{ var d=await fetchQtQuotes(b); Object.assign(all, d); }catch(e){}
+        }
+        if(Object.keys(all).length) applyStrat(all);
       }
       function updateStratSummary(){
         var sum=0,n=0;
