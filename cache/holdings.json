@@ -1,30 +1,30 @@
 {
-  "source": "mobile_broker_snapshot_2026-08-04",
-  "updated_at": "2026-08-04 23:00:00",
-  "note": "2026-08-04 手机端三券商持仓刷新。成本价/现价以来源券商口径；负成本为分红/做T后成本，pct按市值收益率计（total=(price+|cost|)*qty，pct=total/(price*qty)*100）。账户级累计盈亏按原累计+今日盈亏估算。",
+  "source": "mobile_broker_snapshot_2026-08-05",
+  "updated_at": "2026-08-05 22:01:00",
+  "note": "2026-08-05 手机端三券商持仓刷新。成本价/现价以来源券商口径；负成本为分红/做T后成本，pct按市值收益率计。账户级累计盈亏按原累计+今日盈亏估算。",
   "account_labels": {
     "galaxy": "银河证券",
-    "eastmoney": "东方财富",
+    "eastmoney": "东方财富证券",
     "csc": "中信建投"
   },
   "account_pnl": {
     "galaxy": {
-      "today": 1031.0,
+      "today": 1414.0,
       "today_pct": null,
-      "total": -23623.12,
-      "pct": -28.02
+      "total": -22209.12,
+      "pct": null
     },
     "eastmoney": {
-      "today": 21394.7,
+      "today": 22842.85,
       "today_pct": null,
-      "total": -71106.99,
-      "pct": -55.31
+      "total": -48264.14,
+      "pct": null
     },
     "csc": {
-      "today": 1126.0,
+      "today": 1717.0,
       "today_pct": null,
-      "total": 23059.29,
-      "pct": 7.35
+      "total": 24776.29,
+      "pct": null
     }
   },
   "accounts": {
@@ -36,43 +36,15 @@
         "quantity": 300,
         "avg_cost": -31.957,
         "pnl": {
-          "total": 15335.1,
-          "pct": 266.79,
-          "today": null,
-          "today_pct": null,
-          "price": 19.16
-        }
-      },
-      {
-        "code": "300223",
-        "name": "北京君正",
-        "account": "galaxy",
-        "quantity": 100,
-        "avg_cost": 127.35,
-        "pnl": {
-          "total": -109.0,
-          "pct": -0.86,
-          "today": null,
-          "today_pct": null,
-          "price": 126.26
+          "total": 15845.1,
+          "pct": 253.2,
+          "today": 555.08,
+          "today_pct": 8.87,
+          "price": 20.86
         }
       }
     ],
     "eastmoney": [
-      {
-        "code": "003033",
-        "name": "征和工业",
-        "account": "eastmoney",
-        "quantity": 100,
-        "avg_cost": -70.553,
-        "pnl": {
-          "total": 12845.3,
-          "pct": 221.85,
-          "today": null,
-          "today_pct": null,
-          "price": 57.9
-        }
-      },
       {
         "code": "300223",
         "name": "北京君正",
@@ -80,25 +52,25 @@
         "quantity": 2000,
         "avg_cost": 143.799,
         "pnl": {
-          "total": -23098.0,
-          "pct": -8.38,
-          "today": null,
-          "today_pct": null,
-          "price": 126.26
+          "total": -15538.0,
+          "pct": -5.4,
+          "today": 21057.44,
+          "today_pct": 7.74,
+          "price": 136.03
         }
       },
       {
-        "code": "603776",
-        "name": "永安行",
+        "code": "688017",
+        "name": "绿的谐波",
         "account": "eastmoney",
-        "quantity": 3000,
-        "avg_cost": 18.957,
+        "quantity": 200,
+        "avg_cost": 325.036,
         "pnl": {
-          "total": 609.0,
-          "pct": 1.07,
-          "today": null,
-          "today_pct": null,
-          "price": 19.16
+          "total": 3100.8,
+          "pct": 4.77,
+          "today": 3037.62,
+          "today_pct": 4.46,
+          "price": 340.54
         }
       }
     ],
@@ -110,11 +82,11 @@
         "quantity": 100,
         "avg_cost": 118.9,
         "pnl": {
-          "total": 736.0,
-          "pct": 6.19,
-          "today": null,
-          "today_pct": null,
-          "price": 126.26
+          "total": 1713.0,
+          "pct": 14.41,
+          "today": 1052.87,
+          "today_pct": 7.74,
+          "price": 136.03
         }
       },
       {
@@ -124,11 +96,11 @@
         "quantity": 100,
         "avg_cost": 57.329,
         "pnl": {
-          "total": 57.1,
-          "pct": 1.0,
-          "today": null,
-          "today_pct": null,
-          "price": 57.9
+          "total": 457.1,
+          "pct": 7.97,
+          "today": 427.73,
+          "today_pct": 6.91,
+          "price": 61.9
         }
       },
       {
@@ -138,11 +110,11 @@
         "quantity": 500,
         "avg_cost": 42.66,
         "pnl": {
-          "total": 415.0,
-          "pct": 1.95,
-          "today": null,
-          "today_pct": null,
-          "price": 43.49
+          "total": 755.0,
+          "pct": 3.54,
+          "today": 344.53,
+          "today_pct": 1.56,
+          "price": 44.17
         }
       }
     ]
@@ -155,39 +127,11 @@
       "quantity": 300,
       "avg_cost": -31.957,
       "pnl": {
-        "total": 15335.1,
-        "pct": 266.79,
-        "today": null,
-        "today_pct": null,
-        "price": 19.16
-      }
-    },
-    {
-      "code": "300223",
-      "name": "北京君正",
-      "account": "galaxy",
-      "quantity": 100,
-      "avg_cost": 127.35,
-      "pnl": {
-        "total": -109.0,
-        "pct": -0.86,
-        "today": null,
-        "today_pct": null,
-        "price": 126.26
-      }
-    },
-    {
-      "code": "003033",
-      "name": "征和工业",
-      "account": "eastmoney",
-      "quantity": 100,
-      "avg_cost": -70.553,
-      "pnl": {
-        "total": 12845.3,
-        "pct": 221.85,
-        "today": null,
-        "today_pct": null,
-        "price": 57.9
+        "total": 15845.1,
+        "pct": 253.2,
+        "today": 555.08,
+        "today_pct": 8.87,
+        "price": 20.86
       }
     },
     {
@@ -197,25 +141,25 @@
       "quantity": 2000,
       "avg_cost": 143.799,
       "pnl": {
-        "total": -23098.0,
-        "pct": -8.38,
-        "today": null,
-        "today_pct": null,
-        "price": 126.26
+        "total": -15538.0,
+        "pct": -5.4,
+        "today": 21057.44,
+        "today_pct": 7.74,
+        "price": 136.03
       }
     },
     {
-      "code": "603776",
-      "name": "永安行",
+      "code": "688017",
+      "name": "绿的谐波",
       "account": "eastmoney",
-      "quantity": 3000,
-      "avg_cost": 18.957,
+      "quantity": 200,
+      "avg_cost": 325.036,
       "pnl": {
-        "total": 609.0,
-        "pct": 1.07,
-        "today": null,
-        "today_pct": null,
-        "price": 19.16
+        "total": 3100.8,
+        "pct": 4.77,
+        "today": 3037.62,
+        "today_pct": 4.46,
+        "price": 340.54
       }
     },
     {
@@ -225,11 +169,11 @@
       "quantity": 100,
       "avg_cost": 118.9,
       "pnl": {
-        "total": 736.0,
-        "pct": 6.19,
-        "today": null,
-        "today_pct": null,
-        "price": 126.26
+        "total": 1713.0,
+        "pct": 14.41,
+        "today": 1052.87,
+        "today_pct": 7.74,
+        "price": 136.03
       }
     },
     {
@@ -239,11 +183,11 @@
       "quantity": 100,
       "avg_cost": 57.329,
       "pnl": {
-        "total": 57.1,
-        "pct": 1.0,
-        "today": null,
-        "today_pct": null,
-        "price": 57.9
+        "total": 457.1,
+        "pct": 7.97,
+        "today": 427.73,
+        "today_pct": 6.91,
+        "price": 61.9
       }
     },
     {
@@ -253,11 +197,11 @@
       "quantity": 500,
       "avg_cost": 42.66,
       "pnl": {
-        "total": 415.0,
-        "pct": 1.95,
-        "today": null,
-        "today_pct": null,
-        "price": 43.49
+        "total": 755.0,
+        "pct": 3.54,
+        "today": 344.53,
+        "today_pct": 1.56,
+        "price": 44.17
       }
     }
   ]
