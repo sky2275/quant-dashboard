@@ -671,12 +671,21 @@ CSS_RULES = """
         /* 板块强弱 */
         .heat-cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
         .heat-col h4 { font-size:11.5px; color:var(--text-2); margin-bottom:8px; font-weight:600; }
-        .heat-row { display:flex; align-items:center; gap:9px; padding:6px 0; }
+        .heat-row { display:flex; align-items:center; gap:9px; padding:6px 0; flex-wrap:wrap; }
         .heat-rank { width:16px; color:var(--text-3); font-size:11px; }
         .heat-nm { width:84px; font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .heat-bar { flex:1; height:7px; border-radius:var(--r-chip); background:var(--bg-surface-2); overflow:hidden; }
+        .heat-bar { flex:1; min-width:60px; height:7px; border-radius:var(--r-chip); background:var(--bg-surface-2); overflow:hidden; }
         .heat-bar i { display:block; height:100%; border-radius:var(--r-chip); }
         .heat-pct { width:54px; text-align:right; font-size:12px; font-weight:600; }
+        .heat-stocks { display:flex; gap:4px; flex-wrap:wrap; width:100%; margin-top:4px; padding-left:25px; }
+        .heat-stock { display:inline-flex; align-items:center; gap:4px; padding:2px 7px; border-radius:var(--r-chip); background:var(--bg-surface-2); border:1px solid var(--border); font-size:10.5px; }
+        .heat-stock:hover { border-color:var(--accent); cursor:pointer; }
+        .heat-stock .hs-name { color:var(--text-1); font-weight:500; max-width:54px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .heat-stock .hs-price { color:var(--text-2); font-family:var(--font-num); }
+        .heat-stock .hs-pct { color:var(--text-3); font-weight:600; font-family:var(--font-num); }
+        .heat-stock .hs-pct.up { color:var(--up); }
+        .heat-stock .hs-pct.down { color:var(--down); }
+        .heat-stock-empty { display:inline-block; padding:2px 8px; color:var(--text-3); font-size:10px; font-style:italic; }
 
         /* 指数K线：分段控件 / chip（保留 .idx-chip / .idx-tab 类，JS 依赖） */
         .idx-chips { display:flex; flex-wrap:wrap; gap:7px; margin:14px 0; }
@@ -1521,7 +1530,7 @@ def _breadth_card(snap):
 
 
 def _sector_strength_card(snap, topn=8):
-    """板块强弱 TOP 卡：强势/弱势双列条形，含领涨股可点击。"""
+    """板块强弱 TOP 卡：强势/弱势双列条形，含领涨股可点击 + 成分股实盘行情。"""
     sectors = [s for s in (snap.get("sector_flow", []) or []) if isinstance(s, dict)]
     if not sectors:
         return f'''
@@ -1529,12 +1538,50 @@ def _sector_strength_card(snap, topn=8):
             <div class="card-title"><span class="icon"><i class="fas fa-fire"></i></span> 板块强弱 TOP <span class="badge">STRONG / WEAK</span></div>
             <div class="muted" style="font-size:12.5px;">板块资金流数据暂不可用。</div>
         </div>'''
+    constituents = snap.get("sector_constituents", {}) or {}
     top = sorted(sectors, key=lambda x: float(x.get("涨跌幅") or 0), reverse=True)[:topn]
     weak = sorted(sectors, key=lambda x: float(x.get("涨跌幅") or 0))[:topn]
     ref_top = max([abs(float(s.get("涨跌幅") or 0)) for s in top] + [1])
     ref_weak = max([abs(float(s.get("涨跌幅") or 0)) for s in weak] + [1])
 
-    def _rows(lst, ref):
+    def _constituent_chips(sector_name):
+        """成分股 → 3 条「名+现价+涨幅」chip，JS 实时填充。
+        sector_constituents.code 是 6 位纯数字（如 300750），需加 sh/sz 前缀。
+        板块名 → 内部 key 可能不一致（芯片 ↔ 半导体），用别名映射。"""
+        alias_map = {
+            "芯片": "半导体", "半导体设备": "半导体",
+            "PCB": "元件", "PCB/CCL": "元件",
+            "煤炭": "煤炭开采加工", "化学制品": "煤化工深加工",
+            "白酒": "白酒/饮料", "锂电": "电池", "新能源车": "汽车整车",
+            "券商": "证券", "银行系": "银行",
+        }
+        keys_to_try = [sector_name, alias_map.get(sector_name), "半导体"]
+        cs = []
+        for k in keys_to_try:
+            if k and k in constituents:
+                cs = constituents[k][:3]
+                if cs:
+                    break
+        chips = ""
+        for c in cs:
+            code = str(c.get("code", "")).strip()
+            nm = c.get("name", "")
+            if not code or not code.isdigit() or len(code) != 6:
+                continue
+            prefix = "sh" if code[0] in ("6", "9") else "sz"
+            full = prefix + code
+            chips += (
+                f'<span class="heat-stock" data-code="{full}" title="{nm} · {full}">'
+                f'  <span class="hs-name">{nm}</span>'
+                f'  <span class="hs-price">—</span>'
+                f'  <span class="hs-pct">—</span>'
+                f'</span>'
+            )
+        if not chips:
+            chips = '<span class="heat-stock-empty">— 暂无成分股数据 —</span>'
+        return chips
+
+    def _rows(lst, ref, side):
         out = ""
         for i, s in enumerate(lst, 1):
             nm = s.get("名称", "—")
@@ -1546,18 +1593,26 @@ def _sector_strength_card(snap, topn=8):
             leader_html = (f'<span class="heat-lead" style="font-size:11px;color:var(--text-3);width:60px;'
                            f'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;">'
                            f'{_stock_link(leader, NAME_CODE.get(leader))}</span>') if leader else ""
-            out += (f'<div class="heat-row"><span class="heat-rank">{i}</span>'
-                    f'<span class="heat-nm" title="{nm}">{nm}</span>'
-                    f'<div class="heat-bar"><i style="width:{w:.0f}%;background:{color};"></i></div>'
-                    f'<span class="heat-pct {cls}">{_fmt_pct(pct, 1)}</span>{leader_html}</div>')
+            chips_html = _constituent_chips(nm)
+            out += (
+                f'<div class="heat-row" data-sector="{nm}" data-side="{side}">'
+                f'  <span class="heat-rank">{i}</span>'
+                f'  <span class="heat-nm" title="{nm}">{nm}</span>'
+                f'  <div class="heat-bar"><i style="width:{w:.0f}%;background:{color};"></i></div>'
+                f'  <span class="heat-pct {cls}">{_fmt_pct(pct, 1)}</span>{leader_html}'
+                f'  <div class="heat-stocks">{chips_html}</div>'
+                f'</div>'
+            )
         return out
 
     return f'''
         <div class="card">
-            <div class="card-title"><span class="icon"><i class="fas fa-fire"></i></span> 板块强弱 TOP <span class="badge">STRONG / WEAK</span></div>
+            <div class="card-title"><span class="icon"><i class="fas fa-fire"></i></span> 板块强弱 TOP <span class="badge">STRONG / WEAK · 实盘行情</span>
+                <span class="click-hint" id="sectorUpdateHint">实时拉取中…</span>
+            </div>
             <div class="heat-cols">
-                <div class="heat-col"><h4>强势 TOP{topn}</h4>{_rows(top, ref_top)}</div>
-                <div class="heat-col"><h4>弱势 TOP{topn}</h4>{_rows(weak, ref_weak)}</div>
+                <div class="heat-col"><h4>强势 TOP{topn}</h4>{_rows(top, ref_top, "top")}</div>
+                <div class="heat-col"><h4>弱势 TOP{topn}</h4>{_rows(weak, ref_weak, "weak")}</div>
             </div>
         </div>'''
 
@@ -5405,6 +5460,43 @@ async function rtTick(){
   }
   if(Object.keys(all).length) applyRealtime(all);
 }
+async function rtSector(){
+  // 收集板块强弱 TOP10（5 强 + 5 弱）的成分股代码
+  var stocks=document.querySelectorAll('.heat-stock[data-code]');
+  if(!stocks.length) return;
+  var seen={}, codes=[];
+  stocks.forEach(function(el){
+    var c=el.getAttribute('data-code');
+    if(c && !seen[c]){ seen[c]=1; codes.push(c); }
+  });
+  if(!codes.length) return;
+  var all={};
+  for(var i=0;i<codes.length;i+=40){
+    var batch=codes.slice(i,i+40);
+    try{ var d=await fetchQtQuotes(batch); Object.assign(all, d); }
+    catch(e){ console.warn('rtSector batch:',e); }
+  }
+  // 更新每个 chip 的现价 + 涨跌幅
+  stocks.forEach(function(el){
+    var c=el.getAttribute('data-code');
+    var d=all[c];
+    if(!d) return;
+    var priceEl=el.querySelector('.hs-price');
+    var pctEl=el.querySelector('.hs-pct');
+    if(priceEl && !isNaN(d.price)) priceEl.textContent=d.price.toFixed(2);
+    if(pctEl && !isNaN(d.change_pct)){
+      var p=d.change_pct;
+      pctEl.textContent=(p>=0?'+':'')+p.toFixed(2)+'%';
+      pctEl.className='hs-pct '+(p>=0?'up':'down');
+    }
+  });
+  // 更新顶部 hint
+  var hint=document.getElementById('sectorUpdateHint');
+  if(hint){
+    var t=new Date();
+    hint.textContent='已更新 '+t.getHours()+':'+String(t.getMinutes()).padStart(2,'0');
+  }
+}
 function rtManualRefresh(){
   var b=document.getElementById('rtRefreshBtn');
   if(b){ b.disabled=true; b.classList.add('spinning'); }
@@ -5416,8 +5508,10 @@ function startRealtime(){
   collectRT();
   updateRtStatus(false);
   rtTick();
+  rtSector();
   if(RT_TIMER) clearInterval(RT_TIMER);
   RT_TIMER=setInterval(rtTick, isTrading()?5000:30000);
+  setInterval(rtSector, isTrading()?10000:60000); // 板块强弱成分股轮询
   setInterval(function(){
     clearInterval(RT_TIMER);
     RT_TIMER=setInterval(rtTick, isTrading()?5000:30000);
