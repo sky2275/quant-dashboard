@@ -1944,7 +1944,7 @@ ACCOUNT_LABELS = {"galaxy": "银河证券", "eastmoney": "东财", "csc": "中�
 
 
 def _unified_positions(cfg, broker_positions):
-    """统一持仓来源：优先用双券商交割单合并结果，否则回退到 strategy.yaml 手动 holdings。"""
+    """统一持仓来源：唯一数据源 cache/holdings.json（券商快照）。strategy.yaml 不再保存持仓。"""
     if broker_positions:
         out = []
         for p in broker_positions:
@@ -2112,7 +2112,7 @@ def _section_holdings(positions, a_quotes, indicators, account_pnl=None, daily_r
         return '''
         <div class="card card-full" onclick="openModal('positions')">
             <div class="card-title"><span class="icon"><i class="fas fa-briefcase"></i></span> ⑤ 持仓复盘 <span class="badge">未配置</span></div>
-            <div style="color:var(--text-secondary);font-size:13px;">未检测到持仓（可把三家券商交割单放入 data/statements/galaxy、data/statements/eastmoney、data/statements/csc，或手动在 strategy.yaml 配置 holdings）。</div>
+            <div style="color:var(--text-secondary);font-size:13px;">未检测到持仓（请把三家券商持仓数据写入 cache/holdings.json，或放入交割单 data/statements/*）。</div>
         </div>'''
     body = "".join(
         f'''            <tr data-code="{d['code']}" data-rt="pos" data-shares="{d['qty_raw']}" data-cost="{d['cost_raw'] if d['cost_raw'] is not None else ''}">
@@ -2340,7 +2340,7 @@ def _section_pool(cfg, a_quotes, indicators):
 
 
 # ----------------------------------------------------------------- ⑦ 核心判断（按当日信号自动生成）
-def _build_judgment(overnight, snap, cfg, a_quotes, account_pnl=None):
+def _build_judgment(overnight, snap, cfg, a_quotes, account_pnl=None, positions=None):
     """
     生成详细作战策略，返回 dict：
       main_lines: 主线方向（每条含标题+逻辑）
@@ -2407,13 +2407,12 @@ def _build_judgment(overnight, snap, cfg, a_quotes, account_pnl=None):
     if a_down >= len(a_indexes) and a_indexes:
         bear_logic.append("<b>大盘普跌</b>：主要宽基指数全线收跌，系统性风险上升，控制仓位优先。")
 
-    # 持仓风险（使用持仓股实时盈亏，基于 positions 中的数据更精确）
-    holdings = cfg.get("holdings", []) or []
+    # 持仓风险（使用统一后的 positions，数据源 = cache/holdings.json）
     risk_pos = []
-    for h in holdings:
-        name = h.get("code") or h.get("name")
+    for h in positions:
+        name = h.get("name") or h.get("code")
         q = a_quotes.get(name)
-        price = (q or {}).get("price") if q else h.get("price")
+        price = (q or {}).get("price") if q else (h.get("pnl") or {}).get("price")
         cost = h.get("cost")
         if cost and price:
             try:
@@ -2466,11 +2465,11 @@ def _build_judgment(overnight, snap, cfg, a_quotes, account_pnl=None):
         "④ 14:30：扫描市场情绪池，强势股不回落可持有/跟进，冲高回落则减仓；",
         "⑤ 尾盘：控制总仓位在建议范围内，规避隔夜不确定性。",
     ]
-    # 持仓具体任务
-    for h in holdings:
-        name = h.get("code") or h.get("name")
+    # 持仓具体任务（数据源 = 统一后的 positions / cache/holdings.json）
+    for h in (positions or []):
+        name = h.get("name") or h.get("code")
         q = a_quotes.get(name)
-        price = (q or {}).get("price") if q else h.get("price")
+        price = (q or {}).get("price") if q else (h.get("pnl") or {}).get("price")
         cost = h.get("cost")
         if cost and price:
             try:
@@ -2499,8 +2498,8 @@ def _build_judgment(overnight, snap, cfg, a_quotes, account_pnl=None):
     }
 
 
-def _section_judge(overnight, snap, cfg, a_quotes, account_pnl=None):
-    j = _build_judgment(overnight, snap, cfg, a_quotes, account_pnl)
+def _section_judge(overnight, snap, cfg, a_quotes, account_pnl=None, positions=None):
+    j = _build_judgment(overnight, snap, cfg, a_quotes, account_pnl, positions)
     main_html = "".join(f'<div style="font-size:12px;padding:4px 0;color:#c8d0dc;line-height:1.5;">{m}</div>' for m in j["main_lines"])
     risk_html = "".join(f'<div style="font-size:12px;padding:4px 0;color:#c8d0dc;line-height:1.5;">{r}</div>' for r in j["risk_lines"])
     task_html = "".join(f'<li>{t}</li>' for t in j["tasks"][:5])  # 卡片只展示前5步
@@ -3055,8 +3054,8 @@ def _modal_watchlist(cfg, a_quotes, indicators):
     }
 
 
-def _modal_judgment(overnight, snap, cfg, a_quotes, account_pnl=None):
-    j = _build_judgment(overnight, snap, cfg, a_quotes, account_pnl)
+def _modal_judgment(overnight, snap, cfg, a_quotes, account_pnl=None, positions=None):
+    j = _build_judgment(overnight, snap, cfg, a_quotes, account_pnl, positions)
     main_html = "".join(f'<li style="padding:6px 0;font-size:13px;color:#c8d0dc;border-bottom:1px solid rgba(255,255,255,0.03);line-height:1.5;">▸ {m}</li>' for m in j["main_lines"])
     risk_html = "".join(f'<li style="padding:6px 0;font-size:13px;color:#c8d0dc;border-bottom:1px solid rgba(255,255,255,0.03);line-height:1.5;">▸ {r}</li>' for r in j["risk_lines"])
     task_html = "".join(f'<li style="padding:4px 0;font-size:13px;color:#c8d0dc;">{t}</li>' for t in j["tasks"])
@@ -4135,7 +4134,7 @@ def build() -> str:
             _paper_trade_card(),              # 本地模拟交易账户（PAPER）
             _middle_daily_picks(),            # 明日进攻标的（明日备选池）
              _right_backtest_engine(),         # 回测引擎
-             _section_judge(overnight, snap, cfg, a_quotes, account_pnl),
+             _section_judge(overnight, snap, cfg, a_quotes, account_pnl, positions),
          ])),
     ]
 
@@ -4201,7 +4200,7 @@ def build() -> str:
         "flow": _modal_flow(snap, indicators),
         "positions": _modal_positions(positions, a_quotes, indicators, account_pnl),
         "watchlist": _modal_watchlist(cfg, a_quotes, indicators),
-        "judgment": _modal_judgment(overnight, snap, cfg, a_quotes, account_pnl),
+        "judgment": _modal_judgment(overnight, snap, cfg, a_quotes, account_pnl, positions),
         "scan_picks": _modal_scan_picks(),
     }
 

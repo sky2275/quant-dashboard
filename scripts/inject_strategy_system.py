@@ -51,13 +51,10 @@ def main():
     cfg = yaml.safe_load(open(CFG, encoding="utf-8"))
     capital = float(cfg.get("capital", 300000))
     buckets = cfg.get("buckets", {})
-    holdings = cfg.get("holdings", [])
     div_pool = cfg.get("dividend_pool", [])
     risk = cfg.get("risk", {})
 
-    # 解析代码
-    for h in holdings:
-        h["_code"] = resolve_code(h["code"]) or ""
+    # 持仓统一数据源：cache/holdings.json（唯一权威），strategy.yaml 不再保存持仓列表
     for d in div_pool:
         d["_code"] = resolve_code(d["name"]) or ""
 
@@ -79,15 +76,9 @@ def main():
             f'</div>'
         )
 
-    # ---- 持仓分组表（策略配置 + 实际持仓整合） ----
-    # 实际持仓：cache/holdings.json → 7 只
+    # ---- 持仓发行表（唯一来源 cache/holdings.json） ----
     actual_rows = ""
     HOLDINGS_CACHE = os.path.join(REPO, "cache", "holdings.json")
-    bucket_map = {
-        "永安行": "short", "征和工业": "short", "哈药股份": "short",
-        "北京君正": "long", "绿的谐波": "long", "科大讯飞": "long",
-        "长电科技": "long", "通富微电": "long",
-    }
     advice_map = {
         "永安行": "8/7 突破 21.45 持有；破 20.70 减半仓",
         "北京君正": "8/7 高开 138-139 减 300 锁定；冲 140 不破全挂 1700",
@@ -104,13 +95,12 @@ def main():
                 _h = json.load(_f)
             for p in _h.get("positions", []) or []:
                 name = p.get("name", "")
-                qty = p.get("quantity", 0)
                 cost = p.get("avg_cost", 0)
                 price = (p.get("pnl") or {}).get("price", 0)
                 pnl_pct = (p.get("pnl") or {}).get("pct", 0)
                 pnl_amt = (p.get("pnl") or {}).get("total", 0)
-                b = bucket_map.get(name, "short")
-                stop = 0.15 if b == "long" else 0.08
+                b = p.get("bucket", "short")          # 从 holdings.json 读取（统一数据源）
+                stop = float(p.get("stop", 0.15 if b == "long" else 0.08))
                 code = p.get("code", "")
                 if cost < 0:
                     pct_txt = f"+{pnl_pct:.1f}% 市值"
@@ -122,7 +112,7 @@ def main():
                     cost_txt = f"{cost:.2f}"
                 pnl_cls = "up" if pnl_amt >= 0 else "down"
                 actual_rows += (
-                    f'<tr data-code="{code}" data-rt="actual" data-cost="{cost}" data-stop="{stop}" data-actual="1">'
+                    f'<tr data-code="{code}" data-rt="strat" data-cost="{cost}" data-stop="{stop}" data-actual="1">'
                     f'<td title="实际持仓"><strong>{name}</strong> <span class="tag tag-actual" style="font-size:9px;">实</span></td>'
                     f'<td class="mono">{code}</td>'
                     f'<td>{cost_txt}</td>'
@@ -134,27 +124,9 @@ def main():
                     f'</tr>'
                 )
             if not actual_rows:
-                actual_rows = '<tr><td colspan="8" style="padding:12px;color:var(--text-secondary);font-size:11px;">暂无实际持仓记录</td></tr>'
+                actual_rows = '<tr><td colspan="8" style="padding:12px;color:var(--text-secondary);font-size:11px;">暂无实际持仓记录（cache/holdings.json 为空）</td></tr>'
     except Exception as e:
-        actual_rows = f'<tr><td colspan="8" style="padding:12px;color:var(--text-secondary);font-size:11px;">实际持仓未加载：{e}</td></tr>'
-
-    rows = ""
-    for h in holdings:
-        code = h.get("_code", "")
-        bucket = h.get("bucket", "long")
-        stop = float(h.get("stop", 0.08))
-        rows += (
-            f'<tr data-code="{code}" data-rt="strat" data-cost="{h["cost"]}" data-stop="{stop}">'
-            f'<td title="策略配置"><strong>{h["code"]}</strong></td>'
-            f'<td class="mono">{code}</td>'
-            f'<td>{h["cost"]:.2f}</td>'
-            f'<td class="rt-sprice">{h.get("price", "—")}</td>'
-            f'<td class="rt-sstop">—</td>'
-            f'<td class="rt-spct">—</td>'
-            f'<td><span class="tag tag-{bucket}">{bucket_label.get(bucket, bucket)}</span></td>'
-            f'<td class="advice-cell" style="font-size:10px;color:var(--text-3);max-width:240px;text-align:left;">策略参考仓</td>'
-            f'</tr>'
-        )
+        actual_rows = f'<tr><td colspan="8" style="padding:12px;color:var(--text-secondary);font-size:11px;">持仓加载失败：{e}</td></tr>'
 
     # ---- 高股息观察池 ----
     div_rows = ""
@@ -188,10 +160,10 @@ def main():
             <div class="strat-alloc">{alloc_html}</div>
             <div class="strat-cols">
                 <div class="strat-block">
-                    <h4>持仓发行（实持仓顶置 + 策略配置下行）<span class="click-hint" style="margin-left:8px;">止损价随实时价计算</span></h4>
+                    <h4>持仓发行（数据源 cache/holdings.json）<span class="click-hint" style="margin-left:8px;">止损价随实时价计算</span></h4>
                     <table class="position-table" style="width:100%;">
                         <thead><tr><th>名称</th><th>代码</th><th>成本</th><th>现价</th><th>止损价</th><th>盈亏%</th><th>仓</th><th>整改建议</th></tr></thead>
-                        <tbody>{actual_rows}<tr class="strat-divider"><td colspan="8" style="padding:6px 4px;color:var(--text-3);font-size:10px;text-align:center;background:var(--bg-surface-2);">↓ 策略配置参考仓 ↓</td></tr>{rows}</tbody>
+                        <tbody>{actual_rows}</tbody>
                     </table>
                 </div>
                 <div class="strat-block">

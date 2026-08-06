@@ -1,7 +1,7 @@
 {
   "source": "mobile_broker_snapshot_2026-08-06",
   "updated_at": "2026-08-06 22:00:00",
-  "note": "2026-08-06 手机端三券商持仓刷新。成本价/现价以来源券商口径；负成本为分红/做T后成本，pct按市值收益率计（total=(price+|cost|)*qty，pct=total/(price*qty)*100）。账户级累计盈亏按原累计+今日盈亏估算。",
+  "note": "2026-08-06 手机端三券商持仓刷新。成本价/现价以来源券商口径；负成本为分红/做T后成本，pct按市值收益率计（total=(price+|cost|)*qty，pct=total/(price*qty)*100）。账户级累计盈亏按原累计+今日盈亏估算。 [2026-08-07] 数据源统一：bucket/stop 已内联到每只持仓，strategy.yaml 不再保存持仓列表。",
   "account_labels": {
     "galaxy": "银河证券",
     "eastmoney": "东方财富证券",
@@ -162,7 +162,9 @@
         "today": 169.24,
         "today_pct": 2.63,
         "price": 21.45
-      }
+      },
+      "bucket": "short",
+      "stop": 0.08
     },
     {
       "code": "300223",
@@ -178,7 +180,9 @@
         "today": 1653.59,
         "today_pct": 0.71,
         "price": 137.0
-      }
+      },
+      "bucket": "long",
+      "stop": 0.15
     },
     {
       "code": "688017",
@@ -194,7 +198,9 @@
         "today": -887.15,
         "today_pct": -1.32,
         "price": 336.04
-      }
+      },
+      "bucket": "long",
+      "stop": 0.15
     },
     {
       "code": "300223",
@@ -210,7 +216,9 @@
         "today": 97.27,
         "today_pct": 0.71,
         "price": 137.0
-      }
+      },
+      "bucket": "long",
+      "stop": 0.15
     },
     {
       "code": "003033",
@@ -226,7 +234,9 @@
         "today": -564.98,
         "today_pct": -1.86,
         "price": 60.75
-      }
+      },
+      "bucket": "short",
+      "stop": 0.08
     },
     {
       "code": "002230",
@@ -242,7 +252,9 @@
         "today": 176.9,
         "today_pct": 0.81,
         "price": 43.68
-      }
+      },
+      "bucket": "long",
+      "stop": 0.15
     },
     {
       "code": "600664",
@@ -258,7 +270,9 @@
         "today": -1141.99,
         "today_pct": -6.12,
         "price": 6.22
-      }
+      },
+      "bucket": "short",
+      "stop": 0.08
     }
   ]
 }
