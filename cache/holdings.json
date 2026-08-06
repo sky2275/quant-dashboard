@@ -1,7 +1,7 @@
 {
-  "source": "mobile_broker_snapshot_2026-08-05",
-  "updated_at": "2026-08-05 22:01:00",
-  "note": "2026-08-05 手机端三券商持仓刷新。成本价/现价以来源券商口径；负成本为分红/做T后成本，pct按市值收益率计。账户级累计盈亏按原累计+今日盈亏估算。",
+  "source": "mobile_broker_snapshot_2026-08-06",
+  "updated_at": "2026-08-06 22:00:00",
+  "note": "2026-08-06 手机端三券商持仓刷新。成本价/现价以来源券商口径；负成本为分红/做T后成本，pct按市值收益率计（total=(price+|cost|)*qty，pct=total/(price*qty)*100）。账户级累计盈亏按原累计+今日盈亏估算。",
   "account_labels": {
     "galaxy": "银河证券",
     "eastmoney": "东方财富证券",
@@ -9,21 +9,21 @@
   },
   "account_pnl": {
     "galaxy": {
-      "today": 1414.0,
+      "today": 177.0,
       "today_pct": null,
-      "total": -22209.12,
+      "total": 16021.1,
       "pct": null
     },
     "eastmoney": {
-      "today": 22842.85,
+      "today": 2493.36,
       "today_pct": null,
-      "total": -48264.14,
+      "total": -9964.0,
       "pct": null
     },
     "csc": {
-      "today": 1717.0,
+      "today": -1639.2,
       "today_pct": null,
-      "total": 24776.29,
+      "total": 1228.0,
       "pct": null
     }
   },
@@ -35,12 +35,14 @@
         "account": "galaxy",
         "quantity": 300,
         "avg_cost": -31.957,
+        "price": 21.45,
+        "chg": 2.63,
         "pnl": {
-          "total": 15845.1,
-          "pct": 253.2,
-          "today": 555.08,
-          "today_pct": 8.87,
-          "price": 20.86
+          "total": 16022.099999999999,
+          "pct": 248.98,
+          "today": 169.24,
+          "today_pct": 2.63,
+          "price": 21.45
         }
       }
     ],
@@ -49,14 +51,16 @@
         "code": "300223",
         "name": "北京君正",
         "account": "eastmoney",
-        "quantity": 2000,
-        "avg_cost": 143.799,
+        "quantity": 1700,
+        "avg_cost": 144.144,
+        "price": 137.0,
+        "chg": 0.71,
         "pnl": {
-          "total": -15538.0,
-          "pct": -5.4,
-          "today": 21057.44,
-          "today_pct": 7.74,
-          "price": 136.03
+          "total": -12144.8,
+          "pct": -4.96,
+          "today": 1653.59,
+          "today_pct": 0.71,
+          "price": 137.0
         }
       },
       {
@@ -65,12 +69,14 @@
         "account": "eastmoney",
         "quantity": 200,
         "avg_cost": 325.036,
+        "price": 336.04,
+        "chg": -1.32,
         "pnl": {
-          "total": 3100.8,
-          "pct": 4.77,
-          "today": 3037.62,
-          "today_pct": 4.46,
-          "price": 340.54
+          "total": 2200.8,
+          "pct": 3.39,
+          "today": -887.15,
+          "today_pct": -1.32,
+          "price": 336.04
         }
       }
     ],
@@ -81,26 +87,30 @@
         "account": "csc",
         "quantity": 100,
         "avg_cost": 118.9,
+        "price": 137.0,
+        "chg": 0.71,
         "pnl": {
-          "total": 1713.0,
-          "pct": 14.41,
-          "today": 1052.87,
-          "today_pct": 7.74,
-          "price": 136.03
+          "total": 1810.0,
+          "pct": 15.22,
+          "today": 97.27,
+          "today_pct": 0.71,
+          "price": 137.0
         }
       },
       {
         "code": "003033",
         "name": "征和工业",
         "account": "csc",
-        "quantity": 100,
-        "avg_cost": 57.329,
+        "quantity": 500,
+        "avg_cost": 59.802,
+        "price": 60.75,
+        "chg": -1.86,
         "pnl": {
-          "total": 457.1,
-          "pct": 7.97,
-          "today": 427.73,
-          "today_pct": 6.91,
-          "price": 61.9
+          "total": 474.0,
+          "pct": 1.59,
+          "today": -564.98,
+          "today_pct": -1.86,
+          "price": 60.75
         }
       },
       {
@@ -109,12 +119,30 @@
         "account": "csc",
         "quantity": 500,
         "avg_cost": 42.66,
+        "price": 43.68,
+        "chg": 0.81,
         "pnl": {
-          "total": 755.0,
-          "pct": 3.54,
-          "today": 344.53,
-          "today_pct": 1.56,
-          "price": 44.17
+          "total": 510.0,
+          "pct": 2.39,
+          "today": 176.9,
+          "today_pct": 0.81,
+          "price": 43.68
+        }
+      },
+      {
+        "code": "600664",
+        "name": "哈药股份",
+        "account": "csc",
+        "quantity": 3000,
+        "avg_cost": 6.742,
+        "price": 6.22,
+        "chg": -6.12,
+        "pnl": {
+          "total": -1566.0,
+          "pct": -7.74,
+          "today": -1141.99,
+          "today_pct": -6.12,
+          "price": 6.22
         }
       }
     ]
@@ -126,26 +154,30 @@
       "account": "galaxy",
       "quantity": 300,
       "avg_cost": -31.957,
+      "price": 21.45,
+      "chg": 2.63,
       "pnl": {
-        "total": 15845.1,
-        "pct": 253.2,
-        "today": 555.08,
-        "today_pct": 8.87,
-        "price": 20.86
+        "total": 16022.099999999999,
+        "pct": 248.98,
+        "today": 169.24,
+        "today_pct": 2.63,
+        "price": 21.45
       }
     },
     {
       "code": "300223",
       "name": "北京君正",
       "account": "eastmoney",
-      "quantity": 2000,
-      "avg_cost": 143.799,
+      "quantity": 1700,
+      "avg_cost": 144.144,
+      "price": 137.0,
+      "chg": 0.71,
       "pnl": {
-        "total": -15538.0,
-        "pct": -5.4,
-        "today": 21057.44,
-        "today_pct": 7.74,
-        "price": 136.03
+        "total": -12144.8,
+        "pct": -4.96,
+        "today": 1653.59,
+        "today_pct": 0.71,
+        "price": 137.0
       }
     },
     {
@@ -154,12 +186,14 @@
       "account": "eastmoney",
       "quantity": 200,
       "avg_cost": 325.036,
+      "price": 336.04,
+      "chg": -1.32,
       "pnl": {
-        "total": 3100.8,
-        "pct": 4.77,
-        "today": 3037.62,
-        "today_pct": 4.46,
-        "price": 340.54
+        "total": 2200.8,
+        "pct": 3.39,
+        "today": -887.15,
+        "today_pct": -1.32,
+        "price": 336.04
       }
     },
     {
@@ -168,26 +202,30 @@
       "account": "csc",
       "quantity": 100,
       "avg_cost": 118.9,
+      "price": 137.0,
+      "chg": 0.71,
       "pnl": {
-        "total": 1713.0,
-        "pct": 14.41,
-        "today": 1052.87,
-        "today_pct": 7.74,
-        "price": 136.03
+        "total": 1810.0,
+        "pct": 15.22,
+        "today": 97.27,
+        "today_pct": 0.71,
+        "price": 137.0
       }
     },
     {
       "code": "003033",
       "name": "征和工业",
       "account": "csc",
-      "quantity": 100,
-      "avg_cost": 57.329,
+      "quantity": 500,
+      "avg_cost": 59.802,
+      "price": 60.75,
+      "chg": -1.86,
       "pnl": {
-        "total": 457.1,
-        "pct": 7.97,
-        "today": 427.73,
-        "today_pct": 6.91,
-        "price": 61.9
+        "total": 474.0,
+        "pct": 1.59,
+        "today": -564.98,
+        "today_pct": -1.86,
+        "price": 60.75
       }
     },
     {
@@ -196,12 +234,30 @@
       "account": "csc",
       "quantity": 500,
       "avg_cost": 42.66,
+      "price": 43.68,
+      "chg": 0.81,
       "pnl": {
-        "total": 755.0,
-        "pct": 3.54,
-        "today": 344.53,
-        "today_pct": 1.56,
-        "price": 44.17
+        "total": 510.0,
+        "pct": 2.39,
+        "today": 176.9,
+        "today_pct": 0.81,
+        "price": 43.68
+      }
+    },
+    {
+      "code": "600664",
+      "name": "哈药股份",
+      "account": "csc",
+      "quantity": 3000,
+      "avg_cost": 6.742,
+      "price": 6.22,
+      "chg": -6.12,
+      "pnl": {
+        "total": -1566.0,
+        "pct": -7.74,
+        "today": -1141.99,
+        "today_pct": -6.12,
+        "price": 6.22
       }
     }
   ]
