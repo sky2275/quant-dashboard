@@ -1,25 +1,21 @@
-name: 量化复盘看板自动更新
+name: 量化复盘看板更新（手动触发）
 
 on:
-  schedule:
-    # 固定更新时间（北京时间 → UTC，标准时 UTC+8）。仅周一至周五触发，运行时再判断是否为交易日。
-    # 注：Actions 定时任务平台有 0~15 分钟抖动延迟，无法精确到秒。
-    - cron: "0 0 * * 1-5"    # 08:00  开盘前/美股隔夜传导
-    - cron: "26 1 * * 1-5"   # 09:26  集合竞价扫描
-    - cron: "30 2 * * 1-5"   # 10:30  早盘刷新
-    - cron: "0 4 * * 1-5"    # 12:00  午盘刷新
-    - cron: "30 6 * * 1-5"   # 14:30  市场情绪扫描
-    - cron: "0 14 * * 1-5"   # 22:00  美股收盘/隔夜复盘
-  workflow_dispatch:         # 允许手动触发
-  push:
-    branches: [main]
-    paths:                   # 代码/配置/数据/产物更新时自动重建看板
-      - "scripts/**"
-      - "config/**"
-      - "data/statements/**"   # 放入两家券商交割单 CSV 也触发重建
-      - "cache/**"             # 持仓/行情缓存变更（含手动更新 holdings.json）触发重建
-      - "index.html"           # 看板产物变更触发重建
-      - ".github/workflows/update_dashboard.yml"
+  workflow_dispatch:         # 仅手动触发：Actions → 选择此工作流 → Run workflow
+    inputs:
+      rebuild:
+        description: '重新拉取行情并重建看板（含三仓策略系统）'
+        required: false
+        default: 'true'
+      push_cache:
+        description: '同时提交 cache/*.json 变更'
+        required: false
+        default: 'true'
+
+# 说明（2026-08-06 改为手动模式，用户决定停掉 bot 自动更新）：
+# - 已删除 schedule 定时（08:00/09:26/10:30/12:00/14:30/22:00）
+# - 已删除 push 触发：避免 push 后自动重建覆盖人工定制的 index.html / cache
+# - 手动触发后：拉行情 → 重建看板 → 部署 Pages → 自动提交（commit 带 [bot-deploy-skip]）
 
 # 部署 GitHub Pages 需要 pages: write 与 id-token: write；
 # 提交数据更新需要 contents: write
