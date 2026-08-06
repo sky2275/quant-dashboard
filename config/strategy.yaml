@@ -100,8 +100,6 @@ attack_pool:
 - 长芯博创
 - 兴业银锡
 - 锡业股份
-# holdings 段已于 2026-08-07 移除：持仓唯一数据源为 cache/holdings.json（含 bucket/stop/成本/现价/盈亏），
-# strategy.yaml 仅保留配置（capital/buckets/risk/dividend_pool/attack_pool）
 capital: 300000
 buckets:
   long:
