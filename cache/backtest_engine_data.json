@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-08-06T12:49:46.692200+08:00",
+  "updated_at": "2026-08-06T18:20:12.930521+08:00",
   "trade_date": "20260729",
   "market_context": {
     "trade_date": "20260729",
-    "updated_at": "2026-08-06T12:49:46.692200+08:00",
+    "updated_at": "2026-08-06T18:20:12.930521+08:00",
     "a_up": null,
     "a_down": null,
     "a_limit_up": null,
@@ -11,73 +11,73 @@
     "top_sectors": [
       {
         "名称": "煤炭开采加工",
-        "净流入": 648000000.0,
-        "流入资金": 3593000000.0,
-        "流出资金": 2945000000.0,
-        "涨跌幅": 2.72
-      },
-      {
-        "名称": "贵金属",
-        "净流入": 137000000.0,
-        "流入资金": 14454000000.0,
-        "流出资金": 14316999999.999998,
-        "涨跌幅": 2.63
+        "净流入": 1276000000.0,
+        "流入资金": 7186000000.0,
+        "流出资金": 5909000000.0,
+        "涨跌幅": 4.88
       },
       {
         "名称": "电子化学品",
-        "净流入": 1383000000.0,
-        "流入资金": 17777000000.0,
-        "流出资金": 16394000000.0,
-        "涨跌幅": 2.3
+        "净流入": 2353000000.0,
+        "流入资金": 26075000000.0,
+        "流出资金": 23722000000.0,
+        "涨跌幅": 4.21
       },
       {
         "名称": "通信设备",
-        "净流入": 327000000.0,
-        "流入资金": 57167999999.99999,
-        "流出资金": 56841999999.99999,
-        "涨跌幅": 2.03
+        "净流入": 1144000000.0,
+        "流入资金": 76564000000.0,
+        "流出资金": 75420000000.0,
+        "涨跌幅": 3.03
       },
       {
         "名称": "元件",
-        "净流入": 182000000.0,
-        "流入资金": 38400000000.0,
-        "流出资金": 38218000000.0,
-        "涨跌幅": 1.88
-      },
-      {
-        "名称": "医药商业",
-        "净流入": -75000000.0,
-        "流入资金": 1180000000.0,
-        "流出资金": 1255000000.0,
-        "涨跌幅": 1.59
+        "净流入": -1937000000.0,
+        "流入资金": 49426000000.0,
+        "流出资金": 51363000000.0,
+        "涨跌幅": 2.97
       },
       {
         "名称": "种植业与林业",
-        "净流入": 54000000.0,
-        "流入资金": 1026000000.0,
-        "流出资金": 972000000.0000001,
-        "涨跌幅": 1.5
+        "净流入": 220000000.00000003,
+        "流入资金": 2272000000.0,
+        "流出资金": 2053000000.0,
+        "涨跌幅": 2.79
+      },
+      {
+        "名称": "贵金属",
+        "净流入": 246000000.0,
+        "流入资金": 18370000000.0,
+        "流出资金": 18124000000.0,
+        "涨跌幅": 2.66
       },
       {
         "名称": "半导体",
-        "净流入": 660000000.0,
-        "流入资金": 106127000000.0,
-        "流出资金": 105467000000.0,
-        "涨跌幅": 1.18
+        "净流入": -1820000000.0,
+        "流入资金": 144186000000.0,
+        "流出资金": 146006000000.0,
+        "涨跌幅": 2.14
       },
       {
         "名称": "小金属",
-        "净流入": -1880000000.0,
-        "流入资金": 16644000000.0,
-        "流出资金": 18523000000.0,
-        "涨跌幅": 1.1
+        "净流入": -1972000000.0,
+        "流入资金": 20784000000.0,
+        "流出资金": 22757000000.0,
+        "涨跌幅": 2.02
       },
       {
-        "名称": "计算机设备",
-        "净流入": -1145000000.0,
-        "流入资金": 9867000000.0,
-        "流出资金": 11012000000.0,
-        "涨跌幅": 0.75
+        "名称": "其他电子",
+        "净流入": -172000000.0,
+        "流入资金": 6018000000.0,
+        "流出资金": 6190000000.0,
+        "涨跌幅": 1.63
+      },
+      {
+        "名称": "非金属材料",
+        "净流入": 92000000.0,
+        "流入资金": 2510000000.0,
+        "流出资金": 2417000000.0,
+        "涨跌幅": 1.5
       }
     ],
     "summary": "基于 2026-07-29 收盘数据，全市场共扫描 5201 只；备选池保留预测次日涨幅 ≥ 2% 且具备明确技术/资金信号的标的。"
@@ -161,8 +161,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 57.37,
-        "volume_ratio": 0.52,
+        "rsi14": 57.63,
+        "volume_ratio": 0.85,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -187,8 +187,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 55.81,
-        "volume_ratio": 0.82,
+        "rsi14": 55.29,
+        "volume_ratio": 1.21,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -213,8 +213,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 50.62,
-        "volume_ratio": 0.52,
+        "rsi14": 52.38,
+        "volume_ratio": 0.84,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -240,7 +240,7 @@
         "ma_cross": "none",
         "macd_cross": "none",
         "rsi14": 65.56,
-        "volume_ratio": 1.39,
+        "volume_ratio": 1.44,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -265,8 +265,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 56.28,
-        "volume_ratio": 0.88,
+        "rsi14": 56.73,
+        "volume_ratio": 1.25,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -292,7 +292,7 @@
         "ma_cross": "none",
         "macd_cross": "none",
         "rsi14": 70.26,
-        "volume_ratio": 1.05,
+        "volume_ratio": 1.1,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -317,8 +317,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 59.32,
-        "volume_ratio": 0.43,
+        "rsi14": 59.49,
+        "volume_ratio": 0.71,
         "ma_bull_arrange": true,
         "volume_breakout": false
       }
@@ -343,8 +343,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 54.97,
-        "volume_ratio": 0.81,
+        "rsi14": 55.22,
+        "volume_ratio": 1.12,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -369,8 +369,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 49.63,
-        "volume_ratio": 0.82,
+        "rsi14": 50.2,
+        "volume_ratio": 1.17,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -395,8 +395,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 57.26,
-        "volume_ratio": 0.53,
+        "rsi14": 57.76,
+        "volume_ratio": 0.75,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -421,8 +421,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 69.57,
-        "volume_ratio": 0.8,
+        "rsi14": 70.46,
+        "volume_ratio": 1.23,
         "ma_bull_arrange": true,
         "volume_breakout": false
       }
@@ -447,8 +447,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 54.24,
-        "volume_ratio": 0.95,
+        "rsi14": 54.56,
+        "volume_ratio": 1.35,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -473,8 +473,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 64.04,
-        "volume_ratio": 2.07,
+        "rsi14": 60.98,
+        "volume_ratio": 2.51,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -499,8 +499,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 54.22,
-        "volume_ratio": 0.56,
+        "rsi14": 55.78,
+        "volume_ratio": 0.79,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -525,8 +525,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 49.21,
-        "volume_ratio": 0.89,
+        "rsi14": 48.39,
+        "volume_ratio": 1.42,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -551,8 +551,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 55.15,
-        "volume_ratio": 0.79,
+        "rsi14": 57.62,
+        "volume_ratio": 1.28,
         "ma_bull_arrange": true,
         "volume_breakout": false
       }
@@ -577,8 +577,8 @@
       "signal": {
         "ma_cross": "golden",
         "macd_cross": "none",
-        "rsi14": 48.56,
-        "volume_ratio": 1.01,
+        "rsi14": 49.69,
+        "volume_ratio": 1.35,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -603,8 +603,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 56.89,
-        "volume_ratio": 0.62,
+        "rsi14": 57.48,
+        "volume_ratio": 0.93,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -630,7 +630,7 @@
         "ma_cross": "none",
         "macd_cross": "none",
         "rsi14": 48.96,
-        "volume_ratio": 0.76,
+        "volume_ratio": 1.04,
         "ma_bull_arrange": true,
         "volume_breakout": false
       }
@@ -655,8 +655,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 59.35,
-        "volume_ratio": 0.51,
+        "rsi14": 58.91,
+        "volume_ratio": 0.72,
         "ma_bull_arrange": true,
         "volume_breakout": false
       }
@@ -681,8 +681,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 61.0,
-        "volume_ratio": 1.37,
+        "rsi14": 60.52,
+        "volume_ratio": 1.88,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -708,7 +708,7 @@
         "ma_cross": "none",
         "macd_cross": "none",
         "rsi14": 71.36,
-        "volume_ratio": 1.22,
+        "volume_ratio": 1.55,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -733,8 +733,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 52.56,
-        "volume_ratio": 0.66,
+        "rsi14": 52.57,
+        "volume_ratio": 0.92,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -759,8 +759,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 57.0,
-        "volume_ratio": 0.94,
+        "rsi14": 56.55,
+        "volume_ratio": 1.19,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -785,8 +785,8 @@
       "signal": {
         "ma_cross": "golden",
         "macd_cross": "none",
-        "rsi14": 44.14,
-        "volume_ratio": 0.62,
+        "rsi14": 44.87,
+        "volume_ratio": 0.89,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -812,7 +812,7 @@
         "ma_cross": "none",
         "macd_cross": "none",
         "rsi14": 50.47,
-        "volume_ratio": 0.74,
+        "volume_ratio": 1.11,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -837,8 +837,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 49.21,
-        "volume_ratio": 0.52,
+        "rsi14": 49.87,
+        "volume_ratio": 0.72,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -863,8 +863,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 51.06,
-        "volume_ratio": 0.73,
+        "rsi14": 51.29,
+        "volume_ratio": 1.02,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -889,8 +889,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 52.32,
-        "volume_ratio": 1.11,
+        "rsi14": 53.32,
+        "volume_ratio": 1.48,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
@@ -915,8 +915,8 @@
       "signal": {
         "ma_cross": "none",
         "macd_cross": "none",
-        "rsi14": 53.96,
-        "volume_ratio": 0.88,
+        "rsi14": 53.9,
+        "volume_ratio": 1.15,
         "ma_bull_arrange": false,
         "volume_breakout": false
       }
