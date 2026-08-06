@@ -1650,7 +1650,7 @@ def _section_ashare(snap, us_quotes, overnight):
     grid = f'''
         <div class="grid-2">
             {_breadth_card(snap)}
-            {_sector_strength_card(snap, topn=8)}
+            {_sector_strength_card(snap, topn=5)}
         </div>'''
     idx_kline = _section_index_kline()     # 指数K线（分时 + 日K）
     return head + idx_bar + hero + grid + idx_kline
@@ -4970,7 +4970,7 @@ function renderStockDaily(data, name) {
     grid: { left: 56, right: 16, top: 64, bottom: 32 },
     xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
     yAxis: { scale: true, splitLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
-    dataZoom: [{ type: 'inside', start: Math.max(0, 100 - 120 / values.length * 100), end: 100 }],
+    dataZoom: [{ type: 'inside', start: 30, end: 100 }], // 默认聚焦 2026/1 至今（数据中部到最新）
     series: [
       { name: 'K线', type: 'candlestick', data: values, itemStyle: { color: upColor, color0: downColor, borderColor: upColor, borderColor0: downColor } },
       { name: 'MA5', type: 'line', data: ma5, smooth: true, showSymbol: false, lineStyle: { color: '#f59e0b', width: 1 } },
@@ -5083,15 +5083,22 @@ function switchIndexTab(tab) {
 }
 
 function fetchIndexDaily(secid, name) {
-  var cb = 'idxk_' + Math.random().toString(36).slice(2, 10);
-  var url = 'https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=' + secid + '&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=0&beg=20220101&end=20500101&ut=fa5fd1943c7b386f172d6893dbfba10b&cb=' + cb;
-  _stockJsonp(url, cb).then(function(res) {
-    var data = (res && res.data) ? res.data : null;
-    if (!data || !data.klines || !data.klines.length) {
+  // secid 形如 "1.000001" 或 "0.399001" → 拆出 6 位数字
+  var m = secid.split('.');
+  var num = m[1] || '';
+  var prefix = (m[0] === '1') ? 'sh' : 'sz';
+  var full = prefix + num;
+  // 腾讯日K线：2026-01-01 至今（约 190+ 交易日）
+  var url = 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=' + full + ',day,,,250,qfq';
+  fetch(url).then(function(r){ return r.json(); }).then(function(j) {
+    var kl = (j && j.data && j.data[full] && (j.data[full].qfqday || j.data[full].day)) || [];
+    if (!kl.length) {
       document.getElementById('idxChart-daily').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">日K数据加载失败或暂无数据</div>';
       return;
     }
-    renderIndexDaily(data, name);
+    renderIndexDaily({ klines: kl.map(function(x){ return x.join(','); }), name: name }, name);
+  }).catch(function(){
+    document.getElementById('idxChart-daily').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">日K数据加载失败（网络/CORS）</div>';
   });
 }
 
@@ -5115,7 +5122,7 @@ function renderIndexDaily(data, name) {
     grid: { left: 56, right: 16, top: 64, bottom: 32 },
     xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
     yAxis: { scale: true, splitLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
-    dataZoom: [{ type: 'inside', start: Math.max(0, 100 - 120 / values.length * 100), end: 100 }],
+    dataZoom: [{ type: 'inside', start: 30, end: 100 }], // 默认聚焦 2026/1 至今（数据中部到最新）
     series: [
       { name: 'K线', type: 'candlestick', data: values, itemStyle: { color: upColor, color0: downColor, borderColor: upColor, borderColor0: downColor } },
       { name: 'MA5', type: 'line', data: ma5, smooth: true, showSymbol: false, lineStyle: { color: '#f59e0b', width: 1 } },
@@ -5130,15 +5137,26 @@ function renderIndexDaily(data, name) {
 }
 
 function fetchIndexIntraday(secid, name) {
-  var cb = 'idxt_' + Math.random().toString(36).slice(2, 10);
-  var url = 'https://push2.eastmoney.com/api/qt/stock/trends2/get?secid=' + secid + '&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&ndays=1&iscr=0&ut=fa5fd1943c7b386f172d6893dbfba10b&cb=' + cb;
-  _stockJsonp(url, cb).then(function(res) {
-    var data = (res && res.data) ? res.data : null;
-    if (!data || !data.trends || !data.trends.length) {
+  var m = secid.split('.');
+  var num = m[1] || '';
+  var prefix = (m[0] === '1') ? 'sh' : 'sz';
+  var full = prefix + num;
+  // 腾讯1分钟分时
+  var url = 'https://web.ifzq.gtimg.cn/appstock/app/minute/query?code=' + full;
+  fetch(url).then(function(r){ return r.json(); }).then(function(j) {
+    var rows = (j && j.data && j.data[full] && j.data[full].data && j.data[full].data.data) || [];
+    if (!rows.length) {
       document.getElementById('idxChart-intraday').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">分时数据加载失败或暂无数据</div>';
       return;
     }
-    renderIndexIntraday(data, name);
+    // 转为近似 trends2 结构：trends = [{time, price, avg, vol}, ...]
+    var trends = rows.map(function(line){
+      var p = line.split(' ');
+      return { time: p[0], price: parseFloat(p[1]), avg: parseFloat(p[2]), vol: parseFloat(p[3]) };
+    });
+    renderIndexIntraday({ trends: trends.map(function(t){ return t.time + ',' + t.price + ',' + t.avg + ',' + t.vol; }), name: name }, name);
+  }).catch(function(){
+    document.getElementById('idxChart-intraday').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">分时数据加载失败（网络/CORS）</div>';
   });
 }
 

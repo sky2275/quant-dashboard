@@ -79,7 +79,65 @@ def main():
             f'</div>'
         )
 
-    # ---- 持仓分组表 ----
+    # ---- 持仓分组表（策略配置 + 实际持仓整合） ----
+    # 实际持仓：cache/holdings.json → 7 只
+    actual_rows = ""
+    HOLDINGS_CACHE = os.path.join(REPO, "cache", "holdings.json")
+    bucket_map = {
+        "永安行": "short", "征和工业": "short", "哈药股份": "short",
+        "北京君正": "long", "绿的谐波": "long", "科大讯飞": "long",
+        "长电科技": "long", "通富微电": "long",
+    }
+    advice_map = {
+        "永安行": "8/7 突破 21.45 持有；破 20.70 减半仓",
+        "北京君正": "8/7 高开 138-139 减 300 锁定；冲 140 不破全挂 1700",
+        "绿的谐波": "8/7 不收复 340 减半仓；机器人主线分歧",
+        "征和工业": "8/7 60 整数关守不住减 300；前日中阳后换手偏高",
+        "科大讯飞": "8/7 不破 43.5 持有；45 上方有压力",
+        "哈药股份": "8/7 破 6.10 跌停全部止损；下午跌停板博弈仓",
+        "长电科技": "8/7 涨停次日观察换手；破 70 减半",
+        "通富微电": "8/7 跟随长电科技板块效应；守住 9.5 持有",
+    }
+    try:
+        if os.path.exists(HOLDINGS_CACHE):
+            with open(HOLDINGS_CACHE, encoding="utf-8") as _f:
+                _h = json.load(_f)
+            for p in _h.get("positions", []) or []:
+                name = p.get("name", "")
+                qty = p.get("quantity", 0)
+                cost = p.get("avg_cost", 0)
+                price = (p.get("pnl") or {}).get("price", 0)
+                pnl_pct = (p.get("pnl") or {}).get("pct", 0)
+                pnl_amt = (p.get("pnl") or {}).get("total", 0)
+                b = bucket_map.get(name, "short")
+                stop = 0.15 if b == "long" else 0.08
+                code = p.get("code", "")
+                if cost < 0:
+                    pct_txt = f"+{pnl_pct:.1f}% 市值"
+                    stop_txt = "市值止损"
+                    cost_txt = f"{cost:.3f}"
+                else:
+                    pct_txt = f"{pnl_pct:+.2f}%"
+                    stop_txt = f"{price*(1-stop):.2f}"
+                    cost_txt = f"{cost:.2f}"
+                pnl_cls = "up" if pnl_amt >= 0 else "down"
+                actual_rows += (
+                    f'<tr data-code="{code}" data-rt="actual" data-cost="{cost}" data-stop="{stop}" data-actual="1">'
+                    f'<td title="实际持仓"><strong>{name}</strong> <span class="tag tag-actual" style="font-size:9px;">实</span></td>'
+                    f'<td class="mono">{code}</td>'
+                    f'<td>{cost_txt}</td>'
+                    f'<td class="rt-sprice">{price:.2f}</td>'
+                    f'<td class="rt-sstop">{stop_txt}</td>'
+                    f'<td class="rt-spct {pnl_cls}">{pct_txt}</td>'
+                    f'<td><span class="tag tag-{b}">{bucket_label.get(b, b)}</span></td>'
+                    f'<td class="advice-cell" style="font-size:10px;color:var(--text-2);max-width:240px;text-align:left;line-height:1.4;">{advice_map.get(name, "持有，跟踪板块走势")}</td>'
+                    f'</tr>'
+                )
+            if not actual_rows:
+                actual_rows = '<tr><td colspan="8" style="padding:12px;color:var(--text-secondary);font-size:11px;">暂无实际持仓记录</td></tr>'
+    except Exception as e:
+        actual_rows = f'<tr><td colspan="8" style="padding:12px;color:var(--text-secondary);font-size:11px;">实际持仓未加载：{e}</td></tr>'
+
     rows = ""
     for h in holdings:
         code = h.get("_code", "")
@@ -87,13 +145,14 @@ def main():
         stop = float(h.get("stop", 0.08))
         rows += (
             f'<tr data-code="{code}" data-rt="strat" data-cost="{h["cost"]}" data-stop="{stop}">'
-            f'<td><strong>{h["code"]}</strong></td>'
+            f'<td title="策略配置"><strong>{h["code"]}</strong></td>'
             f'<td class="mono">{code}</td>'
             f'<td>{h["cost"]:.2f}</td>'
             f'<td class="rt-sprice">{h.get("price", "—")}</td>'
             f'<td class="rt-sstop">—</td>'
             f'<td class="rt-spct">—</td>'
             f'<td><span class="tag tag-{bucket}">{bucket_label.get(bucket, bucket)}</span></td>'
+            f'<td class="advice-cell" style="font-size:10px;color:var(--text-3);max-width:240px;text-align:left;">策略参考仓</td>'
             f'</tr>'
         )
 
@@ -129,10 +188,10 @@ def main():
             <div class="strat-alloc">{alloc_html}</div>
             <div class="strat-cols">
                 <div class="strat-block">
-                    <h4>持仓分组（止损价随实时价计算）</h4>
+                    <h4>持仓发行（实持仓顶置 + 策略配置下行）<span class="click-hint" style="margin-left:8px;">止损价随实时价计算</span></h4>
                     <table class="position-table" style="width:100%;">
-                        <thead><tr><th>名称</th><th>代码</th><th>成本</th><th>现价</th><th>止损价</th><th>盈亏%</th><th>仓</th></tr></thead>
-                        <tbody>{rows}</tbody>
+                        <thead><tr><th>名称</th><th>代码</th><th>成本</th><th>现价</th><th>止损价</th><th>盈亏%</th><th>仓</th><th>整改建议</th></tr></thead>
+                        <tbody>{actual_rows}<tr class="strat-divider"><td colspan="8" style="padding:6px 4px;color:var(--text-3);font-size:10px;text-align:center;background:var(--bg-surface-2);">↓ 策略配置参考仓 ↓</td></tr>{rows}</tbody>
                     </table>
                 </div>
                 <div class="strat-block">
@@ -194,6 +253,10 @@ def main():
     .tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;}
     .tag-long{background:rgba(55,138,221,0.15);color:#85b7eb;}
     .tag-dividend{background:rgba(34,197,94,0.15);color:#5dcaa5;}
+    .tag-actual{background:rgba(239,68,68,0.18);color:#ff6b6b;font-weight:700;padding:1px 5px;border-radius:4px;}
+    tr[data-actual="1"]>td{background:rgba(239,68,68,0.04);}
+    tr[data-actual="1"]:hover>td{background:rgba(239,68,68,0.08);}
+    .strat-divider td{border-top:1px dashed var(--border-soft)!important;}
     .tag-short{background:rgba(245,158,11,0.15);color:#fac775;}
     .strat-calc{margin-top:12px;border-top:1px solid var(--border-color,rgba(255,255,255,0.08));padding-top:10px;}
     .strat-calc h4{font-size:12px;color:var(--text-secondary);margin:0 0 6px;font-weight:500;}
