@@ -1,472 +1,575 @@
 {
-  "date": "20260806",
+  "date": "20260807",
   "is_trade_day": true,
-  "updated_at": "2026-08-07T00:19:19.668023",
+  "updated_at": "2026-08-07T21:57:15.634165",
   "summary": {
-    "trend": "震荡偏强",
+    "trend": "强势上涨",
     "trend_color": "red",
-    "avg_change_pct": 0.06,
+    "avg_change_pct": 1.57,
     "indexes": [
       {
         "name": "上证指数",
-        "price": 3900.35,
-        "change_pct": 0.57
+        "price": 3940.04,
+        "change_pct": 1.02,
+        "change_amount": null
       },
       {
         "name": "深证成指",
-        "price": 14110.12,
-        "change_pct": -0.24
+        "price": 14311.01,
+        "change_pct": 1.42,
+        "change_amount": null
       },
       {
         "name": "创业板指",
-        "price": 3515.56,
-        "change_pct": -0.55
+        "price": 3563.12,
+        "change_pct": 1.35,
+        "change_amount": null
       },
       {
         "name": "科创50",
-        "price": 1701.29,
-        "change_pct": 0.45
+        "price": 1744.02,
+        "change_pct": 2.51,
+        "change_amount": null
       }
     ],
     "breadth": {
-      "up": 2788,
-      "down": 2590,
-      "limit_up": 91,
-      "limit_down": 3,
-      "amount": 2547071373593.0
-    },
-    "main_lines": [
-      "震荡偏强：8/6 涨停 91 家、跌停 3 家，资金集中 AI 算力/CPO + 封测。",
-      "备选池已刷新为 8/6 收盘主力净流入 TOP12，剔除 7/29 旧扫描票。"
+      "up": 0,
+      "down": 0,
+      "limit_up": 0,
+      "limit_down": 0
+    }
+  },
+  "sector_flow": {
+    "top_inflow": [
+      {
+        "name": "半导体",
+        "net": "119.46亿",
+        "change_pct": 3.37
+      },
+      {
+        "name": "化学制药",
+        "net": "70.44亿",
+        "change_pct": 4.4
+      },
+      {
+        "name": "医疗服务",
+        "net": "45.63亿",
+        "change_pct": 8.34
+      },
+      {
+        "name": "工业金属",
+        "net": "43.05亿",
+        "change_pct": 2.38
+      },
+      {
+        "name": "贵金属",
+        "net": "30.63亿",
+        "change_pct": 4.11
+      },
+      {
+        "name": "生物制品",
+        "net": "21.82亿",
+        "change_pct": 6.42
+      },
+      {
+        "name": "消费电子",
+        "net": "20.16亿",
+        "change_pct": 1.68
+      },
+      {
+        "name": "军工电子",
+        "net": "13.67亿",
+        "change_pct": 1.54
+      },
+      {
+        "name": "元件",
+        "net": "13.52亿",
+        "change_pct": 6.45
+      },
+      {
+        "name": "电池",
+        "net": "13.44亿",
+        "change_pct": 1.4
+      }
     ],
-    "risk_lines": [
-      "涨停家数较 8/5(133) 降至 91，情绪转弱；哈药股份跌停板博弈仓破 6.10 需止损。",
-      "沪指若跌破 3870 空仓等回踩；单票仓位≤8%，止损-5%。"
+    "top_outflow": [
+      {
+        "name": "软件开发",
+        "net": "-31.94亿",
+        "change_pct": -1.29
+      },
+      {
+        "name": "IT服务",
+        "net": "-28.54亿",
+        "change_pct": -0.93
+      },
+      {
+        "name": "银行",
+        "net": "-26.14亿",
+        "change_pct": -0.95
+      },
+      {
+        "name": "通信服务",
+        "net": "-16.18亿",
+        "change_pct": -1.06
+      },
+      {
+        "name": "证券",
+        "net": "-15.42亿",
+        "change_pct": -0.17
+      },
+      {
+        "name": "建筑装饰",
+        "net": "-12.95亿",
+        "change_pct": -0.11
+      },
+      {
+        "name": "计算机设备",
+        "net": "-7.31亿",
+        "change_pct": -0.62
+      },
+      {
+        "name": "汽车零部件",
+        "net": "-7.22亿",
+        "change_pct": 0.2
+      },
+      {
+        "name": "房地产",
+        "net": "-7.04亿",
+        "change_pct": -1.06
+      },
+      {
+        "name": "电网设备",
+        "net": "-6.86亿",
+        "change_pct": -0.26
+      }
     ]
   },
-  "sector_flow": [
-    {
-      "name": "煤炭开采加工",
-      "net": 1276000000.0,
-      "change_pct": 4.88
-    },
-    {
-      "name": "电子化学品",
-      "net": 2353000000.0,
-      "change_pct": 4.21
-    },
-    {
-      "name": "通信设备",
-      "net": 1144000000.0,
-      "change_pct": 3.03
-    },
-    {
-      "name": "元件",
-      "net": -1937000000.0,
-      "change_pct": 2.97
-    },
-    {
-      "name": "种植业与林业",
-      "net": 220000000.00000003,
-      "change_pct": 2.79
-    },
-    {
-      "name": "贵金属",
-      "net": 246000000.0,
-      "change_pct": 2.66
-    },
-    {
-      "name": "半导体",
-      "net": -1820000000.0,
-      "change_pct": 2.14
-    },
-    {
-      "name": "小金属",
-      "net": -1972000000.0,
-      "change_pct": 2.02
-    },
-    {
-      "name": "其他电子",
-      "net": -172000000.0,
-      "change_pct": 1.63
-    },
-    {
-      "name": "非金属材料",
-      "net": 92000000.0,
-      "change_pct": 1.5
-    }
-  ],
-  "limit_up": [
-    {
-      "name": "郑州煤电",
-      "code": "sh600121",
-      "price": null,
-      "change_pct": 8.951
-    },
-    {
-      "name": "金健米业",
-      "code": "sh600127",
-      "price": null,
-      "change_pct": 9.982
-    },
-    {
-      "name": "华升股份",
-      "code": "sh600156",
-      "price": null,
-      "change_pct": 9.95
-    },
-    {
-      "name": "兖矿能源",
-      "code": "sh600188",
-      "price": null,
-      "change_pct": 9.979
-    },
-    {
-      "name": "有研新材",
-      "code": "sh600206",
-      "price": null,
-      "change_pct": 9.997
-    },
-    {
-      "name": "北方股份",
-      "code": "sh600262",
-      "price": null,
-      "change_pct": 9.993
-    },
-    {
-      "name": "开开实业",
-      "code": "sh600272",
-      "price": null,
-      "change_pct": 9.981
-    },
-    {
-      "name": "西藏天路",
-      "code": "sh600326",
-      "price": null,
-      "change_pct": 9.942
-    },
-    {
-      "name": "天通股份",
-      "code": "sh600330",
-      "price": null,
-      "change_pct": 10.01
-    },
-    {
-      "name": "昊华科技",
-      "code": "sh600378",
-      "price": null,
-      "change_pct": 9.508
-    },
-    {
-      "name": "江钨装备",
-      "code": "sh600397",
-      "price": null,
-      "change_pct": 10.033
-    },
-    {
-      "name": "大有能源",
-      "code": "sh600403",
-      "price": null,
-      "change_pct": 9.949
-    },
-    {
-      "name": "长电科技",
-      "code": "sh600584",
-      "price": null,
-      "change_pct": 10.004
-    },
-    {
-      "name": "方正科技",
-      "code": "sh600601",
-      "price": null,
-      "change_pct": 9.962
-    },
-    {
-      "name": "天地源",
-      "code": "sh600665",
-      "price": null,
-      "change_pct": 9.901
-    },
-    {
-      "name": "百花医药",
-      "code": "sh600721",
-      "price": null,
-      "change_pct": 9.989
-    },
-    {
-      "name": "辽宁能源",
-      "code": "sh600758",
-      "price": null,
-      "change_pct": 9.88
-    },
-    {
-      "name": "人民同泰",
-      "code": "sh600829",
-      "price": null,
-      "change_pct": 9.989
-    },
-    {
-      "name": "大晟文化",
-      "code": "sh600892",
-      "price": null,
-      "change_pct": 10.096
-    },
-    {
-      "name": "淮北矿业",
-      "code": "sh600985",
-      "price": null,
-      "change_pct": 10.0
-    }
-  ],
+  "limit_up": {
+    "count": 92,
+    "top": [
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      },
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      },
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      },
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      },
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      },
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      },
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      },
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      },
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      },
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      },
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      },
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      },
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      },
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      },
+      {
+        "code": null,
+        "name": null,
+        "reason": "—"
+      }
+    ]
+  },
   "holding_review": {
-    "accounts": {
+    "positions": [
+      {
+        "code": "603776",
+        "name": "永安行",
+        "shares": null,
+        "cost": null,
+        "price": 21.45,
+        "pnl_pct": null,
+        "pnl_amount": null,
+        "bucket": "short"
+      },
+      {
+        "code": "300223",
+        "name": "北京君正",
+        "shares": null,
+        "cost": null,
+        "price": 137.0,
+        "pnl_pct": null,
+        "pnl_amount": null,
+        "bucket": "long"
+      },
+      {
+        "code": "688017",
+        "name": "绿的谐波",
+        "shares": null,
+        "cost": null,
+        "price": 336.04,
+        "pnl_pct": null,
+        "pnl_amount": null,
+        "bucket": "long"
+      },
+      {
+        "code": "300223",
+        "name": "北京君正",
+        "shares": null,
+        "cost": null,
+        "price": 137.0,
+        "pnl_pct": null,
+        "pnl_amount": null,
+        "bucket": "long"
+      },
+      {
+        "code": "003033",
+        "name": "征和工业",
+        "shares": null,
+        "cost": null,
+        "price": 60.75,
+        "pnl_pct": null,
+        "pnl_amount": null,
+        "bucket": "short"
+      },
+      {
+        "code": "002230",
+        "name": "科大讯飞",
+        "shares": null,
+        "cost": null,
+        "price": 43.68,
+        "pnl_pct": null,
+        "pnl_amount": null,
+        "bucket": "long"
+      },
+      {
+        "code": "600664",
+        "name": "哈药股份",
+        "shares": null,
+        "cost": null,
+        "price": 6.22,
+        "pnl_pct": null,
+        "pnl_amount": null,
+        "bucket": "short"
+      }
+    ],
+    "account_pnl": {
       "galaxy": {
-        "label": "银河证券",
-        "pnl": {
-          "today": 177.0,
-          "today_pct": null,
-          "total": 16021.1,
-          "pct": null
-        },
-        "positions": [
-          {
-            "name": "永安行",
-            "code": "603776",
-            "quantity": 300,
-            "cost": -31.957,
-            "price": 21.45,
-            "pnl": {
-              "total": 16022.099999999999,
-              "pct": 248.98,
-              "today": 169.24,
-              "today_pct": 2.63,
-              "price": 21.45
-            }
-          }
-        ]
+        "today": 177.0,
+        "today_pct": null,
+        "total": 16021.1,
+        "pct": null
       },
       "eastmoney": {
-        "label": "东方财富证券",
-        "pnl": {
-          "today": 2493.36,
-          "today_pct": null,
-          "total": -9964.0,
-          "pct": null
-        },
-        "positions": [
-          {
-            "name": "北京君正",
-            "code": "300223",
-            "quantity": 1700,
-            "cost": 144.144,
-            "price": 137.0,
-            "pnl": {
-              "total": -12144.8,
-              "pct": -4.96,
-              "today": 1653.59,
-              "today_pct": 0.71,
-              "price": 137.0
-            }
-          },
-          {
-            "name": "绿的谐波",
-            "code": "688017",
-            "quantity": 200,
-            "cost": 325.036,
-            "price": 336.04,
-            "pnl": {
-              "total": 2200.8,
-              "pct": 3.39,
-              "today": -887.15,
-              "today_pct": -1.32,
-              "price": 336.04
-            }
-          }
-        ]
+        "today": 2493.36,
+        "today_pct": null,
+        "total": -9964.0,
+        "pct": null
       },
       "csc": {
-        "label": "中信建投",
-        "pnl": {
-          "today": -1639.2,
-          "today_pct": null,
-          "total": 1228.0,
-          "pct": null
-        },
-        "positions": [
-          {
-            "name": "北京君正",
-            "code": "300223",
-            "quantity": 100,
-            "cost": 118.9,
-            "price": 137.0,
-            "pnl": {
-              "total": 1810.0,
-              "pct": 15.22,
-              "today": 97.27,
-              "today_pct": 0.71,
-              "price": 137.0
-            }
-          },
-          {
-            "name": "征和工业",
-            "code": "003033",
-            "quantity": 500,
-            "cost": 59.802,
-            "price": 60.75,
-            "pnl": {
-              "total": 474.0,
-              "pct": 1.59,
-              "today": -564.98,
-              "today_pct": -1.86,
-              "price": 60.75
-            }
-          },
-          {
-            "name": "科大讯飞",
-            "code": "002230",
-            "quantity": 500,
-            "cost": 42.66,
-            "price": 43.68,
-            "pnl": {
-              "total": 510.0,
-              "pct": 2.39,
-              "today": 176.9,
-              "today_pct": 0.81,
-              "price": 43.68
-            }
-          },
-          {
-            "name": "哈药股份",
-            "code": "600664",
-            "quantity": 3000,
-            "cost": 6.742,
-            "price": 6.22,
-            "pnl": {
-              "total": -1566.0,
-              "pct": -7.74,
-              "today": -1141.99,
-              "today_pct": -6.12,
-              "price": 6.22
-            }
-          }
-        ]
+        "today": -1639.2,
+        "today_pct": null,
+        "total": 1228.0,
+        "pct": null
       }
-    },
-    "total_today": 1031.16,
-    "total_pnl": 7285.1,
-    "date": "20260806"
+    }
   },
   "watch_pool": [
     {
-      "rank": 1,
-      "code": "601138",
-      "name": "工业富联",
-      "price": 68.27,
-      "change_pct": 3.56,
-      "sector": "AI服务器/算力",
-      "reason": "8/6 主力净流入 30.10 亿"
+      "code": "300291",
+      "name": "百纳千成",
+      "price": 5.05,
+      "change_pct": 7.91,
+      "score": 80.9,
+      "reasons": "涨7.9%、换手8.4%、量比3.4、成交3.96亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
     },
     {
-      "rank": 2,
-      "code": "300476",
-      "name": "胜宏科技",
-      "price": 250.15,
-      "change_pct": 5.84,
-      "sector": "PCB/CCL",
-      "reason": "8/6 主力净流入 9.98 亿"
+      "code": "301262",
+      "name": "海看股份",
+      "price": 19.9,
+      "change_pct": 7.74,
+      "score": 79.5,
+      "reasons": "涨7.7%、换手8.7%、量比3.3、成交2.06亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
     },
     {
-      "rank": 3,
-      "code": "600584",
-      "name": "长电科技",
-      "price": 75.87,
-      "change_pct": 10.0,
-      "sector": "封测",
-      "reason": "8/6 主力净流入 8.01 亿"
+      "code": "002582",
+      "name": "好想你",
+      "price": 10.33,
+      "change_pct": 7.72,
+      "score": 78.2,
+      "reasons": "涨7.7%、换手17.4%、量比2.3、成交6.04亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
     },
     {
-      "rank": 4,
-      "code": "000938",
-      "name": "紫光股份",
-      "price": 37.94,
-      "change_pct": 2.71,
-      "sector": "半导体",
-      "reason": "8/6 主力净流入 7.57 亿"
+      "code": "000802",
+      "name": "北京文化",
+      "price": 4.07,
+      "change_pct": 7.67,
+      "score": 77.1,
+      "reasons": "涨7.7%、换手15.3%、量比2.1、成交4.42亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
     },
     {
-      "rank": 5,
-      "code": "300308",
-      "name": "中际旭创",
-      "price": 955.0,
-      "change_pct": 0.77,
-      "sector": "CPO光模块",
-      "reason": "8/6 主力净流入 7.49 亿"
+      "code": "600326",
+      "name": "西藏天路",
+      "price": 6.81,
+      "change_pct": 6.74,
+      "score": 76.5,
+      "reasons": "涨6.7%、换手7.6%、量比4.3、成交7.04亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
     },
     {
-      "rank": 6,
-      "code": "300394",
-      "name": "天孚通信",
-      "price": 225.28,
-      "change_pct": 3.89,
-      "sector": "光模块",
-      "reason": "8/6 主力净流入 6.95 亿"
+      "code": "002277",
+      "name": "友阿股份",
+      "price": 5.74,
+      "change_pct": 7.89,
+      "score": 74.3,
+      "reasons": "涨7.9%、量比4.0、成交2.85亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
     },
     {
-      "rank": 7,
-      "code": "002281",
-      "name": "光迅科技",
-      "price": 175.49,
-      "change_pct": 2.3,
-      "sector": "光模块",
-      "reason": "8/6 主力净流入 5.67 亿"
+      "code": "002612",
+      "name": "朗姿股份",
+      "price": 14.22,
+      "change_pct": 6.36,
+      "score": 72.5,
+      "reasons": "涨6.4%、换手10.8%、量比2.9、成交3.80亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
     },
     {
-      "rank": 8,
-      "code": "601398",
-      "name": "工商银行",
-      "price": 7.57,
-      "change_pct": 0.66,
-      "sector": "高股息银行",
-      "reason": "8/6 主力净流入 5.21 亿"
+      "code": "002969",
+      "name": "嘉美包装",
+      "price": 13.14,
+      "change_pct": 4.2,
+      "score": 70.1,
+      "reasons": "涨4.2%、换手14.9%、量比6.5、成交20.15亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
     },
     {
-      "rank": 9,
-      "code": "688146",
-      "name": "中船特气",
-      "price": 308.0,
-      "change_pct": 7.57,
-      "sector": "电子特气",
-      "reason": "8/6 主力净流入 5.17 亿"
+      "code": "603200",
+      "name": "上海洗霸",
+      "price": 36.3,
+      "change_pct": 6.67,
+      "score": 68.7,
+      "reasons": "涨6.7%、换手6.3%、量比3.2、成交3.94亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
     },
     {
-      "rank": 10,
-      "code": "300548",
-      "name": "长芯博创",
-      "price": 171.0,
-      "change_pct": 7.26,
-      "sector": "存储",
-      "reason": "8/6 主力净流入 4.35 亿"
+      "code": "300270",
+      "name": "中威电子",
+      "price": 10.35,
+      "change_pct": 6.7,
+      "score": 68.0,
+      "reasons": "涨6.7%、换手9.0%、量比1.8、成交2.32亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
+    },
+    {
+      "code": "605376",
+      "name": "博迁新材",
+      "price": 144.58,
+      "change_pct": 5.93,
+      "score": 67.8,
+      "reasons": "涨5.9%、换手8.3%、量比1.5、成交30.88亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
+    },
+    {
+      "code": "002369",
+      "name": "卓翼科技",
+      "price": 5.61,
+      "change_pct": 4.66,
+      "score": 67.1,
+      "reasons": "涨4.7%、换手12.7%、量比4.1、成交4.05亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
+    },
+    {
+      "code": "300788",
+      "name": "中信出版",
+      "price": 25.37,
+      "change_pct": 7.09,
+      "score": 66.7,
+      "reasons": "涨7.1%、量比3.5、成交1.69亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
+    },
+    {
+      "code": "603980",
+      "name": "吉华集团",
+      "price": 6.8,
+      "change_pct": 4.62,
+      "score": 65.9,
+      "reasons": "涨4.6%、换手16.3%、量比3.8、成交7.60亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
+    },
+    {
+      "code": "300207",
+      "name": "欣旺达",
+      "price": 19.11,
+      "change_pct": 6.29,
+      "score": 65.8,
+      "reasons": "涨6.3%、换手6.1%、量比1.8、成交19.65亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
+    },
+    {
+      "code": "600415",
+      "name": "小商品城",
+      "price": 12.65,
+      "change_pct": 6.93,
+      "score": 65.7,
+      "reasons": "涨6.9%、量比2.0、成交27.01亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
+    },
+    {
+      "code": "600418",
+      "name": "江淮汽车",
+      "price": 22.17,
+      "change_pct": 5.77,
+      "score": 65.3,
+      "reasons": "涨5.8%、换手5.4%、量比2.0、成交25.73亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
+    },
+    {
+      "code": "300573",
+      "name": "兴齐眼药",
+      "price": 42.41,
+      "change_pct": 6.83,
+      "score": 64.4,
+      "reasons": "涨6.8%、换手5.3%、量比2.1、成交6.02亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
+    },
+    {
+      "code": "002889",
+      "name": "东方嘉盛",
+      "price": 12.78,
+      "change_pct": 3.57,
+      "score": 64.0,
+      "reasons": "涨3.6%、换手10.0%、量比9.0、成交3.31亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
+    },
+    {
+      "code": "300656",
+      "name": "民德电子",
+      "price": 24.8,
+      "change_pct": 7.04,
+      "score": 63.8,
+      "reasons": "涨7.0%、换手6.0%、量比1.7、成交1.89亿、流通适中",
+      "focus": "14:30 后看是否守住当日均线，强势股不回落可持有/轻仓跟进；明日若低开低走破今日阳线实体下沿，及时止损；高开放量可继续持有",
+      "tags": [
+        "14:30情绪"
+      ]
     }
   ],
   "strategy": {
-    "advice": [
-      "北京君正 8/7 高开 138-139 减 300 锁定；冲 140 不破全挂 1700",
-      "绿的谐波不收复 340 减半；哈药股份破 6.10 全部止损",
-      "进攻方向：AI 服务器/CPO/封测主线回踩低吸，仓位≤15%"
+    "overall": "大势偏强，明日可维持偏高仓位，重点做主线进攻。",
+    "position": "长线/高股息底仓不动；短线仓位可提升至 25%-30%。",
+    "tactics": [
+      "重点进攻方向：半导体, 化学制药, 医疗服务（资金净流入前三）。",
+      "回避方向：软件开发, IT服务, 银行（资金净流出前三）。",
+      "今日涨停 0 家，情绪偏冷，次日以首板/反包低吸为主，少做高位接力。",
+      "监控池标的次日高开不追，等回踩分时均线或昨日涨停价附近再考虑；低开低走直接剔除。"
     ],
-    "attack_pool": [
-      "工业富联",
-      "胜宏科技",
-      "长电科技",
-      "紫光股份",
-      "中际旭创",
-      "天孚通信",
-      "光迅科技",
-      "工商银行",
-      "中船特气",
-      "长芯博创",
-      "兴业银锡",
-      "锡业股份"
-    ]
+    "watch_count": 20
   }
 }
