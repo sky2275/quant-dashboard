@@ -795,6 +795,83 @@ CSS_RULES = """
         .refresh-meta .rm-trade { padding:1px 7px; border-radius:var(--r-chip); background:rgba(79,156,255,.12); color:var(--accent-blue); font-weight:600; }
         .refresh-meta .rm-btn { margin-left:auto; padding:3px 10px; border-radius:var(--r-btn); border:1px solid var(--border); background:transparent; color:var(--text-2); cursor:pointer; font-size:11px; transition:var(--transition); }
         .refresh-meta .rm-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+        /* ================= 响应式适配（手机 / 平板 / 桌面） ================= */
+        /* ---- 平板（≤1080px）：侧栏收窄为图标导航，多列降 2 列 ---- */
+        @media (max-width:1080px) {
+            .sidebar { width:64px; padding:12px 6px; }
+            .sidebar-logo { display:none; }
+            .nav-item { flex-direction:column; gap:4px; padding:10px 4px; text-align:center; }
+            .nav-item .nav-icon { font-size:17px; }
+            .nav-item .nav-text { font-size:10px; }
+            .nav-badge { display:none; }
+            .grid-2 { grid-template-columns:1fr; }
+            .heat-cols { grid-template-columns:1fr; }
+            .strat-alloc { grid-template-columns:1fr 1fr; }
+            .hero { grid-template-columns:repeat(3,1fr); }
+        }
+        /* ---- 手机（≤767px）：侧栏变顶部横向滚动导航，内容单列 ---- */
+        @media (max-width:767px) {
+            html, body { -webkit-text-size-adjust:100%; }
+            .app-layout { flex-direction:column; }
+            .sidebar {
+                width:100%; height:auto; max-height:none; flex-direction:row;
+                overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;
+                padding:6px 8px; border-right:none; border-bottom:1px solid var(--border);
+                position:sticky; top:0; z-index:500; background:var(--bg-app);
+                scrollbar-width:thin;
+            }
+            .sidebar::-webkit-scrollbar { height:3px; }
+            .sidebar::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.18); border-radius:2px; }
+            .sidebar-logo { display:none; }
+            .nav-item { flex-direction:row; gap:6px; padding:8px 12px; flex-shrink:0; white-space:nowrap; }
+            .nav-item .nav-icon { font-size:14px; }
+            .nav-item .nav-text { font-size:12px; }
+            .nav-badge { display:none; }
+            .content { padding:12px 10px; overflow-y:visible; }
+            .header { flex-wrap:wrap; gap:8px; padding:10px 12px; }
+            .header-right { flex-wrap:wrap; gap:6px; }
+            .version-badge { display:none; }
+            .screen-head { flex-direction:column; align-items:flex-start; gap:6px; }
+            .screen-head h1 { font-size:18px; }
+            .grid-2, .heat-cols, .strat-cols, .market-grid-2col, .sector-layout,
+            .radar-grid, .hero { grid-template-columns:1fr !important; }
+            .hero { grid-template-columns:repeat(2,1fr) !important; }
+            .stats4 { grid-template-columns:repeat(2,1fr); gap:8px; }
+            .strat-alloc { grid-template-columns:1fr 1fr; gap:8px; }
+            .alloc-item { padding:8px 10px; }
+            .alloc-amt { font-size:13px; }
+            .radar-col:last-child { max-height:none; overflow-y:visible; }
+            .picks-toolbar .picks-row { flex-direction:column; align-items:stretch; gap:8px; }
+            .picks-table-wrap, .sector-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+            .picks-table, .position-table, .sector-table, .data-table, .flow-table,
+            .astock-table, .limitup-table { min-width:620px; }
+            .card { padding:12px; }
+            .card-title { font-size:13.5px; flex-wrap:wrap; gap:6px; }
+            .card-title .click-hint { display:none; }
+            .stock-detail-tabs, .idx-chips { overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; }
+            .idx-tab, .stock-detail-tab, .idx-chip { flex-shrink:0; }
+            .modal { padding:16px 14px; width:97%; max-height:94vh; }
+            .modal h2 { font-size:18px; }
+            .refresh-meta { font-size:10px; }
+            .refresh-meta .rm-btn { font-size:10px; }
+            .heat-row { gap:6px; }
+            .heat-nm { width:64px; font-size:11.5px; }
+            .heat-lead { display:none; }
+            .heat-stocks { padding-left:20px; }
+            .screen-head .head-badge { font-size:10px; }
+        }
+        /* ---- 小屏手机（≤420px）：进一步压缩 ---- */
+        @media (max-width:420px) {
+            .content { padding:10px 8px; }
+            .hero { grid-template-columns:1fr 1fr !important; }
+            .stats4 { grid-template-columns:1fr 1fr; }
+            .strat-alloc { grid-template-columns:1fr; }
+            .alloc-amt { font-size:12px; }
+            .alloc-pct { font-size:11px; }
+            .date-picker-wrapper input { font-size:12px; }
+            .index-mini-item { min-width:140px; }
+        }
 """
 
 
@@ -4454,6 +4531,7 @@ document.addEventListener('DOMContentLoaded', function() {{
     window.BT_KLINE_TYPE = 'daily';
     if (chartDom && typeof echarts !== 'undefined') {{
         btChart = echarts.init(chartDom);
+        registerChart(btChart);
         runBacktest();
     }}
     updateBTLogicPanel();
@@ -5035,6 +5113,7 @@ function renderStockDaily(data, name) {
   var dom = document.getElementById('stockChart-daily');
   if (stockDailyChart) stockDailyChart.dispose();
   stockDailyChart = echarts.init(dom);
+  registerChart(stockDailyChart);
   stockDailyChart.setOption(option);
 }
 
@@ -5083,6 +5162,7 @@ function renderStockIntraday(data, name) {
   var dom = document.getElementById('stockChart-intraday');
   if (stockIntradayChart) stockIntradayChart.dispose();
   stockIntradayChart = echarts.init(dom);
+  registerChart(stockIntradayChart);
   stockIntradayChart.setOption(option);
   updateStockInfo(prePrice, lastPrice, data);
 }
@@ -5105,6 +5185,25 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') close
     INDEX_CHART_JS = r'''
 /* ---- 指数K线：分时 + 日K（浏览器端东方财富 JSONP） ---- */
 var idxDailyChart = null, idxIntradayChart = null;
+
+/* 全局 echarts 实例注册表：窗口 resize / 设备旋转时统一 resize，保证手机端图表自适应 */
+window.__CHARTS__ = [];
+function registerChart(chart) { if (chart && window.__CHARTS__.indexOf(chart) < 0) window.__CHARTS__.push(chart); }
+if (!window.__CHART_RESIZE_BOUND__) {
+  window.__CHART_RESIZE_BOUND__ = true;
+  var __chartResizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(__chartResizeTimer);
+    __chartResizeTimer = setTimeout(function () {
+      (window.__CHARTS__ || []).forEach(function (c) { try { c.resize(); } catch (e) {} });
+    }, 150);
+  });
+  window.addEventListener('orientationchange', function () {
+    setTimeout(function () {
+      (window.__CHARTS__ || []).forEach(function (c) { try { c.resize(); } catch (e) {} });
+    }, 200);
+  });
+}
 
 function loadIndexDefault() {
   var first = document.querySelector('.idx-chip');
@@ -5187,6 +5286,7 @@ function renderIndexDaily(data, name) {
   var dom = document.getElementById('idxChart-daily');
   if (idxDailyChart) idxDailyChart.dispose();
   idxDailyChart = echarts.init(dom);
+  registerChart(idxDailyChart);
   idxDailyChart.setOption(option);
 }
 
@@ -5244,6 +5344,7 @@ function renderIndexIntraday(data, name) {
   var dom = document.getElementById('idxChart-intraday');
   if (idxIntradayChart) idxIntradayChart.dispose();
   idxIntradayChart = echarts.init(dom);
+  registerChart(idxIntradayChart);
   idxIntradayChart.setOption(option);
   updateIdxInfo(prePrice, lastPrice, data);
 }
