@@ -295,6 +295,7 @@ CSS_RULES = """
         .limit-up-card .stock-forecast.up { background:rgba(239,68,68,0.2); color:#ef4444; }
         .limit-up-card .stock-forecast.down { background:rgba(34,197,94,0.2); color:#22c55e; }
         .limit-up-card .stock-forecast.hold { background:rgba(245,158,11,0.2); color:#f59e0b; }
+        .limit-up-card .stock-build { font-size:9.5px; margin-top:3px; padding:2px 8px; border-radius:4px; display:inline-block; background:rgba(79,156,255,0.12); color:#4fc3f7; line-height:1.4; }
 
         .summary-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:12px; }
         @media (max-width:600px) { .summary-grid { grid-template-columns:1fr 1fr; } }
@@ -1791,18 +1792,61 @@ def _section_ashare(snap, us_quotes, overnight):
 # ----------------------------------------------------------------- 重排后：美股行情映射 面板（美股隔夜 + 美股→A股传导）
 def _section_us_map(snap, us_quotes, overnight):
     us_idx = snap.get("us_indices", []) or []
-    head = _screen_head("美股行情", "隔夜三大指数 · 板块表现 · 美股→A股传导映射", _session('us')[0])
+    head = _screen_head("全球行情", "美股三大指数 · 科技/半导体/光模块/物理AI/存储/先进封装/苹果供应链 · 韩国股市 · A股映射", _session('us')[0])
     idx_bar = _index_quote_bar(us_idx, "隔夜指数")
     hero = _hero_index_cards(us_idx, limit=4, clickable=False)
     overview = f'''
         <div class="card card-full">
-            <div class="card-title"><span class="icon"><i class="fas fa-globe-americas"></i></span> 美股行情 (隔夜) <span class="badge">US</span></div>
+            <div class="card-title"><span class="icon"><i class="fas fa-globe-americas"></i></span> 全球行情 (隔夜美股) <span class="badge">US</span></div>
             <div class="market-grid-2col">
                 {_us_box(us_quotes, overnight, snap)}
             </div>
         </div>'''
+    kr_card = _korea_market_card()
     transmit = _section_transmit(overnight)
-    return head + idx_bar + hero + overview + transmit
+    return head + idx_bar + hero + overview + kr_card + transmit
+
+
+def _korea_market_card():
+    """韩国股市（KOSPI/KOSDAQ）行情卡。数据源待接入腾讯自选股 MCP 时启用；当前显示映射占位。"""
+    return f'''
+        <div class="card card-full">
+            <div class="card-title"><span class="icon"><i class="fas fa-flag"></i></span> 韩国股市 <span class="badge">KOREA</span>
+                <span class="click-hint">与A股半导体/存储/面板联动</span>
+            </div>
+            <div class="market-grid-2col" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+                <div class="kr-box" style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-weight:600;font-size:13px;">KOSPI 综合指数</span>
+                        <span style="font-family:var(--font-num);color:var(--text-3);font-size:11px;">数据源待接入</span>
+                    </div>
+                    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px;line-height:1.7;">
+                        三星电子(005930.KS) · SK海力士(000660.KS) · LG新能源(373220.KS)<br>
+                        <span style="color:var(--text-3);">韩国半导体/存储龙头是全球链风向标 → 映射 A股：兆易创新 / 北京君正 / 深科技</span>
+                    </div>
+                </div>
+                <div class="kr-box" style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-weight:600;font-size:13px;">KOSDAQ 创业板</span>
+                        <span style="font-family:var(--font-num);color:var(--text-3);font-size:11px;">数据源待接入</span>
+                    </div>
+                    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px;line-height:1.7;">
+                        生物科技/电动车/半导体设备小盘成长<br>
+                        <span style="color:var(--text-3);">联动 A股：科创50 / 创业板指 成长风格</span>
+                    </div>
+                </div>
+                <div class="kr-box" style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-weight:600;font-size:13px;">韩元汇率 / 韩股资金</span>
+                        <span style="font-family:var(--font-num);color:var(--text-3);font-size:11px;">—</span>
+                    </div>
+                    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px;line-height:1.7;">
+                        韩元兑美元走势影响外资进出<br>
+                        <span style="color:var(--text-3);">提示：接入「腾讯自选股」connector 后即可显示实时 KOSPI 行情</span>
+                    </div>
+                </div>
+            </div>
+        </div>'''
 
 
 # ----------------------------------------------------------------- ② 美股 → A股 传导预测
@@ -1893,15 +1937,19 @@ def _limitup_sections(limit_up):
             if b >= 4:
                 fc = "up"
                 fc_txt = "📈 次日预测: 有望继续连板"
+                build_txt = "⚠️ 建仓建议: 高位接力风险大，不建议追板，等分歧低吸或放弃"
             elif b == 3:
                 fc = "hold"
                 fc_txt = "📊 次日预测: 冲击更高板"
+                build_txt = "✅ 建仓建议: 强势股可轻仓试错（≤3%），需放量换手验证"
             elif b == 2:
                 fc = "hold"
                 fc_txt = "📊 次日预测: 晋级观察"
+                build_txt = "✅ 建仓建议: 低吸不追高，确认承接后小仓（≤3%）"
             else:
                 fc = "hold"
                 fc_txt = "📊 次日预测: 观察换手"
+                build_txt = "✅ 建仓建议: 封单强+放量可轻仓（≤5%），烂板不碰"
             grid += f'''
                     <div class="limit-up-card">
                         <div class="stock-name">{_stock_link(name, code)}</div>
@@ -1909,6 +1957,7 @@ def _limitup_sections(limit_up):
                         <div class="stock-data"><span class="label">封单:</span><span class="value">{seal}</span> <span class="label">涨跌幅:</span><span class="value" style="color:{_hex(pct)};">{_fmt_pct(pct)}</span></div>
                         <div class="stock-data"><span class="label">热度:</span><span class="value" style="color:#ef4444;">{heat}</span></div>
                         <div class="stock-forecast {fc}">{fc_txt}</div>
+                        <div class="stock-build">{build_txt}</div>
                     </div>'''
         html += f'''
             <div class="limit-up-section">
@@ -1976,6 +2025,33 @@ def _flowtop_rows(snap, indicators):
             "tag": "强势",
         })
     return rows
+
+
+def _national_team_card(snap):
+    """国家队资金流向（近似）：东财无国家队专属字段，用板块主力净流入 TOP6 近似，标注口径。"""
+    sectors = [s for s in (snap.get("sector_flow", []) or []) if isinstance(s, dict)]
+    top = sorted(sectors, key=lambda x: float(x.get("净流入") or 0), reverse=True)[:6]
+    rows = ""
+    for i, s in enumerate(top, 1):
+        nm = s.get("名称", "—")
+        net = float(s.get("净流入") or 0)
+        chg = float(s.get("涨跌幅") or 0)
+        rows += (
+            f'<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'
+            f'<span style="width:18px;color:var(--text-3);font-size:11px;">#{i}</span>'
+            f'<span style="flex:1;font-size:12.5px;">{nm}</span>'
+            f'<span style="width:70px;text-align:right;font-family:var(--font-num);font-size:12px;color:{"#ef4444" if net>=0 else "#22c55e"};font-weight:600;">{net/1e8:+.2f}亿</span>'
+            f'<span style="width:56px;text-align:right;font-size:11px;color:var(--text-2);">{chg:+.2f}%</span>'
+            f'</div>'
+        )
+    return f'''
+        <div class="card card-full">
+            <div class="card-title"><span class="icon"><i class="fas fa-flag-checkered"></i></span> 主力 / 国家队资金流向 <span class="badge">FUND FLOW</span>
+                <span class="click-hint">口径：主力净流入近似国家队方向（东财无专属字段）</span>
+            </div>
+            <div style="font-size:11px;color:var(--text-3);margin-bottom:6px;">大资金流入板块 TOP6 · 资金往哪里流</div>
+            <div>{rows}</div>
+        </div>'''
 
 
 def _section_heatmap(snap, indicators):
@@ -2135,6 +2211,14 @@ def _section_daily_review(dr: dict | None) -> str:
     summary = dr.get("summary") or {}
     strategy = dr.get("strategy") or {}
     watch = dr.get("watch_pool") or []
+    # 近一周主线备选池：优先 daily_review.strategy.attack_pool，空则回退引擎 tomorrow_picks（8/6 主线）
+    attack_pool = strategy.get("attack_pool") or []
+    if not attack_pool:
+        try:
+            _eng = _load_cache("backtest_engine_data") or {}
+            attack_pool = [p.get("name") for p in (_eng.get("tomorrow_picks", []) or [])[:12] if p.get("name")]
+        except Exception:
+            attack_pool = []
     trend = summary.get("trend", "—")
     tcolor = {"red": "#ef5350", "orange": "#ffa726", "green": "#26a69a", "neutral": "#90a4ae"}.get(
         summary.get("trend_color"), "#90a4ae")
@@ -2178,6 +2262,10 @@ def _section_daily_review(dr: dict | None) -> str:
                     <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">次日监控池
                         （{strategy.get("watch_count", len(watch))} 只，合并 14:30+22:00 扫描）</div>
                     {wp if wp else '<div style="color:var(--text-secondary);font-size:12px;">—</div>'}
+                    <div style="font-size:12px;color:var(--text-secondary);margin:10px 0 4px;">近一周主线备选池（{len(attack_pool)} 只 · 8/6 收盘主线）</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                        {''.join(f'<span class="idx-chip" style="padding:3px 9px;font-size:11px;" title="本周主线">{nm}</span>' for nm in attack_pool[:12]) or '<div style="color:var(--text-secondary);font-size:12px;">—</div>'}
+                    </div>
                 </div>
             </div>
         </div>'''
@@ -3773,6 +3861,95 @@ def _middle_daily_picks():
     </div>'''
 
 
+def _holding_backtest_compare():
+    """持仓 vs 备选池 近 20 日绩效对比（数据来自 backtest_klines.json 真实 K 线）。"""
+    klines = _load_cache("backtest_klines") or {"stocks": {}}
+    stocks = klines.get("stocks", {})
+    picks = _load_cache("backtest_engine_data") or {}
+    pick_names = [p.get("name") for p in (picks.get("tomorrow_picks", []) or [])[:12]]
+    pick_names = [n for n in pick_names if n]
+
+    # 近 20 日涨幅：kline[-1] close vs kline[-21] close
+    def _chg20(code):
+        v = stocks.get(str(code))
+        kl = (v or {}).get("kline", [])
+        if len(kl) < 21:
+            return None
+        return round((kl[-1][2] / kl[-21][2] - 1) * 100, 2)
+
+    # 持仓（从 holdings.json）
+    holdings = _load_cache("holdings") or {}
+    pos_rows = []
+    for p in (holdings.get("positions", []) or []):
+        code = p.get("code", "")
+        c20 = _chg20(code)
+        if c20 is None:
+            continue
+        pos_rows.append({
+            "name": p.get("name", "—"), "code": code,
+            "c20": c20,
+            "qty": p.get("quantity", 0),
+            "cost": p.get("avg_cost", 0),
+            "price": (p.get("pnl") or {}).get("price", 0),
+        })
+
+    pool_rows = []
+    for nm in pick_names:
+        # 用名称反向找 code（klines 里存 name）
+        code = None
+        for c, v in stocks.items():
+            if v.get("name") == nm:
+                code = c
+                break
+        if not code:
+            continue
+        c20 = _chg20(code)
+        if c20 is None:
+            continue
+        pool_rows.append({"name": nm, "code": code, "c20": c20})
+
+    if not pos_rows and not pool_rows:
+        return ""
+
+    def _rows(list_, kind):
+        out = ""
+        for r in sorted(list_, key=lambda x: x["c20"], reverse=True):
+            cls = "up" if r["c20"] >= 0 else "down"
+            tag = '<span class="tag buy" style="font-size:9px;padding:0 5px;">备选</span>' if kind == "pool" else '<span class="tag tag-actual" style="font-size:9px;padding:0 5px;">实</span>'
+            out += (
+                f'<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'
+                f'<span style="flex:1;font-size:12px;font-weight:500;">{r["name"]}</span>{tag}'
+                f'<span style="width:64px;text-align:right;font-family:var(--font-num);font-size:11px;color:var(--text-3);">{r["code"]}</span>'
+                f'<span style="width:72px;text-align:right;font-family:var(--font-num);font-size:12px;color:{"#ef4444" if r["c20"]>=0 else "#22c55e"};font-weight:600;">{r["c20"]:+.2f}%</span>'
+                f'<span style="width:52px;text-align:right;font-size:10px;color:var(--text-3);">近20日</span>'
+                f'</div>'
+            )
+        return out
+
+    pos_avg = round(sum(r["c20"] for r in pos_rows) / len(pos_rows), 2) if pos_rows else None
+    pool_avg = round(sum(r["c20"] for r in pool_rows) / len(pool_rows), 2) if pool_rows else None
+
+    return f'''
+        <div class="card card-full">
+            <div class="card-title"><span class="icon"><i class="fas fa-scale-balanced"></i></span> 持仓 vs 备选池 回测对比 <span class="badge">20D</span>
+                <span class="click-hint">近 20 交易日涨幅（真实K线）</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div>
+                    <div style="font-size:11px;color:var(--text-3);margin-bottom:6px;">实际持仓（{len(pos_rows)} 只）均值 <b style="color:{"#ef4444" if pos_avg and pos_avg>=0 else "#22c55e"};">{pos_avg:+.2f}%</b></div>
+                    <div style="max-height:280px;overflow-y:auto;">{_rows(pos_rows, "pos")}</div>
+                </div>
+                <div>
+                    <div style="font-size:11px;color:var(--text-3);margin-bottom:6px;">备选池（{len(pool_rows)} 只）均值 <b style="color:{"#ef4444" if pool_avg and pool_avg>=0 else "#22c55e"};">{pool_avg:+.2f}%</b></div>
+                    <div style="max-height:280px;overflow-y:auto;">{_rows(pool_rows, "pool")}</div>
+                </div>
+            </div>
+            <div style="font-size:10.5px;color:var(--text-3);margin-top:8px;line-height:1.6;">
+                对比解读：备选池均值高于持仓均值 → 进攻池资金效率更高；持仓跑赢 → 持仓配置更优。数据更新至 K 线最后交易日。
+            </div>
+        </div>'''
+
+
 def _right_backtest_engine():
     """右侧：回测引擎（分时K线/日K线、年份选择、机构策略、进入/退出逻辑、绩效、交易明细）。"""
     klines = _load_cache("backtest_klines") or {"stocks": {}}
@@ -4186,37 +4363,39 @@ def build() -> str:
 
     nav_items = [
         ("nav-ashare", "A股大盘行情", "fa-chart-line", _section_ashare(snap, us_quotes, overnight)),
-        ("nav-us", "美股行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight)),
-        ("nav-limitup", "涨停板", "fa-arrow-up",
-         _screen_head("涨停板", "涨停家数 · 封单强度 · 连板梯队", _lu_badge)
+        ("nav-us", "全球行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight)),
+        ("nav-limitup", "涨停板分析", "fa-arrow-up",
+         _screen_head("涨停板分析", "涨停家数 · 封单强度 · 连板梯队 · 次日建仓建议", _lu_badge)
          + _section_limitup(snap)),
         ("nav-heatmap", "板块热点", "fa-fire",
-         _screen_head("板块热点", "资金流向热力全景 · 板块强弱 · 个股资金流 TOP50",
+         _screen_head("板块热点", "板块热度 · 主力资金流向 · 国家队近似 · 成分股与龙头",
                       f"{_sf_cnt} 个板块" if _sf_cnt else "板块数据缺失")
+         + _national_team_card(snap)
          + _sector_heatmap_panel(snap, limit=40)
          + _section_heatmap(snap, indicators)),
+        ("nav-holdings", "持仓复盘", "fa-briefcase",
+         _screen_head("持仓复盘", "多账户合并盈亏 · 量比/换手/RSI · 次日建议 · 次日+近一周备选池",
+                      f"{_pos_cnt} 只持仓" if _pos_cnt else "无持仓")
+         + _section_holdings(positions, a_quotes, indicators, account_pnl, daily_review_cache)),
         ("nav-sector", "板块&龙头股", "fa-cubes",
          _screen_head("板块&龙头股", "每日板块资金流入/流出 TOP30 · 龙头股 · A股全量浏览器",
                       f"{_sl_cnt} 个板块" if _sl_cnt else "板块数据缺失")
          + _section_sector_leader(sector_leader)),
-        ("nav-holdings", "持仓复盘", "fa-briefcase",
-         _screen_head("持仓复盘", "多账户合并盈亏 · 持仓明细 · 盘后复盘总结",
-                      f"{_pos_cnt} 只持仓" if _pos_cnt else "无持仓")
-         + _section_holdings(positions, a_quotes, indicators, account_pnl, daily_review_cache)),
         ("nav-radar", "量化雷达", "fa-satellite-dish",
-         _screen_head("量化雷达", "进攻池 · 明日备选 · 回测引擎 · 核心判断", "STRATEGY")
+         _screen_head("量化雷达", "多策略选股池 · 明日备选 · 回测引擎 · 持仓对比回测", "STRATEGY")
          + "".join([
             _section_pool(cfg, a_quotes, indicators),
             _mainforce_pool_card(snap),       # 8/3 主力资金备选池（重点）
             _paper_trade_card(),              # 本地模拟交易账户（PAPER）
             _middle_daily_picks(),            # 明日进攻标的（明日备选池）
+             _holding_backtest_compare(),      # 持仓 vs 备选池 回测对比
              _right_backtest_engine(),         # 回测引擎
              _section_judge(overnight, snap, cfg, a_quotes, account_pnl, positions),
          ])),
     ]
 
     sidebar_html = '<aside class="sidebar">' \
-        '<div class="brand"><div class="logo">Q</div><div><div class="name">量化看板</div><div class="sub">QUANT DASHBOARD</div></div></div>' \
+        '<div class="brand"><div class="logo">Q</div><div><div class="name">量化工作台</div><div class="sub">QUANT WORKBENCH</div></div></div>' \
         '<nav class="nav">' \
         + "".join(
             f'<div class="nav-item{" active" if i==0 else ""}" onclick="showPanel(&quot;{nid}&quot;)">'
@@ -4228,7 +4407,7 @@ def build() -> str:
         + '</nav>' \
         '<div class="side-foot">' \
         '<div class="theme-toggle" id="themeToggle"><span id="themeIcon">🌙</span> <span id="themeLabel">深色主题</span></div>' \
-        '<div class="env-tag">量化看板 · 实时行情</div>' \
+        '<div class="env-tag">量化工作台 · 实时行情</div>' \
         '</div>' \
         + '</aside>'
 
@@ -4974,7 +5153,7 @@ document.addEventListener('keydown', function(e) {{ if (e.key === 'Escape') clos
 
 function shareDashboard() {{
   const url = window.location.href.split('?')[0];
-  const title = document.title || '📊 量化交易看板';
+  const title = document.title || '📊 量化工作台';
   if (navigator.share) {{
     navigator.share({{ title: title, url: url }}).catch(function(){{}});
   }} else if (navigator.clipboard && navigator.clipboard.writeText) {{
@@ -5628,7 +5807,7 @@ function startRealtime(){
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>📊 量化交易看板</title>
+    <title>📊 量化工作台</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>{CSS_RULES}

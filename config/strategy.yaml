@@ -81,6 +81,20 @@ sector_mapping:
   - 领益智造
   - 鹏鼎控股
   threshold: 1.5
+- a_sector: 先进封装
+  us_drivers:
+  - TSM
+  - COHR
+  - AMAT
+  - LRCX
+  - ASML
+  a_candidates:
+  - 通富微电
+  - 长电科技
+  - 华天科技
+  - 晶方科技
+  - 甬矽电子
+  threshold: 2.0
 levels:
   strong_bull: 🔥🔥🔥 极强利好
   bull: 🟢 偏多
