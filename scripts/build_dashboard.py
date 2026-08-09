@@ -5681,7 +5681,7 @@ var SECTOR_ETF_NAMES_LOOKUP = {{
   "SMH": "半导体ETF", "KWEB": "中概互联网", "BOTZ": "机器人/AI",
   "ARKQ": "自主科技", "COHR": "光模块龙头", "LITE": "光模块", "AAPL": "苹果"
 }};
-var sectorDetailChart = null;
+var sectorDetailCharts = {{}};
 
 function openSectorDetail(sectorKey) {{
   var sectors = window.SECTOR_TRANSMIT || [];
@@ -5792,12 +5792,12 @@ function openSectorDetail(sectorKey) {{
   html += '</div>';
   document.getElementById('modal-content').innerHTML = '<h2>🔹 ' + sec.a_sector + ' 板块详情</h2>' + html;
   document.getElementById('modal').classList.add('active');
+  window._currentSectorEtf = etfCode;
+  sectorDetailCharts = {{}};
   if (etfCode) {{
     setTimeout(function(){{
-      ['daily','weekly','monthly'].forEach(function(period){{
-        fetchSectorEtfKline(etfCode, period);
-      }});
-    }}, 100);
+      fetchSectorEtfKline(etfCode, 'daily');
+    }}, 200);
   }}
   refreshASectorDetailQuotes();
   setTimeout(function(){{
@@ -5827,6 +5827,12 @@ function switchSectorChartTab(el, period) {{
     var dom = document.getElementById('sectorChart-' + p);
     if (dom) dom.style.display = (p === period) ? 'block' : 'none';
   }});
+  var etfCode = window._currentSectorEtf || '';
+  if (etfCode && !sectorDetailCharts[period]) {{
+    fetchSectorEtfKline(etfCode, period);
+  }} else if (sectorDetailCharts[period]) {{
+    setTimeout(function(){{ sectorDetailCharts[period].resize(); }}, 50);
+  }}
 }}
 
 function fetchSectorEtfKline(etfCode, period) {{
@@ -5891,14 +5897,14 @@ function renderSectorDetailChart(klines, etfCode, period) {{
     return;
   }}
   console.log('[renderSectorDetailChart] container size:', dom.offsetWidth, 'x', dom.offsetHeight);
-  if (sectorDetailChart && sectorDetailChart.dispose) sectorDetailChart.dispose();
-  sectorDetailChart = echarts.init(dom);
-  registerChart(sectorDetailChart);
-  sectorDetailChart.setOption(option);
+  if (sectorDetailCharts[period] && sectorDetailCharts[period].dispose) sectorDetailCharts[period].dispose();
+  sectorDetailCharts[period] = echarts.init(dom);
+  registerChart(sectorDetailCharts[period]);
+  sectorDetailCharts[period].setOption(option);
   // 多次 resize 确保渲染
-  setTimeout(function(){{ if (sectorDetailChart) {{ sectorDetailChart.resize(); console.log('[renderSectorDetailChart] resize done'); }} }}, 100);
-  setTimeout(function(){{ if (sectorDetailChart) sectorDetailChart.resize(); }}, 300);
-  setTimeout(function(){{ if (sectorDetailChart) sectorDetailChart.resize(); }}, 800);
+  setTimeout(function(){{ if (sectorDetailCharts[period]) {{ sectorDetailCharts[period].resize(); console.log('[renderSectorDetailChart] resize done'); }} }}, 100);
+  setTimeout(function(){{ if (sectorDetailCharts[period]) sectorDetailCharts[period].resize(); }}, 300);
+  setTimeout(function(){{ if (sectorDetailCharts[period]) sectorDetailCharts[period].resize(); }}, 800);
 }}
 
 function openKoreaSectorDetail(sectorKey) {{
@@ -6729,7 +6735,7 @@ async function fetchQtQuotes(codes){
     var resp=await fetch(url);
     var text=await resp.text();
     var out={};
-    var re=/v_([a-z]{2}\\d{6})="([^"]+)"/g;
+    var re=/v_([a-z]{2}\d{6})="([^"]+)"/g;
     var m;
     while((m=re.exec(text))){
       var code=m[1];
