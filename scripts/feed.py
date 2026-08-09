@@ -1001,6 +1001,59 @@ def _tushare_pro():
         return None
 
 
+def get_us_etf_kline(symbol: str, market: str = "O", start_date: str = "20250101",
+                     end_date: str | None = None, freq: str = "D") -> list[list]:
+    """Tushare 美股 ETF/股票 K 线（备用数据源，腾讯 API 失败时使用）。
+    Args:
+        symbol: 美股代码，如 SOXX、QQQ、AAPL
+        market: 市场后缀 O=Nasdaq / N=NYSE / AMX=NYSE Arca（部分 ETF）
+        start_date/end_date: YYYYMMDD
+        freq: D=日 / W=周 / M=月（**Tushare 不支持分钟数据**）
+    Returns:
+        list of [date, open, close, high, low, volume] 列表；失败返回 []
+    """
+    if end_date is None:
+        end_date = dt.date.today().strftime("%Y%m%d")
+    pro = _tushare_pro()
+    if pro is None:
+        return []
+    ts_code = f"{symbol}.{market}"
+    try:
+        df = pro.us_daily(ts_code=ts_code, start_date=start_date, end_date=end_date)
+        if df is None or df.empty:
+            return []
+        # Tushare us_daily 字段: ts_code, trade_date, open, high, low, close, vol
+        df = df.sort_values("trade_date")
+        rows = []
+        for _, r in df.iterrows():
+            rows.append([
+                str(r["trade_date"]),
+                float(r["open"]),
+                float(r["close"]),
+                float(r["high"]),
+                float(r["low"]),
+                float(r.get("vol", 0) or 0),
+            ])
+        return rows
+    except Exception as e:
+        print(f"[tushare] {ts_code} K线抓取失败: {e}")
+        return []
+
+
+# Tushare 美股 ETF K 线代码映射（symbol.market）
+US_ETF_TUSHARE_CODES = {
+    "SOXX": ("SOXX", "O"),       # iShares Semiconductor ETF (Nasdaq)
+    "QQQ": ("QQQ", "O"),         # Invesco QQQ Trust (Nasdaq)
+    "XLK": ("XLK", "O"),         # Technology Select Sector SPDR (NYSE, 用 O 也兼容)
+    "SMH": ("SMH", "O"),         # VanEck Semiconductor ETF (Nasdaq)
+    "KWEB": ("KWEB", "O"),       # KraneShares CSI China Internet (NYSE Arca, 用 O 兜底)
+    "BOTZ": ("BOTZ", "O"),       # Global X Robotics & AI (Nasdaq)
+    "ARKQ": ("ARKQ", "O"),       # ARK Autonomous Tech. & Robotics (NYSE Arca, 用 O 兜底)
+    "COHR": ("COHR", "O"),       # Coherent Corp (NYSE)
+    "LITE": ("LITE", "O"),       # Lumentum Holdings (Nasdaq)
+}
+
+
 # 东财行业名称 -> 代表性成分股（名称+代码），作为实时接口被风控时的兜底，
 # 保证 ① 弹窗「每个板块 3-5 只个股」不会满屏显示 "—"。
 _SECTOR_LEADERS: dict[str, list[dict]] = {

@@ -4508,6 +4508,61 @@ def _modal_scan_picks():
     }
 
 
+# ----------------------------------------------------------------- 美股 ETF K 线预抓取（Tushare 备用数据源）
+def _fetch_us_etf_klines_for_build() -> dict:
+    """构建时预抓取美股 ETF K 线数据，嵌入 HTML。
+    数据源优先级：Tushare（本地有 token 时）> 腾讯 API（在线时）
+    返回: {symbol: {daily: [[date, open, close, high, low, vol], ...], weekly: [...], monthly: [...], source: 'tushare'|'tencent'|'none'}}
+    """
+    out = {}
+    # 1. 尝试 Tushare
+    has_tushare = False
+    try:
+        import feed
+        if feed._tushare_pro() is not None:
+            has_tushare = True
+    except Exception:
+        pass
+
+    if has_tushare:
+        print("[us_etf_klines] 使用 Tushare 备用数据源")
+        for sym, (ts_sym, ts_mkt) in feed.US_ETF_TUSHARE_CODES.items():
+            try:
+                # 日K (近一年)
+                daily = feed.get_us_etf_kline(ts_sym, ts_mkt, start_date="20250101", freq="D")
+                if daily:
+                    out[sym] = {"daily": daily, "weekly": [], "monthly": [], "source": "tushare"}
+                    print(f"  {sym}: {len(daily)} 个日K数据点")
+                    continue
+            except Exception as e:
+                print(f"  {sym} Tushare 失败: {e}")
+
+    # 2. 回退腾讯 API（构建时调用，仅日K）
+    print("[us_etf_klines] 腾讯 API 备用...")
+    import requests as _req
+    for code, name, suffix in US_SECTOR_ETF_CODES:
+        if code in out:  # 已有 Tushare 数据
+            continue
+        try:
+            full = f"us{code}{suffix}"
+            url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={full},day,,,250,qfq"
+            resp = _req.get(url, timeout=10)
+            j = resp.json()
+            kl = (j.get("data", {}).get(full, {}).get("day", []) or [])
+            if len(kl) > 2:
+                out[code] = {
+                    "daily": kl,  # 保留原始 [date, o, c, h, l, v] 数组
+                    "weekly": [],
+                    "monthly": [],
+                    "source": "tencent",
+                }
+                print(f"  {code} ({name}): {len(kl)} 个日K数据点")
+        except Exception as e:
+            print(f"  {code} 腾讯API失败: {e}")
+
+    return out
+
+
 # ----------------------------------------------------------------- 组装
 def build() -> str:
     snap = _load_cache("market_snapshot") or {"updated_at": "—"}
@@ -4735,6 +4790,10 @@ def build() -> str:
     klines = _load_cache("backtest_klines") or {"stocks": {}}
 
     engine_data = _load_cache("backtest_engine_data") or {}
+
+    # 预抓取美股 ETF K 线（Tushare 备用数据源，嵌入 HTML，浏览器离线可用）
+    us_etf_klines = _fetch_us_etf_klines_for_build()
+
     js = f'''
 function loadDate(date) {{ alert('📅 切换到 ' + date); }}
 window.BT_KLINES = {json.dumps(klines, ensure_ascii=False)};
@@ -4742,6 +4801,8 @@ window.BT_ENGINE_DATA = {json.dumps(engine_data, ensure_ascii=False)};
 window.SECTOR_LEADER = {json.dumps(sector_leader, ensure_ascii=False)};
 /* 美股 ETF 完整腾讯代码映射（含市场后缀：.OQ=Nasdaq / .AM=NYSE Arca） */
 window.US_ETF_QT_MAP = {json.dumps(US_SECTOR_ETF_QT_CODES, ensure_ascii=False)};
+/* 美股 ETF 预嵌入的 K 线（Tushare 备用数据源，浏览器可离线渲染） */
+window.US_ETF_KLINES = {json.dumps(us_etf_klines, ensure_ascii=False)};
 
 /* ---- 板块&龙头股：A股全量浏览器（搜索/排序/分页） ---- */
 const ASTOCK_PAGE_SIZE = 60;
@@ -5816,16 +5877,7 @@ function updateIdxInfo(prePrice, lastPrice, data) {
 }
 
 // ----------------------------------------------------------------- 美股板块指数 K 线
-// 每个 ETF 的腾讯代码（含市场后缀：.OQ=Nasdaq / .AM=NYSE Arca）
-window.US_ETF_QT_CODES = {};
-
-// 在页面加载时由后端注入完整代码映射（避免硬编码）
-document.addEventListener('DOMContentLoaded', function(){
-  // 从 chips 的 data-code 反查完整代码（后端构建时已注入 full 映射）
-  if (window.US_ETF_QT_MAP) {
-    window.US_ETF_QT_CODES = window.US_ETF_QT_MAP;
-  }
-});
+window.US_ETF_QT_CODES = window.US_ETF_QT_CODES || {};
 
 var usIdxDailyChart = null;
 var usIdxWeeklyChart = null;
@@ -5833,7 +5885,7 @@ var usIdxMonthlyChart = null;
 
 function _usIdxFull(code) {
   // 优先使用后端注入的完整代码（含市场后缀）
-  if (window.US_ETF_QT_CODES && window.US_ETF_QT_CODES[code]) return window.US_ETF_QT_CODES[code];
+  if (window.US_ETF_QT_MAP && window.US_ETF_QT_MAP[code]) return window.US_ETF_QT_MAP[code];
   // 韩国指数名映射
   if (code === 'KS11') return 'krKS11';
   if (code === 'KOSDAQ') return 'krKOSDAQ';
@@ -5874,15 +5926,41 @@ function switchUsIndexTab(tab) {
 
 function fetchUsIndexKline(full, name, period) {
   // period: 'daily' | 'weekly' | 'monthly'
-  // count: day=250, week=120, month=60
-  var count = period === 'daily' ? 250 : (period === 'weekly' ? 120 : 60);
+  // 优先级：1) 预嵌入的 Tushare 数据（离线可用）2) 腾讯 API 实时
   var ptKey = period === 'daily' ? 'day' : (period === 'weekly' ? 'week' : 'month');
+  var count = period === 'daily' ? 250 : (period === 'weekly' ? 120 : 60);
+
+  // 1. 优先使用预嵌入的 Tushare 数据
+  var preData = null;
+  if (window.US_ETF_KLINES) {
+    // 从 full 提取 symbol（usSOXX.OQ → SOXX）
+    var m = (full || '').match(/us([A-Z]+)/);
+    if (m && window.US_ETF_KLINES[m[1]]) {
+      preData = window.US_ETF_KLINES[m[1]];
+    }
+  }
+  if (preData && preData.daily && preData.daily.length > 5) {
+    var klines = period === 'daily' ? preData.daily
+               : (period === 'weekly' ? aggregateKlines(preData.daily, 'weekly')
+               : aggregateKlines(preData.daily, 'monthly'));
+    if (klines && klines.length >= 2) {
+      renderUsIndexKline({
+        klines: klines.map(function(x){ return x.join(','); }),
+        name: name,
+        period: period,
+        source: preData.source || 'embedded'
+      }, name);
+      return;
+    }
+  }
+
+  // 2. 腾讯 API 兜底
   var url = 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=' + full + ',' + ptKey + ',,,' + count + ',qfq';
   fetch(url).then(function(r){ return r.json(); }).then(function(j) {
     var kl = (j && j.data && j.data[full] && j.data[full][ptKey]) || [];
     if (!kl.length || kl.length < 2) {
       var dom = document.getElementById('usIdxChart-' + period);
-      if (dom) dom.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">' + (period === 'daily' ? '日K' : period === 'weekly' ? '周K' : '月K') + '数据加载失败或数据不足（' + full + '）</div>';
+      if (dom) dom.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">' + (period === 'daily' ? '日K' : period === 'weekly' ? '周K' : '月K') + '数据加载失败（' + full + '）</div>';
       return;
     }
     renderUsIndexKline({ klines: kl.map(function(x){ return x.join(','); }), name: name, period: period }, name);
@@ -5890,6 +5968,23 @@ function fetchUsIndexKline(full, name, period) {
     var dom = document.getElementById('usIdxChart-' + period);
     if (dom) dom.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">数据加载失败（网络/CORS）</div>';
   });
+}
+
+// 从日K聚合周K/月K
+function aggregateKlines(daily, type) {
+  if (!daily || !daily.length) return [];
+  var result = [];
+  var groupSize = type === 'weekly' ? 5 : 20;  // 简化：5日=周K，20日=月K
+  for (var i = 0; i < daily.length; i += groupSize) {
+    var group = daily.slice(i, i + groupSize);
+    if (!group.length) continue;
+    var first = group[0], last = group[group.length - 1];
+    var high = Math.max.apply(null, group.map(function(x){ return parseFloat(x[3]); }));
+    var low = Math.min.apply(null, group.map(function(x){ return parseFloat(x[4]); }));
+    var vol = group.reduce(function(s, x){ return s + parseFloat(x[5] || 0); }, 0);
+    result.push([last[0], parseFloat(first[1]), parseFloat(last[2]), high, low, vol]);
+  }
+  return result;
 }
 
 function renderUsIndexKline(data, name) {
