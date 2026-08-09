@@ -316,6 +316,9 @@ def _tushare_indicators(pro, ts_codes: list[str]) -> dict:
                     out[code] = {}
                 closes = g.sort_values("trade_date")["close"].tolist()
                 out[code]["rsi"] = compute_rsi(closes, 14)
+                out[code]["rsi_6"] = compute_rsi(closes, 6)
+                out[code]["rsi_12"] = compute_rsi(closes, 12)
+                out[code]["rsi_24"] = compute_rsi(closes, 24)
                 m = compute_macd(closes)
                 if m:
                     out[code].update(m)
@@ -404,6 +407,9 @@ def _akshare_indicators(items: list[tuple]) -> dict:
             if dfh is not None and not dfh.empty and "收盘" in dfh.columns:
                 closes = dfh["收盘"].tolist()
                 rec["rsi"] = compute_rsi(closes, 14)
+                rec["rsi_6"] = compute_rsi(closes, 6)
+                rec["rsi_12"] = compute_rsi(closes, 12)
+                rec["rsi_24"] = compute_rsi(closes, 24)
                 m = compute_macd(closes)
                 if m:
                     rec.update(m)
@@ -545,6 +551,9 @@ def _tencent_kline_indicators(items):
             ma10 = round(sum(closes[-10:]) / 10, 3) if len(closes) >= 10 else None
             ma20 = round(sum(closes[-20:]) / 20, 3) if len(closes) >= 20 else None
             rsi = _rsi(closes, 14)
+            rsi_6 = _rsi(closes, 6)
+            rsi_12 = _rsi(closes, 12)
+            rsi_24 = _rsi(closes, 24)
             macd_dif, macd_dea, macd_hist = _macd(closes)
             vol_ratio = None
             if len(vols) >= 6:
@@ -553,6 +562,7 @@ def _tencent_kline_indicators(items):
                     vol_ratio = round(vols[-1] / avg5, 2)
             out[ts] = {
                 "rsi": rsi,
+                "rsi_6": rsi_6, "rsi_12": rsi_12, "rsi_24": rsi_24,
                 "macd_dif": macd_dif, "macd_dea": macd_dea, "macd_hist": macd_hist,
                 "volume_ratio": vol_ratio,
                 "ma5": ma5, "ma10": ma10, "ma20": ma20,

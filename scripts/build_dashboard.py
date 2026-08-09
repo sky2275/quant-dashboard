@@ -1013,6 +1013,37 @@ def _fmt_rsi(v):
         return "—"
 
 
+def _rsi_status(r6, r12, r24):
+    """基于 RSI(6)/RSI(12)/RSI(24) 三周期生成状态标签。"""
+    vals = []
+    for v in (r6, r12, r24):
+        try:
+            vals.append(float(v))
+        except Exception:
+            vals.append(None)
+    if all(v is None for v in vals):
+        return ("—", "")
+    r6f, r12f, r24f = vals
+    # 全部超买
+    if r6f is not None and r12f is not None and r6f > 80 and r12f > 70:
+        return ("超买", "rsi-high")
+    # 全部超卖
+    if r6f is not None and r12f is not None and r6f < 20 and r12f < 30:
+        return ("超卖", "rsi-low")
+    # 多头排列：RSI(6) > RSI(12) > RSI(24)
+    if r6f is not None and r12f is not None and r24f is not None:
+        if r6f > r12f > r24f:
+            return ("多头排列", "up")
+        if r6f < r12f < r24f:
+            return ("空头排列", "down")
+    # 短期偏强
+    if r6f is not None and r6f > 50:
+        return ("偏强", "rsi-mid")
+    if r6f is not None and r6f < 50:
+        return ("偏弱", "rsi-mid")
+    return ("中性", "")
+
+
 def _fmt_vol(v):
     try:
         return f"{float(v):.2f}"
@@ -2662,8 +2693,13 @@ def _position_rows(positions, a_quotes, indicators):
         ts = _name_to_ts(name)
         ind = indicators.get(ts, {}) if ts else {}
         rsi = ind.get("rsi")
+        rsi_6 = ind.get("rsi_6")
+        rsi_12 = ind.get("rsi_12")
+        rsi_24 = ind.get("rsi_24")
         macd_disp, macd_cls = _macd_cell(ind)
         vr = ind.get("volume_ratio")
+        # 5日量比 = 当日成交量 / 过去5日平均成交量（如果 indicators 中没有直接提供，用 volume_ratio 代替）
+        vol_ratio_5d = ind.get("vol_ratio_5d") or vr
         acc = h.get("account")
         row = {
             "stock": name,
@@ -2680,17 +2716,22 @@ def _position_rows(positions, a_quotes, indicators):
             "pnlToday": pnl_today,
             "changePct": chg,
             "rsi": rsi,
+            "rsi_6": rsi_6,
+            "rsi_12": rsi_12,
+            "rsi_24": rsi_24,
             "rsi_disp": _fmt_rsi(rsi),
             "rsi_cls": _rsi_class(rsi),
             "macd": macd_disp,
             "macd_cls": macd_cls,
             "volumeRatio": _fmt_vol(vr),
+            "vol_ratio_5d": _fmt_vol(vol_ratio_5d),
             "vol_cls": _vol_cls(vr),
             "turnover": _fmt_turnover(ind.get("turnover_rate")),
             "mainFlow": _fmt_yi(ind.get("main_flow")),
             "mainFlow_cls": _cls(ind.get("main_flow")),
             "signal": signal,
             "signalClass": signal_cls,
+            "rsi_status": _rsi_status(rsi_6, rsi_12, rsi_24),
         }
         row["strategy"], row["strategy_reason"] = _position_strategy(row)
         rows.append(row)
@@ -2768,7 +2809,7 @@ def _section_daily_review(dr: dict | None) -> str:
         </div>'''
 
 
-def _section_holdings(positions, a_quotes, indicators, account_pnl=None, daily_review=None):
+def _section_holdings(positions, a_quotes, indicators, account_pnl=None, daily_review=None, updated_at=None):
     rows = _position_rows(positions, a_quotes, indicators)
     if not rows:
         return '''
@@ -2776,35 +2817,69 @@ def _section_holdings(positions, a_quotes, indicators, account_pnl=None, daily_r
             <div class="card-title"><span class="icon"><i class="fas fa-briefcase"></i></span> ⑤ 持仓复盘 <span class="badge">未配置</span></div>
             <div style="color:var(--text-secondary);font-size:13px;">未检测到持仓（请把三家券商持仓数据写入 cache/holdings.json，或放入交割单 data/statements/*）。</div>
         </div>'''
+
+    # ---- 日期计算 ----
+    import datetime as _dt
+    hold_date_str = ""
+    plan_date_str = ""
+    if updated_at:
+        try:
+            hd = _dt.datetime.strptime(updated_at[:10], "%Y-%m-%d")
+            hold_date_str = f"{hd.month}月{hd.day}日"
+            # 作战计划日期 = 下一个周一
+            days_ahead = 7 - hd.weekday()
+            if days_ahead <= 0:
+                days_ahead += 7
+            pd_ = hd + _dt.timedelta(days=days_ahead)
+            plan_date_str = f"{pd_.month}月{pd_.day}日"
+        except Exception:
+            pass
+    title = f"{hold_date_str}持仓股复盘 & {plan_date_str}作战计划" if hold_date_str else "持仓复盘 & 作战计划"
+
+    # ---- 表格行 ----
     body = "".join(
         f'''            <tr data-code="{d['code']}" data-rt="pos" data-shares="{d['qty_raw']}" data-cost="{d['cost_raw'] if d['cost_raw'] is not None else ''}">
-            <td><span class="acct-tag">{d['account']}</span> <strong>{_stock_link(d['stock'], d['code'])}</strong></td>
-            <td>{d['quantity']}</td>
-            <td>{_safe(d['cost'],'—')}</td>
-            <td>{_safe(d['price'],'—')}</td>
-            <td style="color:{'#ef4444' if (d['pnlRate'] or 0) > 0 else ('#22c55e' if (d['pnlRate'] or 0) < 0 else 'var(--text-secondary)')};font-weight:600;">{_fmt_pct(d['pnlRate']) if d['pnlRate'] is not None else '—'}</td>
-            <td class="{_pnl_class(d['pnlAbs'])}" style="color:{_pnl_cls(d['pnlAbs'])};font-weight:600;">{_fmt_pnl(d['pnlAbs'])}</td>
-            <td class="{_pnl_class(d['pnlToday'])}" style="color:{_pnl_cls(d['pnlToday'])};font-weight:600;">{_fmt_pnl(d['pnlToday'])}</td>
-            <td class="{d['rsi_cls']}">{d['rsi_disp']}</td>
-            <td class="{d['macd_cls']}">{d['macd']}</td>
-            <td class="{d['vol_cls']}" style="{'color:var(--text-secondary);' if not d['vol_cls'] else ''}">{d['volumeRatio']}</td>
-            <td>{d['turnover']}</td>
-            <td class="{d['mainFlow_cls']}" style="font-size:10px;font-weight:600;">{d['mainFlow']}</td>
-            <td><span class="tag {d['signalClass']}">{d['signal']}</span></td>
-            <td style="min-width:140px;">
-                <div style="font-weight:600;color:#4fc3f7;font-size:11px;">{d['strategy']}</div>
-                <div style="font-size:10px;color:var(--text-secondary);line-height:1.4;margin-top:2px;">{d['strategy_reason']}</div>
-            </td>
+            <td><span class="acct-tag">{d['account']}</span></td>
+            <td><strong>{_stock_link(d['stock'], d['code'])}</strong></td>
+            <td style="font-family:monospace;font-size:10px;color:var(--text-secondary);">{d['code'] or '—'}</td>
+            <td style="text-align:right;">{d['quantity']}</td>
+            <td style="text-align:right;">{_fmt_float(d['cost'],3)}</td>
+            <td style="text-align:right;font-weight:600;">{_fmt_float(d['price'],2)}</td>
+            <td style="text-align:right;color:{'#ef4444' if (d['changePct'] or 0) > 0 else ('#22c55e' if (d['changePct'] or 0) < 0 else 'var(--text-secondary)')};font-weight:600;">{_fmt_pct(d['changePct']) if d['changePct'] is not None else '—'}</td>
+            <td style="text-align:right;color:{_pnl_cls(d['pnlAbs'])};font-weight:600;">{_fmt_pnl(d['pnlAbs'])}</td>
+            <td style="text-align:right;color:{'#ef4444' if (d['pnlRate'] or 0) > 0 else ('#22c55e' if (d['pnlRate'] or 0) < 0 else 'var(--text-secondary)')};font-weight:600;">{_fmt_pct(d['pnlRate']) if d['pnlRate'] is not None else '—'}</td>
+            <td><span class="tag {d['signalClass']}">{d['strategy']}</span></td>
+            <td class="{_rsi_class(d['rsi_6'])}">{_fmt_rsi(d['rsi_6'])}</td>
+            <td class="{_rsi_class(d['rsi_12'])}">{_fmt_rsi(d['rsi_12'])}</td>
+            <td class="{_rsi_class(d['rsi_24'])}">{_fmt_rsi(d['rsi_24'])}</td>
+            <td class="{d['vol_cls']}">{d['vol_ratio_5d']}</td>
+            <td class="{d['rsi_status'][1]}">{d['rsi_status'][0]}</td>
         </tr>''' for d in rows)
-    # ---- 汇总：优先用权威 account_pnl 快照（含已平仓盈亏），否则按个股实时值加总 ----
-    # 按账户统计只数（用于标题/汇总展示）
+
+    # ---- 汇总数据 ----
     from collections import Counter
     acc_cnt = Counter((p.get("account") or "手动") for p in positions)
     acc_str = " · ".join(f"{ACCOUNT_LABELS.get(a, '手动')} {n}" for a, n in acc_cnt.items())
 
+    # 总市值 / 上涨家数
+    tot_mv = 0.0
+    n_up = 0
+    for d in rows:
+        try:
+            q = int(str(d['quantity']).replace(',', '')) if d['quantity'] != '—' else 0
+        except Exception:
+            q = 0
+        p = d['price'] or 0
+        tot_mv += p * q
+        if (d.get('changePct') or 0) > 0:
+            n_up += 1
+
+    # 总盈亏 / 当日盈亏
     if account_pnl:
-        # 分账户盈亏（固定顺序：银河证券 / 东财 / 中信建投），使用券商后台账户总额（含已平仓盈亏）
         acc_order_keys = ("galaxy", "eastmoney", "csc")
+        acc_total = sum((account_pnl.get(k, {}).get("total") or 0) for k in acc_order_keys)
+        acc_today = sum((account_pnl.get(k, {}).get("today") or 0) for k in acc_order_keys)
+        # 分账户盈亏摘要
         acc_parts = []
         for acc_key in acc_order_keys:
             ap = account_pnl.get(acc_key)
@@ -2813,127 +2888,121 @@ def _section_holdings(positions, a_quotes, indicators, account_pnl=None, daily_r
                 acc_parts.append(f"<span style='color:var(--text-secondary);'>{lab} 无数据</span>")
                 continue
             pa = ap.get("total"); pt = ap.get("today")
-            pa_rate = ap.get("pct"); pt_rate = ap.get("today_pct")
-            s = ("<span>" + lab + " 总盈亏 <b style='color:" + _pnl_cls(pa) + ";'>" + _fmt_pnl(pa) + "</b>")
-            if pa_rate is not None:
-                s += "（" + _fmt_pct(pa_rate) + "）"
-            s += " · 当日盈亏 <b style='color:" + _pnl_cls(pt) + ";'>" + _fmt_pnl(pt) + "</b>"
-            if pt_rate is not None:
-                s += "（" + _fmt_pct(pt_rate) + "）"
-            s += "</span>"
-            acc_parts.append(s)
-        acc_summary = " ｜ ".join(acc_parts)
-        # 账户合计（含已平仓盈亏）
-        acc_total = sum((account_pnl.get(k, {}).get("total") or 0) for k in acc_order_keys)
-        acc_today_vals = [(account_pnl.get(k, {}).get("today")) for k in acc_order_keys]
-        acc_today = sum(v for v in acc_today_vals if v is not None)
-        n_unknown_today = sum(1 for v in acc_today_vals if v is None)
-        summary = (f"持仓 <b>{len(rows)}</b> 只（{acc_str}）· 账户总盈亏合计 "
-                   f"<b style='color:{_pnl_cls(acc_total)};'>{_fmt_pnl(acc_total)}</b> · "
-                   f"当日盈亏合计 <b style='color:{_pnl_cls(acc_today)};'>{_fmt_pnl(acc_today)}</b>"
-                   + (" ｜ <span style='color:var(--text-secondary);'>中信建投当日盈亏未提供</span>" if n_unknown_today else ""))
-    else:
-        # 原逻辑：按个股加总（实时行情口径）
-        tot_cost = tot_mv = 0.0
-        tot_pnl = 0.0
-        tot_pnl_today = 0.0
-        acc_pnl = {}   # 账户标签 -> [总盈亏, 当日盈亏, 成本额, 市值额]
-        n_unvalued = 0
-        for d in rows:
-            try:
-                q = int(str(d['quantity']).replace(',', '')) if d['quantity'] != '—' else 0
-            except Exception:
-                q = 0
-            c = d['cost'] or 0
-            p = d['price'] or 0
-            valued = d.get('pnlAbs') is not None   # 有成本且有现价才计入汇总
-            if not valued:
-                n_unvalued += 1
-                continue
-            tot_cost += c * q
-            tot_mv += p * q
-            tot_pnl += d['pnlAbs']
-            tot_pnl_today += d['pnlToday']
-            lab = d['account']
-            a = acc_pnl.setdefault(lab, [0.0, 0.0, 0.0, 0.0])
-            a[0] += d['pnlAbs']
-            a[1] += d['pnlToday']
-            a[2] += c * q
-            a[3] += p * q
-        pnl_all = round((tot_mv - tot_cost) / tot_cost * 100, 2) if tot_cost else None
-        acc_order = [ACCOUNT_LABELS.get(k, k) for k in ("galaxy", "eastmoney", "csc") if ACCOUNT_LABELS.get(k)]
-        acc_parts = []
-        for lab in acc_order:
-            if lab not in acc_pnl:
-                acc_parts.append(f"<span style='color:var(--text-secondary);'>{lab} 无持仓</span>")
-                continue
-            pa, pt, ca, ma = acc_pnl[lab]
-            rate = (round((ma - ca) / ca * 100, 2) if ca else None)
             acc_parts.append(
                 f"<span>{lab} 总盈亏 <b style='color:{_pnl_cls(pa)};'>{_fmt_pnl(pa)}</b>"
-                f"{('（' + _fmt_pct(rate) + '）') if rate is not None else ''} · "
-                f"当日盈亏 <b style='color:{_pnl_cls(pt)};'>{_fmt_pnl(pt)}</b></span>")
+                f" · 当日 <b style='color:{_pnl_cls(pt)};'>{_fmt_pnl(pt)}</b></span>")
         acc_summary = " ｜ ".join(acc_parts)
-        if n_unvalued:
-            acc_summary += f" ｜ <span style='color:#f59e0b;'>{n_unvalued} 只无实时行情未计入汇总</span>"
-        if tot_cost:
-            summary = (f"持仓 <b>{len(rows)}</b> 只（{acc_str}）· 总成本 <b>{tot_cost/1e4:.1f}万</b> · "
-                       f"总市值 <b>{tot_mv/1e4:.1f}万</b> · 总盈亏 "
-                       f"<b style='color:{_pnl_cls(tot_pnl)};'>{_fmt_pnl(tot_pnl)}（{_fmt_pct(pnl_all)}）</b> · "
-                       f"当日盈亏 <b style='color:{_pnl_cls(tot_pnl_today)};'>{_fmt_pnl(tot_pnl_today)}</b>")
-        else:
-            summary = f"持仓 {len(rows)} 只（成本/市值缺失，无法汇总）"
+    else:
+        acc_total = sum((d['pnlAbs'] or 0) for d in rows)
+        acc_today = sum((d['pnlToday'] or 0) for d in rows)
+        acc_summary = f"持仓 {len(rows)} 只（{acc_str}）· 总盈亏 {_fmt_pnl(acc_total)} · 当日 {_fmt_pnl(acc_today)}"
 
-    # ---- 账户盈亏汇总卡片 ----
-    acc_cards = []
-    acc_order_keys = ("galaxy", "eastmoney", "csc")
-    acc_labels = {"galaxy": "银河证券", "eastmoney": "东方财富", "csc": "中信建投"}
-    for acc_key in acc_order_keys:
-        lab = acc_labels.get(acc_key)
-        cnt = sum(1 for d in rows if d['account'] == lab)
-        if account_pnl and acc_key in account_pnl:
-            ap = account_pnl[acc_key]
-            pa = ap.get("total"); pt = ap.get("today")
-            pa_rate = ap.get("pct")
-            card = f'''<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border-color);">
-                <div style="font-size:10px;color:var(--text-secondary);">{lab} · {cnt}只</div>
-                <div style="font-size:16px;font-weight:700;color:{_pnl_cls(pa)};margin-top:4px;">{_fmt_pnl(pa)}</div>
-                <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">总盈亏{_fmt_pct(pa_rate) if pa_rate is not None else '—'}</div>
-                <div style="font-size:11px;color:{_pnl_cls(pt)};margin-top:2px;">当日 {_fmt_pnl(pt) if pt is not None else '—'}</div>
-            </div>'''
-        else:
-            pa = sum(d['pnlAbs'] for d in rows if d['account'] == lab)
-            pt = sum((d['pnlToday'] or 0) for d in rows if d['account'] == lab)
-            card = f'''<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border-color);">
-                <div style="font-size:10px;color:var(--text-secondary);">{lab} · {cnt}只</div>
-                <div style="font-size:16px;font-weight:700;color:{_pnl_cls(pa)};margin-top:4px;">{_fmt_pnl(pa)}</div>
-                <div style="font-size:11px;color:{_pnl_cls(pt)};margin-top:2px;">当日 {_fmt_pnl(pt)}</div>
-            </div>'''
-        acc_cards.append(card)
-    acc_cards_html = "".join(acc_cards)
+    # 看多方向
+    n_bull = sum(1 for d in rows if d['signalClass'] in ('buy', 'strong'))
+    n_bear = sum(1 for d in rows if d['signalClass'] == 'sell')
+    if n_bull > n_bear and n_bull >= len(rows) * 0.4:
+        direction, dir_color = "看多", "#ef4444"
+    elif n_bear > n_bull:
+        direction, dir_color = "看空", "#22c55e"
+    else:
+        direction, dir_color = "中性", "#f59e0b"
+
+    # ---- QC Gate 数据核查 ----
+    qc_items = []
+    if updated_at:
+        try:
+            hd = _dt.datetime.strptime(updated_at[:10], "%Y-%m-%d")
+            days_old = (_dt.datetime.now() - hd).days
+            if days_old <= 1:
+                qc_items.append(("pass", f"持仓数据新鲜（{hold_date_str}更新，{days_old}天前）"))
+            elif days_old <= 3:
+                qc_items.append(("warn", f"持仓数据已{days_old}天未更新（{hold_date_str}），建议刷新"))
+            else:
+                qc_items.append(("fail", f"持仓数据过期（{hold_date_str}，已{days_old}天），请刷新"))
+        except Exception:
+            qc_items.append(("warn", "持仓数据时间戳解析失败"))
+    else:
+        qc_items.append(("warn", "持仓数据无时间戳"))
+    n_missing_rsi = sum(1 for d in rows if d.get('rsi_6') is None and d.get('rsi_12') is None and d.get('rsi_24') is None)
+    if n_missing_rsi == 0:
+        qc_items.append(("pass", f"RSI(6/12/24) 三周期数据完整（{len(rows)}只全覆盖）"))
+    elif n_missing_rsi < len(rows):
+        qc_items.append(("warn", f"{n_missing_rsi}/{len(rows)} 只持仓缺少 RSI 数据"))
+    else:
+        qc_items.append(("fail", f"全部 {len(rows)} 只持仓缺少 RSI 数据"))
+    n_missing_price = sum(1 for d in rows if d.get('price') is None)
+    if n_missing_price == 0:
+        qc_items.append(("pass", f"现价数据完整（{len(rows)}只全覆盖）"))
+    else:
+        qc_items.append(("fail", f"{n_missing_price} 只持仓缺少现价"))
+    if account_pnl:
+        qc_items.append(("pass", "券商权威盈亏快照已加载（含已平仓盈亏）"))
+    else:
+        qc_items.append(("warn", "未加载券商权威盈亏快照，盈亏为实时行情估算"))
+
+    _qc_icon = {"pass": "✅", "warn": "⚠️", "fail": "❌"}
+    _qc_color = {"pass": "var(--text-secondary)", "warn": "#f59e0b", "fail": "#ef4444"}
+    qc_html = "".join(
+        f'<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11px;">'
+        f'<span style="font-size:13px;">{_qc_icon[st]}</span>'
+        f'<span style="color:{_qc_color[st]};">{msg}</span></div>'
+        for st, msg in qc_items)
 
     return _section_daily_review(daily_review) + f'''
         <div class="card card-full" onclick="openModal('positions')">
             <div class="card-title">
-                <span class="icon"><i class="fas fa-briefcase"></i></span> ⑤ 持仓复盘（银河证券 / 东财 / 中信建投 三账号合并）
+                <span class="icon"><i class="fas fa-briefcase"></i></span> {title}
                 <span class="badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;">持仓 {len(rows)} 只</span>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看完整分析</span>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
-                {acc_cards_html}
+            <!-- 作战计划概览 -->
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px;">
+                <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border-color);">
+                    <div style="font-size:10px;color:var(--text-secondary);">总持仓数</div>
+                    <div style="font-size:22px;font-weight:700;margin-top:4px;">{len(rows)}</div>
+                    <div style="font-size:10px;color:var(--text-secondary);margin-top:2px;">{acc_str}</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border-color);">
+                    <div style="font-size:10px;color:var(--text-secondary);">总市值</div>
+                    <div style="font-size:22px;font-weight:700;margin-top:4px;">{tot_mv/1e4:.1f}<span style="font-size:13px;font-weight:400;">万</span></div>
+                    <div style="font-size:10px;color:var(--text-secondary);margin-top:2px;">估算</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border-color);">
+                    <div style="font-size:10px;color:var(--text-secondary);">总盈亏</div>
+                    <div style="font-size:22px;font-weight:700;color:{_pnl_cls(acc_total)};margin-top:4px;">{_fmt_pnl(acc_total)}</div>
+                    <div style="font-size:10px;color:{_pnl_cls(acc_today)};margin-top:2px;">当日 {_fmt_pnl(acc_today)}</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border-color);">
+                    <div style="font-size:10px;color:var(--text-secondary);">上涨家数</div>
+                    <div style="font-size:22px;font-weight:700;color:#ef4444;margin-top:4px;">{n_up}<span style="font-size:13px;font-weight:400;color:var(--text-secondary);">/{len(rows)}</span></div>
+                    <div style="font-size:10px;color:var(--text-secondary);margin-top:2px;">{len(rows)-n_up} 跌</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border-color);">
+                    <div style="font-size:10px;color:var(--text-secondary);">看多方向</div>
+                    <div style="font-size:22px;font-weight:700;color:{dir_color};margin-top:4px;">{direction}</div>
+                    <div style="font-size:10px;color:var(--text-secondary);margin-top:2px;">{n_bull}多 / {n_bear}空</div>
+                </div>
             </div>
-            <div style="overflow-x:auto;max-height:320px;overflow-y:auto;">
-                <table class="position-table" style="width:100%;">
+            <!-- 持仓明细表格 -->
+            <div style="overflow-x:auto;">
+                <table class="position-table" style="width:100%;min-width:900px;">
                     <thead><tr>
-                        <th>账号/股票</th><th>持仓</th><th>成本</th><th>现价</th><th>盈亏%</th><th>总盈亏</th><th>当日盈亏</th><th>RSI</th><th>MACD</th><th>量比</th><th>换手</th><th>主力</th><th>操作</th><th>明日策略 / 逻辑</th>
+                        <th>券商</th><th>股票</th><th>代码</th><th style="text-align:right;">持股</th><th style="text-align:right;">成本</th><th style="text-align:right;">现价</th><th style="text-align:right;">当日涨跌</th><th style="text-align:right;">盈亏额</th><th style="text-align:right;">收益率</th><th>策略</th><th>RSI(6)</th><th>RSI(12)</th><th>RSI(24)</th><th>5日量比</th><th>RSI状态</th>
                     </tr></thead>
                     <tbody>{body}</tbody>
                 </table>
             </div>
-            <div style="margin-top:8px;font-size:11px;color:var(--text-secondary);">{summary}</div>
-            <div style="margin-top:4px;font-size:11px;"><b style="color:#f59e0b;">分账户盈亏：</b>{acc_summary}</div>
-            <div style="margin-top:4px;font-size:10px;color:var(--text-secondary);">
-                <i class="fas fa-info-circle"></i> 账号/成本/盈亏为来源券商后台权威快照（含分红与已平仓盈亏）；RSI(14)/MACD/量比/换手/主力净流入为实时行情
+            <!-- 分账户盈亏 -->
+            <div style="margin-top:8px;font-size:11px;"><b style="color:#f59e0b;">分账户盈亏：</b>{acc_summary}</div>
+            <!-- QC Gate 数据核查节点 -->
+            <div style="margin-top:10px;padding:10px 12px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--border-color);">
+                <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">
+                    <i class="fas fa-shield-alt"></i> QC Gate · 数据核查节点
+                </div>
+                {qc_html}
+            </div>
+            <div style="margin-top:6px;font-size:10px;color:var(--text-secondary);">
+                <i class="fas fa-info-circle"></i> 券商/成本/盈亏为来源券商后台权威快照；RSI(6/12/24)/量比为实时行情计算
             </div>
         </div>'''
 
@@ -5016,9 +5085,10 @@ def build() -> str:
          + _sector_heatmap_panel(snap, limit=40)
          + _section_heatmap(snap, indicators)),
         ("nav-holdings", "持仓复盘", "fa-briefcase",
-         _screen_head("持仓复盘", "多账户合并盈亏 · 量比/换手/RSI · 次日建议 · 次日+近一周备选池",
+         _screen_head("持仓复盘", "多账户合并盈亏 · RSI(6/12/24) · 量比 · 策略标签 · QC Gate 数据核查",
                       f"{_pos_cnt} 只持仓" if _pos_cnt else "无持仓")
-         + _section_holdings(positions, a_quotes, indicators, account_pnl, daily_review_cache)),
+         + _section_holdings(positions, a_quotes, indicators, account_pnl, daily_review_cache,
+                             updated_at=holdings_cache.get("updated_at"))),
         ("nav-sector", "板块&龙头股", "fa-cubes",
          _screen_head("板块&龙头股", "每日板块资金流入/流出 TOP30 · 龙头股 · A股全量浏览器",
                       f"{_sl_cnt} 个板块" if _sl_cnt else "板块数据缺失")
