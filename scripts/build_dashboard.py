@@ -266,6 +266,36 @@ CSS_RULES = """
         .stock-detail-info { display:flex; gap:18px; font-size:12px; color:var(--text-secondary); margin-top:12px; flex-wrap:wrap; }
         .stock-detail-info span b { color:var(--text-primary); font-weight:500; }
 
+        /* US sector index K-line chips */
+        .us-index-chips { display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 2px; }
+        .us-index-chip { padding:6px 14px; border-radius:20px; cursor:pointer; font-size:13px; color:var(--text-secondary); background:rgba(255,255,255,0.04); border:1px solid var(--border-color); transition:var(--transition); user-select:none; }
+        .us-index-chip:hover { color:var(--text-primary); border-color:rgba(79,195,247,0.4); }
+        .us-index-chip.active { background:rgba(79,195,247,0.15); color:var(--accent-blue); border-color:var(--accent-blue); }
+
+        /* US sector strength card */
+        .us-sector-strength { padding:4px 0; }
+        .us-sector-row { display:flex; align-items:center; gap:8px; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:12px; }
+        .us-sector-row:last-child { border-bottom:none; }
+        .us-sector-row .name { width:90px; font-weight:500; }
+        .us-sector-row .bar { flex:1; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; }
+        .us-sector-row .fill { height:100%; border-radius:3px; }
+        .us-sector-row .pct { width:60px; text-align:right; font-family:var(--font-num); font-weight:600; font-size:11px; }
+
+        /* Korea enhanced panel */
+        .kr-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+        @media (max-width:768px) { .kr-grid { grid-template-columns:1fr; } }
+        .kr-card { background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:10px; padding:14px 16px; }
+        .kr-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+        .kr-header .nm { font-weight:600; font-size:13px; }
+        .kr-header .badge-sm { font-size:10px; color:var(--text-secondary); padding:1px 6px; background:rgba(255,255,255,0.05); border-radius:8px; }
+        .kr-price { font-size:22px; font-weight:700; font-family:var(--font-num); }
+        .kr-pct { font-size:12px; font-weight:600; margin-left:6px; }
+        .kr-meta { display:flex; gap:12px; margin-top:6px; font-size:11px; color:var(--text-secondary); }
+        .kr-stocks { margin-top:10px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.05); }
+        .kr-stock-row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; font-size:12px; }
+        .kr-stock-row .nm { font-weight:500; }
+        .kr-stock-row .data { display:flex; gap:8px; align-items:baseline; font-family:var(--font-num); }
+
         .us-sector-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
         @media (max-width:768px) { .us-sector-grid { grid-template-columns:1fr 1fr; } }
         @media (max-width:480px) { .us-sector-grid { grid-template-columns:1fr; } }
@@ -1790,59 +1820,242 @@ def _section_ashare(snap, us_quotes, overnight):
 
 
 # ----------------------------------------------------------------- 重排后：美股行情映射 面板（美股隔夜 + 美股→A股传导）
-def _section_us_map(snap, us_quotes, overnight):
+def _section_us_map(snap, us_quotes, overnight, kr_quotes=None):
+    """全球行情：仿A股板块结构（HERO指数 → 市场情绪 → 板块强弱 → K线 → 韩国 → 传导）。
+    Args:
+        snap: market_snapshot
+        us_quotes: 美股实时行情字典 {symbol: {price, change_pct}}
+        overnight: us_overnight.json（板块传导映射）
+        kr_quotes: 韩国股市实时行情 {symbol: {price, change_pct}}
+    """
     us_idx = snap.get("us_indices", []) or []
-    head = _screen_head("全球行情", "美股三大指数 · 科技/半导体/光模块/物理AI/存储/先进封装/苹果供应链 · 韩国股市 · A股映射", _session('us')[0])
+    head = _screen_head("全球行情", "美股三大指数 · 板块ETF · 龙头股 · K线走势 · 韩国股市 · A股映射", _session('us')[0])
     idx_bar = _index_quote_bar(us_idx, "隔夜指数")
     hero = _hero_index_cards(us_idx, limit=4, clickable=False)
-    overview = f'''
+    grid = f'''
+        <div class="grid-2">
+            {_us_breadth_card(us_quotes)}
+            {_us_sector_strength_card(us_quotes)}
+        </div>'''
+    us_index_kline = _section_us_index_kline()
+    kr_card = _korea_market_card(kr_quotes)
+    transmit = _section_transmit(overnight, us_quotes)
+    return head + idx_bar + hero + grid + us_index_kline + kr_card + transmit
+
+
+# US sector ETF K线数据
+US_SECTOR_ETF_CODES = ["SOXX", "QQQ", "XLK", "SMH", "KWEB", "BOTZ", "ARKQ", "COHR", "LITE"]
+US_SECTOR_ETF_NAMES = {
+    "SOXX": "费城半导体", "QQQ": "纳斯达克100", "XLK": "科技行业ETF",
+    "SMH": "半导体ETF", "KWEB": "中概互联网", "BOTZ": "机器人/AI",
+    "ARKQ": "自主科技", "COHR": "光模块龙头", "LITE": "光模块",
+}
+
+
+def _section_us_index_kline():
+    """美股板块指数K线：分时K线 + 日K线（下方 ECharts 渲染）。"""
+    chips = ""
+    for i, code in enumerate(US_SECTOR_ETF_CODES):
+        active = " active" if i == 0 else ""
+        name = US_SECTOR_ETF_NAMES.get(code, code)
+        chips += (f'<span class="us-index-chip{active}" data-code="{code}" data-name="{name}" '
+                  f'onclick="openUsIndexDetail(\'{code}\', \'{name}\')">{name} ({code})</span>')
+    return f'''
         <div class="card card-full">
-            <div class="card-title"><span class="icon"><i class="fas fa-globe-americas"></i></span> 全球行情 (隔夜美股) <span class="badge">US</span></div>
-            <div class="market-grid-2col">
-                {_us_box(us_quotes, overnight, snap)}
+            <div class="card-title"><span class="icon"><i class="fas fa-chart-area"></i></span> 美股板块指数K线 <span class="badge">分时 / 日K</span>
+                <span class="click-hint">点击切换指数</span>
+            </div>
+            <div class="us-index-chips">{chips}</div>
+            <div class="stock-detail-tabs" style="margin-top:12px;">
+                <div class="us-idx-tab stock-detail-tab active" onclick="switchUsIndexTab('intraday')" id="usIdxTab-intraday">分时K线</div>
+                <div class="us-idx-tab stock-detail-tab" onclick="switchUsIndexTab('daily')" id="usIdxTab-daily">日K线</div>
+            </div>
+            <div id="usIdxChart-intraday" class="stock-chart"></div>
+            <div id="usIdxChart-daily" class="stock-chart" style="display:none;"></div>
+            <div class="stock-detail-info" id="usIdxDetailInfo"></div>
+        </div>'''
+
+
+def _us_breadth_card(us_quotes):
+    """美股市场情绪卡：核心指数 + 板块ETF 涨跌家数。"""
+    syms = ["IXIC", "DJI", "INX", "SOXX", "QQQ", "XLK", "SMH", "KWEB", "BOTZ", "ARKQ"]
+    up_cnt = down_cnt = 0
+    for sym in syms:
+        q = us_quotes.get(sym)
+        if q and isinstance(q.get("change_pct"), (int, float)):
+            if q["change_pct"] > 0:
+                up_cnt += 1
+            elif q["change_pct"] < 0:
+                down_cnt += 1
+    total = up_cnt + down_cnt
+    up_w = up_cnt / total * 100 if total else 50
+    down_w = down_cnt / total * 100 if total else 50
+    if total:
+        mood = "乐观" if up_cnt >= total * 0.6 else ("中性" if up_cnt >= total * 0.4 else "偏弱")
+        mood_cls = "up" if up_cnt >= total * 0.6 else ("down" if up_cnt < total * 0.4 else "")
+    else:
+        mood, mood_cls = "—", ""
+    return f'''
+        <div class="card">
+            <div class="card-title"><span class="icon"><i class="fas fa-chart-simple"></i></span> 美股市场情绪 <span class="badge">US BREADTH</span></div>
+            <div class="breadth">
+                <div class="bw-bar"><i class="seg-up" style="width:{up_w:.1f}%"></i><i class="seg-down" style="width:{down_w:.1f}%"></i></div>
+                <div class="bw-legend"><span>上涨 <b class="up">{up_cnt}</b></span><span>下跌 <b class="down">{down_cnt}</b></span><span>涨家占比 {up_w:.0f}%</span></div>
+                <div class="stats4">
+                    <div class="stat"><div class="l">上涨</div><div class="v up num">{up_cnt}</div></div>
+                    <div class="stat"><div class="l">下跌</div><div class="v down num">{down_cnt}</div></div>
+                    <div class="stat"><div class="l">监控</div><div class="v num" style="font-size:15px;">{total}</div></div>
+                    <div class="stat"><div class="l">情绪</div><div class="v {mood_cls}" style="font-size:15px;">{mood}</div></div>
+                </div>
             </div>
         </div>'''
-    kr_card = _korea_market_card()
-    transmit = _section_transmit(overnight)
-    return head + idx_bar + hero + overview + kr_card + transmit
 
 
-def _korea_market_card():
-    """韩国股市（KOSPI/KOSDAQ）行情卡。数据源待接入腾讯自选股 MCP 时启用；当前显示映射占位。"""
+def _us_sector_strength_card(us_quotes):
+    """美股板块ETF强弱 TOP：按涨跌幅排序，含 A股映射关联。"""
+    data = []
+    for code in US_SECTOR_ETF_CODES:
+        q = us_quotes.get(code)
+        if q and isinstance(q.get("change_pct"), (int, float)):
+            data.append({
+                "code": code,
+                "name": US_SECTOR_ETF_NAMES.get(code, code),
+                "pct": q["change_pct"],
+                "price": q.get("price"),
+            })
+    if not data:
+        return '''
+        <div class="card">
+            <div class="card-title"><span class="icon"><i class="fas fa-fire"></i></span> 美股板块ETF强弱 <span class="badge">TOP</span></div>
+            <div class="muted" style="font-size:12.5px;">美股板块ETF数据暂不可用。</div>
+        </div>'''
+    data.sort(key=lambda x: x["pct"], reverse=True)
+    rows = ""
+    max_abs = max(abs(d["pct"]) for d in data) or 1
+    for d in data:
+        pct = d["pct"]
+        color = "#ef4444" if pct > 0 else ("#22c55e" if pct < 0 else "var(--text-secondary)")
+        bar_w = abs(pct) / max_abs * 100
+        bar_color = "linear-gradient(90deg,#ef4444,#ef4444)" if pct > 0 else "linear-gradient(90deg,#22c55e,#22c55e)"
+        rows += f'''
+            <div class="us-sector-row" onclick="openUsIndexDetail('{d["code"]}', '{d["name"]}')" style="cursor:pointer;">
+                <span class="name">{d["name"]} <span style="color:var(--text-3);font-size:10px;">{d["code"]}</span></span>
+                <span class="bar"><span class="fill" style="width:{bar_w:.0f}%;background:{bar_color};"></span></span>
+                <span class="pct" style="color:{color};">{pct:+.2f}%</span>
+            </div>'''
+    return f'''
+        <div class="card">
+            <div class="card-title"><span class="icon"><i class="fas fa-fire"></i></span> 美股板块ETF强弱 <span class="badge">SECTOR TOP</span>
+                <span class="click-hint">点击查看K线</span></div>
+            <div class="us-sector-strength">{rows}</div>
+        </div>'''
+
+
+def _korea_market_card(kr_quotes=None):
+    """韩国股市：KOSPI / KOSDAQ 实时行情 + 三星/SK海力士 龙头股 + K线入口。
+    数据源：腾讯 qt.gtimg.cn（韩股代码前缀 kr；韩国指数接口不稳定，主图采用龙头股加权呈现）。
+    """
+    kr_quotes = kr_quotes or {}
+    # KOSPI
+    kospi = kr_quotes.get("krKS11") or {}
+    kospi_price = kospi.get("price")
+    kospi_pct = kospi.get("change_pct")
+    kospi_cls = _cls(kospi_pct) if kospi_pct is not None else ""
+
+    # KOSDAQ
+    kosdaq = kr_quotes.get("krKOSDAQ") or {}
+    kosdaq_price = kosdaq.get("price")
+    kosdaq_pct = kosdaq.get("change_pct")
+    kosdaq_cls = _cls(kosdaq_pct) if kosdaq_pct is not None else ""
+
+    # 龙头股（韩股代码前缀 kr）
+    samsung = kr_quotes.get("kr005930") or {}
+    skhynix = kr_quotes.get("kr000660") or {}
+    lg_energy = kr_quotes.get("kr373220") or {}
+
+    # 龙头股加权（用于代替指数走势）
+    def _avg_pct(*stocks):
+        vals = [s.get("change_pct") for s in stocks if isinstance(s.get("change_pct"), (int, float))]
+        return sum(vals) / len(vals) if vals else None
+
+    if kospi_pct is None:
+        proxy_pct = _avg_pct(samsung, skhynix, lg_energy)
+        proxy_cls = _cls(proxy_pct) if proxy_pct is not None else ""
+        kospi_pct = proxy_pct
+        kospi_cls = proxy_cls
+        kospi_proxy = True
+    else:
+        kospi_proxy = False
+
+    def _stock_row(nm, q, code_fallback):
+        price = q.get("price")
+        pct = q.get("change_pct")
+        if price is None:
+            return f'<div class="kr-stock-row"><span class="nm">{nm}</span><span class="data" style="color:var(--text-secondary);">—</span></div>'
+        cls = _cls(pct) if pct is not None else ""
+        return (f'<div class="kr-stock-row">'
+                f'<span class="nm">{nm}</span>'
+                f'<span class="data"><span class="num">{_safe(price)}</span>'
+                f'<span class="{cls} num" style="font-weight:600;">{_fmt_pct(pct)}</span></span>'
+                f'</div>')
+
+    # KOSPI 卡片：若指数无效，用三星/SK海力士加权代理
+    kospi_price_disp = _safe(kospi_price, "—")
+    kospi_pct_disp = _fmt_pct(kospi_pct) if kospi_pct is not None else "—"
+    proxy_note = '<span style="color:#f59e0b;font-size:10px;font-weight:400;">(龙头加权)</span>' if kospi_proxy else ""
+
     return f'''
         <div class="card card-full">
             <div class="card-title"><span class="icon"><i class="fas fa-flag"></i></span> 韩国股市 <span class="badge">KOREA</span>
                 <span class="click-hint">与A股半导体/存储/面板联动</span>
             </div>
-            <div class="market-grid-2col" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
-                <div class="kr-box" style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <span style="font-weight:600;font-size:13px;">KOSPI 综合指数</span>
-                        <span style="font-family:var(--font-num);color:var(--text-3);font-size:11px;">数据源待接入</span>
+            <div class="kr-grid">
+                <div class="kr-card" onclick="openUsIndexDetail('KS11', 'KOSPI 综合')" style="cursor:pointer;">
+                    <div class="kr-header">
+                        <span class="nm">KOSPI 综合指数 {proxy_note}</span>
+                        <span class="badge-sm">KS11</span>
                     </div>
-                    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px;line-height:1.7;">
-                        三星电子(005930.KS) · SK海力士(000660.KS) · LG新能源(373220.KS)<br>
-                        <span style="color:var(--text-3);">韩国半导体/存储龙头是全球链风向标 → 映射 A股：兆易创新 / 北京君正 / 深科技</span>
+                    <div><span class="kr-price num {kospi_cls}">{kospi_price_disp}</span>
+                         <span class="kr-pct {kospi_cls}">{kospi_pct_disp}</span></div>
+                    <div class="kr-meta">
+                        <span>三星电子 · SK海力士 · LG新能源</span>
                     </div>
-                </div>
-                <div class="kr-box" style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <span style="font-weight:600;font-size:13px;">KOSDAQ 创业板</span>
-                        <span style="font-family:var(--font-num);color:var(--text-3);font-size:11px;">数据源待接入</span>
-                    </div>
-                    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px;line-height:1.7;">
-                        生物科技/电动车/半导体设备小盘成长<br>
-                        <span style="color:var(--text-3);">联动 A股：科创50 / 创业板指 成长风格</span>
+                    <div class="kr-stocks">
+                        {_stock_row("三星电子", samsung, "kr005930")}
+                        {_stock_row("SK海力士", skhynix, "kr000660")}
+                        {_stock_row("LG新能源", lg_energy, "kr373220")}
                     </div>
                 </div>
-                <div class="kr-box" style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <span style="font-weight:600;font-size:13px;">韩元汇率 / 韩股资金</span>
-                        <span style="font-family:var(--font-num);color:var(--text-3);font-size:11px;">—</span>
+                <div class="kr-card" onclick="openUsIndexDetail('KOSDAQ', 'KOSDAQ 创业板')" style="cursor:pointer;">
+                    <div class="kr-header">
+                        <span class="nm">KOSDAQ 创业板</span>
+                        <span class="badge-sm">KOSDAQ</span>
                     </div>
-                    <div style="font-size:11px;color:var(--text-secondary);margin-top:8px;line-height:1.7;">
-                        韩元兑美元走势影响外资进出<br>
-                        <span style="color:var(--text-3);">提示：接入「腾讯自选股」connector 后即可显示实时 KOSPI 行情</span>
+                    <div><span class="kr-price num {kosdaq_cls}">{_safe(kosdaq_price, "—")}</span>
+                         <span class="kr-pct {kosdaq_cls}">{_fmt_pct(kosdaq_pct) if kosdaq_pct is not None else "—"}</span></div>
+                    <div class="kr-meta">
+                        <span>生物科技/电动车/半导体设备小盘成长</span>
+                    </div>
+                    <div class="kr-stocks">
+                        <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+                            <b style="color:var(--accent-blue);">提示：</b>腾讯 qt.gtimg.cn 对 KOSDAQ 指数 <code style="color:var(--accent-blue);background:rgba(79,156,255,0.1);padding:0 4px;border-radius:3px;">krKOSDAQ</code> 接口暂不可用<br>
+                            <span style="color:var(--text-3);">联动 A股：科创50 / 创业板指 成长风格</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="kr-card">
+                    <div class="kr-header">
+                        <span class="nm">韩元汇率 / 韩股资金</span>
+                        <span class="badge-sm">FX</span>
+                    </div>
+                    <div class="kr-meta" style="margin-top:14px;">
+                        <span>韩元兑美元走势影响外资进出</span>
+                    </div>
+                    <div class="kr-stocks">
+                        <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+                            <b style="color:var(--accent-blue);">指数走势：</b>点击 KOSPI/KOSDAQ 卡片可触发 <code style="color:var(--accent-blue);background:rgba(79,156,255,0.1);padding:0 4px;border-radius:3px;">openUsIndexDetail</code> 尝试拉取日K/分时<br>
+                            <b style="color:var(--accent-blue);">个股数据：</b>腾讯对韩股代码 <code style="color:var(--accent-blue);background:rgba(79,156,255,0.1);padding:0 4px;border-radius:3px;">kr005930</code> <code style="color:var(--accent-blue);background:rgba(79,156,255,0.1);padding:0 4px;border-radius:3px;">kr000660</code> 完整支持
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1860,30 +2073,62 @@ def _level_color(level):
     return "#f59e0b"
 
 
-def _section_transmit(overnight):
+def _section_transmit(overnight, us_quotes=None):
+    """美股 → A 股 传导预测：每个板块显示美股驱动股实时行情 + A 股候选股实时行情。"""
     sectors = (overnight or {}).get("sectors", []) or []
+    us_quotes = us_quotes or {}
     if not sectors:
         return '''
         <div class="card card-full" onclick="openModal('transmission')">
             <div class="card-title"><span class="icon"><i class="fas fa-arrow-right-arrow-left"></i></span> ② 美股 → A股 传导预测 <span class="badge">6大板块完整映射</span></div>
             <div style="color:var(--text-secondary);font-size:13px;">美股隔夜数据暂不可用（非交易日或接口限流）。</div>
         </div>'''
+
+    def _driver_row(d):
+        """美股驱动股：实时价 + 涨跌幅（小色块）"""
+        sym = d.get("symbol", "")
+        q = us_quotes.get(sym)
+        if not q:
+            return f'<span style="font-family:var(--font-num);font-size:11px;">{sym} {_fmt_pct(d.get("change_pct"))}</span>'
+        pct = q.get("change_pct")
+        cls = _cls(pct) if pct is not None else ""
+        price = q.get("price")
+        # 鼠标悬停显示美股实时价
+        return (f'<span class="us-driver-chip" style="font-family:var(--font-num);font-size:11px;padding:1px 6px;background:rgba(255,255,255,0.04);border-radius:6px;" '
+                f'title="{q.get("name", sym)} · 实时">{_safe(price)} <span class="{cls}" style="font-weight:600;">{_fmt_pct(pct)}</span></span>')
+
+    def _a_row(name):
+        """A 股候选股：实时价 + 涨跌幅（由前端 JS 实时拉取并填充 .a-rt）。"""
+        code = NAME_CODE.get(name)
+        if not code:
+            return f'<span class="stock-link" style="color:var(--text-secondary);font-size:11px;">{name}</span>'
+        nc = _escape_js(name)
+        cc = _escape_js(code)
+        return (f'<span class="a-driver-chip" data-code="{code}" data-name="{name}" '
+                f'style="font-family:var(--font-num);font-size:11px;padding:1px 6px;background:rgba(255,255,255,0.04);border-radius:6px;cursor:pointer;" '
+                f'onclick="event.stopPropagation();openStockDetail(\'{cc}\',\'{nc}\')" '
+                f'title="点击查看 {name} 日K/分时">{name} <span class="a-rt" data-symbol="{code}" style="color:var(--text-secondary);">—</span></span>')
+
     cards = ""
     for s in sectors:
         color = _level_color(s.get("level"))
         avg = s.get("avg_change")
         drivers = s.get("drivers", []) or []
-        drv_txt = " · ".join(f'{d["symbol"]} {_fmt_pct(d.get("change_pct"))}' for d in drivers) or "—"
-        impact = (f'加权 {_fmt_pct(avg)} · ' if avg is not None else '') + drv_txt
-        cands = " ".join(_stock_link(c, NAME_CODE.get(c)) for c in (s.get("a_candidates", []) or []))
+        # 美股驱动股实时行情
+        drv_html = "".join(_driver_row(d) for d in drivers) or "—"
+        impact = (f'加权 {_fmt_pct(avg)}' if avg is not None else '')
+        cands = s.get("a_candidates", []) or []
+        cands_html = " ".join(_a_row(c) for c in cands)
         cards += f'''
                 <div class="transmission-card" style="border-left-color:{color};">
                     <div class="sector">🔹 {s.get("a_sector","—")}</div>
                     <div class="strength" style="color:{color};">{s.get("level","—")}</div>
                     <div class="impact">{impact}</div>
-                    <div style="color:#4fc3f7;font-size:11px;margin-top:4px;">→ A股映射</div>
-                    <div style="margin-top:6px;background:rgba(255,255,255,0.03);border-radius:6px;padding:4px 8px;">
-                        <div style="color:#8892a0;font-size:9px;">A股: {cands or "—"}</div>
+                    <div style="margin-top:6px;font-size:10px;color:var(--text-secondary);">美股驱动（实时）</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">{drv_html}</div>
+                    <div style="color:#4fc3f7;font-size:11px;margin-top:8px;">→ A股映射（实时）</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
+                        <div style="color:#8892a0;font-size:9px;width:100%;margin-bottom:2px;">候选: {cands_html or "—"}</div>
                     </div>
                 </div>'''
     stale_badge = ''
@@ -1895,7 +2140,7 @@ def _section_transmit(overnight):
         <div class="card card-full" onclick="openModal('transmission')">
             <div class="card-title">
                 <span class="icon"><i class="fas fa-arrow-right-arrow-left"></i></span> ② 美股 → A股 传导预测
-                <span class="badge">6大板块完整映射</span>{stale_badge}
+                <span class="badge">7大板块完整映射</span>{stale_badge}
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看全部</span>
             </div>
             <div class="flex-3col">
@@ -4292,6 +4537,22 @@ def build() -> str:
     a_quotes = _fetch_a_quotes(list(dict.fromkeys(pool_names + hold_names + candidate_names)))
     us_quotes = _fetch_us_quotes(US_SYMS)
 
+    # 韩国股市 + 韩国龙头股（腾讯 qt.gtimg.cn 国际代码）
+    kr_codes = ["krKS11", "krKOSDAQ", "kr005930", "kr000660", "kr373220"]
+    kr_quotes = {}
+    try:
+        raw = feed.tencent_quotes(kr_codes)
+        for k, v in raw.items():
+            short = k[2:] if k.startswith("kr") else k
+            kr_quotes[short] = {
+                "symbol": short,
+                "name": v.get("name", short),
+                "price": v.get("price"),
+                "change_pct": v.get("change_pct"),
+            }
+    except Exception:
+        pass
+
     # 批量技术指标（RSI/MACD/量比/换手）：收集全部标的 ts_code，调用 feed.get_indicators 一次
     items = []
     seen = set()
@@ -4363,7 +4624,7 @@ def build() -> str:
 
     nav_items = [
         ("nav-ashare", "A股大盘行情", "fa-chart-line", _section_ashare(snap, us_quotes, overnight)),
-        ("nav-us", "全球行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight)),
+        ("nav-us", "全球行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight, kr_quotes)),
         ("nav-limitup", "涨停板分析", "fa-arrow-up",
          _screen_head("涨停板分析", "涨停家数 · 封单强度 · 连板梯队 · 次日建仓建议", _lu_badge)
          + _section_limitup(snap)),
@@ -5541,7 +5802,166 @@ function updateIdxInfo(prePrice, lastPrice, data) {
     + '<span><b>涨跌:</b> <b style="color:' + color + ';">' + sign + pct + '%</b></span>';
 }
 
-window.addEventListener('load', function(){ loadIndexDefault(); });
+// ----------------------------------------------------------------- 美股板块指数 K 线
+var usIdxDailyChart = null;
+var usIdxIntradayChart = null;
+
+function openUsIndexDetail(code, name) {
+  code = (code || '').trim();
+  name = name || code;
+  if (!code) return;
+  document.querySelectorAll('.us-index-chip').forEach(function(c){ c.classList.remove('active'); });
+  var el = document.querySelector('.us-index-chip[data-code="' + code + '"]');
+  if (el) el.classList.add('active');
+  var dEl = document.getElementById('usIdxChart-daily');
+  var iEl = document.getElementById('usIdxChart-intraday');
+  if (dEl) dEl.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">加载中…</div>';
+  if (iEl) iEl.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">加载中…</div>';
+  // 韩国指数名（KS11/KOSDAQ）映射为美股/国际代码
+  var full = code;
+  if (code === 'KS11') full = 'krKS11';
+  else if (code === 'KOSDAQ') full = 'krKOSDAQ';
+  else full = 'us' + code;
+  fetchUsIndexDaily(full, name);
+  fetchUsIndexIntraday(full, name);
+  switchUsIndexTab('intraday');
+}
+
+function switchUsIndexTab(tab) {
+  document.querySelectorAll('.us-idx-tab').forEach(function(el){ el.classList.remove('active'); });
+  var t = document.getElementById('usIdxTab-' + tab);
+  if (t) t.classList.add('active');
+  var dEl = document.getElementById('usIdxChart-daily');
+  var iEl = document.getElementById('usIdxChart-intraday');
+  if (dEl) dEl.style.display = (tab === 'daily') ? 'block' : 'none';
+  if (iEl) iEl.style.display = (tab === 'intraday') ? 'block' : 'none';
+  if (tab === 'daily' && usIdxDailyChart) usIdxDailyChart.resize();
+  if (tab === 'intraday' && usIdxIntradayChart) usIdxIntradayChart.resize();
+}
+
+function fetchUsIndexDaily(full, name) {
+  // 腾讯日K线：2026-01-01 至今（约 250 日）
+  var url = 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=' + full + ',day,,,250,qfq';
+  fetch(url).then(function(r){ return r.json(); }).then(function(j) {
+    var kl = (j && j.data && j.data[full] && (j.data[full].qfqday || j.data[full].day)) || [];
+    if (!kl.length) {
+      var el = document.getElementById('usIdxChart-daily');
+      if (el) el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">日K数据加载失败或暂无数据（可能该代码腾讯不支持）</div>';
+      return;
+    }
+    renderUsIndexDaily({ klines: kl.map(function(x){ return x.join(','); }), name: name }, name);
+  }).catch(function(){
+    var el = document.getElementById('usIdxChart-daily');
+    if (el) el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">日K数据加载失败（网络/CORS）</div>';
+  });
+}
+
+function renderUsIndexDaily(data, name) {
+  var klines = data.klines;
+  var dates = [], values = [], ma5 = [], ma10 = [], ma20 = [];
+  for (var i = 0; i < klines.length; i++) {
+    var p = klines[i].split(',');
+    dates.push(p[0]);
+    values.push([parseFloat(p[1]), parseFloat(p[2]), parseFloat(p[3]), parseFloat(p[4])]);
+  }
+  for (var i = 0; i < values.length; i++) {
+    ma5.push(_ma(values, 5, i)); ma10.push(_ma(values, 10, i)); ma20.push(_ma(values, 20, i));
+  }
+  var upColor = '#ef4444', downColor = '#22c55e';
+  var option = {
+    backgroundColor: 'transparent',
+    title: { text: (name || data.name || '') + ' 日K', left: 'center', textStyle: { color: '#e8edf5', fontSize: 14 } },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' }, backgroundColor: 'rgba(17,24,39,0.95)', borderColor: '#1e2a3a', textStyle: { color: '#e8edf5' } },
+    legend: { data: ['K线', 'MA5', 'MA10', 'MA20'], textStyle: { color: '#8892a0' }, top: 24 },
+    grid: { left: 56, right: 16, top: 64, bottom: 32 },
+    xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
+    yAxis: { scale: true, splitLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
+    dataZoom: [{ type: 'inside', start: 30, end: 100 }],
+    series: [
+      { name: 'K线', type: 'candlestick', data: values, itemStyle: { color: upColor, color0: downColor, borderColor: upColor, borderColor0: downColor } },
+      { name: 'MA5', type: 'line', data: ma5, smooth: true, showSymbol: false, lineStyle: { color: '#f59e0b', width: 1 } },
+      { name: 'MA10', type: 'line', data: ma10, smooth: true, showSymbol: false, lineStyle: { color: '#4fc3f7', width: 1 } },
+      { name: 'MA20', type: 'line', data: ma20, smooth: true, showSymbol: false, lineStyle: { color: '#a78bfa', width: 1 } }
+    ]
+  };
+  var dom = document.getElementById('usIdxChart-daily');
+  if (usIdxDailyChart) usIdxDailyChart.dispose();
+  usIdxDailyChart = echarts.init(dom);
+  registerChart(usIdxDailyChart);
+  usIdxDailyChart.setOption(option);
+  var info = document.getElementById('usIdxDetailInfo');
+  if (info && klines.length) {
+    var last = klines[klines.length - 1].split(',');
+    info.innerHTML = '<span><b>日期:</b> ' + last[0] + '</span>'
+      + '<span><b>开:</b> ' + last[1] + '</span>'
+      + '<span><b>收:</b> ' + last[2] + '</span>'
+      + '<span><b>高:</b> ' + last[3] + '</span>'
+      + '<span><b>低:</b> ' + last[4] + '</span>'
+      + '<span><b>成交:</b> ' + (last[5] || '—') + '</span>';
+  }
+}
+
+function fetchUsIndexIntraday(full, name) {
+  var url = 'https://web.ifzq.gtimg.cn/appstock/app/minute/query?code=' + full;
+  fetch(url).then(function(r){ return r.json(); }).then(function(j) {
+    var rows = (j && j.data && j.data[full] && j.data[full].data && j.data[full].data.data) || [];
+    if (!rows.length) {
+      var el = document.getElementById('usIdxChart-intraday');
+      if (el) el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">分时数据加载失败或暂无数据</div>';
+      return;
+    }
+    var trends = rows.map(function(line){
+      var p = line.split(' ');
+      return { time: p[0], price: parseFloat(p[1]), avg: parseFloat(p[2]), vol: parseFloat(p[3]) };
+    });
+    renderUsIndexIntraday({ trends: trends.map(function(t){ return t.time + ',' + t.price + ',' + t.avg + ',' + t.vol; }), name: name }, name);
+  }).catch(function(){
+    var el = document.getElementById('usIdxChart-intraday');
+    if (el) el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">分时数据加载失败（网络/CORS）</div>';
+  });
+}
+
+function renderUsIndexIntraday(data, name) {
+  var trends = data.trends;
+  var times = [], prices = [], avgs = [];
+  for (var i = 0; i < trends.length; i++) {
+    var p = trends[i].split(',');
+    times.push(p[0]);
+    prices.push(parseFloat(p[1]));
+    avgs.push(parseFloat(p[2]) || null);
+  }
+  var lastPrice = prices[prices.length - 1] || 0;
+  var prePrice = times.length ? prices[0] : 0;
+  var upColor = '#ef4444', downColor = '#22c55e';
+  var lineColor = lastPrice >= prePrice ? upColor : downColor;
+  var areaColor = lastPrice >= prePrice ? 'rgba(239,68,68,0.18)' : 'rgba(34,197,94,0.18)';
+  var option = {
+    backgroundColor: 'transparent',
+    title: { text: (name || data.name || '') + ' 分时', left: 'center', textStyle: { color: '#e8edf5', fontSize: 14 } },
+    tooltip: { trigger: 'axis', backgroundColor: 'rgba(17,24,39,0.95)', borderColor: '#1e2a3a', textStyle: { color: '#e8edf5' } },
+    legend: { data: ['现价', '均价'], textStyle: { color: '#8892a0' }, top: 24 },
+    grid: { left: 56, right: 16, top: 64, bottom: 32 },
+    xAxis: { type: 'category', data: times, axisLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
+    yAxis: { scale: true, splitLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
+    series: [
+      { name: '现价', type: 'line', data: prices, showSymbol: false, lineStyle: { color: lineColor, width: 1.5 }, areaStyle: { color: areaColor } },
+      { name: '均价', type: 'line', data: avgs, showSymbol: false, lineStyle: { color: '#f59e0b', width: 1, type: 'dashed' } }
+    ]
+  };
+  var dom = document.getElementById('usIdxChart-intraday');
+  if (usIdxIntradayChart) usIdxIntradayChart.dispose();
+  usIdxIntradayChart = echarts.init(dom);
+  registerChart(usIdxIntradayChart);
+  usIdxIntradayChart.setOption(option);
+}
+
+window.addEventListener('load', function(){ loadIndexDefault(); setTimeout(loadUsIndexDefault, 800); });
+
+function loadUsIndexDefault() {
+  // 默认加载第一个美股板块 ETF
+  var first = document.querySelector('.us-index-chip');
+  if (first) first.click();
+}
 '''
     js = js + INDEX_CHART_JS
 
@@ -5717,6 +6137,34 @@ function isTrading(){
   var hm=n.getHours()*60+n.getMinutes();
   return (hm>=570 && hm<=690) || (hm>=780 && hm<=900);
 }
+
+// 刷新 A 股候选股驱动 chip 的实时行情
+function refreshADriverChips(){
+  var els = document.querySelectorAll('.a-driver-chip .a-rt[data-symbol]');
+  if(!els.length) return;
+  var codes = [];
+  var seen = {};
+  els.forEach(function(el){
+    var c = el.getAttribute('data-symbol');
+    if(c && !seen[c]){ seen[c]=true; codes.push(c); }
+  });
+  if(!codes.length) return;
+  fetchQtQuotes(codes).then(function(q){
+    els.forEach(function(el){
+      var c = el.getAttribute('data-symbol');
+      var data = q[c];
+      if(!data){ el.textContent='—'; el.style.color='var(--text-secondary)'; return; }
+      var pct = data.change_pct;
+      var cls = pct > 0 ? 'up' : (pct < 0 ? 'down' : '');
+      var color = cls === 'up' ? '#ef4444' : (cls === 'down' ? '#22c55e' : 'var(--text-secondary)');
+      el.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+      el.style.color = color;
+      el.style.fontWeight = '600';
+    });
+  });
+}
+setInterval(refreshADriverChips, 30000);
+window.addEventListener('load', function(){ setTimeout(refreshADriverChips, 1500); });
 function updateRtStatus(ok){
   var el=document.getElementById('rtStatus');
   if(!el) return;
