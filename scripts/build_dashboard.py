@@ -5667,6 +5667,10 @@ function openModal(type) {{
 }}
 function closeModal() {{
     document.getElementById('modal').classList.remove('active');
+    Object.keys(sectorDetailCharts).forEach(function(k){{
+      if (sectorDetailCharts[k] && sectorDetailCharts[k].dispose) sectorDetailCharts[k].dispose();
+      delete sectorDetailCharts[k];
+    }});
 }}
 
 // 美股 → A股 板块详情弹窗
