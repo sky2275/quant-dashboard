@@ -2916,9 +2916,9 @@ def _section_holdings(positions, a_quotes, indicators, account_pnl=None, daily_r
             if days_old <= 1:
                 qc_items.append(("pass", f"持仓数据新鲜（{hold_date_str}更新，{days_old}天前）"))
             elif days_old <= 3:
-                qc_items.append(("warn", f"持仓数据已{days_old}天未更新（{hold_date_str}），建议刷新"))
+                qc_items.append(("warn", f"持仓数据已{days_old}天未更新（{hold_date_str}），<span onclick=\"event.stopPropagation(); openModal('refresh_holdings');\" style=\"color:#3b82f6;cursor:pointer;text-decoration:underline;\">建议刷新</span>"))
             else:
-                qc_items.append(("fail", f"持仓数据过期（{hold_date_str}，已{days_old}天），请刷新"))
+                qc_items.append(("fail", f"持仓数据过期（{hold_date_str}，已{days_old}天），<span onclick=\"event.stopPropagation(); openModal('refresh_holdings');\" style=\"color:#3b82f6;cursor:pointer;text-decoration:underline;\">请刷新</span>"))
         except Exception:
             qc_items.append(("warn", "持仓数据时间戳解析失败"))
     else:
@@ -3741,6 +3741,34 @@ def _modal_positions(positions, a_quotes, indicators, account_pnl=None):
             <div style="margin-top:8px;font-size:11px;"><b style="color:#f59e0b;">分账户盈亏：</b>{acc_summary}</div>
             <div style="margin-top:8px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:11px;color:#f59e0b;">
                 📌 账号/成本/盈亏为来源券商后台权威快照（含分红与已平仓盈亏）；RSI/MACD/量比/换手/主力净流入为实时行情
+            </div>'''
+    }
+
+
+def _modal_refresh_holdings():
+    cmd_snapshot = "python scripts/update_positions.py -s data/positions_spec.json"
+    cmd_statements = "python scripts/pickup_statements.py"
+    return {
+        "title": "🔄 刷新持仓数据",
+        "html": f'''
+            <p class="sub-title">浏览器无法直接执行本地命令，请复制以下命令到终端运行</p>
+            <div style="margin:12px 0;padding:12px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid var(--border-color);">
+                <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">方式一：券商后台盈亏快照（推荐，需先填写 data/positions_spec.json）</div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <code id="cmdSnapshot" style="flex:1;background:#0f1220;padding:8px 10px;border-radius:6px;font-size:12px;word-break:break-all;">{cmd_snapshot}</code>
+                    <button onclick="copyRefreshCommand('cmdSnapshot')" style="background:#3b82f6;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;">复制</button>
+                </div>
+            </div>
+            <div style="margin:12px 0;padding:12px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid var(--border-color);">
+                <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">方式二：自动合并交割单（需把交割单放入 data/statements/）</div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <code id="cmdStatements" style="flex:1;background:#0f1220;padding:8px 10px;border-radius:6px;font-size:12px;word-break:break-all;">{cmd_statements}</code>
+                    <button onclick="copyRefreshCommand('cmdStatements')" style="background:#3b82f6;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;">复制</button>
+                </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;">
+                <p>执行后会更新 <code>cache/holdings.json</code> 并重建 <code>index.html</code>，然后需要 <code>git push</code> 才能在 GitHub Pages 生效。</p>
+                <p>推送命令：<code>git add cache/holdings.json index.html && git commit -m "update holdings" && git push origin main</code></p>
             </div>'''
     }
 
@@ -5185,6 +5213,7 @@ def build() -> str:
         "watchlist": _modal_watchlist(cfg, a_quotes, indicators),
         "judgment": _modal_judgment(overnight, snap, cfg, a_quotes, account_pnl, positions),
         "scan_picks": _modal_scan_picks(),
+        "refresh_holdings": _modal_refresh_holdings(),
     }
 
     klines = _load_cache("backtest_klines") or {"stocks": {}}
@@ -6281,6 +6310,17 @@ function refreshASectorDetailQuotes() {{
 }}
 
 document.addEventListener('keydown', function(e) {{ if (e.key === 'Escape') closeModal(); }});
+
+function copyRefreshCommand(elementId) {{
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  const text = el.textContent || '';
+  if (navigator.clipboard && navigator.clipboard.writeText) {{
+    navigator.clipboard.writeText(text).then(function(){{ showShareToast('已复制命令'); }}).catch(function(){{ fallbackCopy(text); }});
+  }} else {{
+    fallbackCopy(text);
+  }}
+}}
 
 function shareDashboard() {{
   const url = window.location.href.split('?')[0];
