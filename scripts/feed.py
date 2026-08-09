@@ -882,15 +882,24 @@ def get_limit_up(date: str | None = None) -> list[dict]:
             sp["_limit"] = sp.apply(_lim, axis=1)
             hit = sp[(~sp["_is_st"]) & (sp["涨跌幅"] >= sp["_limit"] - 1.8)]
             for _, r in hit.iterrows():
+                # 不同 akshare 版本行业列名可能不同
+                industry = None
+                for col in ("所属行业", "行业", "板块", "细分行业"):
+                    industry = r.get(col)
+                    if industry and str(industry).strip() and str(industry).strip() != "nan":
+                        industry = str(industry).strip()
+                        break
                 snap_hits.append({
                     "名称": r.get("名称"), "代码": str(r.get("代码", "")),
                     "涨跌幅": r.get("涨跌幅"), "成交额": r.get("成交额"),
-                    "所属行业": r.get("所属行业") or "—",
+                    "所属行业": industry or "—",
                 })
     except Exception as e:
         print(f"[limit_up] 快照失败: {e}")
-    # 2) 东财涨停池补连板数（按名称匹配，避免代码格式差异）
+    # 2) 东财涨停池补连板数、封单资金与所属行业（按名称匹配，避免代码格式差异）
     board_map: dict = {}
+    seal_map: dict = {}
+    industry_map: dict = {}
     try:
         import akshare as ak
         df = _retry(lambda: ak.stock_zt_pool_em(date=date), attempts=3, wait=1.5)
@@ -898,18 +907,37 @@ def get_limit_up(date: str | None = None) -> list[dict]:
             for _, r in df.iterrows():
                 nm = r.get("名称")
                 if nm:
+                    nm = str(nm)
                     try:
-                        board_map[str(nm)] = int(r.get("连板数", 1) or 1)
+                        board_map[nm] = int(r.get("连板数", 1) or 1)
                     except Exception:
-                        board_map[str(nm)] = 1
+                        board_map[nm] = 1
+                    # 尝试读取封单/封板资金（不同版本 akshare 列名可能不同）
+                    for col in ("封板资金", "封单资金", "封单金额"):
+                        val = r.get(col)
+                        if val is not None:
+                            try:
+                                seal_map[nm] = float(val)
+                            except Exception:
+                                pass
+                            break
+                    # 尝试读取行业
+                    for col in ("所属行业", "行业", "板块"):
+                        val = r.get(col)
+                        if val and str(val).strip() and str(val).strip() != "nan":
+                            industry_map[nm] = str(val).strip()
+                            break
     except Exception as e:
         print(f"[limit_up] 东财涨停池失败: {e}")
     # 3) 合并
     out: list[dict] = []
     for x in snap_hits:
-        b = board_map.get(str(x.get("名称")))
+        nm = str(x.get("名称"))
+        b = board_map.get(nm)
         x["连板数"] = b if b else 1
-        x["封单资金"] = None
+        x["封单资金"] = seal_map.get(nm)
+        if x.get("所属行业") in (None, "—") and nm in industry_map:
+            x["所属行业"] = industry_map[nm]
         out.append(x)
     return out if out else [{"error": "no limit-up data"}]
 

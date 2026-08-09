@@ -263,8 +263,17 @@ CSS_RULES = """
         .idx-chip:hover { color:var(--text-primary); border-color:rgba(79,195,247,0.4); }
         .idx-chip.active { background:rgba(79,195,247,0.15); color:var(--accent-blue); border-color:var(--accent-blue); }
         .stock-chart { width:100%; height:460px; border-radius:10px; background:rgba(0,0,0,0.18); border:1px solid var(--border-color); }
-        .stock-detail-info { display:flex; gap:18px; font-size:12px; color:var(--text-secondary); margin-top:12px; flex-wrap:wrap; }
-        .stock-detail-info span b { color:var(--text-primary); font-weight:500; }
+        .stock-detail-info { margin-top:14px; padding:14px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid var(--border-color); }
+        .stock-detail-info-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:12px; }
+        @media (max-width:768px) { .stock-detail-info-grid { grid-template-columns:repeat(2, 1fr); } }
+        .stock-info-item { display:flex; flex-direction:column; gap:4px; }
+        .stock-info-item .label { font-size:11px; color:var(--text-secondary); }
+        .stock-info-item .value { font-size:14px; color:var(--text-primary); font-weight:600; }
+        .stock-detail-forecast { display:inline-block; padding:6px 12px; border-radius:6px; font-size:13px; font-weight:600; margin-bottom:8px; }
+        .stock-detail-forecast.up { background:rgba(239,68,68,0.15); color:#ef4444; }
+        .stock-detail-forecast.hold { background:rgba(245,158,11,0.15); color:#f59e0b; }
+        .stock-detail-forecast.down { background:rgba(34,197,94,0.15); color:#22c55e; }
+        .stock-detail-build { font-size:12px; color:var(--text-secondary); line-height:1.6; padding:8px 12px; background:rgba(79,156,255,0.08); border-radius:6px; }
 
         /* US sector index K-line chips */
         .us-index-chips { display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 2px; }
@@ -940,6 +949,15 @@ def _fmt_pct(v, nd=2):
         return "—"
     try:
         return f"{float(v):+.{nd}f}%"
+    except Exception:
+        return str(v)
+
+
+def _fmt_float(v, nd=2):
+    if v is None:
+        return "—"
+    try:
+        return f"{float(v):.{nd}f}"
     except Exception:
         return str(v)
 
@@ -2278,19 +2296,12 @@ def _section_transmit(overnight, us_quotes=None):
 
 
 # ----------------------------------------------------------------- ③ 涨停板数据
-def _limitup_sections(limit_up, sector_flow=None, foldable=False):
-    """按连板数分组，返回 (sections_html, total, multi_count)。
-    foldable=True 时每个连板组用 <details> 折叠面板展示；
-    每只个股补充对应板块情绪、次日预测、建仓建议。"""
-    real = [x for x in limit_up if isinstance(x, dict) and "error" not in x]
-    if not real:
-        return "", 0, 0
-
-    # 板块 → 涨跌幅 映射（用于个股板块情绪）
+def _sector_mood_lookup(sector_flow):
+    """根据板块资金流向构建情绪查找表，返回 (sector_map, alias_map, rev_alias)。"""
     sector_map = {}
     for s in (sector_flow or []):
         if isinstance(s, dict):
-            nm = s.get("名称")
+            nm = s.get("名称") or s.get("板块")
             if nm:
                 try:
                     sector_map[nm] = float(s.get("涨跌幅") or 0)
@@ -2304,36 +2315,98 @@ def _limitup_sections(limit_up, sector_flow=None, foldable=False):
         "券商": "证券", "银行系": "银行",
     }
     rev_alias = {v: k for k, v in alias_map.items()}
+    return sector_map, alias_map, rev_alias
 
-    def _match_sector(industry):
-        if not industry or industry == "—":
-            return None
-        if industry in sector_map:
-            return industry
-        if alias_map.get(industry) in sector_map:
-            return alias_map[industry]
-        if rev_alias.get(industry) in sector_map:
-            return rev_alias[industry]
-        for sec in sector_map:
-            if industry in sec or sec in industry:
-                return sec
+
+def _match_sector(industry, sector_map, alias_map, rev_alias):
+    if not industry or industry == "—":
         return None
+    if industry in sector_map:
+        return industry
+    if alias_map.get(industry) in sector_map:
+        return alias_map[industry]
+    if rev_alias.get(industry) in sector_map:
+        return rev_alias[industry]
+    for sec in sector_map:
+        if industry in sec or sec in industry:
+            return sec
+    return None
 
-    def _mood(pct):
-        if pct is None:
-            return "—", "var(--text-secondary)", ""
-        if pct >= 3:
-            return "火爆", "#ef4444", "🔥"
-        if pct >= 1.5:
-            return "强势", "#f97316", "📈"
-        if pct >= 0.5:
-            return "活跃", "#f59e0b", "⚡"
-        if pct >= -0.5:
-            return "温和", "#8892a0", "➖"
-        if pct >= -1.5:
-            return "疲弱", "#22c55e", "📉"
-        return "低迷", "#22c55e", "❄️"
 
+def _mood(pct):
+    if pct is None:
+        return "—", "var(--text-secondary)", ""
+    if pct >= 3:
+        return "火爆", "#ef4444", "🔥"
+    if pct >= 1.5:
+        return "强势", "#f97316", "📈"
+    if pct >= 0.5:
+        return "活跃", "#f59e0b", "⚡"
+    if pct >= -0.5:
+        return "温和", "#8892a0", "➖"
+    if pct >= -1.5:
+        return "疲弱", "#22c55e", "📉"
+    return "低迷", "#22c55e", "❄️"
+
+
+def _limitup_item_meta(x, sector_map, alias_map, rev_alias):
+    """计算单个涨停股的展示元数据。"""
+    name = x.get("名称", "—")
+    code = x.get("代码") or NAME_CODE.get(name)
+    ind = x.get("所属行业", "—")
+    b = int(x.get("连板数", 1) or 1)
+    pct = x.get("涨跌幅")
+    amount = x.get("成交额")
+    seal = x.get("封单资金")
+
+    # 封单比（封单资金 / 成交额）
+    seal_ratio = None
+    if seal and amount:
+        try:
+            seal_ratio = float(seal) / float(amount) * 100
+        except Exception:
+            pass
+
+    if b >= 4:
+        heat = "🔥🔥🔥 极高"
+    elif b == 3:
+        heat = "🔥🔥 高"
+    elif b == 2:
+        heat = "🔥 中高"
+    else:
+        heat = "—"
+
+    if b >= 4:
+        fc_cls, fc_txt, build_txt = "up", "📈 次日预测: 有望继续连板", "⚠️ 建仓建议: 高位接力风险大，不建议追板，等分歧低吸或放弃"
+    elif b == 3:
+        fc_cls, fc_txt, build_txt = "hold", "📊 次日预测: 冲击更高板", "✅ 建仓建议: 强势股可轻仓试错（≤3%），需放量换手验证"
+    elif b == 2:
+        fc_cls, fc_txt, build_txt = "hold", "📊 次日预测: 晋级观察", "✅ 建仓建议: 低吸不追高，确认承接后小仓（≤3%）"
+    else:
+        fc_cls, fc_txt, build_txt = "hold", "📊 次日预测: 观察换手", "✅ 建仓建议: 封单强+放量可轻仓（≤5%），烂板不碰"
+
+    matched = _match_sector(ind, sector_map, alias_map, rev_alias)
+    spct = sector_map.get(matched) if matched else None
+    mood, mood_color, mood_icon = _mood(spct)
+
+    return {
+        "name": name, "code": code, "industry": ind, "board": b,
+        "pct": pct, "amount": amount, "seal": seal, "seal_ratio": seal_ratio,
+        "heat": heat, "fc_cls": fc_cls, "forecast": fc_txt, "build": build_txt,
+        "mood": mood, "mood_color": mood_color, "mood_icon": mood_icon,
+        "sector_pct": spct, "matched_sector": matched,
+    }
+
+
+def _limitup_sections(limit_up, sector_flow=None, foldable=False):
+    """按连板数分组，返回 (sections_html, total, multi_count)。
+    foldable=True 时每个连板组用 <details> 折叠面板展示；
+    每只个股补充对应板块情绪、次日预测、建仓建议。"""
+    real = [x for x in limit_up if isinstance(x, dict) and "error" not in x]
+    if not real:
+        return "", 0, 0
+
+    sector_map, alias_map, rev_alias = _sector_mood_lookup(sector_flow)
     groups = {}
     for x in real:
         b = int(x.get("连板数", 1) or 1)
@@ -2346,44 +2419,23 @@ def _limitup_sections(limit_up, sector_flow=None, foldable=False):
         count = len(groups[b])
         grid = ""
         for x in groups[b]:
-            name = x.get("名称", "—")
-            code = x.get("代码") or NAME_CODE.get(name)
-            ind = x.get("所属行业", "—")
-            seal = _fmt_cap(x.get("封单资金"))
-            pct = x.get("涨跌幅")
-            if b >= 4:
-                heat = "🔥🔥🔥 极高"
-            elif b == 3:
-                heat = "🔥🔥 高"
-            elif b == 2:
-                heat = "🔥 中高"
-            else:
-                heat = "—"
-            if b >= 4:
-                fc = "up"
-                fc_txt = "📈 次日预测: 有望继续连板"
-                build_txt = "⚠️ 建仓建议: 高位接力风险大，不建议追板，等分歧低吸或放弃"
-            elif b == 3:
-                fc = "hold"
-                fc_txt = "📊 次日预测: 冲击更高板"
-                build_txt = "✅ 建仓建议: 强势股可轻仓试错（≤3%），需放量换手验证"
-            elif b == 2:
-                fc = "hold"
-                fc_txt = "📊 次日预测: 晋级观察"
-                build_txt = "✅ 建仓建议: 低吸不追高，确认承接后小仓（≤3%）"
-            else:
-                fc = "hold"
-                fc_txt = "📊 次日预测: 观察换手"
-                build_txt = "✅ 建仓建议: 封单强+放量可轻仓（≤5%），烂板不碰"
-            matched = _match_sector(ind)
-            spct = sector_map.get(matched) if matched else None
-            mood, mood_color, mood_icon = _mood(spct)
+            m = _limitup_item_meta(x, sector_map, alias_map, rev_alias)
+            name, code, ind = m["name"], m["code"], m["industry"]
+            seal = _fmt_cap(m["seal"])
+            seal_ratio_txt = f"({_fmt_float(m['seal_ratio'])}%)" if m["seal_ratio"] is not None else ""
+            pct = m["pct"]
+            heat = m["heat"]
+            fc = m["fc_cls"]
+            fc_txt = m["forecast"]
+            build_txt = m["build"]
+            spct = m["sector_pct"]
+            mood, mood_color, mood_icon = m["mood"], m["mood_color"], m["mood_icon"]
             mood_html = f'<span class="mood-tag" style="background:rgba(255,255,255,0.06);color:{mood_color};">{mood_icon} {mood}{f" ({spct:+.2f}%)" if spct is not None else ""}</span>'
             grid += f'''
                     <div class="limit-up-card">
                         <div class="stock-name">{_stock_link(name, code)}</div>
                         <div class="stock-board">{b}连板 · {ind}</div>
-                        <div class="stock-data"><span class="label">封单:</span><span class="value">{seal}</span> <span class="label">涨跌幅:</span><span class="value" style="color:{_hex(pct)};">{_fmt_pct(pct)}</span></div>
+                        <div class="stock-data"><span class="label">封单:</span><span class="value">{seal} {seal_ratio_txt}</span> <span class="label">涨跌幅:</span><span class="value" style="color:{_hex(pct)};">{_fmt_pct(pct)}</span></div>
                         <div class="stock-data"><span class="label">热度:</span><span class="value" style="color:#ef4444;">{heat}</span></div>
                         <div class="stock-sector-mood"><span class="label">板块情绪:</span>{mood_html}</div>
                         <div class="stock-forecast {fc}">{fc_txt}</div>
@@ -5032,7 +5084,16 @@ def build() -> str:
             </div>
             <div id="stockChart-daily" class="stock-chart"></div>
             <div id="stockChart-intraday" class="stock-chart" style="display:none;"></div>
-            <div class="stock-detail-info" id="stockDetailInfo"></div>
+            <div class="stock-detail-info" id="stockDetailInfo" style="display:none;">
+                <div class="stock-detail-info-grid">
+                    <div class="stock-info-item"><span class="label">所属板块</span><span class="value" id="sdIndustry">—</span></div>
+                    <div class="stock-info-item"><span class="label">涨停封单比</span><span class="value" id="sdSealRatio">—</span></div>
+                    <div class="stock-info-item"><span class="label">热度</span><span class="value" id="sdHeat">—</span></div>
+                    <div class="stock-info-item"><span class="label">板块情绪</span><span class="value" id="sdMood">—</span></div>
+                </div>
+                <div class="stock-detail-forecast" id="sdForecast">—</div>
+                <div class="stock-detail-build" id="sdBuild">—</div>
+            </div>
         </div>
     </div>'''
 
@@ -5058,6 +5119,28 @@ def build() -> str:
     # 预计算 A 股映射候选的技术指标（RSI/量比/MACD）用于板块详情弹窗
     sector_a_indicators = _fetch_sector_a_indicators(overnight, cfg)
 
+    # 预计算涨停个股详情元数据（用于个股详情弹窗）
+    sector_flow = snap.get("sector_flow")
+    sector_map_lu, alias_map_lu, rev_alias_lu = _sector_mood_lookup(sector_flow)
+    # 用板块成分股反向补充缺失的行业
+    name_to_industry = {}
+    for sec_name, constituents in (snap.get("sector_constituents") or {}).items():
+        for c in constituents:
+            nm = c.get("name")
+            if nm and nm not in name_to_industry:
+                name_to_industry[nm] = sec_name
+    limit_up_detail = {}
+    for x in (snap.get("limit_up", []) or []):
+        if not isinstance(x, dict) or "error" in x:
+            continue
+        code = str(x.get("代码", ""))
+        if not code:
+            continue
+        x_copy = dict(x)
+        if x_copy.get("所属行业") in (None, "—"):
+            x_copy["所属行业"] = name_to_industry.get(x_copy.get("名称")) or "—"
+        limit_up_detail[code] = _limitup_item_meta(x_copy, sector_map_lu, alias_map_lu, rev_alias_lu)
+
     js = f'''
 function loadDate(date) {{ alert('📅 切换到 ' + date); }}
 window.BT_KLINES = {json.dumps(klines, ensure_ascii=False)};
@@ -5078,6 +5161,8 @@ window.US_QUOTES = {json.dumps(us_quotes, ensure_ascii=False)};
 window.A_NAME_CODE = {json.dumps({k: v for k, v in NAME_CODE.items() if isinstance(v, str)}, ensure_ascii=False)};
 /* 韩国股名称 → 腾讯代码映射 */
 window.KOREA_NAME_CODE = {json.dumps(KOREA_NAME_CODE, ensure_ascii=False)};
+/* 涨停个股详情元数据（用于个股详情弹窗展示板块情绪/次日预测/建仓建议） */
+window.LIMIT_UP_DETAIL = {json.dumps(limit_up_detail, ensure_ascii=False)};
 
 /* ---- 板块&龙头股：A股全量浏览器（搜索/排序/分页） ---- */
 const ASTOCK_PAGE_SIZE = 60;
@@ -6167,6 +6252,36 @@ function _stockJsonp(url, cbName) {
   });
 }
 
+function renderLimitUpInfo(code) {
+  var info = document.getElementById('stockDetailInfo');
+  var lu = (window.LIMIT_UP_DETAIL || {})[code];
+  if (!lu) {
+    info.style.display = 'none';
+    return;
+  }
+  info.style.display = 'block';
+  document.getElementById('sdIndustry').textContent = lu.industry || '—';
+  var ratioEl = document.getElementById('sdSealRatio');
+  if (lu.seal_ratio != null) {
+    ratioEl.textContent = lu.seal_ratio.toFixed(2) + '%';
+  } else {
+    ratioEl.textContent = '—';
+  }
+  document.getElementById('sdHeat').textContent = lu.heat || '—';
+  var moodEl = document.getElementById('sdMood');
+  if (lu.mood && lu.mood !== '—') {
+    moodEl.textContent = (lu.mood_icon || '') + ' ' + lu.mood + (lu.sector_pct != null ? ' (' + (lu.sector_pct > 0 ? '+' : '') + lu.sector_pct.toFixed(2) + '%)' : '');
+    moodEl.style.color = lu.mood_color || 'var(--text-primary)';
+  } else {
+    moodEl.textContent = '—';
+    moodEl.style.color = 'var(--text-secondary)';
+  }
+  var fcEl = document.getElementById('sdForecast');
+  fcEl.textContent = lu.forecast || '—';
+  fcEl.className = 'stock-detail-forecast ' + (lu.fc_cls || 'hold');
+  document.getElementById('sdBuild').textContent = lu.build || '—';
+}
+
 function openStockDetail(code, name) {
   code = (code || '').trim();
   if (!code) return;
@@ -6178,6 +6293,7 @@ function openStockDetail(code, name) {
   document.getElementById('stockChart-daily').innerHTML = '';
   document.getElementById('stockChart-intraday').innerHTML = '';
   document.getElementById('stockModal').classList.add('active');
+  renderLimitUpInfo(code);
   switchStockTab('daily');
   fetchStockDaily(secid, name);
   fetchStockIntraday(secid, name);
