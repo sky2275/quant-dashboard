@@ -1844,34 +1844,45 @@ def _section_us_map(snap, us_quotes, overnight, kr_quotes=None):
 
 
 # US sector ETF K线数据
-US_SECTOR_ETF_CODES = ["SOXX", "QQQ", "XLK", "SMH", "KWEB", "BOTZ", "ARKQ", "COHR", "LITE"]
-US_SECTOR_ETF_NAMES = {
-    "SOXX": "费城半导体", "QQQ": "纳斯达克100", "XLK": "科技行业ETF",
-    "SMH": "半导体ETF", "KWEB": "中概互联网", "BOTZ": "机器人/AI",
-    "ARKQ": "自主科技", "COHR": "光模块龙头", "LITE": "光模块",
-}
+# 每个 ETF 的腾讯代码需要带市场后缀：.OQ=Nasdaq / .AM=NYSE Arca
+US_SECTOR_ETF_CODES = [
+    ("SOXX", "费城半导体", ".OQ"),
+    ("QQQ", "纳斯达克100", ".OQ"),
+    ("XLK", "科技行业ETF", ".AM"),
+    ("SMH", "半导体ETF", ".OQ"),
+    ("KWEB", "中概互联网", ".AM"),
+    ("BOTZ", "机器人/AI", ".OQ"),
+    ("ARKQ", "自主科技", ".AM"),
+    ("COHR", "光模块龙头", ".OQ"),
+    ("LITE", "光模块LITE", ".OQ"),
+]
+US_SECTOR_ETF_NAMES = dict((c[0], c[1]) for c in US_SECTOR_ETF_CODES)
+# 腾讯 K 线 API 完整代码（sym + market_suffix）
+US_SECTOR_ETF_QT_CODES = {c[0]: "us" + c[0] + c[2] for c in US_SECTOR_ETF_CODES}
 
 
 def _section_us_index_kline():
-    """美股板块指数K线：分时K线 + 日K线（下方 ECharts 渲染）。"""
+    """美股板块指数K线：周K + 日K（下方 ECharts 渲染）。
+    注：腾讯分钟数据不支持美股 ETF，故用周K（60个数据点）作为替代，展示更长周期走势。"""
     chips = ""
-    for i, code in enumerate(US_SECTOR_ETF_CODES):
+    for i, (code, name, _suffix) in enumerate(US_SECTOR_ETF_CODES):
         active = " active" if i == 0 else ""
-        name = US_SECTOR_ETF_NAMES.get(code, code)
         chips += (f'<span class="us-index-chip{active}" data-code="{code}" data-name="{name}" '
                   f'onclick="openUsIndexDetail(\'{code}\', \'{name}\')">{name} ({code})</span>')
     return f'''
         <div class="card card-full">
-            <div class="card-title"><span class="icon"><i class="fas fa-chart-area"></i></span> 美股板块指数K线 <span class="badge">分时 / 日K</span>
+            <div class="card-title"><span class="icon"><i class="fas fa-chart-area"></i></span> 美股板块指数K线 <span class="badge">周K / 日K</span>
                 <span class="click-hint">点击切换指数</span>
             </div>
             <div class="us-index-chips">{chips}</div>
             <div class="stock-detail-tabs" style="margin-top:12px;">
-                <div class="us-idx-tab stock-detail-tab active" onclick="switchUsIndexTab('intraday')" id="usIdxTab-intraday">分时K线</div>
+                <div class="us-idx-tab stock-detail-tab active" onclick="switchUsIndexTab('weekly')" id="usIdxTab-weekly">周K线</div>
                 <div class="us-idx-tab stock-detail-tab" onclick="switchUsIndexTab('daily')" id="usIdxTab-daily">日K线</div>
+                <div class="us-idx-tab stock-detail-tab" onclick="switchUsIndexTab('monthly')" id="usIdxTab-monthly">月K线</div>
             </div>
-            <div id="usIdxChart-intraday" class="stock-chart"></div>
+            <div id="usIdxChart-weekly" class="stock-chart"></div>
             <div id="usIdxChart-daily" class="stock-chart" style="display:none;"></div>
+            <div id="usIdxChart-monthly" class="stock-chart" style="display:none;"></div>
             <div class="stock-detail-info" id="usIdxDetailInfo"></div>
         </div>'''
 
@@ -4729,6 +4740,8 @@ function loadDate(date) {{ alert('📅 切换到 ' + date); }}
 window.BT_KLINES = {json.dumps(klines, ensure_ascii=False)};
 window.BT_ENGINE_DATA = {json.dumps(engine_data, ensure_ascii=False)};
 window.SECTOR_LEADER = {json.dumps(sector_leader, ensure_ascii=False)};
+/* 美股 ETF 完整腾讯代码映射（含市场后缀：.OQ=Nasdaq / .AM=NYSE Arca） */
+window.US_ETF_QT_MAP = {json.dumps(US_SECTOR_ETF_QT_CODES, ensure_ascii=False)};
 
 /* ---- 板块&龙头股：A股全量浏览器（搜索/排序/分页） ---- */
 const ASTOCK_PAGE_SIZE = 60;
@@ -5803,8 +5816,30 @@ function updateIdxInfo(prePrice, lastPrice, data) {
 }
 
 // ----------------------------------------------------------------- 美股板块指数 K 线
+// 每个 ETF 的腾讯代码（含市场后缀：.OQ=Nasdaq / .AM=NYSE Arca）
+window.US_ETF_QT_CODES = {};
+
+// 在页面加载时由后端注入完整代码映射（避免硬编码）
+document.addEventListener('DOMContentLoaded', function(){
+  // 从 chips 的 data-code 反查完整代码（后端构建时已注入 full 映射）
+  if (window.US_ETF_QT_MAP) {
+    window.US_ETF_QT_CODES = window.US_ETF_QT_MAP;
+  }
+});
+
 var usIdxDailyChart = null;
-var usIdxIntradayChart = null;
+var usIdxWeeklyChart = null;
+var usIdxMonthlyChart = null;
+
+function _usIdxFull(code) {
+  // 优先使用后端注入的完整代码（含市场后缀）
+  if (window.US_ETF_QT_CODES && window.US_ETF_QT_CODES[code]) return window.US_ETF_QT_CODES[code];
+  // 韩国指数名映射
+  if (code === 'KS11') return 'krKS11';
+  if (code === 'KOSDAQ') return 'krKOSDAQ';
+  // 默认尝试 .OQ 后缀
+  return 'us' + code + '.OQ';
+}
 
 function openUsIndexDetail(code, name) {
   code = (code || '').trim();
@@ -5813,51 +5848,53 @@ function openUsIndexDetail(code, name) {
   document.querySelectorAll('.us-index-chip').forEach(function(c){ c.classList.remove('active'); });
   var el = document.querySelector('.us-index-chip[data-code="' + code + '"]');
   if (el) el.classList.add('active');
-  var dEl = document.getElementById('usIdxChart-daily');
-  var iEl = document.getElementById('usIdxChart-intraday');
-  if (dEl) dEl.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">加载中…</div>';
-  if (iEl) iEl.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">加载中…</div>';
-  // 韩国指数名（KS11/KOSDAQ）映射为美股/国际代码
-  var full = code;
-  if (code === 'KS11') full = 'krKS11';
-  else if (code === 'KOSDAQ') full = 'krKOSDAQ';
-  else full = 'us' + code;
-  fetchUsIndexDaily(full, name);
-  fetchUsIndexIntraday(full, name);
-  switchUsIndexTab('intraday');
+  var full = _usIdxFull(code);
+  ['daily','weekly','monthly'].forEach(function(t){
+    var dom = document.getElementById('usIdxChart-' + t);
+    if (dom) dom.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">加载中…</div>';
+  });
+  fetchUsIndexKline(full, name, 'daily');
+  fetchUsIndexKline(full, name, 'weekly');
+  fetchUsIndexKline(full, name, 'monthly');
+  switchUsIndexTab('weekly');
 }
 
 function switchUsIndexTab(tab) {
   document.querySelectorAll('.us-idx-tab').forEach(function(el){ el.classList.remove('active'); });
   var t = document.getElementById('usIdxTab-' + tab);
   if (t) t.classList.add('active');
-  var dEl = document.getElementById('usIdxChart-daily');
-  var iEl = document.getElementById('usIdxChart-intraday');
-  if (dEl) dEl.style.display = (tab === 'daily') ? 'block' : 'none';
-  if (iEl) iEl.style.display = (tab === 'intraday') ? 'block' : 'none';
+  ['daily','weekly','monthly'].forEach(function(t2){
+    var dom = document.getElementById('usIdxChart-' + t2);
+    if (dom) dom.style.display = (tab === t2) ? 'block' : 'none';
+  });
   if (tab === 'daily' && usIdxDailyChart) usIdxDailyChart.resize();
-  if (tab === 'intraday' && usIdxIntradayChart) usIdxIntradayChart.resize();
+  if (tab === 'weekly' && usIdxWeeklyChart) usIdxWeeklyChart.resize();
+  if (tab === 'monthly' && usIdxMonthlyChart) usIdxMonthlyChart.resize();
 }
 
-function fetchUsIndexDaily(full, name) {
-  // 腾讯日K线：2026-01-01 至今（约 250 日）
-  var url = 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=' + full + ',day,,,250,qfq';
+function fetchUsIndexKline(full, name, period) {
+  // period: 'daily' | 'weekly' | 'monthly'
+  // count: day=250, week=120, month=60
+  var count = period === 'daily' ? 250 : (period === 'weekly' ? 120 : 60);
+  var ptKey = period === 'daily' ? 'day' : (period === 'weekly' ? 'week' : 'month');
+  var url = 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=' + full + ',' + ptKey + ',,,' + count + ',qfq';
   fetch(url).then(function(r){ return r.json(); }).then(function(j) {
-    var kl = (j && j.data && j.data[full] && (j.data[full].qfqday || j.data[full].day)) || [];
-    if (!kl.length) {
-      var el = document.getElementById('usIdxChart-daily');
-      if (el) el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">日K数据加载失败或暂无数据（可能该代码腾讯不支持）</div>';
+    var kl = (j && j.data && j.data[full] && j.data[full][ptKey]) || [];
+    if (!kl.length || kl.length < 2) {
+      var dom = document.getElementById('usIdxChart-' + period);
+      if (dom) dom.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">' + (period === 'daily' ? '日K' : period === 'weekly' ? '周K' : '月K') + '数据加载失败或数据不足（' + full + '）</div>';
       return;
     }
-    renderUsIndexDaily({ klines: kl.map(function(x){ return x.join(','); }), name: name }, name);
+    renderUsIndexKline({ klines: kl.map(function(x){ return x.join(','); }), name: name, period: period }, name);
   }).catch(function(){
-    var el = document.getElementById('usIdxChart-daily');
-    if (el) el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">日K数据加载失败（网络/CORS）</div>';
+    var dom = document.getElementById('usIdxChart-' + period);
+    if (dom) dom.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">数据加载失败（网络/CORS）</div>';
   });
 }
 
-function renderUsIndexDaily(data, name) {
+function renderUsIndexKline(data, name) {
   var klines = data.klines;
+  var period = data.period || 'daily';
   var dates = [], values = [], ma5 = [], ma10 = [], ma20 = [];
   for (var i = 0; i < klines.length; i++) {
     var p = klines[i].split(',');
@@ -5868,15 +5905,16 @@ function renderUsIndexDaily(data, name) {
     ma5.push(_ma(values, 5, i)); ma10.push(_ma(values, 10, i)); ma20.push(_ma(values, 20, i));
   }
   var upColor = '#ef4444', downColor = '#22c55e';
+  var periodLabel = period === 'daily' ? '日K' : (period === 'weekly' ? '周K' : '月K');
   var option = {
     backgroundColor: 'transparent',
-    title: { text: (name || data.name || '') + ' 日K', left: 'center', textStyle: { color: '#e8edf5', fontSize: 14 } },
+    title: { text: (name || data.name || '') + ' ' + periodLabel, left: 'center', textStyle: { color: '#e8edf5', fontSize: 14 } },
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' }, backgroundColor: 'rgba(17,24,39,0.95)', borderColor: '#1e2a3a', textStyle: { color: '#e8edf5' } },
     legend: { data: ['K线', 'MA5', 'MA10', 'MA20'], textStyle: { color: '#8892a0' }, top: 24 },
     grid: { left: 56, right: 16, top: 64, bottom: 32 },
     xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
     yAxis: { scale: true, splitLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
-    dataZoom: [{ type: 'inside', start: 30, end: 100 }],
+    dataZoom: [{ type: 'inside', start: 50, end: 100 }],
     series: [
       { name: 'K线', type: 'candlestick', data: values, itemStyle: { color: upColor, color0: downColor, borderColor: upColor, borderColor0: downColor } },
       { name: 'MA5', type: 'line', data: ma5, smooth: true, showSymbol: false, lineStyle: { color: '#f59e0b', width: 1 } },
@@ -5884,75 +5922,30 @@ function renderUsIndexDaily(data, name) {
       { name: 'MA20', type: 'line', data: ma20, smooth: true, showSymbol: false, lineStyle: { color: '#a78bfa', width: 1 } }
     ]
   };
-  var dom = document.getElementById('usIdxChart-daily');
-  if (usIdxDailyChart) usIdxDailyChart.dispose();
-  usIdxDailyChart = echarts.init(dom);
-  registerChart(usIdxDailyChart);
-  usIdxDailyChart.setOption(option);
-  var info = document.getElementById('usIdxDetailInfo');
-  if (info && klines.length) {
-    var last = klines[klines.length - 1].split(',');
-    info.innerHTML = '<span><b>日期:</b> ' + last[0] + '</span>'
-      + '<span><b>开:</b> ' + last[1] + '</span>'
-      + '<span><b>收:</b> ' + last[2] + '</span>'
-      + '<span><b>高:</b> ' + last[3] + '</span>'
-      + '<span><b>低:</b> ' + last[4] + '</span>'
-      + '<span><b>成交:</b> ' + (last[5] || '—') + '</span>';
-  }
-}
+  var dom = document.getElementById('usIdxChart-' + period);
+  if (!dom) return;
+  var chartVar = period === 'daily' ? usIdxDailyChart : (period === 'weekly' ? usIdxWeeklyChart : usIdxMonthlyChart);
+  if (chartVar) chartVar.dispose();
+  var newChart = echarts.init(dom);
+  registerChart(newChart);
+  newChart.setOption(option);
+  if (period === 'daily') usIdxDailyChart = newChart;
+  else if (period === 'weekly') usIdxWeeklyChart = newChart;
+  else usIdxMonthlyChart = newChart;
 
-function fetchUsIndexIntraday(full, name) {
-  var url = 'https://web.ifzq.gtimg.cn/appstock/app/minute/query?code=' + full;
-  fetch(url).then(function(r){ return r.json(); }).then(function(j) {
-    var rows = (j && j.data && j.data[full] && j.data[full].data && j.data[full].data.data) || [];
-    if (!rows.length) {
-      var el = document.getElementById('usIdxChart-intraday');
-      if (el) el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">分时数据加载失败或暂无数据</div>';
-      return;
+  // 顶部信息栏（仅日K 显示）
+  if (period === 'daily') {
+    var info = document.getElementById('usIdxDetailInfo');
+    if (info && klines.length) {
+      var last = klines[klines.length - 1].split(',');
+      info.innerHTML = '<span><b>日期:</b> ' + last[0] + '</span>'
+        + '<span><b>开:</b> ' + last[1] + '</span>'
+        + '<span><b>收:</b> ' + last[2] + '</span>'
+        + '<span><b>高:</b> ' + last[3] + '</span>'
+        + '<span><b>低:</b> ' + last[4] + '</span>'
+        + '<span><b>成交:</b> ' + (last[5] || '—') + '</span>';
     }
-    var trends = rows.map(function(line){
-      var p = line.split(' ');
-      return { time: p[0], price: parseFloat(p[1]), avg: parseFloat(p[2]), vol: parseFloat(p[3]) };
-    });
-    renderUsIndexIntraday({ trends: trends.map(function(t){ return t.time + ',' + t.price + ',' + t.avg + ',' + t.vol; }), name: name }, name);
-  }).catch(function(){
-    var el = document.getElementById('usIdxChart-intraday');
-    if (el) el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">分时数据加载失败（网络/CORS）</div>';
-  });
-}
-
-function renderUsIndexIntraday(data, name) {
-  var trends = data.trends;
-  var times = [], prices = [], avgs = [];
-  for (var i = 0; i < trends.length; i++) {
-    var p = trends[i].split(',');
-    times.push(p[0]);
-    prices.push(parseFloat(p[1]));
-    avgs.push(parseFloat(p[2]) || null);
   }
-  var lastPrice = prices[prices.length - 1] || 0;
-  var prePrice = times.length ? prices[0] : 0;
-  var upColor = '#ef4444', downColor = '#22c55e';
-  var lineColor = lastPrice >= prePrice ? upColor : downColor;
-  var areaColor = lastPrice >= prePrice ? 'rgba(239,68,68,0.18)' : 'rgba(34,197,94,0.18)';
-  var option = {
-    backgroundColor: 'transparent',
-    title: { text: (name || data.name || '') + ' 分时', left: 'center', textStyle: { color: '#e8edf5', fontSize: 14 } },
-    tooltip: { trigger: 'axis', backgroundColor: 'rgba(17,24,39,0.95)', borderColor: '#1e2a3a', textStyle: { color: '#e8edf5' } },
-    legend: { data: ['现价', '均价'], textStyle: { color: '#8892a0' }, top: 24 },
-    grid: { left: 56, right: 16, top: 64, bottom: 32 },
-    xAxis: { type: 'category', data: times, axisLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
-    yAxis: { scale: true, splitLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
-    series: [
-      { name: '现价', type: 'line', data: prices, showSymbol: false, lineStyle: { color: lineColor, width: 1.5 }, areaStyle: { color: areaColor } },
-      { name: '均价', type: 'line', data: avgs, showSymbol: false, lineStyle: { color: '#f59e0b', width: 1, type: 'dashed' } }
-    ]
-  };
-  var dom = document.getElementById('usIdxChart-intraday');
-  if (usIdxIntradayChart) usIdxIntradayChart.dispose();
-  usIdxIntradayChart = echarts.init(dom);
-  registerChart(usIdxIntradayChart);
-  usIdxIntradayChart.setOption(option);
 }
 
 window.addEventListener('load', function(){ loadIndexDefault(); setTimeout(loadUsIndexDefault, 800); });
