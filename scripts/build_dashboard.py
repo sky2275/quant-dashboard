@@ -4659,6 +4659,68 @@ def _fetch_us_etf_klines_for_build() -> dict:
     return out
 
 
+# ----------------------------------------------------------------- 预计算 A 股映射候选技术指标
+def _fetch_sector_a_indicators(overnight, cfg=None) -> dict:
+    """预计算板块 A 股候选股的技术指标（RSI14 / 量比 / MACD），嵌入 HTML 用于板块详情弹窗。
+    返回: {sector_name: {stock_name: {rsi, vr, macd_hist, change_pct}, ...}}
+    """
+    result = {}
+    if not overnight:
+        return result
+    sectors = overnight.get("sectors", []) or []
+    seen_codes = set()
+    items = []
+    for s in sectors:
+        s_name = s.get("a_sector", "")
+        if not s_name:
+            continue
+        result[s_name] = {}
+        for nm in (s.get("a_candidates") or []):
+            code = NAME_CODE.get(nm)
+            if not code:
+                continue
+            ts_code = feed.to_tscode(code[2:]) if code[2:] else None
+            if not ts_code:
+                continue
+            items.append((s_name, nm, ts_code))
+            seen_codes.add(ts_code)
+
+    # 拉取技术指标
+    indicators = {}
+    try:
+        # feed.get_indicators 需要 (name, ts_code) 元组列表
+        tuple_items = [(nm, ts) for (_, nm, ts) in items]
+        indicators = feed.get_indicators(tuple_items)
+    except Exception as e:
+        print(f"[sector_a_indicators] feed.get_indicators failed: {e}")
+        indicators = {}
+
+    # 实时行情（用于涨幅/量比交叉验证）
+    a_quotes_dict = {}
+    try:
+        codes = list(seen_codes)
+        for i in range(0, len(codes), 40):
+            batch = codes[i:i+40]
+            for c in batch:
+                q = feed.tencent_quotes([c]).get(c)
+                if q:
+                    a_quotes_dict[c] = {"price": q.get("price"), "change_pct": q.get("change_pct"), "volume": 0}
+    except Exception:
+        pass
+
+    for (s_name, nm, ts_code) in items:
+        ind = indicators.get(ts_code, {})
+        result[s_name][nm] = {
+            "rsi": ind.get("rsi") if isinstance(ind.get("rsi"), (int, float)) else None,
+            "vr": ind.get("volume_ratio") if isinstance(ind.get("volume_ratio"), (int, float)) else None,
+            "macd_dif": ind.get("macd_dif") if isinstance(ind.get("macd_dif"), (int, float)) else None,
+            "macd_hist": ind.get("macd_hist") if isinstance(ind.get("macd_hist"), (int, float)) else None,
+        }
+    n_rsi = sum(1 for s in result.values() for v in s.values() if v.get("rsi") is not None)
+    print(f"[sector_a_indicators] computed for {len(result)} sectors, {sum(len(v) for v in result.values())} stocks, {n_rsi} with RSI")
+    return result
+
+
 # ----------------------------------------------------------------- 组装
 def build() -> str:
     snap = _load_cache("market_snapshot") or {"updated_at": "—"}
@@ -4902,11 +4964,15 @@ def build() -> str:
     # 预抓取美股 ETF K 线（Tushare 备用数据源，嵌入 HTML，浏览器离线可用）
     us_etf_klines = _fetch_us_etf_klines_for_build()
 
+    # 预计算 A 股映射候选的技术指标（RSI/量比/MACD）用于板块详情弹窗
+    sector_a_indicators = _fetch_sector_a_indicators(overnight, cfg)
+
     js = f'''
 function loadDate(date) {{ alert('📅 切换到 ' + date); }}
 window.BT_KLINES = {json.dumps(klines, ensure_ascii=False)};
 window.BT_ENGINE_DATA = {json.dumps(engine_data, ensure_ascii=False)};
 window.SECTOR_LEADER = {json.dumps(sector_leader, ensure_ascii=False)};
+window.SECTOR_A_INDICATORS = {json.dumps(sector_a_indicators, ensure_ascii=False)};
 /* 美股 ETF 完整腾讯代码映射（含市场后缀：.OQ=Nasdaq / .AM=NYSE Arca） */
 window.US_ETF_QT_MAP = {json.dumps(US_SECTOR_ETF_QT_CODES, ensure_ascii=False)};
 /* 美股 ETF 预嵌入的 K 线（Tushare 备用数据源，浏览器可离线渲染） */
@@ -5686,14 +5752,29 @@ function openSectorDetail(sectorKey) {{
     html += '</tr>';
   }});
   html += '</tbody></table></div>';
-  html += '<div style="margin-bottom:18px;"><div style="font-weight:600;color:#4fc3f7;font-size:13px;margin-bottom:8px;">🇨🇳 A股映射候选（实时·每30秒刷新）</div>';
-  html += '<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);color:var(--text-secondary);"><th style="text-align:left;padding:6px;">名称</th><th style="text-align:left;padding:6px;">代码</th><th style="text-align:right;padding:6px;">最新价</th><th style="text-align:right;padding:6px;">涨跌幅</th><th style="text-align:right;padding:6px;">K线</th></tr></thead><tbody>';
+  // === ④ A股映射详细表格（含 RSI/量比/MACD）===
+  var indicators = (window.SECTOR_A_INDICATORS || {{}})[sec.a_sector] || {{}};
+  html += '<div style="margin-bottom:18px;"><div style="font-weight:600;color:#4fc3f7;font-size:13px;margin-bottom:8px;">🇨🇳 A股映射候选（实时·含RSI/量比/MACD）</div>';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);color:var(--text-secondary);"><th style="text-align:left;padding:6px;">名称</th><th style="text-align:left;padding:6px;">代码</th><th style="text-align:right;padding:6px;">最新价</th><th style="text-align:right;padding:6px;">涨跌幅</th><th style="text-align:right;padding:6px;">RSI14</th><th style="text-align:right;padding:6px;">量比</th><th style="text-align:right;padding:6px;">MACD</th><th style="text-align:right;padding:6px;">K线</th></tr></thead><tbody>';
   cands.forEach(function(nm){{
+    var ind = indicators[nm] || {{}};
+    var rsi = ind.rsi;
+    var vr = ind.vr;
+    var macd = ind.macd_hist;
+    var rsiCls = '#8892a0', rsiTxt = '—';
+    if (rsi != null) {{ rsiTxt = rsi.toFixed(1); if (rsi >= 70) rsiCls = '#ef4444'; else if (rsi <= 30) rsiCls = '#22c55e'; else rsiCls = '#f59e0b'; }}
+    var vrCls = '#8892a0', vrTxt = '—';
+    if (vr != null) {{ vrTxt = vr.toFixed(2); if (vr >= 2) vrCls = '#ef4444'; else if (vr < 0.5) vrCls = '#22c55e'; else vrCls = '#f59e0b'; }}
+    var macdCls = macd > 0 ? '#ef4444' : (macd < 0 ? '#22c55e' : '#8892a0');
+    var macdTxt = macd != null ? (macd >= 0 ? '+' : '') + macd.toFixed(2) : '—';
     html += '<tr class="a-detail-row" data-name="' + nm + '" style="border-bottom:1px solid rgba(255,255,255,0.04);">';
     html += '<td style="padding:6px;font-weight:500;">' + nm + '</td>';
     html += '<td style="padding:6px;color:var(--text-3);" class="a-detail-code">—</td>';
     html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);" class="a-detail-price">—</td>';
     html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);font-weight:600;" class="a-detail-pct">—</td>';
+    html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);font-weight:600;color:' + rsiCls + ';">' + rsiTxt + '</td>';
+    html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);font-weight:600;color:' + vrCls + ';">' + vrTxt + '</td>';
+    html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);font-weight:600;color:' + macdCls + ';">' + macdTxt + '</td>';
     html += '<td style="padding:6px;text-align:right;"><button class="kline-btn" data-name="' + nm + '" style="padding:2px 8px;background:rgba(79,156,255,0.15);color:#4fc3f7;border:1px solid rgba(79,156,255,0.3);border-radius:4px;cursor:pointer;font-size:10px;">K线</button></td>';
     html += '</tr>';
   }});
@@ -5783,10 +5864,11 @@ function renderSectorDetailChart(klines, etfCode, period) {{
   }}
   var periodLabel = period === 'daily' ? '日K' : (period === 'weekly' ? '周K' : '月K');
   if (dates.length < 2) {{
-    var dom = document.getElementById('sectorChart-' + period);
-    if (dom) dom.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">数据不足（' + dates.length + ' 条）</div>';
+    var domEmpty = document.getElementById('sectorChart-' + period);
+    if (domEmpty) domEmpty.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">数据不足（' + dates.length + ' 条）</div>';
     return;
   }}
+  console.log('[renderSectorDetailChart] ' + etfCode + ' ' + period + ' 共 ' + dates.length + ' 点，最新: ' + dates[dates.length-1]);
   var option = {{
     backgroundColor: 'transparent',
     title: {{ text: etfCode + ' ' + periodLabel + ' · ' + (SECTOR_ETF_NAMES_LOOKUP[etfCode] || '') + '（最新: ' + dates[dates.length-1] + '）', left: 'center', textStyle: {{ color: '#e8edf5', fontSize: 13 }} }},
@@ -5808,18 +5890,17 @@ function renderSectorDetailChart(klines, etfCode, period) {{
     console.warn('Chart container not found:', 'sectorChart-' + period);
     return;
   }}
+  console.log('[renderSectorDetailChart] container size:', dom.offsetWidth, 'x', dom.offsetHeight);
   if (sectorDetailChart && sectorDetailChart.dispose) sectorDetailChart.dispose();
   sectorDetailChart = echarts.init(dom);
   registerChart(sectorDetailChart);
   sectorDetailChart.setOption(option);
-  // 延迟 resize：等待 modal 完全显示后再确认尺寸
-  setTimeout(function(){{ if (sectorDetailChart) sectorDetailChart.resize(); }}, 100);
-  setTimeout(function(){{ if (sectorDetailChart) sectorDetailChart.resize(); }}, 500);
-  console.log('Chart rendered:', etfCode, period, dates.length, 'points, latest:', dates[dates.length-1]);
+  // 多次 resize 确保渲染
+  setTimeout(function(){{ if (sectorDetailChart) {{ sectorDetailChart.resize(); console.log('[renderSectorDetailChart] resize done'); }} }}, 100);
+  setTimeout(function(){{ if (sectorDetailChart) sectorDetailChart.resize(); }}, 300);
+  setTimeout(function(){{ if (sectorDetailChart) sectorDetailChart.resize(); }}, 800);
 }}
 
-
-// 韩国板块详情弹窗
 function openKoreaSectorDetail(sectorKey) {{
   var sectors = window.KOREA_SECTOR_MAP || [];
   var sec = null;
