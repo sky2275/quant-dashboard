@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8月6日持仓股复盘 & 8月10日作战计划 | 星辰决策仪表盘</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+  :root { --bg: #0f0f23; --card: #1a1a2e; --border: #2d2d44; --text: #e2e8f0; --muted: #94a3b8; }
+  body { margin:0; padding:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .container { max-width:1200px; margin:0 auto; padding:24px 16px; }
+  h1 { font-size:24px; margin-bottom:8px; }
+  .subtitle { color:var(--muted); font-size:13px; margin-bottom:20px; }
+  .overview { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:24px; }
+  .overview-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; }
+  .overview-card .label { font-size:12px; color:var(--muted); }
+  .overview-card .value { font-size:26px; font-weight:700; margin:6px 0; }
+  .overview-card .desc { font-size:11px; color:var(--muted); }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:20px; }
+  .card h2 { font-size:18px; margin:0 0 14px; }
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  th { text-align:left; padding:8px; color:var(--muted); border-bottom:1px solid var(--border); white-space:nowrap; }
+  td { padding:8px; }
+  .red { color:#ef4444; }
+  .green { color:#22c55e; }
+  .back-link { display:inline-block; margin-bottom:16px; color:#3b82f6; text-decoration:none; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← 返回量化工作台</a>
+  <h1>📊 8月6日持仓股复盘 & 8月10日作战计划</h1>
+  <div class="subtitle">📌 配色规则：红涨绿跌（A 股惯例） · 生成时间 2026-08-10 07:08</div>
+
+  <div class="overview">
+    <div class="overview-card">
+      <div class="label">总持仓数量</div>
+      <div class="value">6只</div>
+      <div class="desc">含多券商账户合并</div>
+    </div>
+    <div class="overview-card">
+      <div class="label">总市值（估算）</div>
+      <div class="value">~37.7万</div>
+      <div class="desc">按现价计算</div>
+    </div>
+    <div class="overview-card">
+      <div class="label">8月6日总盈亏</div>
+      <div class="value red">5,496.10</div>
+      <div class="desc">收益率 +1.48%</div>
+    </div>
+    <div class="overview-card">
+      <div class="label">上涨家数</div>
+      <div class="value red">4/6</div>
+      <div class="desc">收绿 2 只</div>
+    </div>
+    <div class="overview-card">
+      <div class="label">8月10日看多</div>
+      <div class="value red">6只</div>
+      <div class="desc">看多 / 持有 / 警惕</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📋 8月6日收盘持仓一览 + RSI(6/12/24) 与量比总览（红涨绿跌 · Wilder 平滑法）</h2>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr>
+          <th>券商</th><th>股票</th><th>代码</th><th style="text-align:right;">持股</th><th style="text-align:right;">成本</th><th style="text-align:right;">现价</th><th style="text-align:right;">当日涨跌</th>
+          <th style="text-align:right;">盈亏额</th><th style="text-align:right;">收益率</th><th>8/10策略</th>
+          <th style="text-align:center;">RSI(6)</th><th style="text-align:center;">RSI(12)</th><th style="text-align:center;">RSI(24)</th><th style="text-align:center;">5日量比</th><th style="text-align:center;">RSI状态</th><th style="text-align:center;">量能状态</th>
+        </tr></thead>
+        <tbody><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>银河证券</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-weight:600;'>永安行</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sh603776</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>300</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>¥-31.96</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;font-weight:600;'>¥21.45</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#22c55e;'>-0.23%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+1.60万</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+248.98%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:11px;'>持有观察</span></td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>None</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;"> —</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;"> —</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>东财</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-weight:600;'>北京君正</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sz300223</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>1,700</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>¥144.14</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;font-weight:600;'>¥137.00</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+5.15%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#22c55e;'>-1.21万</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#22c55e;'>-4.96%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:11px;'>持有观察</span></td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>None</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;"> —</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;"> —</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>东财</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-weight:600;'>绿的谐波</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sh688017</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>200</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>¥325.04</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;font-weight:600;'>¥336.04</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+3.49%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>2,200.80</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+3.39%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:11px;'>持有观察</span></td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>None</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;"> —</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;"> —</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>中信建投</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-weight:600;'>征和工业</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sz003033</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>500</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>¥59.80</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;font-weight:600;'>¥60.75</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+7.00%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>474.00</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+1.59%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:11px;'>持有观察</span></td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>None</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;"> —</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;"> —</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>中信建投</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-weight:600;'>科大讯飞</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sz002230</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>500</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>¥42.66</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;font-weight:600;'>¥43.68</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#22c55e;'>-0.34%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>510.00</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+2.39%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:11px;'>持有观察</span></td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>None</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;"> —</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;"> —</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>中信建投</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-weight:600;'>哈药股份</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sh600664</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>3,000</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>¥6.74</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;font-weight:600;'>¥6.22</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+9.97%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#22c55e;'>-1,566.00</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#22c55e;'>-7.74%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:11px;'>持有观察</span></td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;'>None</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;"> —</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#94a3b8;"> —</td>
+        </tr></tbody>
+      </table>
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:var(--muted);">
+      ⚠️ 数据说明：成本/现价/盈亏以券商后台快照为准；RSI 采用 Wilder 平滑法；量比 = 当日量 / 前5日均量。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>✅ 数据核查节点（QC Gate）— QC-1 ~ QC-8</h2>
+    <table>
+      <thead><tr><th>节点</th><th>核查内容</th><th>结果说明</th><th>状态</th></tr></thead>
+      <tbody><tr><td style='padding:8px;border-bottom:1px solid #2d2d44;'>QC-1</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>持仓数量</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>持仓 6 只</td><td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>✅ 通过</td></tr>
+<tr><td style='padding:8px;border-bottom:1px solid #2d2d44;'>QC-2</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>成本价 / 现价</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>与券商快照逐项比对</td><td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>✅ 通过</td></tr>
+<tr><td style='padding:8px;border-bottom:1px solid #2d2d44;'>QC-3</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI / 量比</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>Wilder 平滑法基于近30日K线计算</td><td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>✅ 通过</td></tr>
+<tr><td style='padding:8px;border-bottom:1px solid #2d2d44;'>QC-4</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>红涨绿跌配色</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>涨/买入/涨停 = 红；跌/卖出/跌停 = 绿</td><td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>✅ 通过</td></tr>
+<tr><td style='padding:8px;border-bottom:1px solid #2d2d44;'>QC-5</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>盈亏金额复核</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>按（现价-成本）× 持股 逐项核对</td><td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>✅ 通过</td></tr>
+<tr><td style='padding:8px;border-bottom:1px solid #2d2d44;'>QC-6</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>涨跌家数复核</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>4/6 上涨</td><td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>✅ 通过</td></tr>
+<tr><td style='padding:8px;border-bottom:1px solid #2d2d44;'>QC-7</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>数据源日期</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>持仓快照 2026-08-06</td><td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>✅ 通过</td></tr>
+<tr><td style='padding:8px;'>QC-8</td><td style='padding:8px;'>买卖点推断标注</td><td style='padding:8px;'>成本价附近日期为近似推断</td><td style='padding:8px;color:#22c55e;'>✅ 通过</td></tr></tbody>
+    </table>
+  </div>
+
+  
+<div id="stock-0" style="background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2d2d44;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#e2e8f0;">永安行 (sh603776) </div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px;">银河证券 · 300.00股</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px;color:#94a3b8;">评分</div>
+      <div style="font-size:28px;font-weight:700;color:#f59e0b;">58</div>
+      <div style="font-size:13px;font-weight:600;color:#f59e0b;">HOLD · 持有观察</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">现价</div><div style="font-size:16px;font-weight:700;color:#22c55e;">¥21.45</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:#22c55e;">-0.23%</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+1.60万</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+248.98%</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:8px;text-align:left;">RSI(6)</th><th style="padding:8px;text-align:left;">RSI(12)</th><th style="padding:8px;text-align:left;">RSI(24)</th><th style="padding:8px;text-align:left;">5日量比</th><th style="padding:8px;text-align:left;">RSI状态</th><th style="padding:8px;text-align:left;">量能状态</th></tr>
+      <tr>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">None</td>
+        <td style="padding:8px;color:#94a3b8;"> —</td>
+        <td style="padding:8px;color:#94a3b8;"> —</td>
+      </tr>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">RSI: 🔴≥80严重超买 / 🟠70-79超买 / 🟡60-69偏强 / 🟢40-59健康 / 🔵&lt;40偏弱 · 量比: 🟠≥2放量 / 🟡≥1.2温和放量 / 🟢≥0.8正常 / 🔵&lt;0.8缩量</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 近30日日K线</div>
+    <div id="kline_0" style="width:100%;height:320px;background:#0f0f23;border-radius:8px;"></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 操作时间线</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:6px;text-align:left;">阶段</th><th style="padding:6px;text-align:left;">推断日期</th><th style="padding:6px;text-align:left;">对应价格</th><th style="padding:6px;text-align:left;">说明</th></tr>
+      
+    </table>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🎯 8月10日作战策略</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b>评级：</b>持有观察（评分58）<br>
+      <b>操作：</b>建议持有观察，关键位关注 RSI 与量比变化。<br>
+      <b>理由：</b>RSI(6) 处于—区间，量能—，结合当前趋势给出策略建议。
+    </div>
+  </div>
+</div>
+
+<div id="stock-1" style="background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2d2d44;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#e2e8f0;">北京君正 (sz300223) </div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px;">东财 · 1700.00股</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px;color:#94a3b8;">评分</div>
+      <div style="font-size:28px;font-weight:700;color:#f59e0b;">58</div>
+      <div style="font-size:13px;font-weight:600;color:#f59e0b;">HOLD · 持有观察</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">现价</div><div style="font-size:16px;font-weight:700;color:#ef4444;">¥137.00</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+5.15%</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:#22c55e;">-1.21万</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:#22c55e;">-4.96%</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:8px;text-align:left;">RSI(6)</th><th style="padding:8px;text-align:left;">RSI(12)</th><th style="padding:8px;text-align:left;">RSI(24)</th><th style="padding:8px;text-align:left;">5日量比</th><th style="padding:8px;text-align:left;">RSI状态</th><th style="padding:8px;text-align:left;">量能状态</th></tr>
+      <tr>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">None</td>
+        <td style="padding:8px;color:#94a3b8;"> —</td>
+        <td style="padding:8px;color:#94a3b8;"> —</td>
+      </tr>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">RSI: 🔴≥80严重超买 / 🟠70-79超买 / 🟡60-69偏强 / 🟢40-59健康 / 🔵&lt;40偏弱 · 量比: 🟠≥2放量 / 🟡≥1.2温和放量 / 🟢≥0.8正常 / 🔵&lt;0.8缩量</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 近30日日K线</div>
+    <div id="kline_1" style="width:100%;height:320px;background:#0f0f23;border-radius:8px;"></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 操作时间线</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:6px;text-align:left;">阶段</th><th style="padding:6px;text-align:left;">推断日期</th><th style="padding:6px;text-align:left;">对应价格</th><th style="padding:6px;text-align:left;">说明</th></tr>
+      
+    </table>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🎯 8月10日作战策略</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b>评级：</b>持有观察（评分58）<br>
+      <b>操作：</b>建议持有观察，关键位关注 RSI 与量比变化。<br>
+      <b>理由：</b>RSI(6) 处于—区间，量能—，结合当前趋势给出策略建议。
+    </div>
+  </div>
+</div>
+
+<div id="stock-2" style="background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2d2d44;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#e2e8f0;">绿的谐波 (sh688017) </div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px;">东财 · 200.00股</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px;color:#94a3b8;">评分</div>
+      <div style="font-size:28px;font-weight:700;color:#f59e0b;">58</div>
+      <div style="font-size:13px;font-weight:600;color:#f59e0b;">HOLD · 持有观察</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">现价</div><div style="font-size:16px;font-weight:700;color:#ef4444;">¥336.04</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+3.49%</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:#ef4444;">2,200.80</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+3.39%</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:8px;text-align:left;">RSI(6)</th><th style="padding:8px;text-align:left;">RSI(12)</th><th style="padding:8px;text-align:left;">RSI(24)</th><th style="padding:8px;text-align:left;">5日量比</th><th style="padding:8px;text-align:left;">RSI状态</th><th style="padding:8px;text-align:left;">量能状态</th></tr>
+      <tr>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">None</td>
+        <td style="padding:8px;color:#94a3b8;"> —</td>
+        <td style="padding:8px;color:#94a3b8;"> —</td>
+      </tr>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">RSI: 🔴≥80严重超买 / 🟠70-79超买 / 🟡60-69偏强 / 🟢40-59健康 / 🔵&lt;40偏弱 · 量比: 🟠≥2放量 / 🟡≥1.2温和放量 / 🟢≥0.8正常 / 🔵&lt;0.8缩量</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 近30日日K线</div>
+    <div id="kline_2" style="width:100%;height:320px;background:#0f0f23;border-radius:8px;"></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 操作时间线</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:6px;text-align:left;">阶段</th><th style="padding:6px;text-align:left;">推断日期</th><th style="padding:6px;text-align:left;">对应价格</th><th style="padding:6px;text-align:left;">说明</th></tr>
+      
+    </table>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🎯 8月10日作战策略</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b>评级：</b>持有观察（评分58）<br>
+      <b>操作：</b>建议持有观察，关键位关注 RSI 与量比变化。<br>
+      <b>理由：</b>RSI(6) 处于—区间，量能—，结合当前趋势给出策略建议。
+    </div>
+  </div>
+</div>
+
+<div id="stock-3" style="background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2d2d44;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#e2e8f0;">征和工业 (sz003033) </div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px;">中信建投 · 500.00股</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px;color:#94a3b8;">评分</div>
+      <div style="font-size:28px;font-weight:700;color:#f59e0b;">58</div>
+      <div style="font-size:13px;font-weight:600;color:#f59e0b;">HOLD · 持有观察</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">现价</div><div style="font-size:16px;font-weight:700;color:#ef4444;">¥60.75</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+7.00%</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:#ef4444;">474.00</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+1.59%</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:8px;text-align:left;">RSI(6)</th><th style="padding:8px;text-align:left;">RSI(12)</th><th style="padding:8px;text-align:left;">RSI(24)</th><th style="padding:8px;text-align:left;">5日量比</th><th style="padding:8px;text-align:left;">RSI状态</th><th style="padding:8px;text-align:left;">量能状态</th></tr>
+      <tr>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">None</td>
+        <td style="padding:8px;color:#94a3b8;"> —</td>
+        <td style="padding:8px;color:#94a3b8;"> —</td>
+      </tr>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">RSI: 🔴≥80严重超买 / 🟠70-79超买 / 🟡60-69偏强 / 🟢40-59健康 / 🔵&lt;40偏弱 · 量比: 🟠≥2放量 / 🟡≥1.2温和放量 / 🟢≥0.8正常 / 🔵&lt;0.8缩量</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 近30日日K线</div>
+    <div id="kline_3" style="width:100%;height:320px;background:#0f0f23;border-radius:8px;"></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 操作时间线</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:6px;text-align:left;">阶段</th><th style="padding:6px;text-align:left;">推断日期</th><th style="padding:6px;text-align:left;">对应价格</th><th style="padding:6px;text-align:left;">说明</th></tr>
+      
+    </table>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🎯 8月10日作战策略</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b>评级：</b>持有观察（评分58）<br>
+      <b>操作：</b>建议持有观察，关键位关注 RSI 与量比变化。<br>
+      <b>理由：</b>RSI(6) 处于—区间，量能—，结合当前趋势给出策略建议。
+    </div>
+  </div>
+</div>
+
+<div id="stock-4" style="background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2d2d44;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#e2e8f0;">科大讯飞 (sz002230) </div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px;">中信建投 · 500.00股</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px;color:#94a3b8;">评分</div>
+      <div style="font-size:28px;font-weight:700;color:#f59e0b;">58</div>
+      <div style="font-size:13px;font-weight:600;color:#f59e0b;">HOLD · 持有观察</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">现价</div><div style="font-size:16px;font-weight:700;color:#22c55e;">¥43.68</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:#22c55e;">-0.34%</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:#ef4444;">510.00</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+2.39%</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:8px;text-align:left;">RSI(6)</th><th style="padding:8px;text-align:left;">RSI(12)</th><th style="padding:8px;text-align:left;">RSI(24)</th><th style="padding:8px;text-align:left;">5日量比</th><th style="padding:8px;text-align:left;">RSI状态</th><th style="padding:8px;text-align:left;">量能状态</th></tr>
+      <tr>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">None</td>
+        <td style="padding:8px;color:#94a3b8;"> —</td>
+        <td style="padding:8px;color:#94a3b8;"> —</td>
+      </tr>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">RSI: 🔴≥80严重超买 / 🟠70-79超买 / 🟡60-69偏强 / 🟢40-59健康 / 🔵&lt;40偏弱 · 量比: 🟠≥2放量 / 🟡≥1.2温和放量 / 🟢≥0.8正常 / 🔵&lt;0.8缩量</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 近30日日K线</div>
+    <div id="kline_4" style="width:100%;height:320px;background:#0f0f23;border-radius:8px;"></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 操作时间线</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:6px;text-align:left;">阶段</th><th style="padding:6px;text-align:left;">推断日期</th><th style="padding:6px;text-align:left;">对应价格</th><th style="padding:6px;text-align:left;">说明</th></tr>
+      
+    </table>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🎯 8月10日作战策略</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b>评级：</b>持有观察（评分58）<br>
+      <b>操作：</b>建议持有观察，关键位关注 RSI 与量比变化。<br>
+      <b>理由：</b>RSI(6) 处于—区间，量能—，结合当前趋势给出策略建议。
+    </div>
+  </div>
+</div>
+
+<div id="stock-5" style="background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2d2d44;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#e2e8f0;">哈药股份 (sh600664) <span style='background:rgba(239,68,68,0.2);color:#ef4444;padding:2px 6px;border-radius:4px;font-size:11px;margin-left:8px;'>涨停</span></div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px;">中信建投 · 3000.00股</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px;color:#94a3b8;">评分</div>
+      <div style="font-size:28px;font-weight:700;color:#f59e0b;">58</div>
+      <div style="font-size:13px;font-weight:600;color:#f59e0b;">HOLD · 持有观察</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">现价</div><div style="font-size:16px;font-weight:700;color:#ef4444;">¥6.22</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+9.97%</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:#22c55e;">-1,566.00</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:#22c55e;">-7.74%</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:8px;text-align:left;">RSI(6)</th><th style="padding:8px;text-align:left;">RSI(12)</th><th style="padding:8px;text-align:left;">RSI(24)</th><th style="padding:8px;text-align:left;">5日量比</th><th style="padding:8px;text-align:left;">RSI状态</th><th style="padding:8px;text-align:left;">量能状态</th></tr>
+      <tr>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">—</td>
+        <td style="padding:8px;color:#94a3b8;">None</td>
+        <td style="padding:8px;color:#94a3b8;"> —</td>
+        <td style="padding:8px;color:#94a3b8;"> —</td>
+      </tr>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">RSI: 🔴≥80严重超买 / 🟠70-79超买 / 🟡60-69偏强 / 🟢40-59健康 / 🔵&lt;40偏弱 · 量比: 🟠≥2放量 / 🟡≥1.2温和放量 / 🟢≥0.8正常 / 🔵&lt;0.8缩量</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 近30日日K线</div>
+    <div id="kline_5" style="width:100%;height:320px;background:#0f0f23;border-radius:8px;"></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 操作时间线</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:6px;text-align:left;">阶段</th><th style="padding:6px;text-align:left;">推断日期</th><th style="padding:6px;text-align:left;">对应价格</th><th style="padding:6px;text-align:left;">说明</th></tr>
+      
+    </table>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🎯 8月10日作战策略</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b>评级：</b>持有观察（评分58）<br>
+      <b>操作：</b>建议持有观察，关键位关注 RSI 与量比变化。<br>
+      <b>理由：</b>RSI(6) 处于—区间，量能—，结合当前趋势给出策略建议。
+    </div>
+  </div>
+</div>
+
+
+  <div class="card">
+    <h2>📅 8月10日持仓股综合作战计划</h2>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>优先级</th><th>股票</th><th>操作</th><th>关键价位</th><th>仓位变化</th><th>理由</th></tr></thead>
+        <tbody><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>🟢 P2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>永安行</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>持有观察</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI— · 量比— · —</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>🟢 P2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>北京君正</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>持有观察</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI— · 量比— · —</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>🟢 P2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>绿的谐波</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>持有观察</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI— · 量比— · —</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>🟢 P2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>征和工业</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>持有观察</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI— · 量比— · —</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>🟢 P2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>科大讯飞</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>持有观察</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI— · 量比— · —</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>🟢 P2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>哈药股份</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>持有观察</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>—</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI— · 量比— · —</td>
+        </tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="font-size:11px;color:var(--muted);margin-top:20px;text-align:center;">
+    本分析仅供学习和研究参考，不构成任何投资建议。股市有风险，投资需谨慎。
+  </div>
+</div>
+<script>
+
+</script>
+</body>
+</html>

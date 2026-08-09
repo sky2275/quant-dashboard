@@ -2953,6 +2953,7 @@ def _section_holdings(positions, a_quotes, indicators, account_pnl=None, daily_r
             <div class="card-title">
                 <span class="icon"><i class="fas fa-briefcase"></i></span> {title}
                 <span class="badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;">持仓 {len(rows)} 只</span>
+                <a href="portfolio-review-20260810.html" onclick="event.stopPropagation();" style="margin-left:auto;margin-right:12px;background:rgba(59,130,246,0.15);color:#3b82f6;padding:4px 10px;border-radius:6px;font-size:11px;text-decoration:none;cursor:pointer;">📄 查看完整持仓复盘报告</a>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看完整分析</span>
             </div>
             <!-- 作战计划概览 -->
