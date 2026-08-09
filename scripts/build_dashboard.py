@@ -263,6 +263,8 @@ CSS_RULES = """
         .idx-chip:hover { color:var(--text-primary); border-color:rgba(79,195,247,0.4); }
         .idx-chip.active { background:rgba(79,195,247,0.15); color:var(--accent-blue); border-color:var(--accent-blue); }
         .stock-chart { width:100%; height:460px; border-radius:10px; background:rgba(0,0,0,0.18); border:1px solid var(--border-color); }
+        .stock-detail-price { display:flex; flex-wrap:wrap; gap:16px; margin-top:14px; padding:10px 14px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid var(--border-color); font-size:13px; color:var(--text-secondary); }
+        .stock-detail-price span b { color:var(--text-primary); font-weight:600; }
         .stock-detail-info { margin-top:14px; padding:14px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid var(--border-color); }
         .stock-detail-info-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:12px; }
         @media (max-width:768px) { .stock-detail-info-grid { grid-template-columns:repeat(2, 1fr); } }
@@ -5084,6 +5086,12 @@ def build() -> str:
             </div>
             <div id="stockChart-daily" class="stock-chart"></div>
             <div id="stockChart-intraday" class="stock-chart" style="display:none;"></div>
+            <div class="stock-detail-price" id="stockPriceInfo" style="display:none;">
+                <span><b>昨收:</b> <span id="sdPrePrice">—</span></span>
+                <span><b>最新:</b> <span id="sdLastPrice">—</span></span>
+                <span><b>涨跌:</b> <span id="sdPct">—</span></span>
+                <span><b>代码:</b> <span id="sdCode">—</span></span>
+            </div>
             <div class="stock-detail-info" id="stockDetailInfo" style="display:none;">
                 <div class="stock-detail-info-grid">
                     <div class="stock-info-item"><span class="label">所属板块</span><span class="value" id="sdIndustry">—</span></div>
@@ -5115,6 +5123,9 @@ def build() -> str:
 
     # 预抓取美股 ETF K 线（Tushare 备用数据源，嵌入 HTML，浏览器离线可用）
     us_etf_klines = _fetch_us_etf_klines_for_build()
+
+    # 预抓取涨停个股日K/分时数据（腾讯源，详情弹窗离线渲染）
+    limit_up_klines = _load_cache("limit_up_klines") or {}
 
     # 预计算 A 股映射候选的技术指标（RSI/量比/MACD）用于板块详情弹窗
     sector_a_indicators = _fetch_sector_a_indicators(overnight, cfg)
@@ -5163,6 +5174,8 @@ window.A_NAME_CODE = {json.dumps({k: v for k, v in NAME_CODE.items() if isinstan
 window.KOREA_NAME_CODE = {json.dumps(KOREA_NAME_CODE, ensure_ascii=False)};
 /* 涨停个股详情元数据（用于个股详情弹窗展示板块情绪/次日预测/建仓建议） */
 window.LIMIT_UP_DETAIL = {json.dumps(limit_up_detail, ensure_ascii=False)};
+/* 涨停个股预嵌入K线（日K/分时），详情弹窗优先使用 */
+window.LIMIT_UP_KLINES = {json.dumps(limit_up_klines, ensure_ascii=False)};
 
 /* ---- 板块&龙头股：A股全量浏览器（搜索/排序/分页） ---- */
 const ASTOCK_PAGE_SIZE = 60;
@@ -6241,6 +6254,15 @@ function showPanel(id) {{
 var stockDailyChart = null;
 var stockIntradayChart = null;
 var currentStockSecid = null;
+var currentStockCode = null;
+var currentStockName = null;
+
+/* 兼容注册：若 INDEX_CHART_JS 尚未执行，先自建图表注册表 */
+function registerChart(chart) {
+  if (!chart) return;
+  if (!window.__CHARTS__) window.__CHARTS__ = [];
+  if (window.__CHARTS__.indexOf(chart) < 0) window.__CHARTS__.push(chart);
+}
 
 function _stockJsonp(url, cbName) {
   return new Promise(function(resolve) {
@@ -6288,15 +6310,23 @@ function openStockDetail(code, name) {
   var secid = toEmSecid(code);
   if (!secid) return;
   currentStockSecid = secid;
+  currentStockCode = code;
+  currentStockName = name || code;
   document.getElementById('stockDetailName').textContent = name || code;
   document.getElementById('stockDetailCode').textContent = code;
   document.getElementById('stockChart-daily').innerHTML = '';
   document.getElementById('stockChart-intraday').innerHTML = '';
+  document.getElementById('stockPriceInfo').style.display = 'none';
+  if (stockDailyChart) { stockDailyChart.dispose(); stockDailyChart = null; }
+  if (stockIntradayChart) { stockIntradayChart.dispose(); stockIntradayChart = null; }
   document.getElementById('stockModal').classList.add('active');
   renderLimitUpInfo(code);
   switchStockTab('daily');
-  fetchStockDaily(secid, name);
-  fetchStockIntraday(secid, name);
+  // 延迟加载图表，确保 modal 渲染出实际尺寸
+  setTimeout(function() {
+    fetchStockDaily(secid, name);
+    fetchStockIntraday(secid, name);
+  }, 60);
 }
 
 function closeStockDetail() {
@@ -6304,6 +6334,8 @@ function closeStockDetail() {
   if (stockDailyChart) { stockDailyChart.dispose(); stockDailyChart = null; }
   if (stockIntradayChart) { stockIntradayChart.dispose(); stockIntradayChart = null; }
   currentStockSecid = null;
+  currentStockCode = null;
+  currentStockName = null;
 }
 
 function switchStockTab(tab) {
@@ -6317,15 +6349,24 @@ function switchStockTab(tab) {
 }
 
 function fetchStockDaily(secid, name) {
-  var cb = 'emk_' + Math.random().toString(36).slice(2, 10);
-  var url = 'https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=' + secid + '&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=0&beg=20220101&end=20500101&ut=fa5fd1943c7b386f172d6893dbfba10b&cb=' + cb;
-  _stockJsonp(url, cb).then(function(res) {
-    var data = (res && res.data) ? res.data : null;
-    if (!data || !data.klines || !data.klines.length) {
+  var code = currentStockCode;
+  var pre = (window.LIMIT_UP_KLINES || {})[code];
+  if (pre && pre.daily && pre.daily.length) {
+    renderStockDaily({ klines: pre.daily.map(function(x){ return x.join(','); }), name: name || pre.name }, name);
+    return;
+  }
+  // fallback: 腾讯日K JSON（个股弹窗通常已预嵌入，兜底用）
+  var full = (secid.split('.')[0] === '1' ? 'sh' : 'sz') + secid.split('.')[1];
+  var url = 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=' + full + ',day,,,250,qfq';
+  fetch(url).then(function(r){ return r.json(); }).then(function(j) {
+    var kl = (j && j.data && j.data[full] && (j.data[full].qfqday || j.data[full].day)) || [];
+    if (!kl.length) {
       document.getElementById('stockChart-daily').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">日K数据加载失败或暂无数据</div>';
       return;
     }
-    renderStockDaily(data, name);
+    renderStockDaily({ klines: kl.map(function(x){ return x.join(','); }), name: name }, name);
+  }).catch(function(e){
+    document.getElementById('stockChart-daily').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">日K数据加载失败（网络/CORS）</div>';
   });
 }
 
@@ -6360,7 +6401,7 @@ function renderStockDaily(data, name) {
     grid: { left: 56, right: 16, top: 64, bottom: 32 },
     xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
     yAxis: { scale: true, splitLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
-    dataZoom: [{ type: 'inside', start: 30, end: 100 }], // 默认聚焦 2026/1 至今（数据中部到最新）
+    dataZoom: [{ type: 'inside', start: 30, end: 100 }],
     series: [
       { name: 'K线', type: 'candlestick', data: values, itemStyle: { color: upColor, color0: downColor, borderColor: upColor, borderColor0: downColor } },
       { name: 'MA5', type: 'line', data: ma5, smooth: true, showSymbol: false, lineStyle: { color: '#f59e0b', width: 1 } },
@@ -6376,15 +6417,35 @@ function renderStockDaily(data, name) {
 }
 
 function fetchStockIntraday(secid, name) {
-  var cb = 'emt_' + Math.random().toString(36).slice(2, 10);
-  var url = 'https://push2.eastmoney.com/api/qt/stock/trends2/get?secid=' + secid + '&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&ndays=1&iscr=0&ut=fa5fd1943c7b386f172d6893dbfba10b&cb=' + cb;
-  _stockJsonp(url, cb).then(function(res) {
-    var data = (res && res.data) ? res.data : null;
-    if (!data || !data.trends || !data.trends.length) {
+  var code = currentStockCode;
+  var pre = (window.LIMIT_UP_KLINES || {})[code];
+  if (pre && pre.intraday && pre.intraday.data && pre.intraday.data.length) {
+    var prePrice = (pre.daily && pre.daily.length >= 2) ? pre.daily[pre.daily.length - 2][2] : 0;
+    renderStockIntraday({ trends: pre.intraday.data.map(function(x){ return x.join(','); }), name: name || pre.name, prePrice: prePrice }, name);
+    return;
+  }
+  // fallback: 腾讯分时 JSON
+  var full = (secid.split('.')[0] === '1' ? 'sh' : 'sz') + secid.split('.')[1];
+  var url = 'https://web.ifzq.gtimg.cn/appstock/app/minute/query?code=' + full;
+  fetch(url).then(function(r){ return r.json(); }).then(function(j) {
+    var rows = (j && j.data && j.data[full] && j.data[full].data && j.data[full].data.data) || [];
+    if (!rows.length) {
       document.getElementById('stockChart-intraday').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">分时数据加载失败或暂无数据</div>';
       return;
     }
-    renderStockIntraday(data, name);
+    var trends = [];
+    var cumVol = 0, cumAmt = 0;
+    rows.forEach(function(line){
+      var p = line.split(' ');
+      if (p.length < 4) return;
+      var time = p[0], price = parseFloat(p[1]), vol = parseFloat(p[2]), amt = parseFloat(p[3]);
+      cumVol += vol; cumAmt += amt;
+      var avg = cumVol > 0 ? (cumAmt / cumVol) : price;
+      trends.push(time + ',' + price + ',' + avg.toFixed(3));
+    });
+    renderStockIntraday({ trends: trends, name: name }, name);
+  }).catch(function(e){
+    document.getElementById('stockChart-intraday').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">分时数据加载失败（网络/CORS）</div>';
   });
 }
 
@@ -6426,14 +6487,20 @@ function renderStockIntraday(data, name) {
 }
 
 function updateStockInfo(prePrice, lastPrice, data) {
-  var info = document.getElementById('stockDetailInfo');
+  var info = document.getElementById('stockPriceInfo');
+  if (!info) return;
+  info.style.display = 'flex';
   var pct = prePrice ? (((lastPrice - prePrice) / prePrice) * 100).toFixed(2) : '—';
   var sign = parseFloat(pct) > 0 ? '+' : '';
   var color = parseFloat(pct) > 0 ? '#ef4444' : (parseFloat(pct) < 0 ? '#22c55e' : '#8892a0');
-  info.innerHTML = '<span><b>昨收:</b> ' + (prePrice || '—') + '</span>'
-    + '<span><b>最新:</b> <b style="color:' + color + ';">' + (lastPrice || '—') + '</b></span>'
-    + '<span><b>涨跌:</b> <b style="color:' + color + ';">' + sign + pct + '%</b></span>'
-    + '<span><b>代码:</b> ' + (data.code || '—') + '</span>';
+  document.getElementById('sdPrePrice').textContent = prePrice || '—';
+  var lpEl = document.getElementById('sdLastPrice');
+  lpEl.textContent = lastPrice || '—';
+  lpEl.style.color = color;
+  var pctEl = document.getElementById('sdPct');
+  pctEl.textContent = sign + pct + '%';
+  pctEl.style.color = color;
+  document.getElementById('sdCode').textContent = data.code || currentStockCode || '—';
 }
 
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeStockDetail(); });
@@ -6445,7 +6512,7 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') close
 var idxDailyChart = null, idxIntradayChart = null;
 
 /* 全局 echarts 实例注册表：窗口 resize / 设备旋转时统一 resize，保证手机端图表自适应 */
-window.__CHARTS__ = [];
+window.__CHARTS__ = window.__CHARTS__ || [];
 function registerChart(chart) { if (chart && window.__CHARTS__.indexOf(chart) < 0) window.__CHARTS__.push(chart); }
 if (!window.__CHART_RESIZE_BOUND__) {
   window.__CHART_RESIZE_BOUND__ = true;

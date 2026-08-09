@@ -952,6 +952,109 @@ def _board_limit(name: str, code: str) -> float:
     return 10.0
 
 
+def _to_tencent_full(code: str) -> str | None:
+    """6位A股代码或带前缀代码 -> 腾讯完整代码如 sh600721"""
+    s = str(code).strip().lower()
+    if len(s) == 6 and s.isdigit():
+        if s[0] in ("6", "9"):
+            return f"sh{s}"
+        if s[0] in ("0", "3", "8", "4"):
+            return f"sz{s}"
+        return None
+    if s.startswith(("sh", "sz", "bj")) and len(s) == 8:
+        return s
+    return None
+
+
+def _fetch_tencent_daily(full: str, count: int = 250) -> list[list]:
+    """获取腾讯日K线，返回 [date, open, close, high, low, vol] 列表。"""
+    headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://gu.qq.com/"}
+    url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={full},day,,,{count},qfq"
+    try:
+        r = requests.get(url, timeout=8, headers=headers)
+        j = r.json()
+        kl = (j.get("data", {}).get(full, {}).get("qfqday") or
+              j.get("data", {}).get(full, {}).get("day") or [])
+        return [[str(k[0]), float(k[1]), float(k[2]), float(k[3]), float(k[4]), float(k[5])] for k in kl]
+    except Exception as e:
+        print(f"[limit_up_klines] daily {full}: {e}")
+        return []
+
+
+def _fetch_tencent_intraday(full: str) -> dict | None:
+    """获取腾讯分时数据，返回 {data: [[time, price, avg], ...]}。"""
+    headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://gu.qq.com/"}
+    url = f"https://web.ifzq.gtimg.cn/appstock/app/minute/query?code={full}"
+    try:
+        r = requests.get(url, timeout=8, headers=headers)
+        j = r.json()
+        rows = (j.get("data", {}).get(full, {}).get("data", {}).get("data") or [])
+        if not rows:
+            return None
+        cum_vol = 0.0
+        cum_amt = 0.0
+        data = []
+        for line in rows:
+            parts = line.split(" ")
+            if len(parts) < 4:
+                continue
+            time_str = parts[0]
+            price = float(parts[1])
+            vol = float(parts[2])
+            amt = float(parts[3])
+            cum_vol += vol
+            cum_amt += amt
+            avg = cum_amt / cum_vol if cum_vol > 0 else price
+            data.append([time_str, price, round(avg, 3)])
+        return {"data": data}
+    except Exception as e:
+        print(f"[limit_up_klines] intraday {full}: {e}")
+        return None
+
+
+def get_limit_up_klines(limit_up: list[dict]) -> dict[str, dict]:
+    """
+    为涨停个股预拉取日K线与分时数据，用于详情弹窗离线渲染。
+    返回 {code: {"daily": [...], "intraday": {...}, "name": ...}}
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    real = [x for x in limit_up if isinstance(x, dict) and "error" not in x]
+    codes = []
+    for x in real:
+        code = str(x.get("代码", ""))
+        if code and _to_tencent_full(code):
+            codes.append(code)
+    codes = list(dict.fromkeys(codes))
+
+    out: dict[str, dict] = {}
+    if not codes:
+        return out
+
+    def _fetch_one(code: str):
+        full = _to_tencent_full(code)
+        if not full:
+            return None
+        name = next((x.get("名称") for x in real if str(x.get("代码", "")) == code), None)
+        daily = _fetch_tencent_daily(full)
+        intraday = _fetch_tencent_intraday(full)
+        if not daily and not intraday:
+            return None
+        return code, {"name": name, "daily": daily, "intraday": intraday}
+
+    with ThreadPoolExecutor(max_workers=5) as exe:
+        futures = {exe.submit(_fetch_one, code): code for code in codes}
+        for fut in as_completed(futures):
+            try:
+                result = fut.result()
+                if result:
+                    code, payload = result
+                    out[code] = payload
+            except Exception as e:
+                print(f"[limit_up_klines] worker error: {e}")
+    return out
+
+
 def get_market_breadth() -> dict:
     """
     A股市场宽度：成交额、上涨/下跌家数、涨停/跌停家数。
@@ -1337,6 +1440,12 @@ def collect_all(date: str | None = None) -> dict:
     else:
         sector_flow, sf_stale = _pick(get_sector_fund_flow(), "sector_flow")
     limit_up, lu_stale = _pick(get_limit_up(trade_date), "limit_up")
+    # 预拉取涨停个股日K/分时数据，供看板详情弹窗离线渲染
+    try:
+        lu_klines = get_limit_up_klines(limit_up)
+        _save("limit_up_klines", lu_klines)
+    except Exception as e:
+        print(f"[collect_all] limit_up_klines 失败: {e}")
     heatmap, hm_stale = _pick(get_a_spot_sample(), "heatmap")
     breadth, br_stale = _pick(get_market_breadth(), "market_breadth")
     # 板块成分股（①弹窗用）：frozen 且冻结文件存在时已用冻结值，否则实时计算
