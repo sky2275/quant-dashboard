@@ -1885,17 +1885,17 @@ def _section_us_index_kline():
                   f'onclick="openUsIndexDetail(\'{code}\', \'{name}\')">{name} ({code})</span>')
     return f'''
         <div class="card card-full">
-            <div class="card-title"><span class="icon"><i class="fas fa-chart-area"></i></span> 美股板块指数K线 <span class="badge">周K / 日K</span>
+            <div class="card-title"><span class="icon"><i class="fas fa-chart-area"></i></span> 美股板块指数K线 <span class="badge">日K / 周K</span>
                 <span class="click-hint">点击切换指数</span>
             </div>
             <div class="us-index-chips">{chips}</div>
             <div class="stock-detail-tabs" style="margin-top:12px;">
-                <div class="us-idx-tab stock-detail-tab active" onclick="switchUsIndexTab('weekly')" id="usIdxTab-weekly">周K线</div>
-                <div class="us-idx-tab stock-detail-tab" onclick="switchUsIndexTab('daily')" id="usIdxTab-daily">日K线</div>
+                <div class="us-idx-tab stock-detail-tab active" onclick="switchUsIndexTab('daily')" id="usIdxTab-daily">日K线</div>
+                <div class="us-idx-tab stock-detail-tab" onclick="switchUsIndexTab('weekly')" id="usIdxTab-weekly">周K线</div>
                 <div class="us-idx-tab stock-detail-tab" onclick="switchUsIndexTab('monthly')" id="usIdxTab-monthly">月K线</div>
             </div>
-            <div id="usIdxChart-weekly" class="stock-chart"></div>
-            <div id="usIdxChart-daily" class="stock-chart" style="display:none;"></div>
+            <div id="usIdxChart-daily" class="stock-chart"></div>
+            <div id="usIdxChart-weekly" class="stock-chart" style="display:none;"></div>
             <div id="usIdxChart-monthly" class="stock-chart" style="display:none;"></div>
             <div class="stock-detail-info" id="usIdxDetailInfo"></div>
         </div>'''
@@ -6456,7 +6456,7 @@ function openUsIndexDetail(code, name) {
   fetchUsIndexKline(full, name, 'daily');
   fetchUsIndexKline(full, name, 'weekly');
   fetchUsIndexKline(full, name, 'monthly');
-  switchUsIndexTab('weekly');
+  switchUsIndexTab('daily');
 }
 
 function switchUsIndexTab(tab) {

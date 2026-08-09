@@ -837,7 +837,7 @@
             <span class="status-badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;"><i class="fas fa-moon"></i> 休市 · 显示 08-07 收盘数据</span>
             <span class="live-badge" id="rtStatus"><i class="dot"></i> 实时 · 加载中</span>
             <button id="rtRefreshBtn" class="rt-refresh-btn" onclick="rtManualRefresh()" title="立即刷新所有行情"><i class="fas fa-sync-alt"></i> 立即刷新</button>
-            <span class="version-badge" title="页面构建版本">v20260809-2136</span>
+            <span class="version-badge" title="页面构建版本">v20260809-2150</span>
         </div>
     </header>
     <div class="app-layout">
@@ -1042,17 +1042,17 @@
         </div>
         </div>
         <div class="card card-full">
-            <div class="card-title"><span class="icon"><i class="fas fa-chart-area"></i></span> 美股板块指数K线 <span class="badge">周K / 日K</span>
+            <div class="card-title"><span class="icon"><i class="fas fa-chart-area"></i></span> 美股板块指数K线 <span class="badge">日K / 周K</span>
                 <span class="click-hint">点击切换指数</span>
             </div>
             <div class="us-index-chips"><span class="us-index-chip active" data-code="SOXX" data-name="费城半导体" onclick="openUsIndexDetail('SOXX', '费城半导体')">费城半导体 (SOXX)</span><span class="us-index-chip" data-code="QQQ" data-name="纳斯达克100" onclick="openUsIndexDetail('QQQ', '纳斯达克100')">纳斯达克100 (QQQ)</span><span class="us-index-chip" data-code="XLK" data-name="科技行业ETF" onclick="openUsIndexDetail('XLK', '科技行业ETF')">科技行业ETF (XLK)</span><span class="us-index-chip" data-code="SMH" data-name="半导体ETF" onclick="openUsIndexDetail('SMH', '半导体ETF')">半导体ETF (SMH)</span><span class="us-index-chip" data-code="KWEB" data-name="中概互联网" onclick="openUsIndexDetail('KWEB', '中概互联网')">中概互联网 (KWEB)</span><span class="us-index-chip" data-code="BOTZ" data-name="机器人/AI" onclick="openUsIndexDetail('BOTZ', '机器人/AI')">机器人/AI (BOTZ)</span><span class="us-index-chip" data-code="ARKQ" data-name="自主科技" onclick="openUsIndexDetail('ARKQ', '自主科技')">自主科技 (ARKQ)</span><span class="us-index-chip" data-code="COHR" data-name="光模块龙头" onclick="openUsIndexDetail('COHR', '光模块龙头')">光模块龙头 (COHR)</span><span class="us-index-chip" data-code="LITE" data-name="光模块LITE" onclick="openUsIndexDetail('LITE', '光模块LITE')">光模块LITE (LITE)</span></div>
             <div class="stock-detail-tabs" style="margin-top:12px;">
-                <div class="us-idx-tab stock-detail-tab active" onclick="switchUsIndexTab('weekly')" id="usIdxTab-weekly">周K线</div>
-                <div class="us-idx-tab stock-detail-tab" onclick="switchUsIndexTab('daily')" id="usIdxTab-daily">日K线</div>
+                <div class="us-idx-tab stock-detail-tab active" onclick="switchUsIndexTab('daily')" id="usIdxTab-daily">日K线</div>
+                <div class="us-idx-tab stock-detail-tab" onclick="switchUsIndexTab('weekly')" id="usIdxTab-weekly">周K线</div>
                 <div class="us-idx-tab stock-detail-tab" onclick="switchUsIndexTab('monthly')" id="usIdxTab-monthly">月K线</div>
             </div>
-            <div id="usIdxChart-weekly" class="stock-chart"></div>
-            <div id="usIdxChart-daily" class="stock-chart" style="display:none;"></div>
+            <div id="usIdxChart-daily" class="stock-chart"></div>
+            <div id="usIdxChart-weekly" class="stock-chart" style="display:none;"></div>
             <div id="usIdxChart-monthly" class="stock-chart" style="display:none;"></div>
             <div class="stock-detail-info" id="usIdxDetailInfo"></div>
         </div>
@@ -4797,7 +4797,7 @@ function openUsIndexDetail(code, name) {
   fetchUsIndexKline(full, name, 'daily');
   fetchUsIndexKline(full, name, 'weekly');
   fetchUsIndexKline(full, name, 'monthly');
-  switchUsIndexTab('weekly');
+  switchUsIndexTab('daily');
 }
 
 function switchUsIndexTab(tab) {
