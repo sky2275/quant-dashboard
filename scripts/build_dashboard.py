@@ -5605,6 +5605,19 @@ function closeModal() {{
 }}
 
 // 美股 → A股 板块详情弹窗
+// 美股 → A股 板块详情弹窗（增强版：K线图 + 技术指标 + 成分股分布）
+const SECTOR_ETF_MAP = {{
+  "半导体": "SOXX", "存储芯片": "SMH", "光模块": "COHR",
+  "物理AI/机器人": "BOTZ", "科技巨头": "XLK", "苹果供应链": "AAPL",
+  "先进封装": "SOXX"
+}};
+var SECTOR_ETF_NAMES_LOOKUP = {{
+  "SOXX": "费城半导体", "QQQ": "纳斯达克100", "XLK": "科技行业ETF",
+  "SMH": "半导体ETF", "KWEB": "中概互联网", "BOTZ": "机器人/AI",
+  "ARKQ": "自主科技", "COHR": "光模块龙头", "LITE": "光模块", "AAPL": "苹果"
+}};
+var sectorDetailChart = null;
+
 function openSectorDetail(sectorKey) {{
   var sectors = window.SECTOR_TRANSMIT || [];
   var sec = null;
@@ -5613,44 +5626,70 @@ function openSectorDetail(sectorKey) {{
   }}
   if (!sec) return;
   var usQ = window.US_QUOTES || {{}};
+  var drvs = sec.drivers || [];
+  var cands = sec.a_candidates || [];
+  var upCnt = 0, downCnt = 0, validPcts = [];
+  drvs.forEach(function(d){{
+    var q = usQ[d.symbol];
+    var pct = q && q.change_pct != null ? q.change_pct : d.change_pct;
+    if (pct != null) {{ validPcts.push(pct); if (pct > 0) upCnt++; else if (pct < 0) downCnt++; }}
+  }});
+  var avgPct = validPcts.length ? validPcts.reduce(function(s,x){{return s+x;}}, 0) / validPcts.length : 0;
+  var totalDrv = upCnt + downCnt;
+  var strength = totalDrv > 0 ? Math.round(upCnt / totalDrv * 100) : 0;
   var color = sec.level && (sec.level.indexOf('利好') >= 0 || sec.level.indexOf('偏多') >= 0) ? '#ef4444'
             : (sec.level && sec.level.indexOf('利空') >= 0 ? '#22c55e' : '#f59e0b');
-  var html = '<div style="font-size:13px;line-height:1.7;">';
-  // 标题区
-  html += '<div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:14px;margin-bottom:14px;border-left:4px solid ' + color + ';">';
-  html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">';
-  html += '<div style="font-size:18px;font-weight:600;color:#e8edf4;">🔹 ' + sec.a_sector + '</div>';
-  html += '<div style="font-size:14px;font-weight:600;color:' + color + ';">' + sec.level + '</div>';
+  var strengthColor = strength >= 60 ? '#ef4444' : (strength >= 40 ? '#f59e0b' : '#22c55e');
+  var etfCode = SECTOR_ETF_MAP[sectorKey] || '';
+  var html = '<div style="font-size:13px;line-height:1.7;max-width:1100px;">';
+  html += '<div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:16px;margin-bottom:14px;border-left:4px solid ' + color + ';">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">';
+  html += '<div><div style="font-size:20px;font-weight:600;color:#e8edf4;">🔹 ' + sec.a_sector + '</div>';
+  html += '<div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">加权 ' + (sec.avg_change >= 0 ? '+' : '') + (sec.avg_change || 0).toFixed(2) + '% · 阈值 ' + (sec.threshold || 1.5) + '% · 驱动 ' + drvs.length + ' 只 · 候选 ' + cands.length + ' 只</div></div>';
+  html += '<div style="text-align:right;"><div style="font-size:16px;font-weight:600;color:' + color + ';">' + sec.level + '</div>';
+  html += '<div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">板块强度 <span style="color:' + strengthColor + ';font-weight:600;">' + strength + '%</span> · ' + upCnt + '↑ / ' + downCnt + '↓</div></div>';
   html += '</div>';
-  html += '<div style="margin-top:6px;font-size:12px;color:var(--text-secondary);">加权 ' + (sec.avg_change >= 0 ? '+' : '') + (sec.avg_change || 0).toFixed(2) + '% · 触发阈值 ' + (sec.threshold || 1.5) + '%</div>';
-  html += '</div>';
-
-  // 美股驱动股（详细表格）
-  html += '<div style="margin-bottom:18px;"><div style="font-weight:600;color:#4fc3f7;font-size:13px;margin-bottom:8px;">📈 美股驱动股（实时）</div>';
-  html += '<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);color:var(--text-secondary);"><th style="text-align:left;padding:6px;">代码</th><th style="text-align:left;padding:6px;">名称</th><th style="text-align:right;padding:6px;">最新价</th><th style="text-align:right;padding:6px;">涨跌幅</th></tr></thead><tbody>';
-  var drvs = sec.drivers || [];
-  for (var i = 0; i < drvs.length; i++) {{
-    var d = drvs[i];
+  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;">';
+  html += '<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:var(--text-secondary);">驱动股加权</div><div style="font-size:14px;font-weight:600;color:' + (avgPct > 0 ? '#ef4444' : '#22c55e') + ';font-family:var(--font-num);">' + (avgPct >= 0 ? '+' : '') + avgPct.toFixed(2) + '%</div></div>';
+  html += '<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:var(--text-secondary);">上涨数</div><div style="font-size:14px;font-weight:600;color:#ef4444;font-family:var(--font-num);">' + upCnt + '</div></div>';
+  html += '<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:var(--text-secondary);">下跌数</div><div style="font-size:14px;font-weight:600;color:#22c55e;font-family:var(--font-num);">' + downCnt + '</div></div>';
+  html += '<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:var(--text-secondary);">板块强度</div><div style="font-size:14px;font-weight:600;color:' + strengthColor + ';font-family:var(--font-num);">' + strength + '%</div></div>';
+  html += '</div></div>';
+  if (etfCode) {{
+    html += '<div style="margin-bottom:18px;"><div style="font-weight:600;color:#4fc3f7;font-size:13px;margin-bottom:8px;">📊 板块代表 ETF K 线：' + etfCode + '（' + (SECTOR_ETF_NAMES_LOOKUP[etfCode] || etfCode) + '）</div>';
+    html += '<div class="stock-detail-tabs" style="margin-bottom:8px;">';
+    html += '<div class="sec-idx-tab stock-detail-tab active" onclick="switchSectorChartTab(this,\'daily\')">日K</div>';
+    html += '<div class="sec-idx-tab stock-detail-tab" onclick="switchSectorChartTab(this,\'weekly\')">周K</div>';
+    html += '<div class="sec-idx-tab stock-detail-tab" onclick="switchSectorChartTab(this,\'monthly\')">月K</div>';
+    html += '</div>';
+    html += '<div id="sectorChart-daily" class="stock-chart" style="height:380px;"></div>';
+    html += '<div id="sectorChart-weekly" class="stock-chart" style="height:380px;display:none;"></div>';
+    html += '<div id="sectorChart-monthly" class="stock-chart" style="height:380px;display:none;"></div>';
+    html += '</div>';
+  }}
+  html += '<div style="margin-bottom:18px;"><div style="font-weight:600;color:#4fc3f7;font-size:13px;margin-bottom:8px;">📈 美股驱动股（实时行情）</div>';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);color:var(--text-secondary);"><th style="text-align:left;padding:6px;">代码</th><th style="text-align:left;padding:6px;">名称</th><th style="text-align:right;padding:6px;">最新价</th><th style="text-align:right;padding:6px;">涨跌幅</th><th style="text-align:right;padding:6px;">权重</th><th style="text-align:right;padding:6px;">K线</th></tr></thead><tbody>';
+  var totalAbsPct = validPcts.reduce(function(s,x){{return s+Math.abs(x);}}, 0);
+  drvs.forEach(function(d){{
     var q = usQ[d.symbol] || {{}};
     var pct = q.change_pct != null ? q.change_pct : d.change_pct;
     var cls = pct > 0 ? '#ef4444' : (pct < 0 ? '#22c55e' : 'var(--text-secondary)');
     var pctStr = pct != null ? ((pct >= 0 ? '+' : '') + pct.toFixed(2) + '%') : '—';
     var pxStr = q.price != null ? q.price.toFixed(2) : '—';
+    var weightPct = totalAbsPct > 0 ? ((Math.abs(pct || 0) / totalAbsPct) * 100).toFixed(0) : 0;
     html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">';
-    html += '<td style="padding:6px;color:var(--text-3);">' + d.symbol + '</td>';
+    html += '<td style="padding:6px;color:var(--text-3);font-family:var(--font-num);">' + d.symbol + '</td>';
     html += '<td style="padding:6px;color:#e8edf4;">' + (q.name || d.name || d.symbol) + '</td>';
     html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);">' + pxStr + '</td>';
     html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);font-weight:600;color:' + cls + ';">' + pctStr + '</td>';
+    html += '<td style="padding:6px;text-align:right;color:var(--text-2);">' + weightPct + '%</td>';
+    html += '<td style="padding:6px;text-align:right;"><button class="drv-kline-btn" data-sym="' + d.symbol + '" data-name="' + (q.name || d.name || d.symbol) + '" style="padding:2px 8px;background:rgba(79,156,255,0.15);color:#4fc3f7;border:1px solid rgba(79,156,255,0.3);border-radius:4px;cursor:pointer;font-size:10px;">查看</button></td>';
     html += '</tr>';
-  }}
+  }});
   html += '</tbody></table></div>';
-
-  // A股映射（详细表格 + 实时）
-  html += '<div><div style="font-weight:600;color:#4fc3f7;font-size:13px;margin-bottom:8px;">🇨🇳 A股映射候选（实时·每30秒刷新）</div>';
-  html += '<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);color:var(--text-secondary);"><th style="text-align:left;padding:6px;">名称</th><th style="text-align:left;padding:6px;">代码</th><th style="text-align:right;padding:6px;">最新价</th><th style="text-align:right;padding:6px;">涨跌幅</th><th style="text-align:right;padding:6px;">操作</th></tr></thead><tbody>';
-  var cands = sec.a_candidates || [];
-  for (var i = 0; i < cands.length; i++) {{
-    var nm = cands[i];
+  html += '<div style="margin-bottom:18px;"><div style="font-weight:600;color:#4fc3f7;font-size:13px;margin-bottom:8px;">🇨🇳 A股映射候选（实时·每30秒刷新）</div>';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);color:var(--text-secondary);"><th style="text-align:left;padding:6px;">名称</th><th style="text-align:left;padding:6px;">代码</th><th style="text-align:right;padding:6px;">最新价</th><th style="text-align:right;padding:6px;">涨跌幅</th><th style="text-align:right;padding:6px;">K线</th></tr></thead><tbody>';
+  cands.forEach(function(nm){{
     html += '<tr class="a-detail-row" data-name="' + nm + '" style="border-bottom:1px solid rgba(255,255,255,0.04);">';
     html += '<td style="padding:6px;font-weight:500;">' + nm + '</td>';
     html += '<td style="padding:6px;color:var(--text-3);" class="a-detail-code">—</td>';
@@ -5658,18 +5697,28 @@ function openSectorDetail(sectorKey) {{
     html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);font-weight:600;" class="a-detail-pct">—</td>';
     html += '<td style="padding:6px;text-align:right;"><button class="kline-btn" data-name="' + nm + '" style="padding:2px 8px;background:rgba(79,156,255,0.15);color:#4fc3f7;border:1px solid rgba(79,156,255,0.3);border-radius:4px;cursor:pointer;font-size:10px;">K线</button></td>';
     html += '</tr>';
-  }}
+  }});
   html += '</tbody></table></div>';
-
-  // 操作建议
-  html += '<div style="margin-top:14px;padding:10px 12px;background:rgba(245,158,11,0.08);border-radius:8px;border:1px solid rgba(245,158,11,0.15);">';
-  html += '<div style="font-size:12px;color:#f59e0b;font-weight:600;">💡 交易建议</div>';
-  html += '<div style="font-size:11px;color:var(--text-secondary);margin-top:4px;line-height:1.6;">基于美股驱动股走势 → 对应 A股候选关注放量突破或低吸机会。</div>';
+  var suggestion = '';
+  if (avgPct > 2) suggestion = '🔴 板块走强 · A股候选关注放量突破，回踩5日均线低吸';
+  else if (avgPct > 0) suggestion = '🟢 板块温和走强 · A股候选可低吸，注意止损位';
+  else if (avgPct > -2) suggestion = '🟡 板块震荡 · 观望为主，等待方向选择';
+  else suggestion = '⚠️ 板块走弱 · A股候选观望为主，规避高位品种';
+  html += '<div style="padding:12px 14px;background:rgba(245,158,11,0.08);border-radius:8px;border:1px solid rgba(245,158,11,0.15);">';
+  html += '<div style="font-size:12px;color:#f59e0b;font-weight:600;margin-bottom:6px;">💡 交易建议（基于美股驱动股加权走势）</div>';
+  html += '<div style="font-size:12px;color:#e8edf4;line-height:1.6;">' + suggestion + '</div>';
+  html += '<div style="font-size:11px;color:var(--text-secondary);margin-top:6px;line-height:1.6;">数据口径：美股隔夜收盘（北京时间次日开盘） → A股次日开盘30分钟内确认信号 → 主线资金流入标的次日/分批建仓。</div>';
   html += '</div>';
-
   html += '</div>';
   document.getElementById('modal-content').innerHTML = '<h2>🔹 ' + sec.a_sector + ' 板块详情</h2>' + html;
   document.getElementById('modal').classList.add('active');
+  if (etfCode) {{
+    setTimeout(function(){{
+      ['daily','weekly','monthly'].forEach(function(period){{
+        fetchSectorEtfKline(etfCode, period);
+      }});
+    }}, 100);
+  }}
   refreshASectorDetailQuotes();
   setTimeout(function(){{
     document.querySelectorAll('#modal .kline-btn').forEach(function(btn){{
@@ -5680,8 +5729,84 @@ function openSectorDetail(sectorKey) {{
         if (code) openStockDetail(code, nm);
       }});
     }});
+    document.querySelectorAll('#modal .drv-kline-btn').forEach(function(btn){{
+      btn.addEventListener('click', function(e){{
+        e.stopPropagation();
+        var sym = this.getAttribute('data-sym');
+        var nm = this.getAttribute('data-name');
+        if (sym) openUsIndexDetail(sym, nm);
+      }});
+    }});
   }}, 100);
 }}
+
+function switchSectorChartTab(el, period) {{
+  document.querySelectorAll('#modal .sec-idx-tab').forEach(function(t){{ t.classList.remove('active'); }});
+  el.classList.add('active');
+  ['daily','weekly','monthly'].forEach(function(p){{
+    var dom = document.getElementById('sectorChart-' + p);
+    if (dom) dom.style.display = (p === period) ? 'block' : 'none';
+  }});
+}}
+
+function fetchSectorEtfKline(etfCode, period) {{
+  var preData = null;
+  if (window.US_ETF_KLINES && window.US_ETF_KLINES[etfCode]) {{
+    preData = window.US_ETF_KLINES[etfCode];
+  }}
+  if (preData && preData.daily && preData.daily.length > 5) {{
+    var klines = period === 'daily' ? preData.daily
+               : (period === 'weekly' ? aggregateKlines(preData.daily, 'weekly')
+               : aggregateKlines(preData.daily, 'monthly'));
+    if (klines && klines.length >= 2) {{
+      renderSectorDetailChart(klines.map(function(x){{ return x.join(','); }}), etfCode, period);
+      return;
+    }}
+  }}
+  var full = (window.US_ETF_QT_MAP && window.US_ETF_QT_MAP[etfCode]) || ('us' + etfCode + '.OQ');
+  var ptKey = period === 'daily' ? 'day' : (period === 'weekly' ? 'week' : 'month');
+  var url = 'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=' + full + ',' + ptKey + ',,,' + (period === 'daily' ? 250 : period === 'weekly' ? 120 : 60) + ',qfq';
+  fetch(url).then(function(r){{ return r.json(); }}).then(function(j){{
+    var kl = (j && j.data && j.data[full] && j.data[full][ptKey]) || [];
+    if (kl.length >= 2) renderSectorDetailChart(kl.map(function(x){{ return x.join(','); }}), etfCode, period);
+  }});
+}}
+
+function renderSectorDetailChart(klines, etfCode, period) {{
+  var dates = [], values = [], ma5 = [], ma10 = [], ma20 = [];
+  for (var i = 0; i < klines.length; i++) {{
+    var p = klines[i].split(',');
+    dates.push(p[0]);
+    values.push([parseFloat(p[1]), parseFloat(p[2]), parseFloat(p[3]), parseFloat(p[4])]);
+  }}
+  for (var i = 0; i < values.length; i++) {{
+    ma5.push(_ma(values, 5, i)); ma10.push(_ma(values, 10, i)); ma20.push(_ma(values, 20, i));
+  }}
+  var periodLabel = period === 'daily' ? '日K' : (period === 'weekly' ? '周K' : '月K');
+  var option = {{
+    backgroundColor: 'transparent',
+    title: {{ text: etfCode + ' ' + periodLabel + ' · ' + (SECTOR_ETF_NAMES_LOOKUP[etfCode] || ''), left: 'center', textStyle: {{ color: '#e8edf5', fontSize: 13 }} }},
+    tooltip: {{ trigger: 'axis', axisPointer: {{ type: 'cross' }}, backgroundColor: 'rgba(17,24,39,0.95)', borderColor: '#1e2a3a', textStyle: {{ color: '#e8edf5' }} }},
+    legend: {{ data: ['K线', 'MA5', 'MA10', 'MA20'], textStyle: {{ color: '#8892a0' }}, top: 20 }},
+    grid: {{ left: 56, right: 16, top: 56, bottom: 28 }},
+    xAxis: {{ type: 'category', data: dates, axisLine: {{ lineStyle: {{ color: '#1e2a3a' }} }}, axisLabel: {{ color: '#8892a0' }} }},
+    yAxis: {{ scale: true, splitLine: {{ lineStyle: {{ color: '#1e2a3a' }} }}, axisLabel: {{ color: '#8892a0' }} }},
+    dataZoom: [{{ type: 'inside', start: 50, end: 100 }}],
+    series: [
+      {{ name: 'K线', type: 'candlestick', data: values, itemStyle: {{ color: '#ef4444', color0: '#22c55e', borderColor: '#ef4444', borderColor0: '#22c55e' }} }},
+      {{ name: 'MA5', type: 'line', data: ma5, smooth: true, showSymbol: false, lineStyle: {{ color: '#f59e0b', width: 1 }} }},
+      {{ name: 'MA10', type: 'line', data: ma10, smooth: true, showSymbol: false, lineStyle: {{ color: '#4fc3f7', width: 1 }} }},
+      {{ name: 'MA20', type: 'line', data: ma20, smooth: true, showSymbol: false, lineStyle: {{ color: '#a78bfa', width: 1 }} }}
+    ]
+  }};
+  var dom = document.getElementById('sectorChart-' + period);
+  if (!dom) return;
+  if (sectorDetailChart && sectorDetailChart.dispose) sectorDetailChart.dispose();
+  sectorDetailChart = echarts.init(dom);
+  registerChart(sectorDetailChart);
+  sectorDetailChart.setOption(option);
+}}
+
 
 // 韩国板块详情弹窗
 function openKoreaSectorDetail(sectorKey) {{
