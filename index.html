@@ -834,7 +834,7 @@
             <span class="status-badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;"><i class="fas fa-moon"></i> 休市 · 显示 08-07 收盘数据</span>
             <span class="live-badge" id="rtStatus"><i class="dot"></i> 实时 · 加载中</span>
             <button id="rtRefreshBtn" class="rt-refresh-btn" onclick="rtManualRefresh()" title="立即刷新所有行情"><i class="fas fa-sync-alt"></i> 立即刷新</button>
-            <span class="version-badge" title="页面构建版本">v20260809-1918</span>
+            <span class="version-badge" title="页面构建版本">v20260809-1957</span>
         </div>
     </header>
     <div class="app-layout">
@@ -1060,11 +1060,10 @@
             <div id="usIdxChart-monthly" class="stock-chart" style="display:none;"></div>
             <div class="stock-detail-info" id="usIdxDetailInfo"></div>
         </div>
-        <div class="card card-full" onclick="openModal('transmission')">
+        <div class="card card-full">
             <div class="card-title">
                 <span class="icon"><i class="fas fa-arrow-right-arrow-left"></i></span> ② 美股 → A股 传导预测
-                <span class="badge">7大板块完整映射</span>
-                <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看全部</span>
+                <span class="badge">7大板块完整映射 · 点击板块查看详情</span>
             </div>
             <div class="flex-3col">
                 
@@ -4217,7 +4216,7 @@ function renderSectorDetailChart(klines, etfCode, period) {
     grid: { left: 56, right: 16, top: 56, bottom: 28 },
     xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
     yAxis: { scale: true, splitLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
-    dataZoom: [{ type: 'inside', start: 50, end: 100 }],
+    dataZoom: [{ type: 'inside', start: 80, end: 100 }],  // 聚焦最近 20% 数据，确保最新行情可见
     series: [
       { name: 'K线', type: 'candlestick', data: values, itemStyle: { color: '#ef4444', color0: '#22c55e', borderColor: '#ef4444', borderColor0: '#22c55e' } },
       { name: 'MA5', type: 'line', data: ma5, smooth: true, showSymbol: false, lineStyle: { color: '#f59e0b', width: 1 } },
@@ -4852,7 +4851,7 @@ function renderUsIndexKline(data, name) {
     grid: { left: 56, right: 16, top: 64, bottom: 32 },
     xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
     yAxis: { scale: true, splitLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
-    dataZoom: [{ type: 'inside', start: 50, end: 100 }],
+    dataZoom: [{ type: 'inside', start: 75, end: 100 }],  // 聚焦最近 25% 数据，保证最新节点可视
     series: [
       { name: 'K线', type: 'candlestick', data: values, itemStyle: { color: upColor, color0: downColor, borderColor: upColor, borderColor0: downColor } },
       { name: 'MA5', type: 'line', data: ma5, smooth: true, showSymbol: false, lineStyle: { color: '#f59e0b', width: 1 } },

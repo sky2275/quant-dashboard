@@ -2245,11 +2245,10 @@ def _section_transmit(overnight, us_quotes=None):
         stale_badge = (f'<span class="badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">'
                        f'{ud[5:] if len(ud) >= 10 else ud} 收盘数据</span>')
     return f'''
-        <div class="card card-full" onclick="openModal('transmission')">
+        <div class="card card-full">
             <div class="card-title">
                 <span class="icon"><i class="fas fa-arrow-right-arrow-left"></i></span> ② 美股 → A股 传导预测
-                <span class="badge">7大板块完整映射</span>{stale_badge}
-                <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看全部</span>
+                <span class="badge">7大板块完整映射 · 点击板块查看详情</span>{stale_badge}
             </div>
             <div class="flex-3col">
                 {cards}
@@ -5791,7 +5790,7 @@ function renderSectorDetailChart(klines, etfCode, period) {{
     grid: {{ left: 56, right: 16, top: 56, bottom: 28 }},
     xAxis: {{ type: 'category', data: dates, axisLine: {{ lineStyle: {{ color: '#1e2a3a' }} }}, axisLabel: {{ color: '#8892a0' }} }},
     yAxis: {{ scale: true, splitLine: {{ lineStyle: {{ color: '#1e2a3a' }} }}, axisLabel: {{ color: '#8892a0' }} }},
-    dataZoom: [{{ type: 'inside', start: 50, end: 100 }}],
+    dataZoom: [{{ type: 'inside', start: 80, end: 100 }}],  // 聚焦最近 20% 数据，确保最新行情可见
     series: [
       {{ name: 'K线', type: 'candlestick', data: values, itemStyle: {{ color: '#ef4444', color0: '#22c55e', borderColor: '#ef4444', borderColor0: '#22c55e' }} }},
       {{ name: 'MA5', type: 'line', data: ma5, smooth: true, showSymbol: false, lineStyle: {{ color: '#f59e0b', width: 1 }} }},
@@ -6431,7 +6430,7 @@ function renderUsIndexKline(data, name) {
     grid: { left: 56, right: 16, top: 64, bottom: 32 },
     xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
     yAxis: { scale: true, splitLine: { lineStyle: { color: '#1e2a3a' } }, axisLabel: { color: '#8892a0' } },
-    dataZoom: [{ type: 'inside', start: 50, end: 100 }],
+    dataZoom: [{ type: 'inside', start: 75, end: 100 }],  // 聚焦最近 25% 数据，保证最新节点可视
     series: [
       { name: 'K线', type: 'candlestick', data: values, itemStyle: { color: upColor, color0: downColor, borderColor: upColor, borderColor0: downColor } },
       { name: 'MA5', type: 'line', data: ma5, smooth: true, showSymbol: false, lineStyle: { color: '#f59e0b', width: 1 } },
