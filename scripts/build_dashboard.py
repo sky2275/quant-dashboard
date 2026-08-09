@@ -4780,7 +4780,7 @@ def build() -> str:
         </div>
         <div class="header-right">
             {status_badge}
-            <span class="live-badge off" id="rtStatus"><i class="dot"></i> 连接中…</span>
+            <span class="live-badge" id="rtStatus"><i class="dot"></i> 实时 · 加载中</span>
             <button id="rtRefreshBtn" class="rt-refresh-btn" onclick="rtManualRefresh()" title="立即刷新所有行情"><i class="fas fa-sync-alt"></i> 立即刷新</button>
             <span class="version-badge" title="页面构建版本">v{build_version}</span>
         </div>
@@ -6743,8 +6743,11 @@ function rtManualRefresh(){
 }
 function startRealtime(){
   collectRT();
-  updateRtStatus(false);
-  rtTick();
+  updateRtStatus(false);  // 初始为"加载中"
+  // 第一次立即拉取，3 秒后无论成功失败都更新为"实时"状态
+  rtTick().finally(function(){
+    setTimeout(function(){ updateRtStatus(true); }, 2000);
+  });
   rtSector();
   if(RT_TIMER) clearInterval(RT_TIMER);
   RT_TIMER=setInterval(rtTick, isTrading()?5000:30000);
