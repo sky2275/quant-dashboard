@@ -5782,15 +5782,20 @@ function renderSectorDetailChart(klines, etfCode, period) {{
     ma5.push(_ma(values, 5, i)); ma10.push(_ma(values, 10, i)); ma20.push(_ma(values, 20, i));
   }}
   var periodLabel = period === 'daily' ? '日K' : (period === 'weekly' ? '周K' : '月K');
+  if (dates.length < 2) {{
+    var dom = document.getElementById('sectorChart-' + period);
+    if (dom) dom.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-secondary);">数据不足（' + dates.length + ' 条）</div>';
+    return;
+  }}
   var option = {{
     backgroundColor: 'transparent',
-    title: {{ text: etfCode + ' ' + periodLabel + ' · ' + (SECTOR_ETF_NAMES_LOOKUP[etfCode] || ''), left: 'center', textStyle: {{ color: '#e8edf5', fontSize: 13 }} }},
+    title: {{ text: etfCode + ' ' + periodLabel + ' · ' + (SECTOR_ETF_NAMES_LOOKUP[etfCode] || '') + '（最新: ' + dates[dates.length-1] + '）', left: 'center', textStyle: {{ color: '#e8edf5', fontSize: 13 }} }},
     tooltip: {{ trigger: 'axis', axisPointer: {{ type: 'cross' }}, backgroundColor: 'rgba(17,24,39,0.95)', borderColor: '#1e2a3a', textStyle: {{ color: '#e8edf5' }} }},
     legend: {{ data: ['K线', 'MA5', 'MA10', 'MA20'], textStyle: {{ color: '#8892a0' }}, top: 20 }},
     grid: {{ left: 56, right: 16, top: 56, bottom: 28 }},
-    xAxis: {{ type: 'category', data: dates, axisLine: {{ lineStyle: {{ color: '#1e2a3a' }} }}, axisLabel: {{ color: '#8892a0' }} }},
+    xAxis: {{ type: 'category', data: dates, axisLine: {{ lineStyle: {{ color: '#1e2a3a' }} }}, axisLabel: {{ color: '#8892a0', rotate: 0 }} }},
     yAxis: {{ scale: true, splitLine: {{ lineStyle: {{ color: '#1e2a3a' }} }}, axisLabel: {{ color: '#8892a0' }} }},
-    dataZoom: [{{ type: 'inside', start: 80, end: 100 }}],  // 聚焦最近 20% 数据，确保最新行情可见
+    dataZoom: [{{ type: 'inside', start: 80, end: 100 }}],
     series: [
       {{ name: 'K线', type: 'candlestick', data: values, itemStyle: {{ color: '#ef4444', color0: '#22c55e', borderColor: '#ef4444', borderColor0: '#22c55e' }} }},
       {{ name: 'MA5', type: 'line', data: ma5, smooth: true, showSymbol: false, lineStyle: {{ color: '#f59e0b', width: 1 }} }},
@@ -5799,11 +5804,18 @@ function renderSectorDetailChart(klines, etfCode, period) {{
     ]
   }};
   var dom = document.getElementById('sectorChart-' + period);
-  if (!dom) return;
+  if (!dom) {{
+    console.warn('Chart container not found:', 'sectorChart-' + period);
+    return;
+  }}
   if (sectorDetailChart && sectorDetailChart.dispose) sectorDetailChart.dispose();
   sectorDetailChart = echarts.init(dom);
   registerChart(sectorDetailChart);
   sectorDetailChart.setOption(option);
+  // 延迟 resize：等待 modal 完全显示后再确认尺寸
+  setTimeout(function(){{ if (sectorDetailChart) sectorDetailChart.resize(); }}, 100);
+  setTimeout(function(){{ if (sectorDetailChart) sectorDetailChart.resize(); }}, 500);
+  console.log('Chart rendered:', etfCode, period, dates.length, 'points, latest:', dates[dates.length-1]);
 }}
 
 
@@ -5873,7 +5885,7 @@ function openKoreaSectorDetail(sectorKey) {{
 
 function refreshASectorDetailQuotes() {{
   var rows = document.querySelectorAll('#modal .a-detail-row[data-name]');
-  if (!rows.length) return;
+  if (!rows.length) {{ console.warn('No .a-detail-row found'); return; }}
   var codes = [];
   var seen = {{}};
   rows.forEach(function(row){{
@@ -5886,25 +5898,38 @@ function refreshASectorDetailQuotes() {{
     var code = (window.A_NAME_CODE || {{}})[nm];
     if (code) btn.setAttribute('data-code', code);
   }});
+  console.log('A-share codes to fetch:', codes);
   if (!codes.length) return;
-  fetchQtQuotes(codes).then(function(q){{
-    rows.forEach(function(row){{
-      var code = row.getAttribute('data-code');
-      var data = q[code];
-      var codeEl = row.querySelector('.a-detail-code');
-      var priceEl = row.querySelector('.a-detail-price');
-      var pctEl = row.querySelector('.a-detail-pct');
-      if (codeEl && data) codeEl.textContent = data.code || code;
-      if (priceEl) priceEl.textContent = data && data.price != null ? data.price.toFixed(2) : '—';
-      if (pctEl) {{
-        var pct = data ? data.change_pct : null;
-        var cls = pct > 0 ? '#ef4444' : (pct < 0 ? '#22c55e' : 'var(--text-secondary)');
-        pctEl.textContent = pct != null ? ((pct >= 0 ? '+' : '') + pct.toFixed(2) + '%') : '—';
-        pctEl.style.color = cls;
-      }}
+  function fetchBatch(batch){{
+    return fetchQtQuotes(batch).then(function(q){{
+      rows.forEach(function(row){{
+        var code = row.getAttribute('data-code');
+        if (!code) return;
+        var data = q[code];
+        var codeEl = row.querySelector('.a-detail-code');
+        var priceEl = row.querySelector('.a-detail-price');
+        var pctEl = row.querySelector('.a-detail-pct');
+        if (codeEl && data) codeEl.textContent = data.code || code;
+        if (priceEl) priceEl.textContent = data && data.price != null ? data.price.toFixed(2) : '\u2014';
+        if (pctEl) {{
+          var pct = data ? data.change_pct : null;
+          var cls = pct > 0 ? '#ef4444' : (pct < 0 ? '#22c55e' : 'var(--text-secondary)');
+          pctEl.textContent = pct != null ? ((pct >= 0 ? '+' : '') + pct.toFixed(2) + '%') : '\u2014';
+          pctEl.style.color = cls;
+        }}
+      }});
     }});
-  }});
+  }}
+  for (var i = 0; i < codes.length; i += 20){{
+    fetchBatch(codes.slice(i, i + 20));
+  }}
+  setInterval(function(){{
+    for (var j = 0; j < codes.length; j += 20){{
+      fetchBatch(codes.slice(j, j + 20));
+    }}
+  }}, 30000);
 }}
+
 document.addEventListener('keydown', function(e) {{ if (e.key === 'Escape') closeModal(); }});
 
 function shareDashboard() {{
