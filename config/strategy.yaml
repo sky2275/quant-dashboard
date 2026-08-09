@@ -95,6 +95,52 @@ sector_mapping:
   - 晶方科技
   - 甬矽电子
   threshold: 2.0
+# 韩国股市板块映射（重点观测板块，与美股 7 大板块对齐）
+korea_sector_mapping:
+- k_sector: 韩国半导体
+  kr_drivers:
+  - 三星电子
+  - SK海力士
+  a_candidates:
+  - 兆易创新
+  - 北京君正
+  - 深科技
+  - 澜起科技
+  - 长电科技
+- k_sector: 韩国电池/新能源
+  kr_drivers:
+  - LG新能源
+  - 三星SDI
+  - LG化学
+  a_candidates:
+  - 宁德时代
+  - 比亚迪
+  - 亿纬锂能
+  - 欣旺达
+- k_sector: 韩国面板/显示
+  kr_drivers:
+  - LG显示
+  - 三星电子
+  a_candidates:
+  - 京东方A
+  - TCL科技
+  - 深天马A
+- k_sector: 韩国汽车/造船
+  kr_drivers:
+  - 现代汽车
+  - 起亚
+  a_candidates:
+  - 比亚迪
+  - 长城汽车
+  - 中国船舶
+- k_sector: 韩国钢铁/材料
+  kr_drivers:
+  - POSCO控股
+  - 韩国浦项制铁
+  a_candidates:
+  - 宝钢股份
+  - 兴业银锡
+  - 锡业股份
 levels:
   strong_bull: 🔥🔥🔥 极强利好
   bull: 🟢 偏多

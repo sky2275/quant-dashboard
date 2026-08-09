@@ -1820,27 +1820,30 @@ def _section_ashare(snap, us_quotes, overnight):
 
 
 # ----------------------------------------------------------------- 重排后：美股行情映射 面板（美股隔夜 + 美股→A股传导）
-def _section_us_map(snap, us_quotes, overnight, kr_quotes=None):
+def _section_us_map(snap, us_quotes, overnight, kr_quotes=None, cfg=None):
     """全球行情：仿A股板块结构（HERO指数 → 市场情绪 → 板块强弱 → K线 → 韩国 → 传导）。
     Args:
         snap: market_snapshot
         us_quotes: 美股实时行情字典 {symbol: {price, change_pct}}
         overnight: us_overnight.json（板块传导映射）
         kr_quotes: 韩国股市实时行情 {symbol: {price, change_pct}}
+        cfg: 策略配置（含 korea_sector_mapping）
     """
     us_idx = snap.get("us_indices", []) or []
-    head = _screen_head("全球行情", "美股三大指数 · 板块ETF · 龙头股 · K线走势 · 韩国股市 · A股映射", _session('us')[0])
+    head = _screen_head("全球行情", "美股三大指数 · 板块ETF · 龙头股 · K线走势 · 韩国板块 · A股映射", _session('us')[0])
     idx_bar = _index_quote_bar(us_idx, "隔夜指数")
     hero = _hero_index_cards(us_idx, limit=4, clickable=False)
+    # 美股情绪+美股板块 / 韩国KOSPI+韩国板块（双卡片）
     grid = f'''
         <div class="grid-2">
             {_us_breadth_card(us_quotes)}
             {_us_sector_strength_card(us_quotes)}
+            {_korea_market_card(kr_quotes)}
+            {_korea_sector_strength_card(kr_quotes, cfg)}
         </div>'''
     us_index_kline = _section_us_index_kline()
-    kr_card = _korea_market_card(kr_quotes)
     transmit = _section_transmit(overnight, us_quotes)
-    return head + idx_bar + hero + grid + us_index_kline + kr_card + transmit
+    return head + idx_bar + hero + grid + us_index_kline + transmit
 
 
 # US sector ETF K线数据
@@ -1958,6 +1961,96 @@ def _us_sector_strength_card(us_quotes):
         <div class="card">
             <div class="card-title"><span class="icon"><i class="fas fa-fire"></i></span> 美股板块ETF强弱 <span class="badge">SECTOR TOP</span>
                 <span class="click-hint">点击查看K线</span></div>
+            <div class="us-sector-strength">{rows}</div>
+        </div>'''
+
+
+# 韩国板块映射（与 strategy.yaml 一致）
+KOREA_SECTOR_MAPPING = [
+    {
+        "k_sector": "韩国半导体",
+        "kr_drivers": ["三星电子", "SK海力士"],
+        "a_candidates": ["兆易创新", "北京君正", "深科技", "澜起科技", "长电科技"],
+    },
+    {
+        "k_sector": "韩国电池/新能源",
+        "kr_drivers": ["LG新能源", "三星SDI", "LG化学"],
+        "a_candidates": ["宁德时代", "比亚迪", "亿纬锂能", "欣旺达"],
+    },
+    {
+        "k_sector": "韩国面板/显示",
+        "kr_drivers": ["LG显示", "三星电子"],
+        "a_candidates": ["京东方A", "TCL科技", "深天马A"],
+    },
+    {
+        "k_sector": "韩国汽车/造船",
+        "kr_drivers": ["现代汽车", "起亚"],
+        "a_candidates": ["比亚迪", "长城汽车", "中国船舶"],
+    },
+    {
+        "k_sector": "韩国钢铁/材料",
+        "kr_drivers": ["POSCO控股"],
+        "a_candidates": ["宝钢股份", "兴业银锡", "锡业股份"],
+    },
+]
+# 韩国个股名称 -> 腾讯代码
+KOREA_NAME_CODE = {
+    "三星电子": "kr005930", "SK海力士": "kr000660", "LG新能源": "kr373220",
+    "三星SDI": "kr006400", "LG化学": "kr051910", "LG显示": "kr034220",
+    "现代汽车": "kr005380", "起亚": "kr000270", "POSCO控股": "kr005490",
+}
+
+
+def _korea_sector_strength_card(kr_quotes, cfg=None):
+    """韩国重点观测板块强弱卡（仿美股板块ETF强弱）。"""
+    sectors = (cfg or {}).get("korea_sector_mapping") or KOREA_SECTOR_MAPPING
+    if not sectors:
+        return ''
+    rows = ""
+    data = []
+    for sec in sectors:
+        k_sector = sec.get("k_sector", "—")
+        drivers = sec.get("kr_drivers", []) or []
+        # 加权计算板块涨跌幅
+        valid = []
+        for nm in drivers:
+            code = KOREA_NAME_CODE.get(nm)
+            q = (kr_quotes or {}).get((code or "")[2:]) if code else None
+            if q and isinstance(q.get("change_pct"), (int, float)):
+                valid.append(q["change_pct"])
+        if valid:
+            avg = sum(valid) / len(valid)
+        else:
+            avg = None
+        data.append({
+            "k_sector": k_sector,
+            "drivers": drivers,
+            "a_candidates": sec.get("a_candidates", []) or [],
+            "pct": avg,
+        })
+    data.sort(key=lambda x: (x["pct"] is None, -(x["pct"] or 0)))
+    max_abs = max([abs(d["pct"]) for d in data if d["pct"] is not None] + [1])
+    for d in data:
+        pct = d["pct"]
+        if pct is None:
+            color = "var(--text-secondary)"
+            bar_w = 0
+            bar_color = "rgba(255,255,255,0.05)"
+        else:
+            color = "#ef4444" if pct > 0 else ("#22c55e" if pct < 0 else "var(--text-secondary)")
+            bar_w = abs(pct) / max_abs * 100
+            bar_color = "#ef4444" if pct > 0 else "#22c55e"
+        ks = _escape_js(d["k_sector"])
+        rows += f'''
+            <div class="us-sector-row" onclick="openKoreaSectorDetail('{ks}')" style="cursor:pointer;">
+                <span class="name">{d["k_sector"]} <span style="color:var(--text-3);font-size:10px;">{len(d["drivers"])}只</span></span>
+                <span class="bar"><span class="fill" style="width:{bar_w:.0f}%;background:{bar_color};"></span></span>
+                <span class="pct" style="color:{color};">{f"{pct:+.2f}%" if pct is not None else "—"}</span>
+            </div>'''
+    return f'''
+        <div class="card">
+            <div class="card-title"><span class="icon"><i class="fas fa-fire"></i></span> 韩国板块强弱 <span class="badge">KOREA SECTOR</span>
+                <span class="click-hint">点击查看板块详情</span></div>
             <div class="us-sector-strength">{rows}</div>
         </div>'''
 
@@ -2130,8 +2223,11 @@ def _section_transmit(overnight, us_quotes=None):
         impact = (f'加权 {_fmt_pct(avg)}' if avg is not None else '')
         cands = s.get("a_candidates", []) or []
         cands_html = " ".join(_a_row(c) for c in cands)
+        # sector_key 用于JS定位（中文 sector 名 → 索引）
+        sector_key = s.get("a_sector", "")
+        sk = _escape_js(sector_key)
         cards += f'''
-                <div class="transmission-card" style="border-left-color:{color};">
+                <div class="transmission-card" style="border-left-color:{color};cursor:pointer;" onclick="openSectorDetail('{sk}')">
                     <div class="sector">🔹 {s.get("a_sector","—")}</div>
                     <div class="strength" style="color:{color};">{s.get("level","—")}</div>
                     <div class="impact">{impact}</div>
@@ -2141,6 +2237,7 @@ def _section_transmit(overnight, us_quotes=None):
                     <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
                         <div style="color:#8892a0;font-size:9px;width:100%;margin-bottom:2px;">候选: {cands_html or "—"}</div>
                     </div>
+                    <div style="margin-top:6px;text-align:right;"><span style="color:var(--accent-blue);font-size:10px;">点击进入详情 →</span></div>
                 </div>'''
     stale_badge = ''
     if (overnight or {}).get("stale"):
@@ -4604,7 +4701,19 @@ def build() -> str:
     us_quotes = _fetch_us_quotes(US_SYMS)
 
     # 韩国股市 + 韩国龙头股（腾讯 qt.gtimg.cn 国际代码）
-    kr_codes = ["krKS11", "krKOSDAQ", "kr005930", "kr000660", "kr373220"]
+    kr_codes = [
+        "krKS11", "krKOSDAQ",
+        # 半导体
+        "kr005930", "kr000660",
+        # 电池/新能源
+        "kr373220", "kr006400", "kr051910",
+        # 面板/显示
+        "kr034220",
+        # 汽车
+        "kr005380", "kr000270",
+        # 钢铁
+        "kr005490",
+    ]
     kr_quotes = {}
     try:
         raw = feed.tencent_quotes(kr_codes)
@@ -4690,7 +4799,7 @@ def build() -> str:
 
     nav_items = [
         ("nav-ashare", "A股大盘行情", "fa-chart-line", _section_ashare(snap, us_quotes, overnight)),
-        ("nav-us", "全球行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight, kr_quotes)),
+        ("nav-us", "全球行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight, kr_quotes, cfg)),
         ("nav-limitup", "涨停板分析", "fa-arrow-up",
          _screen_head("涨停板分析", "涨停家数 · 封单强度 · 连板梯队 · 次日建仓建议", _lu_badge)
          + _section_limitup(snap)),
@@ -4803,6 +4912,16 @@ window.SECTOR_LEADER = {json.dumps(sector_leader, ensure_ascii=False)};
 window.US_ETF_QT_MAP = {json.dumps(US_SECTOR_ETF_QT_CODES, ensure_ascii=False)};
 /* 美股 ETF 预嵌入的 K 线（Tushare 备用数据源，浏览器可离线渲染） */
 window.US_ETF_KLINES = {json.dumps(us_etf_klines, ensure_ascii=False)};
+/* 美股 → A股 板块传导映射（用于板块详情弹窗） */
+window.SECTOR_TRANSMIT = {json.dumps(overnight.get("sectors", []) if overnight else [], ensure_ascii=False)};
+/* 韩国板块映射（用于韩国板块详情弹窗） */
+window.KOREA_SECTOR_MAP = {json.dumps((cfg or {}).get("korea_sector_mapping") or KOREA_SECTOR_MAPPING, ensure_ascii=False)};
+window.KOREA_QUOTES = {json.dumps(kr_quotes, ensure_ascii=False)};
+window.US_QUOTES = {json.dumps(us_quotes, ensure_ascii=False)};
+/* A股名称 → 腾讯代码映射（用于板块详情弹窗内拉取实时行情） */
+window.A_NAME_CODE = {json.dumps({k: v for k, v in NAME_CODE.items() if isinstance(v, str)}, ensure_ascii=False)};
+/* 韩国股名称 → 腾讯代码映射 */
+window.KOREA_NAME_CODE = {json.dumps(KOREA_NAME_CODE, ensure_ascii=False)};
 
 /* ---- 板块&龙头股：A股全量浏览器（搜索/排序/分页） ---- */
 const ASTOCK_PAGE_SIZE = 60;
@@ -5483,6 +5602,184 @@ function openModal(type) {{
 }}
 function closeModal() {{
     document.getElementById('modal').classList.remove('active');
+}}
+
+// 美股 → A股 板块详情弹窗
+function openSectorDetail(sectorKey) {{
+  var sectors = window.SECTOR_TRANSMIT || [];
+  var sec = null;
+  for (var i = 0; i < sectors.length; i++) {{
+    if (sectors[i].a_sector === sectorKey) {{ sec = sectors[i]; break; }}
+  }}
+  if (!sec) return;
+  var usQ = window.US_QUOTES || {{}};
+  var color = sec.level && (sec.level.indexOf('利好') >= 0 || sec.level.indexOf('偏多') >= 0) ? '#ef4444'
+            : (sec.level && sec.level.indexOf('利空') >= 0 ? '#22c55e' : '#f59e0b');
+  var html = '<div style="font-size:13px;line-height:1.7;">';
+  // 标题区
+  html += '<div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:14px;margin-bottom:14px;border-left:4px solid ' + color + ';">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">';
+  html += '<div style="font-size:18px;font-weight:600;color:#e8edf4;">🔹 ' + sec.a_sector + '</div>';
+  html += '<div style="font-size:14px;font-weight:600;color:' + color + ';">' + sec.level + '</div>';
+  html += '</div>';
+  html += '<div style="margin-top:6px;font-size:12px;color:var(--text-secondary);">加权 ' + (sec.avg_change >= 0 ? '+' : '') + (sec.avg_change || 0).toFixed(2) + '% · 触发阈值 ' + (sec.threshold || 1.5) + '%</div>';
+  html += '</div>';
+
+  // 美股驱动股（详细表格）
+  html += '<div style="margin-bottom:18px;"><div style="font-weight:600;color:#4fc3f7;font-size:13px;margin-bottom:8px;">📈 美股驱动股（实时）</div>';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);color:var(--text-secondary);"><th style="text-align:left;padding:6px;">代码</th><th style="text-align:left;padding:6px;">名称</th><th style="text-align:right;padding:6px;">最新价</th><th style="text-align:right;padding:6px;">涨跌幅</th></tr></thead><tbody>';
+  var drvs = sec.drivers || [];
+  for (var i = 0; i < drvs.length; i++) {{
+    var d = drvs[i];
+    var q = usQ[d.symbol] || {{}};
+    var pct = q.change_pct != null ? q.change_pct : d.change_pct;
+    var cls = pct > 0 ? '#ef4444' : (pct < 0 ? '#22c55e' : 'var(--text-secondary)');
+    var pctStr = pct != null ? ((pct >= 0 ? '+' : '') + pct.toFixed(2) + '%') : '—';
+    var pxStr = q.price != null ? q.price.toFixed(2) : '—';
+    html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">';
+    html += '<td style="padding:6px;color:var(--text-3);">' + d.symbol + '</td>';
+    html += '<td style="padding:6px;color:#e8edf4;">' + (q.name || d.name || d.symbol) + '</td>';
+    html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);">' + pxStr + '</td>';
+    html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);font-weight:600;color:' + cls + ';">' + pctStr + '</td>';
+    html += '</tr>';
+  }}
+  html += '</tbody></table></div>';
+
+  // A股映射（详细表格 + 实时）
+  html += '<div><div style="font-weight:600;color:#4fc3f7;font-size:13px;margin-bottom:8px;">🇨🇳 A股映射候选（实时·每30秒刷新）</div>';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);color:var(--text-secondary);"><th style="text-align:left;padding:6px;">名称</th><th style="text-align:left;padding:6px;">代码</th><th style="text-align:right;padding:6px;">最新价</th><th style="text-align:right;padding:6px;">涨跌幅</th><th style="text-align:right;padding:6px;">操作</th></tr></thead><tbody>';
+  var cands = sec.a_candidates || [];
+  for (var i = 0; i < cands.length; i++) {{
+    var nm = cands[i];
+    html += '<tr class="a-detail-row" data-name="' + nm + '" style="border-bottom:1px solid rgba(255,255,255,0.04);">';
+    html += '<td style="padding:6px;font-weight:500;">' + nm + '</td>';
+    html += '<td style="padding:6px;color:var(--text-3);" class="a-detail-code">—</td>';
+    html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);" class="a-detail-price">—</td>';
+    html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);font-weight:600;" class="a-detail-pct">—</td>';
+    html += '<td style="padding:6px;text-align:right;"><button class="kline-btn" data-name="' + nm + '" style="padding:2px 8px;background:rgba(79,156,255,0.15);color:#4fc3f7;border:1px solid rgba(79,156,255,0.3);border-radius:4px;cursor:pointer;font-size:10px;">K线</button></td>';
+    html += '</tr>';
+  }}
+  html += '</tbody></table></div>';
+
+  // 操作建议
+  html += '<div style="margin-top:14px;padding:10px 12px;background:rgba(245,158,11,0.08);border-radius:8px;border:1px solid rgba(245,158,11,0.15);">';
+  html += '<div style="font-size:12px;color:#f59e0b;font-weight:600;">💡 交易建议</div>';
+  html += '<div style="font-size:11px;color:var(--text-secondary);margin-top:4px;line-height:1.6;">基于美股驱动股走势 → 对应 A股候选关注放量突破或低吸机会。</div>';
+  html += '</div>';
+
+  html += '</div>';
+  document.getElementById('modal-content').innerHTML = '<h2>🔹 ' + sec.a_sector + ' 板块详情</h2>' + html;
+  document.getElementById('modal').classList.add('active');
+  refreshASectorDetailQuotes();
+  setTimeout(function(){{
+    document.querySelectorAll('#modal .kline-btn').forEach(function(btn){{
+      btn.addEventListener('click', function(e){{
+        e.stopPropagation();
+        var nm = this.getAttribute('data-name');
+        var code = this.getAttribute('data-code');
+        if (code) openStockDetail(code, nm);
+      }});
+    }});
+  }}, 100);
+}}
+
+// 韩国板块详情弹窗
+function openKoreaSectorDetail(sectorKey) {{
+  var sectors = window.KOREA_SECTOR_MAP || [];
+  var sec = null;
+  for (var i = 0; i < sectors.length; i++) {{
+    if (sectors[i].k_sector === sectorKey) {{ sec = sectors[i]; break; }}
+  }}
+  if (!sec) return;
+  var krQ = window.KOREA_QUOTES || {{}};
+  var valid = [];
+  for (var i = 0; i < (sec.kr_drivers || []).length; i++) {{
+    var nm = sec.kr_drivers[i];
+    var code = (window.KOREA_NAME_CODE || {{}})[nm];
+    if (code) {{
+      var q = krQ[code.replace('kr','')] || {{}};
+      if (typeof q.change_pct === 'number') valid.push(q.change_pct);
+    }}
+  }}
+  var avg = valid.length ? (valid.reduce(function(s,x){{return s+x;}}, 0) / valid.length) : null;
+  var color = avg == null ? '#f59e0b' : (avg > 0 ? '#ef4444' : '#22c55e');
+
+  var html = '<div style="font-size:13px;line-height:1.7;">';
+  html += '<div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:14px;margin-bottom:14px;border-left:4px solid ' + color + ';">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">';
+  html += '<div style="font-size:18px;font-weight:600;color:#e8edf4;">🇰🇷 ' + sec.k_sector + '</div>';
+  html += '<div style="font-size:14px;font-weight:600;color:' + color + ';">加权 ' + (avg != null ? ((avg >= 0 ? '+' : '') + avg.toFixed(2) + '%') : '—') + '</div>';
+  html += '</div>';
+  html += '<div style="margin-top:6px;font-size:12px;color:var(--text-secondary);">权重：' + (sec.kr_drivers || []).join(' + ') + '</div>';
+  html += '</div>';
+
+  html += '<div style="margin-bottom:18px;"><div style="font-weight:600;color:#4fc3f7;font-size:13px;margin-bottom:8px;">🇰🇷 韩国龙头股（实时）</div>';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);color:var(--text-secondary);"><th style="text-align:left;padding:6px;">名称</th><th style="text-align:right;padding:6px;">最新价</th><th style="text-align:right;padding:6px;">涨跌幅</th></tr></thead><tbody>';
+  for (var i = 0; i < (sec.kr_drivers || []).length; i++) {{
+    var nm = sec.kr_drivers[i];
+    var code = (window.KOREA_NAME_CODE || {{}})[nm];
+    var q = code ? (krQ[code.replace('kr','')] || {{}}) : {{}};
+    var pct = q.change_pct;
+    var cls = pct > 0 ? '#ef4444' : (pct < 0 ? '#22c55e' : 'var(--text-secondary)');
+    html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">';
+    html += '<td style="padding:6px;color:#e8edf4;">' + nm + '</td>';
+    html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);">' + (q.price != null ? q.price : '—') + '</td>';
+    html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);font-weight:600;color:' + cls + ';">' + (pct != null ? ((pct >= 0 ? '+' : '') + pct.toFixed(2) + '%') : '—') + '</td>';
+    html += '</tr>';
+  }}
+  html += '</tbody></table></div>';
+
+  html += '<div><div style="font-weight:600;color:#4fc3f7;font-size:13px;margin-bottom:8px;">🇨🇳 A股映射候选（实时·每30秒刷新）</div>';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:1px solid rgba(255,255,255,0.1);color:var(--text-secondary);"><th style="text-align:left;padding:6px;">名称</th><th style="text-align:right;padding:6px;">最新价</th><th style="text-align:right;padding:6px;">涨跌幅</th></tr></thead><tbody>';
+  for (var i = 0; i < (sec.a_candidates || []).length; i++) {{
+    var nm = sec.a_candidates[i];
+    html += '<tr class="a-detail-row" data-name="' + nm + '" style="border-bottom:1px solid rgba(255,255,255,0.04);">';
+    html += '<td style="padding:6px;font-weight:500;">' + nm + '</td>';
+    html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);" class="a-detail-price">—</td>';
+    html += '<td style="padding:6px;text-align:right;font-family:var(--font-num);font-weight:600;" class="a-detail-pct">—</td>';
+    html += '</tr>';
+  }}
+  html += '</tbody></table></div>';
+
+  html += '</div>';
+  document.getElementById('modal-content').innerHTML = '<h2>🇰🇷 ' + sec.k_sector + ' 板块详情</h2>' + html;
+  document.getElementById('modal').classList.add('active');
+  refreshASectorDetailQuotes();
+}}
+
+function refreshASectorDetailQuotes() {{
+  var rows = document.querySelectorAll('#modal .a-detail-row[data-name]');
+  if (!rows.length) return;
+  var codes = [];
+  var seen = {{}};
+  rows.forEach(function(row){{
+    var nm = row.getAttribute('data-name');
+    var code = (window.A_NAME_CODE || {{}})[nm];
+    if (code && !seen[code]) {{ seen[code] = true; codes.push(code); row.setAttribute('data-code', code); }}
+  }});
+  document.querySelectorAll('#modal .kline-btn[data-name]').forEach(function(btn){{
+    var nm = btn.getAttribute('data-name');
+    var code = (window.A_NAME_CODE || {{}})[nm];
+    if (code) btn.setAttribute('data-code', code);
+  }});
+  if (!codes.length) return;
+  fetchQtQuotes(codes).then(function(q){{
+    rows.forEach(function(row){{
+      var code = row.getAttribute('data-code');
+      var data = q[code];
+      var codeEl = row.querySelector('.a-detail-code');
+      var priceEl = row.querySelector('.a-detail-price');
+      var pctEl = row.querySelector('.a-detail-pct');
+      if (codeEl && data) codeEl.textContent = data.code || code;
+      if (priceEl) priceEl.textContent = data && data.price != null ? data.price.toFixed(2) : '—';
+      if (pctEl) {{
+        var pct = data ? data.change_pct : null;
+        var cls = pct > 0 ? '#ef4444' : (pct < 0 ? '#22c55e' : 'var(--text-secondary)');
+        pctEl.textContent = pct != null ? ((pct >= 0 ? '+' : '') + pct.toFixed(2) + '%') : '—';
+        pctEl.style.color = cls;
+      }}
+    }});
+  }});
 }}
 document.addEventListener('keydown', function(e) {{ if (e.key === 'Escape') closeModal(); }});
 
