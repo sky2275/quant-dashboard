@@ -312,15 +312,25 @@ CSS_RULES = """
 
         .limit-up-section { margin-bottom:10px; }
         .limit-up-section .section-title { font-size:12px; font-weight:600; color:var(--accent-gold); margin-bottom:6px; padding:2px 10px; background:rgba(245,158,11,0.1); border-radius:4px; display:inline-block; }
+        .limit-up-fold { background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:10px; margin-bottom:10px; overflow:hidden; }
+        .limit-up-fold summary { list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:rgba(245,158,11,0.08); font-size:13px; font-weight:600; color:var(--accent-gold); }
+        .limit-up-fold summary::-webkit-details-marker { display:none; }
+        .limit-up-fold .fold-title { display:flex; align-items:center; gap:8px; }
+        .limit-up-fold .fold-count { font-size:11px; color:var(--text-secondary); font-weight:400; }
+        .limit-up-fold .fold-icon { transition:transform .2s; color:var(--text-secondary); font-size:11px; }
+        .limit-up-fold[open] .fold-icon { transform:rotate(180deg); }
+        .limit-up-fold .limit-up-content { padding:10px 12px; }
         .limit-up-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
         @media (max-width:768px) { .limit-up-grid { grid-template-columns:1fr 1fr; } }
         @media (max-width:480px) { .limit-up-grid { grid-template-columns:1fr; } }
-        .limit-up-card { background:rgba(255,255,255,0.02); border-radius:8px; padding:10px 12px; border-left:3px solid #ef4444; }
+        .limit-up-card { background:rgba(255,255,255,0.03); border-radius:8px; padding:10px 12px; border-left:3px solid #ef4444; }
         .limit-up-card .stock-name { font-weight:600; font-size:13px; color:#ef4444; }
         .limit-up-card .stock-board { font-size:10px; color:var(--text-secondary); }
         .limit-up-card .stock-data { font-size:10px; color:var(--text-secondary); margin-top:2px; display:flex; flex-wrap:wrap; gap:4px 8px; }
         .limit-up-card .stock-data .label { color:#8892a0; }
         .limit-up-card .stock-data .value { color:var(--text-primary); }
+        .limit-up-card .stock-sector-mood { font-size:10px; margin-top:3px; display:flex; gap:4px; align-items:center; }
+        .limit-up-card .stock-sector-mood .mood-tag { padding:1px 6px; border-radius:4px; font-weight:500; }
         .limit-up-card .stock-forecast { font-size:10px; margin-top:4px; padding:2px 8px; border-radius:4px; display:inline-block; }
         .limit-up-card .stock-forecast.up { background:rgba(239,68,68,0.2); color:#ef4444; }
         .limit-up-card .stock-forecast.down { background:rgba(34,197,94,0.2); color:#22c55e; }
@@ -2268,11 +2278,62 @@ def _section_transmit(overnight, us_quotes=None):
 
 
 # ----------------------------------------------------------------- ③ 涨停板数据
-def _limitup_sections(limit_up):
-    """按连板数分组，返回 (sections_html, total, multi_count)。"""
+def _limitup_sections(limit_up, sector_flow=None, foldable=False):
+    """按连板数分组，返回 (sections_html, total, multi_count)。
+    foldable=True 时每个连板组用 <details> 折叠面板展示；
+    每只个股补充对应板块情绪、次日预测、建仓建议。"""
     real = [x for x in limit_up if isinstance(x, dict) and "error" not in x]
     if not real:
         return "", 0, 0
+
+    # 板块 → 涨跌幅 映射（用于个股板块情绪）
+    sector_map = {}
+    for s in (sector_flow or []):
+        if isinstance(s, dict):
+            nm = s.get("名称")
+            if nm:
+                try:
+                    sector_map[nm] = float(s.get("涨跌幅") or 0)
+                except Exception:
+                    pass
+    alias_map = {
+        "芯片": "半导体", "半导体设备": "半导体",
+        "PCB": "元件", "PCB/CCL": "元件",
+        "煤炭": "煤炭开采加工", "化学制品": "煤化工深加工",
+        "白酒": "白酒/饮料", "锂电": "电池", "新能源车": "汽车整车",
+        "券商": "证券", "银行系": "银行",
+    }
+    rev_alias = {v: k for k, v in alias_map.items()}
+
+    def _match_sector(industry):
+        if not industry or industry == "—":
+            return None
+        if industry in sector_map:
+            return industry
+        if alias_map.get(industry) in sector_map:
+            return alias_map[industry]
+        if rev_alias.get(industry) in sector_map:
+            return rev_alias[industry]
+        for sec in sector_map:
+            if industry in sec or sec in industry:
+                return sec
+        return None
+
+    def _mood(pct):
+        if pct is None:
+            return "—", "var(--text-secondary)", ""
+        if pct >= 3:
+            return "火爆", "#ef4444", "🔥"
+        if pct >= 1.5:
+            return "强势", "#f97316", "📈"
+        if pct >= 0.5:
+            return "活跃", "#f59e0b", "⚡"
+        if pct >= -0.5:
+            return "温和", "#8892a0", "➖"
+        if pct >= -1.5:
+            return "疲弱", "#22c55e", "📉"
+        return "低迷", "#22c55e", "❄️"
+
     groups = {}
     for x in real:
         b = int(x.get("连板数", 1) or 1)
@@ -2282,6 +2343,7 @@ def _limitup_sections(limit_up):
     html = ""
     for b in order:
         title = label_map.get(b, f"🔥 {b}连板")
+        count = len(groups[b])
         grid = ""
         for x in groups[b]:
             name = x.get("名称", "—")
@@ -2313,16 +2375,34 @@ def _limitup_sections(limit_up):
                 fc = "hold"
                 fc_txt = "📊 次日预测: 观察换手"
                 build_txt = "✅ 建仓建议: 封单强+放量可轻仓（≤5%），烂板不碰"
+            matched = _match_sector(ind)
+            spct = sector_map.get(matched) if matched else None
+            mood, mood_color, mood_icon = _mood(spct)
+            mood_html = f'<span class="mood-tag" style="background:rgba(255,255,255,0.06);color:{mood_color};">{mood_icon} {mood}{f" ({spct:+.2f}%)" if spct is not None else ""}</span>'
             grid += f'''
                     <div class="limit-up-card">
                         <div class="stock-name">{_stock_link(name, code)}</div>
                         <div class="stock-board">{b}连板 · {ind}</div>
                         <div class="stock-data"><span class="label">封单:</span><span class="value">{seal}</span> <span class="label">涨跌幅:</span><span class="value" style="color:{_hex(pct)};">{_fmt_pct(pct)}</span></div>
                         <div class="stock-data"><span class="label">热度:</span><span class="value" style="color:#ef4444;">{heat}</span></div>
+                        <div class="stock-sector-mood"><span class="label">板块情绪:</span>{mood_html}</div>
                         <div class="stock-forecast {fc}">{fc_txt}</div>
                         <div class="stock-build">{build_txt}</div>
                     </div>'''
-        html += f'''
+        if foldable:
+            html += f'''
+            <details class="limit-up-fold" open>
+                <summary>
+                    <span class="fold-title">{title}</span>
+                    <span class="fold-count">{count}家</span>
+                    <span class="fold-icon"><i class="fas fa-chevron-down"></i></span>
+                </summary>
+                <div class="limit-up-content">
+                    <div class="limit-up-grid">{grid}</div>
+                </div>
+            </details>'''
+        else:
+            html += f'''
             <div class="limit-up-section">
                 <div class="section-title">{title}</div>
                 <div class="limit-up-grid">{grid}</div>
@@ -2334,7 +2414,7 @@ def _limitup_sections(limit_up):
 
 def _section_limitup(snap):
     limit_up = snap.get("limit_up", []) or []
-    html, total, multi = _limitup_sections(limit_up)
+    html, total, multi = _limitup_sections(limit_up, sector_flow=snap.get("sector_flow"), foldable=True)
     if not html:
         return '''
         <div class="card card-full" onclick="openModal('limitup')">
@@ -2342,8 +2422,8 @@ def _section_limitup(snap):
             <div style="color:var(--text-secondary);font-size:13px;">当日无涨停数据（非交易日或接口异常）。</div>
         </div>'''
     return f'''
-        <div class="card card-full" onclick="openModal('limitup')">
-            <div class="card-title">
+        <div class="card card-full">
+            <div class="card-title" style="cursor:pointer;" onclick="openModal('limitup')">
                 <span class="icon"><i class="fas fa-arrow-up"></i></span> ③ 涨停板数据
                 <span class="badge">{total}家涨停</span>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看详情</span>
@@ -3391,16 +3471,16 @@ def _modal_transmission(overnight):
 
 
 def _modal_limitup(snap):
-    html, total, multi = _limitup_sections(snap.get("limit_up", []) or [])
+    html, total, multi = _limitup_sections(snap.get("limit_up", []) or [], sector_flow=snap.get("sector_flow"), foldable=True)
     if not html:
         return {"title": "📊 涨停板数据详情", "html": '<p class="sub-title">按连板分类</p><div style="color:var(--text-secondary);">当日无涨停数据。</div>'}
     return {
         "title": "📊 涨停板数据详情 · 按连板分类",
         "html": f'''
             <p class="sub-title">涨停家数{total}家 · 连板≥2天{multi}家</p>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">{html}</div>
+            <div>{html}</div>
             <div style="margin-top:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px;color:#f59e0b;">
-                📌 数据来源：东财涨停池（封单/涨跌幅为真实值，热度与次日预测为依据连板数的派生提示）
+                📌 数据来源：东财涨停池（封单/涨跌幅为真实值，板块情绪来自当日板块涨跌幅，热度与次日预测为依据连板数及板块情绪的派生提示）
             </div>'''
     }
 

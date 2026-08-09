@@ -885,7 +885,7 @@ def get_limit_up(date: str | None = None) -> list[dict]:
                 snap_hits.append({
                     "名称": r.get("名称"), "代码": str(r.get("代码", "")),
                     "涨跌幅": r.get("涨跌幅"), "成交额": r.get("成交额"),
-                    "所属行业": "—",
+                    "所属行业": r.get("所属行业") or "—",
                 })
     except Exception as e:
         print(f"[limit_up] 快照失败: {e}")
