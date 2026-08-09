@@ -690,6 +690,9 @@ CSS_RULES = """
 
         /* 涨跌分布 + 四宫格 */
         .breadth { display:flex; flex-direction:column; gap:12px; }
+        .breadth.breadth-wide { flex-direction:row; gap:18px; align-items:center; flex-wrap:wrap; }
+        .breadth-wide .bw-main { flex:1; min-width:260px; display:flex; flex-direction:column; gap:8px; }
+        .breadth-wide .stats4 { flex:1; min-width:280px; }
         .bw-bar { height:12px; border-radius:var(--r-chip); overflow:hidden; display:flex; background:var(--bg-surface-2); }
         .bw-bar .up { background:var(--up); }
         .bw-bar .down { background:var(--down); }
@@ -1598,7 +1601,7 @@ def _hero_index_cards(items, limit=4, clickable=True):
     return f'<div class="hero">{cards}</div>'
 
 
-def _breadth_card(snap):
+def _breadth_card(snap, wide=False):
     """市场情绪卡：涨跌分布条 + 涨停/跌停/成交额/情绪 四宫格。"""
     breadth = snap.get("market_breadth") or {}
     if not isinstance(breadth, dict) or "error" in breadth:
@@ -1621,18 +1624,27 @@ def _breadth_card(snap):
             mood, mood_cls = "偏弱", "down"
     else:
         mood, mood_cls = "—", ""
+    wide_cls = " breadth-wide" if wide else ""
+    inner = (
+        f'<div class="bw-main">'
+        f'<div class="bw-bar"><i class="seg-up" style="width:{up_w:.1f}%"></i><i class="seg-down" style="width:{down_w:.1f}%"></i></div>'
+        f'<div class="bw-legend"><span>上涨 <b class="up">{_safe(up, "—")}</b></span><span>下跌 <b class="down">{_safe(down, "—")}</b></span><span>涨家占比 {up_w:.0f}%</span></div>'
+        f'</div>'
+    )
+    stats = (
+        f'<div class="stats4">'
+        f'<div class="stat"><div class="l">涨停</div><div class="v up num">{_safe(zt, "—")}</div></div>'
+        f'<div class="stat"><div class="l">跌停</div><div class="v down num">{_safe(dt_c, "—")}</div></div>'
+        f'<div class="stat"><div class="l">成交额</div><div class="v num" style="font-size:15px;">{_fmt_amount(amount)}</div></div>'
+        f'<div class="stat"><div class="l">情绪</div><div class="v {mood_cls}" style="font-size:15px;">{mood}</div></div>'
+        f'</div>'
+    )
     return f'''
         <div class="card">
             <div class="card-title"><span class="icon"><i class="fas fa-chart-simple"></i></span> 市场情绪 <span class="badge">BREADTH</span></div>
-            <div class="breadth">
-                <div class="bw-bar"><i class="seg-up" style="width:{up_w:.1f}%"></i><i class="seg-down" style="width:{down_w:.1f}%"></i></div>
-                <div class="bw-legend"><span>上涨 <b class="up">{_safe(up, "—")}</b></span><span>下跌 <b class="down">{_safe(down, "—")}</b></span><span>涨家占比 {up_w:.0f}%</span></div>
-                <div class="stats4">
-                    <div class="stat"><div class="l">涨停</div><div class="v up num">{_safe(zt, "—")}</div></div>
-                    <div class="stat"><div class="l">跌停</div><div class="v down num">{_safe(dt_c, "—")}</div></div>
-                    <div class="stat"><div class="l">成交额</div><div class="v num" style="font-size:15px;">{_fmt_amount(amount)}</div></div>
-                    <div class="stat"><div class="l">情绪</div><div class="v {mood_cls}" style="font-size:15px;">{mood}</div></div>
-                </div>
+            <div class="breadth{wide_cls}">
+                {inner}
+                {stats}
             </div>
         </div>'''
 
@@ -1805,18 +1817,17 @@ def _index_quote_bar(items, label):
 
 
 def _section_ashare(snap, us_quotes, overnight):
-    """A股大盘行情：页眉 + 指数行情条 + HERO指数大卡 + 市场情绪/板块强弱 + 指数K线。"""
+    """A股大盘行情：页眉 + 指数行情条 + HERO指数大卡 + 市场情绪 + 板块强弱 + 指数K线。"""
     a_idx = snap.get("a_indexes", []) or []
     head = _screen_head("A股大盘行情", "核心指数 · 市场情绪 · 板块强弱 · 指数K线", _session('a')[0])
     idx_bar = _index_quote_bar(a_idx, "核心指数")
     hero = _hero_index_cards(a_idx, limit=4)
-    grid = f'''
-        <div class="grid-2">
-            {_breadth_card(snap)}
-            {_sector_strength_card(snap, topn=5)}
-        </div>'''
+    blocks = f'''
+        {_breadth_card(snap, wide=True)}
+        {_sector_strength_card(snap, topn=10)}
+    '''
     idx_kline = _section_index_kline()     # 指数K线（分时 + 日K）
-    return head + idx_bar + hero + grid + idx_kline
+    return head + idx_bar + hero + blocks + idx_kline
 
 
 # ----------------------------------------------------------------- 重排后：美股行情映射 面板（美股隔夜 + 美股→A股传导）
