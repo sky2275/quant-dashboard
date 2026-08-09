@@ -5658,9 +5658,9 @@ function openSectorDetail(sectorKey) {{
   if (etfCode) {{
     html += '<div style="margin-bottom:18px;"><div style="font-weight:600;color:#4fc3f7;font-size:13px;margin-bottom:8px;">📊 板块代表 ETF K 线：' + etfCode + '（' + (SECTOR_ETF_NAMES_LOOKUP[etfCode] || etfCode) + '）</div>';
     html += '<div class="stock-detail-tabs" style="margin-bottom:8px;">';
-    html += '<div class="sec-idx-tab stock-detail-tab active" onclick="switchSectorChartTab(this,\'daily\')">日K</div>';
-    html += '<div class="sec-idx-tab stock-detail-tab" onclick="switchSectorChartTab(this,\'weekly\')">周K</div>';
-    html += '<div class="sec-idx-tab stock-detail-tab" onclick="switchSectorChartTab(this,\'monthly\')">月K</div>';
+    html += "<div class=\\\"sec-idx-tab stock-detail-tab active\\\" onclick=\\\"switchSectorChartTab(this, \'daily\')\\\">日K</div>";
+    html += "<div class=\\\"sec-idx-tab stock-detail-tab\\" onclick=\\\"switchSectorChartTab(this, 'weekly')\\">周K</div>";
+    html += "<div class=\\\"sec-idx-tab stock-detail-tab\\" onclick=\\\"switchSectorChartTab(this, 'monthly')\\">月K</div>";
     html += '</div>';
     html += '<div id="sectorChart-daily" class="stock-chart" style="height:380px;"></div>';
     html += '<div id="sectorChart-weekly" class="stock-chart" style="height:380px;display:none;"></div>';
