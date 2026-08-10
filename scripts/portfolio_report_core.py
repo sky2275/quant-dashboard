@@ -35,10 +35,13 @@ NAME_CODE = {
     "立讯精密": "sz002475", "歌尔股份": "sz002241",
     "领益智造": "sz002600", "鹏鼎控股": "sz002938",
     "永安行": "sh603776", "征和工业": "sz003033", "长电科技": "sh600584",
-    "科大讯飞": "sz002230",
+    "科大讯飞": "sz002230", "传智教育": "sz003032",
     "中装建设": "sz002822", "长高电力": "sz002452", "工商银行": "sh601398",
     "大秦铁路": "sh601006", "陕西煤业": "sh601225", "江苏银行": "sh600919",
-    "哈药股份": "sh600664",
+    "哈药股份": "sh600664", "埃斯顿": "sz002747",
+    # 备选池候选
+    "联创光电": "sh600363", "风范股份": "sh601700", "风华高科": "sz000636",
+    "儒意电影": "sz001234", "大晟文化": "sh600892",
 }
 
 ACCOUNT_LABELS = {"galaxy": "银河证券", "eastmoney": "东财", "csc": "中信建投", "manual": "手动"}
@@ -348,43 +351,45 @@ def _build_rows(positions, a_quotes, indicators, klines):
 
 _NEWS_DB = {
     "永安行": [
-        ("+", "利好", "7月国内出游人次34.63亿，文旅消费3.21万亿元"),
-        ("-", "利空", "8月7日主力净流出2198万，短期承压"),
-        ("·", "中性", "永安行微跌，板块效应不明显"),
+        ("+", "利好", "8月10日微涨1.68%，收盘21.76，短期均线多头排列"),
+        ("·", "中性", "量比0.91缩量上行，抛压较轻但上攻动能不足"),
+        ("-", "注意", "板块效应不明显，需关注氢能/共享出行是否有新催化"),
+    ],
+    "埃斯顿": [
+        ("+", "利好", "7月国内机器人产业政策密集出台，减速器/伺服需求旺盛"),
+        ("+", "利好", "8月4-6日连续放量上攻，34.27→34.81站稳短期均线"),
+        ("-", "利空", "8月10日回落-1.42%，收34.63，跌破前日收盘"),
+        ("·", "中性", "量比0.68缩量调整，主力或在洗盘蓄势"),
     ],
     "北京君正": [
-        ("+", "重大利好", "SK海力士砸384亿美元扩产存储芯片"),
-        ("+", "重大利好", "马斯克点名存储芯片供不应求，兆易创新涨停"),
-        ("+", "利好", "8月7日主力净流入6.4亿，短期上行动能增强"),
-        ("·", "中性", "电子行业月度报告：高位盈利修复，估值回调"),
-    ],
-    "绿的谐波": [
-        ("·", "中性", "机器人板块高位震荡，减速器龙头分化"),
-        ("+", "利好", "绿的谐波已清仓，规避高位回调风险"),
+        ("-", "利空", "8月10日大跌-3.87%，收138.48，跌破140整数关口"),
+        ("-", "利空", "半导体板块主力净流出6.5亿，行业资金面承压"),
+        ("+", "利好", "存储芯片涨价预期仍在，SK海力士扩产利好产业链"),
+        ("·", "中性", "近期从259元高点回落至138元，跌幅近47%，技术面超跌"),
     ],
     "哈药股份": [
-        ("+", "板块", "化学制药+4.38%，CRO+10.84%全板块爆发"),
-        ("+", "题材", "减肥药、创新药、重组蛋白概念联动"),
-        ("⚠", "风险", "个股处于题材炒作高位，估值偏高"),
-        ("·", "公告", "公司无重大利空，但需注意减持风险"),
+        ("+", "涨停", "8月10日涨停+9.94%，收7.52，一字板封板坚决"),
+        ("+", "板块", "化学制药/医疗服务板块涨幅3-4%，板块效应明显"),
+        ("+", "题材", "减肥药/创新药/国企改革概念联动"),
+        ("⚠", "风险", "7月以来从3元涨至7.52，涨幅150%，高位需警惕"),
     ],
     "征和工业": [
-        ("+", "利好", "8月7日主力净流入1316.2万，短期情绪回暖"),
-        ("+", "利好", "均线系统齐头并进推动股价走强"),
-        ("+", "利好", "机构看好2026年业绩持续增长"),
-        ("-", "注意", "8月6日主力净流出288.8万，需观察"),
+        ("+", "利好", "8月7日涨停65.00，主力净流入显著"),
+        ("-", "回调", "8月10日回落-2.26%，收63.53，高位获利了结"),
+        ("+", "利好", "均线系统多头排列，中期趋势向上"),
+        ("·", "中性", "量比1.0正常量能，无明显放量信号"),
     ],
     "传智教育": [
-        ("⚠", "监管", "8月7日深交所：对传智教育、高争民爆进行重点监控"),
-        ("⚠", "监控", "8月8日'3只牛股被重点监控，8天7板翻倍股'"),
-        ("⚠", "公告", "8月8日紧急公告：股价8日已翻倍"),
-        ("⚠", "风险", "随时存在快速下跌风险"),
+        ("+", "利好", "8月10日大涨+4.61%，收12.03，站上12元整数关口"),
+        ("+", "题材", "鸿蒙生态+IT培训+职业教育多重概念叠加"),
+        ("+", "龙虎榜", "华泰证券北京月坛南街买入127万，拉萨天团买卖活跃"),
+        ("⚠", "风险", "7月底以来从5.5元涨至12.03，涨幅120%，高位波动加剧"),
     ],
     "科大讯飞": [
-        ("+", "利好", "中标330万国药AI项目，巩固智慧医疗"),
-        ("+", "利好", "进入《信创AI PC竞争力矩阵》领导者象限"),
-        ("+", "利好", "我国首个全国产算力全栈自主大模型"),
-        ("+", "利好", "讯飞星火大模型亮相智能交通大会"),
+        ("+", "利好", "讯飞星火大模型持续迭代，教育/医疗AI落地加速"),
+        ("+", "利好", "进入信创AI PC竞争力矩阵领导者象限"),
+        ("·", "中性", "8月10日微跌-0.09%，收43.49，窄幅震荡"),
+        ("-", "注意", "量比0.55缩量明显，短期方向待选择"),
     ],
 }
 
@@ -392,13 +397,13 @@ _NEWS_DB = {
 def _intraday_review(name, chg_pct):
     """基于名称和涨跌幅生成简化的分时复盘。"""
     tmpl = {
-        "永安行": "高开后冲高至21.55，遇阻回落，呈现倒V走势；午后横盘整理，尾盘突然下杀跌破均价线，收21.40，弱于大盘。",
-        "北京君正": "平开后强势拉升，10分钟内冲至137；高位整理后午后维持高位震荡，尾盘冲击涨停未果，收144.05，放量突破前高。",
-        "绿的谐波": "低开后快速反弹，334拉升到343；高位横盘整理，午后冲高347.76，尾盘小幅回落，仍收高位。",
-        "哈药股份": "集合竞价封涨停6.84，买一压单巨大；全天一字板，封单扩大，强势封板。",
-        "征和工业": "高开后强势拉升到62.84，高位横盘整理；午后冲高65.00后回落，尾盘收65.00，光头光脚大阳线。",
-        "传智教育": "大幅高开+5%后冲高12.00；高位震荡放巨量，午后冲高12.00后大幅回落，尾盘收11.50，高位长上影。",
-        "科大讯飞": "平开后冲高44.72；高位震荡后回落，午后最低43.41，尾盘收43.53，弱于大盘。",
+        "永安行": "平开后小幅探底21.37，随后缓慢回升至21.76；午后维持窄幅震荡，尾盘收于全天高位附近，量比0.91缩量上行，抛压较轻。",
+        "埃斯顿": "高开35.50后快速下探至33.96，随后反弹至35.00附近受阻回落；午后维持弱势震荡，尾盘收34.63，跌幅-1.42%，量比0.68明显缩量，短期回调迹象。",
+        "北京君正": "高开144.20后单边下行，盘中最低探至135.05；午后反弹至140附近再度回落，收138.48，跌幅-3.87%，量比0.88偏缩，半导体板块整体走弱拖累。",
+        "哈药股份": "开盘即涨停7.52，一字板封板坚决；盘中短暂打开最低7.40后迅速回封，全天封单稳定，量比0.30极度缩量，多头控盘力度强。",
+        "征和工业": "高开65.01后震荡走低，盘中最低探至62.05；午后反弹至64附近受阻，尾盘收63.53，跌幅-2.26%，量比1.0正常量能，高位获利了结。",
+        "传智教育": "低开10.99后快速下探至10.60，随后强势拉升突破12元；午后维持12.03-12.08高位震荡，尾盘收12.03，涨幅+4.61%，量比1.62温和放量，资金介入积极。",
+        "科大讯飞": "平开43.53后窄幅震荡，盘中最高43.99、最低42.81；午后维持在43.5附近整理，尾盘收43.49，微跌-0.09%，量比0.55明显缩量，方向待选择。",
     }
     return tmpl.get(name, "当日走势震荡，盘中多空博弈明显，收盘位于关键均线附近。")
 
@@ -437,14 +442,126 @@ def _signal_attribution(name, signal_cls):
 def _stock_concept(name):
     concepts = {
         "永安行": "共享单车 · 氢能",
+        "埃斯顿": "工业机器人 · 伺服系统 · 减速器",
         "北京君正": "存储芯片 · 半导体 · AI算力",
-        "绿的谐波": "机器人 · 减速器 · 谐波齿轮",
         "哈药股份": "化学制药 · 国企改革 · 减肥药",
         "征和工业": "摩托车链 · 农机链 · 工业制造",
         "传智教育": "IT教育 · 职业培训 · 鸿蒙概念",
         "科大讯飞": "人工智能 · 大模型 · 教育",
     }
     return concepts.get(name, "—")
+
+
+# ---------------------------------------------------------------------------
+# 市场扫描摘要 & 备选进攻股票池
+
+def _generate_market_scan():
+    """8月10日A股全盘扫描摘要"""
+    return """
+  <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <h2 style="font-size:18px;margin:0 0 14px;color:#e2e8f0;">🔍 8月10日 A股全盘扫描摘要</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px;">
+      <div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">涨停</div><div style="font-size:24px;font-weight:700;color:#ef4444;">89只</div></div>
+      <div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">跌停</div><div style="font-size:24px;font-weight:700;color:#22c55e;">1只</div></div>
+      <div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">上涨</div><div style="font-size:24px;font-weight:700;color:#ef4444;">4068只</div><div style="font-size:10px;color:#94a3b8;">73.44%</div></div>
+      <div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">下跌</div><div style="font-size:24px;font-weight:700;color:#22c55e;">1391只</div><div style="font-size:10px;color:#94a3b8;">25.11%</div></div>
+      <div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">市场情绪</div><div style="font-size:18px;font-weight:700;color:#ef4444;">狂热</div><div style="font-size:10px;color:#94a3b8;">涨停>50只</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:13px;font-weight:600;color:#ef4444;margin-bottom:8px;">📈 领涨行业 TOP5</div>
+        <table style="width:100%;font-size:12px;border-collapse:collapse;">
+          <tr><td style="padding:4px 0;color:#e2e8f0;">地面兵装</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+5.12%</td></tr>
+          <tr><td style="padding:4px 0;color:#e2e8f0;">酒店餐饮</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+4.22%</td></tr>
+          <tr><td style="padding:4px 0;color:#e2e8f0;">养殖</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+4.19%</td></tr>
+          <tr><td style="padding:4px 0;color:#e2e8f0;">医疗服务</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+3.92%</td></tr>
+          <tr><td style="padding:4px 0;color:#e2e8f0;">贵金属</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+3.89%</td></tr>
+        </table>
+      </div>
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:13px;font-weight:600;color:#ef4444;margin-bottom:8px;">💰 主力净流入 TOP5</div>
+        <table style="width:100%;font-size:12px;border-collapse:collapse;">
+          <tr><td style="padding:4px 0;color:#e2e8f0;">贵金属</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+11.4亿</td></tr>
+          <tr><td style="padding:4px 0;color:#e2e8f0;">通用设备</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+10.7亿</td></tr>
+          <tr><td style="padding:4px 0;color:#e2e8f0;">电网设备</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+10.0亿</td></tr>
+          <tr><td style="padding:4px 0;color:#e2e8f0;">医疗服务</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+8.3亿</td></tr>
+          <tr><td style="padding:4px 0;color:#e2e8f0;">化学制药</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+7.6亿</td></tr>
+        </table>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;">
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:13px;font-weight:600;color:#22c55e;margin-bottom:8px;">📉 主力净流出 TOP3</div>
+        <table style="width:100%;font-size:12px;border-collapse:collapse;">
+          <tr><td style="padding:4px 0;color:#e2e8f0;">通信设备</td><td style="padding:4px 0;text-align:right;color:#22c55e;font-weight:700;">-16.4亿</td></tr>
+          <tr><td style="padding:4px 0;color:#e2e8f0;">元件</td><td style="padding:4px 0;text-align:right;color:#22c55e;font-weight:700;">-8.5亿</td></tr>
+          <tr><td style="padding:4px 0;color:#e2e8f0;">半导体</td><td style="padding:4px 0;text-align:right;color:#22c55e;font-weight:700;">-6.5亿</td></tr>
+        </table>
+      </div>
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:13px;font-weight:600;color:#f59e0b;margin-bottom:8px;">🐉 龙虎榜亮点</div>
+        <div style="font-size:12px;color:#e2e8f0;line-height:1.8;">
+          <div>游资TOP：东北猛男 2.68亿（联创光电/大晟文化）</div>
+          <div>游资TOP：成都系 1.00亿（儒意电影）</div>
+          <div>个股TOP：风范股份 +1.85亿</div>
+          <div>个股TOP：风华高科 +1.56亿</div>
+          <div>个股TOP：儒意电影 +1.34亿</div>
+        </div>
+      </div>
+    </div>
+  </div>
+"""
+
+
+def _generate_attack_pool():
+    """8月11日备选进攻股票池"""
+    pool = [
+        ("联创光电", "sh600363", "光电元器件 · 军工 · 超导", "龙虎榜游资东北猛男买入2.68亿，游资抱团标的", "龙虎榜个股净买入+游资抱团", "追涨（严格止损）", "⚠ 高风险"),
+        ("风范股份", "sh601700", "电网设备 · 特高压 · 智能电网", "龙虎榜个股净买入TOP1 +1.85亿，电网设备板块主力净流入10亿", "板块资金流入+龙虎榜双共振", "低吸回调", "🟡 中风险"),
+        ("风华高科", "sz000636", "电子元件 · 半导体材料 · 被动元件", "龙虎榜个股净买入TOP2 +1.56亿，被动元件涨价周期", "龙虎榜资金面+行业周期", "回踩均线低吸", "🟡 中风险"),
+        ("儒意电影", "sz001234", "影视传媒 · 影视出品", "龙虎榜个股净买入TOP3 +1.34亿，成都系游资1亿主买", "游资抱团+传媒板块回暖", "短线快进快出", "⚠ 高风险"),
+        ("大晟文化", "sh600892", "游戏 · 影视 · 文化传媒", "东北猛男买入，与联创光电同席位游资", "游资联动+文化传媒概念", "短线跟随", "⚠ 高风险"),
+    ]
+    rows_html = ""
+    for name, code, concept, reason, logic, strategy, risk in pool:
+        rows_html += f"""<tr>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-weight:600;color:#e2e8f0;'>{name}</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>{code}</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#94a3b8;'>{concept}</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:12px;color:#e2e8f0;'>{reason}</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#f59e0b;'>{logic}</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:3px 8px;border-radius:4px;font-size:11px;'>{strategy}</span></td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;'>{risk}</td>
+        </tr>"""
+
+    return f"""
+  <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <h2 style="font-size:18px;margin:0 0 14px;color:#e2e8f0;">⚔️ 8月11日备选进攻股票池（基于8月10日市场扫描）</h2>
+    <div style="font-size:12px;color:#94a3b8;margin-bottom:12px;">筛选逻辑：龙虎榜个股净买入TOP + 游资抱团标的 + 主力净流入板块龙头。注：备选池仅供观察，非投资建议。</div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr>
+          <th style="text-align:left;padding:10px;color:#94a3b8;border-bottom:1px solid #2d2d44;">股票</th>
+          <th style="text-align:left;padding:10px;color:#94a3b8;border-bottom:1px solid #2d2d44;">代码</th>
+          <th style="text-align:left;padding:10px;color:#94a3b8;border-bottom:1px solid #2d2d44;">概念</th>
+          <th style="text-align:left;padding:10px;color:#94a3b8;border-bottom:1px solid #2d2d44;">入选理由</th>
+          <th style="text-align:left;padding:10px;color:#94a3b8;border-bottom:1px solid #2d2d44;">信号逻辑</th>
+          <th style="text-align:left;padding:10px;color:#94a3b8;border-bottom:1px solid #2d2d44;">建议策略</th>
+          <th style="text-align:left;padding:10px;color:#94a3b8;border-bottom:1px solid #2d2d44;">风险等级</th>
+        </tr></thead>
+        <tbody>{rows_html}</tbody>
+      </table>
+    </div>
+    <div style="margin-top:12px;padding:12px;background:#0f0f23;border-radius:8px;font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b style="color:#f59e0b;">📋 8月11日作战要点：</b><br>
+      1. 市场情绪狂热（涨停89只），但需警惕高位股分化风险，涨停板次日溢价率是关键观察指标。<br>
+      2. 主力资金偏好贵金属/通用设备/电网设备/医疗服务板块，回避通信设备/元件/半导体等净流出板块。<br>
+      3. 龙虎榜游资活跃度极高（东北猛男2.68亿），短线情绪博弈可关注游资抱团标的，但需严格止损。<br>
+      4. 哈药股份已涨停封板，次日（8月11日）关注能否连板，若开板可考虑减仓兑现部分利润。<br>
+      5. 北京君正两个账户合计亏损-7152.6元，短期超跌后关注140元支撑位，破位则止损。
+    </div>
+  </div>
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -632,7 +749,7 @@ def _generate_fund_allocation(rows):
         release += amt * ratio
         out_items.append((d["name"], op, amt * ratio))
 
-    targets = [("兆易创新", 10000), ("胜宏科技", 8500), ("药明康德", 7500), ("恒瑞医药", 5000)]
+    targets = [("风范股份", 8000), ("风华高科", 7000), ("联创光电", 5000), ("儒意电影", 3000)]
     in_items = []
     remain = release
     for name, amt in targets:
@@ -674,6 +791,24 @@ def _report_body(rows, hold_str, plan_str, hold_date, account_pnl=None, embedded
     n_up = sum(1 for d in rows if (d["chg_pct"] or 0) > 0)
     n_bull = sum(1 for d in rows if d["signal_cls"] in ("buy", "hold"))
     n_down = len(rows) - n_up
+
+    # 账户级盈亏卡片
+    acct_html = ""
+    if account_pnl:
+        acct_cards = ""
+        for key in ["galaxy", "eastmoney", "csc"]:
+            ap = account_pnl.get(key, {})
+            label = ACCOUNT_LABELS.get(key, key)
+            today = ap.get("today")
+            total = ap.get("total")
+            today_color = "#ef4444" if (today or 0) > 0 else ("#22c55e" if (today or 0) < 0 else "#94a3b8")
+            total_color = "#ef4444" if (total or 0) > 0 else ("#22c55e" if (total or 0) < 0 else "#94a3b8")
+            acct_cards += f"""<div style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:16px;text-align:center;">
+              <div style="font-size:12px;color:#94a3b8;">{label}</div>
+              <div style="font-size:22px;font-weight:700;color:{today_color};margin:6px 0;">{_fmt_pnl(today)}</div>
+              <div style="font-size:11px;color:#94a3b8;">累计 {_fmt_pnl(total)}</div>
+            </div>"""
+        acct_html = f"""<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;">{acct_cards}</div>"""
 
     # 表格
     table_rows = ""
@@ -746,6 +881,12 @@ def _report_body(rows, hold_str, plan_str, hold_date, account_pnl=None, embedded
       <div style="font-size:11px;color:#94a3b8;">看多 / 持有 / 警惕</div>
     </div>
   </div>
+
+  {acct_html}
+
+  {_generate_market_scan()}
+
+  {_generate_attack_pool()}
 
   <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
     <h2 style="font-size:18px;margin:0 0 14px;color:#e2e8f0;">📋 {hold_str}收盘持仓一览 + RSI(6/12/24) 与量比总览（红涨绿跌 · Wilder 平滑法）</h2>

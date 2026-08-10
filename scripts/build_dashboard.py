@@ -4337,11 +4337,11 @@ def _holding_backtest_compare():
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                 <div>
-                    <div style="font-size:11px;color:var(--text-3);margin-bottom:6px;">实际持仓（{len(pos_rows)} 只）均值 <b style="color:{"#ef4444" if pos_avg and pos_avg>=0 else "#22c55e"};">{pos_avg:+.2f}%</b></div>
+                    <div style="font-size:11px;color:var(--text-3);margin-bottom:6px;">实际持仓（{len(pos_rows)} 只）均值 <b style="color:{"#ef4444" if pos_avg and pos_avg>=0 else "#22c55e"};">{(f"{pos_avg:+.2f}" if pos_avg is not None else "—")}%</b></div>
                     <div style="max-height:280px;overflow-y:auto;">{_rows(pos_rows, "pos")}</div>
                 </div>
                 <div>
-                    <div style="font-size:11px;color:var(--text-3);margin-bottom:6px;">备选池（{len(pool_rows)} 只）均值 <b style="color:{"#ef4444" if pool_avg and pool_avg>=0 else "#22c55e"};">{pool_avg:+.2f}%</b></div>
+                    <div style="font-size:11px;color:var(--text-3);margin-bottom:6px;">备选池（{len(pool_rows)} 只）均值 <b style="color:{"#ef4444" if pool_avg and pool_avg>=0 else "#22c55e"};">{(f"{pool_avg:+.2f}" if pool_avg is not None else "—")}%</b></div>
                     <div style="max-height:280px;overflow-y:auto;">{_rows(pool_rows, "pool")}</div>
                 </div>
             </div>
