@@ -275,7 +275,12 @@ def _build_rows(positions, a_quotes, indicators, klines):
         if chg_pct is None and today_pct is not None:
             chg_pct = today_pct
 
+        # 兼容带/不带 sh/sz 前缀的缓存 key
         kdata = klines.get("stocks", {}).get(code, {})
+        if not kdata and code.startswith(("sh", "sz")):
+            kdata = klines.get("stocks", {}).get(code[2:], {})
+        if not kdata and not code.startswith(("sh", "sz")):
+            kdata = klines.get("stocks", {}).get(f"sh{code}", {}) or klines.get("stocks", {}).get(f"sz{code}", {})
         kline = kdata.get("kline", [])
         closes = [x[2] for x in kline] if kline else []
         volumes = [x[5] for x in kline] if kline else []
