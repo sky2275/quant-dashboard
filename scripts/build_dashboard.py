@@ -1300,7 +1300,7 @@ def _position_strategy(d):
         reason = "浮盈已超 50%，建议分批止盈锁定利润；若继续冲高可保留底仓"
     elif pnl_rate >= 20:
         action = "持有/减仓"
-        if 'rsi_f' in locals() and rsi_f >= 65:
+        if rsi_f is not None and rsi_f >= 65:
             reason = "浮盈较大且 RSI 偏高，建议减仓一半锁定利润"
         else:
             reason = "浮盈较丰，趋势未走坏则持有，放量滞涨则减仓"
