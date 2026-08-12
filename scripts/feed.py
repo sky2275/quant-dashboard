@@ -94,18 +94,39 @@ def _retry(fn: Callable, attempts: int = 3, wait: float = 2.0):
     raise last  # type: ignore[misc]
 
 
-# ---------------------------------------------------------------- 交易日历（tushare → akshare → 周末启发式 三级兜底）
+# ---------------------------------------------------------------- SQLite 缓存（P1 层）
+try:
+    from scripts.db_cache import get_cache as _get_db_cache
+    _db_cache = _get_db_cache()
+except Exception:
+    _db_cache = None
+
+
+# ---------------------------------------------------------------- 交易日历（SQLite缓存 → tushare → akshare → 周末启发式 四级兜底）
 def get_trade_context(today: dt.date | None = None) -> dict:
     """
     判断今天是否 A股交易日，并给出应使用的数据基准日（最近一个交易日）。
     返回 {"is_trade_day": bool, "trade_date": "YYYYMMDD", "today": "YYYYMMDD", "source": str}
     - 交易日   -> trade_date = 今天（显示实时数据）
     - 非交易日 -> trade_date = 最近一个交易日（显示该日收盘数据）
+    优先查 SQLite 缓存（TTL 7天），命中则跳过所有 API 调用。
     """
     if today is None:
         today = beijing_today()
     today_s = today.strftime("%Y%m%d")
     start_s = (today - dt.timedelta(days=30)).strftime("%Y%m%d")
+
+    # 0) SQLite 缓存（最快，命中率最高）
+    if _db_cache:
+        cal = _db_cache.get_trade_calendar()
+        if cal:
+            past_open = [e["trade_date"] for e in cal
+                         if e["is_open"] and e["trade_date"] <= today_s]
+            if past_open:
+                is_open = past_open[-1] == today_s
+                return {"is_trade_day": is_open,
+                        "trade_date": past_open[-1],
+                        "today": today_s, "source": "sqlite_cache"}
 
     # 1) tushare 官方交易日历（最准确，含节假日）
     pro = _tushare_pro()
@@ -116,6 +137,11 @@ def get_trade_context(today: dt.date | None = None) -> dict:
                 cal = cal.sort_values("cal_date")
                 open_days = cal[cal["is_open"] == 1]["cal_date"].tolist()
                 if open_days:
+                    # 写入 SQLite 缓存
+                    if _db_cache:
+                        entries = [{"trade_date": r["cal_date"], "is_open": int(r["is_open"])}
+                                   for _, r in cal.iterrows()]
+                        _db_cache.put_trade_calendar(entries, "tushare")
                     is_open = open_days[-1] == today_s
                     return {"is_trade_day": is_open,
                             "trade_date": open_days[-1],
@@ -131,6 +157,10 @@ def get_trade_context(today: dt.date | None = None) -> dict:
             days = sorted(str(x).replace("-", "")[:8] for x in df["trade_date"].tolist())
             past = [d for d in days if d <= today_s]
             if past:
+                # 写入 SQLite 缓存
+                if _db_cache:
+                    entries = [{"trade_date": d, "is_open": 1} for d in days[-90:]]
+                    _db_cache.put_trade_calendar(entries, "akshare")
                 is_open = past[-1] == today_s
                 return {"is_trade_day": is_open,
                         "trade_date": past[-1],
