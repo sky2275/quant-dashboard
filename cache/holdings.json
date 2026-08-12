@@ -1,7 +1,7 @@
 {
-  "source": "mobile_broker_snapshot_2026-08-11_with_2026-08-12_market_close",
-  "updated_at": "2026-08-12 22:00:00",
-  "note": "2026-08-11 手机端三券商持仓刷新；2026-08-12 更新为当日收盘价（未收到新的成交/调仓数据，持仓数量与成本沿用8月11日口径）。当日盈亏按(8/12收盘价-8/11收盘价)*数量估算，与券商APP实际口径可能存在差异。",
+  "source": "mobile_broker_snapshot_2026-08-12",
+  "updated_at": "2026-08-12 23:05:00",
+  "note": "2026-08-12 收盘后根据用户提供的三券商APP口径更新。持仓数量、成本、现价均按用户口径；当日盈亏/总盈亏按用户口径。由于盘中存在减仓/加仓/换股（如银河埃斯顿1000→500、中信百花1000→500/风华500→1000、新建通富微电），账户级当日盈亏可能包含已实现盈亏，与个股未实现盈亏加总存在差异。",
   "account_labels": {
     "galaxy": "银河证券",
     "eastmoney": "东方财富证券",
@@ -9,9 +9,9 @@
   },
   "account_pnl": {
     "galaxy": {
-      "today": -1410.0,
+      "today": -1505.57,
       "today_pct": null,
-      "total": 551.0,
+      "total": 442.0,
       "pct": null
     },
     "eastmoney": {
@@ -21,9 +21,9 @@
       "pct": null
     },
     "csc": {
-      "today": 5564.0,
+      "today": -6569.0,
       "today_pct": null,
-      "total": 6429.3,
+      "total": 7391.8,
       "pct": null
     }
   },
@@ -33,16 +33,32 @@
         "code": "002747",
         "name": "埃斯顿",
         "account": "galaxy",
-        "quantity": 1000,
-        "avg_cost": 34.159,
+        "quantity": 500,
+        "avg_cost": 33.545,
         "price": 34.71,
         "chg": -3.9,
         "pnl": {
-          "total": 551.0,
-          "pct": 1.61,
-          "today": -1410.0,
+          "total": 582.5,
+          "pct": 3.49,
+          "today": -705.0,
           "today_pct": -3.9,
           "price": 34.71
+        }
+      },
+      {
+        "code": "002156",
+        "name": "通富微电",
+        "account": "galaxy",
+        "quantity": 500,
+        "avg_cost": 63.141,
+        "price": 62.86,
+        "chg": 1.29,
+        "pnl": {
+          "total": -140.5,
+          "pct": -0.45,
+          "today": -140.5,
+          "today_pct": -0.45,
+          "price": 62.86
         }
       }
     ],
@@ -69,14 +85,14 @@
         "code": "600721",
         "name": "百花医药",
         "account": "csc",
-        "quantity": 1000,
-        "avg_cost": 12.755,
+        "quantity": 500,
+        "avg_cost": 11.507,
         "price": 14.03,
         "chg": 10.04,
         "pnl": {
-          "total": 1275.0,
-          "pct": 10.0,
-          "today": 1280.0,
+          "total": 1261.5,
+          "pct": 21.87,
+          "today": 640.0,
           "today_pct": 10.04,
           "price": 14.03
         }
@@ -102,12 +118,12 @@
         "name": "国瓷材料",
         "account": "csc",
         "quantity": 1500,
-        "avg_cost": 77.447,
+        "avg_cost": 77.513,
         "price": 74.0,
         "chg": 1.54,
         "pnl": {
-          "total": -5170.5,
-          "pct": -4.45,
+          "total": -5269.5,
+          "pct": -4.53,
           "today": 1680.0,
           "today_pct": 1.54,
           "price": 74.0
@@ -165,14 +181,14 @@
         "code": "000636",
         "name": "风华高科",
         "account": "csc",
-        "quantity": 500,
-        "avg_cost": 66.694,
+        "quantity": 1000,
+        "avg_cost": 65.527,
         "price": 66.51,
         "chg": 1.0,
         "pnl": {
-          "total": -92.0,
-          "pct": -0.28,
-          "today": 330.0,
+          "total": 983.0,
+          "pct": 1.5,
+          "today": 660.0,
           "today_pct": 1.0,
           "price": 66.51
         }
@@ -184,19 +200,37 @@
       "code": "002747",
       "name": "埃斯顿",
       "account": "galaxy",
-      "quantity": 1000,
-      "avg_cost": 34.159,
+      "quantity": 500,
+      "avg_cost": 33.545,
       "price": 34.71,
       "chg": -3.9,
       "pnl": {
-        "total": 551.0,
-        "pct": 1.61,
-        "today": -1410.0,
+        "total": 582.5,
+        "pct": 3.49,
+        "today": -705.0,
         "today_pct": -3.9,
         "price": 34.71
       },
       "bucket": "long",
       "stop": 0.15
+    },
+    {
+      "code": "002156",
+      "name": "通富微电",
+      "account": "galaxy",
+      "quantity": 500,
+      "avg_cost": 63.141,
+      "price": 62.86,
+      "chg": 1.29,
+      "pnl": {
+        "total": -140.5,
+        "pct": -0.45,
+        "today": -140.5,
+        "today_pct": -0.45,
+        "price": 62.86
+      },
+      "bucket": "long",
+      "stop": 0.08
     },
     {
       "code": "300223",
@@ -220,14 +254,14 @@
       "code": "600721",
       "name": "百花医药",
       "account": "csc",
-      "quantity": 1000,
-      "avg_cost": 12.755,
+      "quantity": 500,
+      "avg_cost": 11.507,
       "price": 14.03,
       "chg": 10.04,
       "pnl": {
-        "total": 1275.0,
-        "pct": 10.0,
-        "today": 1280.0,
+        "total": 1261.5,
+        "pct": 21.87,
+        "today": 640.0,
         "today_pct": 10.04,
         "price": 14.03
       },
@@ -257,12 +291,12 @@
       "name": "国瓷材料",
       "account": "csc",
       "quantity": 1500,
-      "avg_cost": 77.447,
+      "avg_cost": 77.513,
       "price": 74.0,
       "chg": 1.54,
       "pnl": {
-        "total": -5170.5,
-        "pct": -4.45,
+        "total": -5269.5,
+        "pct": -4.53,
         "today": 1680.0,
         "today_pct": 1.54,
         "price": 74.0
@@ -328,14 +362,14 @@
       "code": "000636",
       "name": "风华高科",
       "account": "csc",
-      "quantity": 500,
-      "avg_cost": 66.694,
+      "quantity": 1000,
+      "avg_cost": 65.527,
       "price": 66.51,
       "chg": 1.0,
       "pnl": {
-        "total": -92.0,
-        "pct": -0.28,
-        "today": 330.0,
+        "total": 983.0,
+        "pct": 1.5,
+        "today": 660.0,
         "today_pct": 1.0,
         "price": 66.51
       },
