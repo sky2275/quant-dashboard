@@ -7075,8 +7075,8 @@ function startRealtime(){
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>📊 量化工作台</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="assets/lib/font-awesome/css/all.min.css">
+    <script src="assets/lib/echarts.min.js"></script>
     <style>{CSS_RULES}
     </style>
 </head>
