@@ -5,14 +5,15 @@
 
 背景：portfolio_paper_positions 经常为空（委托未成交），但 portfolio_paper_history
 能返回用户已录入的 buy 委托（含 price/quantity）。本脚本把 history 中状态为"未提交"
-的买入委托聚合为持仓，写入 holdings.json，供 live.html 实时盯盘。
+的买入委托聚合为持仓；代下成交后 portfolio_paper_positions 返回 status="已成" 的持仓，
+同样会被纳入（只排除撤/废/拒等终止状态）。写入 holdings.json 供 live.html 实时盯盘。
 
 用法：
   python scripts/sync_tencent_paper.py
 无需参数，直接调用 westock MCP portfolio_paper_history(range=recent)。
 
 规则：
-  - 仅取 direction=buy 且 status 包含"未提交"的记录。
+  - 仅取 direction=buy 且 status 非终止状态（撤/废/拒/过期）的记录；未提交/已报/已成均有效。
   - 同 code 多笔委托按加权平均计算 avg_cost，quantity 累加。
   - 所有持仓统一 account='tencent'，stop=0.10。
   - 保留原 holdings.json 中同 code 的 name/bucket 信息（若存在），缺失则留空。
@@ -41,7 +42,9 @@ def build_from_records(records, old_data):
     for r in records:
         if r.get("direction") != "buy":
             continue
-        if "未提交" not in str(r.get("status", "")):
+        # 跳过已撤单/废单/被拒等终止状态；其余（未提交/已报/已成/部分成交）均视为有效意图持仓
+        status = str(r.get("status", ""))
+        if any(k in status for k in ["撤", "废", "失效", "拒绝", "过期"]):
             continue
         code = re.sub(r"^(sh|sz|bj)", "", r.get("code", ""))
         if not code:
