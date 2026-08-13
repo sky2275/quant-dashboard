@@ -87,7 +87,7 @@ const IDX = [
   {code:"000688", name:"科创50"}
 ];
 const POLL_MS = 5000;
-let HOLD = null, SNAP = null, timer = null, running = true;
+let HOLD = null, SNAP = null, timer = null, running = true, ACCOUNTS = [];
 
 function secidOf(code){ return /^6/.test(code) ? "1."+code : "0."+code; }
 function fmt(n, d=2){ if(n===null||n===undefined||isNaN(n)) return "—"; return Number(n).toLocaleString("zh-CN",{minimumFractionDigits:d, maximumFractionDigits:d}); }
@@ -119,6 +119,8 @@ async function boot(){
 }
 
 function buildStatic(){
+  ACCOUNTS = [];
+  HOLD.positions.forEach(p=>{ if(!ACCOUNTS.includes(p.account)) ACCOUNTS.push(p.account); });
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
   HOLD.positions.forEach(p=>{
@@ -160,12 +162,12 @@ function renderIdxShell(){
   row.innerHTML = IDX.map(x=>`<div class="idx"><div class="n">${x.name}</div><div class="v" id="idx-${x.code}">—</div></div>`).join("");
 }
 function renderSummaryShell(){
-  const accs = Object.keys(ACC_LABEL);
+  const accs = ACCOUNTS;
   const cards = accs.map(a=>`<div class="sum"><div class="lab">${ACC_LABEL[a]}</div>
       <div class="big" id="sa-mv-${a}">—</div>
       <div class="chg" id="sa-td-${a}">当日 —</div>
       <div class="chg" id="sa-tp-${a}">总 —</div></div>`).join("");
-  document.getElementById("summary").innerHTML = cards + `<div class="sum"><div class="lab">合计（三账户）</div>
+  document.getElementById("summary").innerHTML = cards + `<div class="sum"><div class="lab">合计</div>
       <div class="big" id="sa-mv-all">—</div>
       <div class="chg" id="sa-td-all">当日 —</div>
       <div class="chg" id="sa-tp-all">总 —</div></div>`;
@@ -244,7 +246,7 @@ function updatePrices(map){
     accAgg[a].mv += mv; accAgg[a].td += td; accAgg[a].tp += tp;
     allMv += mv; allTd += td; allTp += tp;
   });
-  Object.keys(ACC_LABEL).forEach(a=>{
+  ACCOUNTS.forEach(a=>{
     const g = accAgg[a] || {mv:0,td:0,tp:0};
     const mvEl = document.getElementById("sa-mv-"+a); if(mvEl) mvEl.textContent = fmt(g.mv);
     const tdEl = document.getElementById("sa-td-"+a); if(tdEl){ tdEl.textContent = "当日 "+sgn(g.td); tdEl.className="chg "+(g.td>=0?"up":"down"); }
