@@ -152,12 +152,13 @@ CSS_RULES = """
         .content { flex:1; min-width:0; overflow-y:auto; padding:20px 24px; }
         .content-panel { display:none; animation:fadeIn 0.25s ease; }
         .content-panel.active { display:block; }
-        /* ===================== 量化雷达子菜单：实时盯盘 ===================== */
-        .nav-item--sub { margin:2px 10px 2px 30px; padding:9px 14px; font-size:12.5px; font-weight:500; border-left:2px solid var(--border); border-radius:8px; background:transparent; }
-        .nav-item--sub .nav-icon { font-size:12px; opacity:.85; }
-        .nav-item--sub.active { background:var(--bg-active); color:var(--accent); border-left-color:var(--accent); }
-        .nav-item--sub .nav-status.live-dot { background:var(--accent); box-shadow:0 0 7px var(--accent); animation:livePulse 1.6s ease-in-out infinite; }
-        @keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:.35;} }
+        /* ===================== 量化雷达子菜单：实时盯盘（与一级菜单对齐） ===================== */
+        .nav-item--sub { display:flex; align-items:center; gap:10px; padding:12px 18px; margin:2px 10px; border-radius:8px; cursor:pointer; transition:var(--transition); font-size:13px; color:var(--text-secondary); border-left:3px solid transparent; background:transparent; }
+        .nav-item--sub:hover { background:rgba(255,255,255,0.04); color:var(--text-primary); }
+        .nav-item--sub .nav-icon { width:18px; text-align:center; font-size:13px; opacity:.9; }
+        .nav-item--sub.active { background:rgba(79,195,247,0.10); color:var(--accent-blue); border-left-color:var(--accent-blue); }
+        .nav-item--sub .nav-status { margin-left:auto; width:7px; height:7px; border-radius:50%; background:var(--border-color); }
+        .nav-item--sub.active .nav-status { background:var(--accent-blue); box-shadow:0 0 6px var(--accent-blue); }
         #nav-live.active { display:block; }
         .live-embed { margin-top:14px; }
         .live-embed iframe { width:100%; height:calc(100vh - 178px); min-height:520px; border:0; border-radius:12px; background:var(--bg-app); box-shadow:0 6px 24px rgba(0,0,0,.28); }
@@ -687,12 +688,13 @@ CSS_RULES = """
         .content { flex:1; min-width:0; overflow-y:auto; padding:22px; }
         .content-panel { display:none; animation:fadeIn 0.25s ease; }
         .content-panel.active { display:block; }
-        /* ===================== 量化雷达子菜单：实时盯盘 ===================== */
-        .nav-item--sub { margin:2px 10px 2px 30px; padding:9px 14px; font-size:12.5px; font-weight:500; border-left:2px solid var(--border); border-radius:8px; background:transparent; }
-        .nav-item--sub .nav-icon { font-size:12px; opacity:.85; }
+        /* ===================== 量化雷达子菜单：实时盯盘（与一级菜单对齐） ===================== */
+        .nav-item--sub { display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:10px; cursor:pointer; color:var(--text-2); font-size:13.5px; font-weight:500; border-left:3px solid transparent; transition:var(--transition); user-select:none; background:transparent; margin:0; }
+        .nav-item--sub:hover { background:var(--bg-hover); color:var(--text-1); transform:none; }
+        .nav-item--sub .nav-icon { width:18px; text-align:center; font-size:14px; }
         .nav-item--sub.active { background:var(--bg-active); color:var(--accent); border-left-color:var(--accent); }
-        .nav-item--sub .nav-status.live-dot { background:var(--accent); box-shadow:0 0 7px var(--accent); animation:livePulse 1.6s ease-in-out infinite; }
-        @keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:.35;} }
+        .nav-item--sub .nav-status { margin-left:auto; width:7px; height:7px; border-radius:50%; background:var(--border); }
+        .nav-item--sub.active .nav-status { background:var(--accent); box-shadow:0 0 8px var(--accent); }
         #nav-live.active { display:block; }
         .live-embed { margin-top:14px; }
         .live-embed iframe { width:100%; height:calc(100vh - 178px); min-height:520px; border:0; border-radius:12px; background:var(--bg-app); box-shadow:0 6px 24px rgba(0,0,0,.28); }
@@ -4963,7 +4965,7 @@ def build() -> str:
         '<div class="nav-item nav-item--sub" onclick="showPanel(&quot;nav-live&quot;)">'
         '<span class="nav-icon"><i class="fas fa-bolt"></i></span>'
         '<span class="nav-label">实时盯盘</span>'
-        '<span class="nav-status live-dot"></span></div>'
+        '<span class="nav-status"></span></div>'
     )
     sidebar_html = '<aside class="sidebar">' \
         '<div class="brand"><div class="logo">Q</div><div><div class="name">量化工作台</div><div class="sub">QUANT WORKBENCH</div></div></div>' \

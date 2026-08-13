@@ -1,183 +1,163 @@
 {
-  "source": "tencent_watchlist_sync_2026-08-14",
-  "updated_at": "2026-08-14 00:06:58",
-  "note": "以腾讯自选股 watchlist 为当前实仓清单（经 westock MCP 读取），匹配回原 holdings 取 数量/成本/账户/止损 重建。已排除未列入自选的：百花医药(600721),传智教育(003032)。成本/数量为最近一次人工口径，价格由 live.html 浏览器端实时拉取。",
+  "source": "tencent_paper_history_sync_2026-08-14",
+  "updated_at": "2026-08-14 00:26:14",
+  "note": "以腾讯自选股模拟交易未成交委托为意图持仓（经 westock MCP portfolio_paper_history 读取），同代码多笔委托按加权平均合并成本。价格/盈亏由 live.html 浏览器端实时拉取后计算。",
   "account_labels": {
-    "galaxy": "银河证券",
-    "eastmoney": "东方财富证券",
-    "csc": "中信建投"
+    "tencent": "腾讯自选股（模拟交易）"
   },
   "account_pnl": {
-    "galaxy": {
-      "today": -340.0,
+    "tencent": {
+      "today": 0,
       "today_pct": null,
-      "total": 102.0,
-      "pct": null
-    },
-    "eastmoney": {
-      "today": -4326.0,
-      "today_pct": null,
-      "total": -8552.6,
-      "pct": null
-    },
-    "csc": {
-      "today": -10993.0,
-      "today_pct": null,
-      "total": -7098.7,
+      "total": 0,
       "pct": null
     }
   },
   "accounts": {
-    "galaxy": [
+    "tencent": [
       {
-        "code": "002747",
-        "name": "埃斯顿",
-        "account": "galaxy",
-        "quantity": 500,
-        "avg_cost": 33.545,
-        "price": 34.67,
-        "chg": -0.12,
+        "code": "000636",
+        "name": "风华高科",
+        "account": "tencent",
+        "quantity": 1500,
+        "avg_cost": 64.39,
+        "price": 0,
+        "chg": 0,
         "pnl": {
-          "total": 562.5,
-          "pct": 3.35,
-          "today": -20.0,
-          "today_pct": -0.12,
-          "price": 34.67
-        }
+          "total": 0,
+          "pct": 0,
+          "today": 0,
+          "today_pct": 0,
+          "price": 0
+        },
+        "bucket": "long",
+        "stop": 0.15
       },
       {
         "code": "002156",
         "name": "通富微电",
-        "account": "galaxy",
+        "account": "tencent",
         "quantity": 500,
-        "avg_cost": 63.141,
-        "price": 62.22,
-        "chg": -1.02,
+        "avg_cost": 63.14,
+        "price": 0,
+        "chg": 0,
         "pnl": {
-          "total": -460.5,
-          "pct": -1.46,
-          "today": -320.0,
-          "today_pct": -1.02,
-          "price": 62.22
-        }
-      }
-    ],
-    "eastmoney": [
-      {
-        "code": "300223",
-        "name": "北京君正",
-        "account": "eastmoney",
-        "quantity": 1400,
-        "avg_cost": 143.589,
-        "price": 137.48,
-        "chg": -2.2,
-        "pnl": {
-          "total": -8552.6,
-          "pct": -4.25,
-          "today": -4326.0,
-          "today_pct": -2.2,
-          "price": 137.48
-        }
-      }
-    ],
-    "csc": [
-      {
-        "code": "600664",
-        "name": "哈药股份",
-        "account": "csc",
-        "quantity": 1000,
-        "avg_cost": 5.821,
-        "price": 8.86,
-        "chg": 0.57,
-        "pnl": {
-          "total": 3039.0,
-          "pct": 52.21,
-          "today": 50.0,
-          "today_pct": 0.57,
-          "price": 8.86
-        }
+          "total": 0,
+          "pct": 0,
+          "today": 0,
+          "today_pct": 0,
+          "price": 0
+        },
+        "bucket": "long",
+        "stop": 0.08
       },
       {
-        "code": "300285",
-        "name": "国瓷材料",
-        "account": "csc",
-        "quantity": 1500,
-        "avg_cost": 77.513,
-        "price": 70.66,
-        "chg": -4.51,
+        "code": "002747",
+        "name": "埃斯顿",
+        "account": "tencent",
+        "quantity": 500,
+        "avg_cost": 33.55,
+        "price": 0,
+        "chg": 0,
         "pnl": {
-          "total": -10279.5,
-          "pct": -8.84,
-          "today": -5010.0,
-          "today_pct": -4.51,
-          "price": 70.66
-        }
-      },
-      {
-        "code": "300223",
-        "name": "北京君正",
-        "account": "csc",
-        "quantity": 300,
-        "avg_cost": 130.144,
-        "price": 137.48,
-        "chg": -2.2,
-        "pnl": {
-          "total": 2200.8,
-          "pct": 5.64,
-          "today": -927.0,
-          "today_pct": -2.2,
-          "price": 137.48
-        }
+          "total": 0,
+          "pct": 0,
+          "today": 0,
+          "today_pct": 0,
+          "price": 0
+        },
+        "bucket": "long",
+        "stop": 0.15
       },
       {
         "code": "003033",
         "name": "征和工业",
-        "account": "csc",
-        "quantity": 200,
-        "avg_cost": 56.36,
-        "price": 63.6,
-        "chg": -4.62,
+        "account": "tencent",
+        "quantity": 500,
+        "avg_cost": 61.41,
+        "price": 0,
+        "chg": 0,
         "pnl": {
-          "total": 1448.0,
-          "pct": 12.85,
-          "today": -616.0,
-          "today_pct": -4.62,
-          "price": 63.6
-        }
+          "total": 0,
+          "pct": 0,
+          "today": 0,
+          "today_pct": 0,
+          "price": 0
+        },
+        "bucket": "short",
+        "stop": 0.1
       },
       {
-        "code": "000636",
-        "name": "风华高科",
-        "account": "csc",
-        "quantity": 1000,
-        "avg_cost": 65.527,
-        "price": 62.02,
-        "chg": -6.75,
+        "code": "300223",
+        "name": "北京君正",
+        "account": "tencent",
+        "quantity": 2200,
+        "avg_cost": 141.378,
+        "price": 0,
+        "chg": 0,
         "pnl": {
-          "total": -3507.0,
-          "pct": -5.35,
-          "today": -4490.0,
-          "today_pct": -6.75,
-          "price": 62.02
-        }
+          "total": 0,
+          "pct": 0,
+          "today": 0,
+          "today_pct": 0,
+          "price": 0
+        },
+        "bucket": "long",
+        "stop": 0.15
+      },
+      {
+        "code": "300285",
+        "name": "国瓷材料",
+        "account": "tencent",
+        "quantity": 1000,
+        "avg_cost": 80.72,
+        "price": 0,
+        "chg": 0,
+        "pnl": {
+          "total": 0,
+          "pct": 0,
+          "today": 0,
+          "today_pct": 0,
+          "price": 0
+        },
+        "bucket": "long",
+        "stop": 0.15
+      },
+      {
+        "code": "600664",
+        "name": "哈药股份",
+        "account": "tencent",
+        "quantity": 2000,
+        "avg_cost": 7.36,
+        "price": 0,
+        "chg": 0,
+        "pnl": {
+          "total": 0,
+          "pct": 0,
+          "today": 0,
+          "today_pct": 0,
+          "price": 0
+        },
+        "bucket": "short",
+        "stop": 0.08
       }
     ]
   },
   "positions": [
     {
-      "code": "002747",
-      "name": "埃斯顿",
-      "account": "galaxy",
-      "quantity": 500,
-      "avg_cost": 33.545,
-      "price": 34.67,
-      "chg": -0.12,
+      "code": "000636",
+      "name": "风华高科",
+      "account": "tencent",
+      "quantity": 1500,
+      "avg_cost": 64.39,
+      "price": 0,
+      "chg": 0,
       "pnl": {
-        "total": 562.5,
-        "pct": 3.35,
-        "today": -20.0,
-        "today_pct": -0.12,
-        "price": 34.67
+        "total": 0,
+        "pct": 0,
+        "today": 0,
+        "today_pct": 0,
+        "price": 0
       },
       "bucket": "long",
       "stop": 0.15
@@ -185,89 +165,35 @@
     {
       "code": "002156",
       "name": "通富微电",
-      "account": "galaxy",
+      "account": "tencent",
       "quantity": 500,
-      "avg_cost": 63.141,
-      "price": 62.22,
-      "chg": -1.02,
+      "avg_cost": 63.14,
+      "price": 0,
+      "chg": 0,
       "pnl": {
-        "total": -460.5,
-        "pct": -1.46,
-        "today": -320.0,
-        "today_pct": -1.02,
-        "price": 62.22
+        "total": 0,
+        "pct": 0,
+        "today": 0,
+        "today_pct": 0,
+        "price": 0
       },
       "bucket": "long",
       "stop": 0.08
     },
     {
-      "code": "300223",
-      "name": "北京君正",
-      "account": "eastmoney",
-      "quantity": 1400,
-      "avg_cost": 143.589,
-      "price": 137.48,
-      "chg": -2.2,
+      "code": "002747",
+      "name": "埃斯顿",
+      "account": "tencent",
+      "quantity": 500,
+      "avg_cost": 33.55,
+      "price": 0,
+      "chg": 0,
       "pnl": {
-        "total": -8552.6,
-        "pct": -4.25,
-        "today": -4326.0,
-        "today_pct": -2.2,
-        "price": 137.48
-      },
-      "bucket": "long",
-      "stop": 0.15
-    },
-    {
-      "code": "600664",
-      "name": "哈药股份",
-      "account": "csc",
-      "quantity": 1000,
-      "avg_cost": 5.821,
-      "price": 8.86,
-      "chg": 0.57,
-      "pnl": {
-        "total": 3039.0,
-        "pct": 52.21,
-        "today": 50.0,
-        "today_pct": 0.57,
-        "price": 8.86
-      },
-      "bucket": "short",
-      "stop": 0.08
-    },
-    {
-      "code": "300285",
-      "name": "国瓷材料",
-      "account": "csc",
-      "quantity": 1500,
-      "avg_cost": 77.513,
-      "price": 70.66,
-      "chg": -4.51,
-      "pnl": {
-        "total": -10279.5,
-        "pct": -8.84,
-        "today": -5010.0,
-        "today_pct": -4.51,
-        "price": 70.66
-      },
-      "bucket": "long",
-      "stop": 0.15
-    },
-    {
-      "code": "300223",
-      "name": "北京君正",
-      "account": "csc",
-      "quantity": 300,
-      "avg_cost": 130.144,
-      "price": 137.48,
-      "chg": -2.2,
-      "pnl": {
-        "total": 2200.8,
-        "pct": 5.64,
-        "today": -927.0,
-        "today_pct": -2.2,
-        "price": 137.48
+        "total": 0,
+        "pct": 0,
+        "today": 0,
+        "today_pct": 0,
+        "price": 0
       },
       "bucket": "long",
       "stop": 0.15
@@ -275,38 +201,74 @@
     {
       "code": "003033",
       "name": "征和工业",
-      "account": "csc",
-      "quantity": 200,
-      "avg_cost": 56.36,
-      "price": 63.6,
-      "chg": -4.62,
+      "account": "tencent",
+      "quantity": 500,
+      "avg_cost": 61.41,
+      "price": 0,
+      "chg": 0,
       "pnl": {
-        "total": 1448.0,
-        "pct": 12.85,
-        "today": -616.0,
-        "today_pct": -4.62,
-        "price": 63.6
+        "total": 0,
+        "pct": 0,
+        "today": 0,
+        "today_pct": 0,
+        "price": 0
       },
       "bucket": "short",
       "stop": 0.1
     },
     {
-      "code": "000636",
-      "name": "风华高科",
-      "account": "csc",
-      "quantity": 1000,
-      "avg_cost": 65.527,
-      "price": 62.02,
-      "chg": -6.75,
+      "code": "300223",
+      "name": "北京君正",
+      "account": "tencent",
+      "quantity": 2200,
+      "avg_cost": 141.378,
+      "price": 0,
+      "chg": 0,
       "pnl": {
-        "total": -3507.0,
-        "pct": -5.35,
-        "today": -4490.0,
-        "today_pct": -6.75,
-        "price": 62.02
+        "total": 0,
+        "pct": 0,
+        "today": 0,
+        "today_pct": 0,
+        "price": 0
       },
       "bucket": "long",
       "stop": 0.15
+    },
+    {
+      "code": "300285",
+      "name": "国瓷材料",
+      "account": "tencent",
+      "quantity": 1000,
+      "avg_cost": 80.72,
+      "price": 0,
+      "chg": 0,
+      "pnl": {
+        "total": 0,
+        "pct": 0,
+        "today": 0,
+        "today_pct": 0,
+        "price": 0
+      },
+      "bucket": "long",
+      "stop": 0.15
+    },
+    {
+      "code": "600664",
+      "name": "哈药股份",
+      "account": "tencent",
+      "quantity": 2000,
+      "avg_cost": 7.36,
+      "price": 0,
+      "chg": 0,
+      "pnl": {
+        "total": 0,
+        "pct": 0,
+        "today": 0,
+        "today_pct": 0,
+        "price": 0
+      },
+      "bucket": "short",
+      "stop": 0.08
     }
   ]
 }
