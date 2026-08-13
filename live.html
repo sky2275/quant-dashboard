@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>量化看板 · 实时盯盘</title>
+<style>
+  :root{
+    --bg:#0a0e14; --card:#121821; --card2:#0f141d; --line:#1e2733;
+    --txt:#e6edf3; --sub:#8b98a9; --up:#ff4d4f; --down:#00c853;
+    --acc1:#ff8a3d; --acc2:#a06bff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--txt); font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; font-size:14px; line-height:1.5; padding:18px 20px 60px;}
+  a{color:var(--acc2); text-decoration:none;}
+  header{position:sticky; top:0; z-index:10; background:linear-gradient(90deg,rgba(255,138,61,.12),rgba(160,107,255,.12)); border:1px solid var(--line); border-radius:12px; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:18px; backdrop-filter:blur(4px);}
+  .h-title{font-size:18px; font-weight:700; background:linear-gradient(90deg,var(--acc1),var(--acc2)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .h-meta{display:flex; align-items:center; gap:14px; font-size:12px; color:var(--sub); flex-wrap:wrap;}
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--down); display:inline-block; margin-right:5px; animation:pulse 1.6s infinite;}
+  .dot.off{background:var(--sub); animation:none;}
+  @keyframes pulse{0%{opacity:.3;}50%{opacity:1;}100%{opacity:.3;}}
+  .btn{border:1px solid var(--line); background:var(--card2); color:var(--txt); border-radius:8px; padding:5px 12px; cursor:pointer; font-size:12px;}
+  .btn:hover{border-color:var(--acc2);}
+  .idx-row{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;}
+  .idx{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 14px; min-width:120px;}
+  .idx .n{font-size:12px; color:var(--sub);}
+  .idx .v{font-size:16px; font-weight:600; font-variant-numeric:tabular-nums;}
+  .summary{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:18px;}
+  .sum{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px;}
+  .sum .lab{font-size:12px; color:var(--sub); margin-bottom:6px;}
+  .sum .big{font-size:20px; font-weight:700; font-variant-numeric:tabular-nums;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px;}
+  .pos{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; transition:border-color .3s;}
+  .pos.breach{border-color:var(--up); box-shadow:0 0 0 1px var(--up) inset;}
+  .pos .top{display:flex; justify-content:space-between; align-items:baseline;}
+  .pos .nm{font-size:15px; font-weight:600;}
+  .pos .cd{font-size:11px; color:var(--sub);}
+  .pos .acc{font-size:11px; color:var(--acc2); border:1px solid var(--acc2); border-radius:6px; padding:1px 6px;}
+  .pos .px{font-size:22px; font-weight:700; font-variant-numeric:tabular-nums; margin:6px 0 2px;}
+  .pos .chg{font-size:13px; font-variant-numeric:tabular-nums;}
+  .pos .rows{display:grid; grid-template-columns:1fr 1fr; gap:4px 12px; margin-top:10px; font-size:12px;}
+  .pos .rows .k{color:var(--sub);}
+  .pos .rows .val{text-align:right; font-variant-numeric:tabular-nums;}
+  .pos .stop{margin-top:8px; font-size:11px; color:var(--sub);}
+  .flag{font-size:11px; color:#fff; background:var(--up); border-radius:5px; padding:1px 6px; margin-left:6px;}
+  .section-t{font-size:14px; font-weight:600; margin:22px 0 12px; color:var(--txt); border-left:3px solid var(--acc1); padding-left:9px;}
+  .snap{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; font-size:13px; color:var(--sub);}
+  .snap b{color:var(--txt);}
+  .seclist{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;}
+  .sector{background:var(--card2); border:1px solid var(--line); border-radius:8px; padding:5px 10px; font-size:12px;}
+  .up{color:var(--up);} .down{color:var(--down);}
+  footer{margin-top:30px; font-size:11px; color:var(--sub); text-align:center; line-height:1.8;}
+  .loading{padding:40px; text-align:center; color:var(--sub);}
+</style>
+</head>
+<body>
+<header>
+  <div class="h-title">量化看板 · 实时盯盘</div>
+  <div class="h-meta">
+    <span><span id="statusDot" class="dot off"></span><span id="statusTxt">未连接</span></span>
+    <span id="updTime">—</span>
+    <button class="btn" id="toggleBtn">暂停</button>
+    <button class="btn" id="refreshBtn">立即刷新</button>
+  </div>
+</header>
+
+<div class="idx-row" id="idxRow"></div>
+<div class="summary" id="summary"></div>
+
+<div class="section-t">持仓实时监控（真实持仓 × 实时报价）</div>
+<div class="grid" id="grid"><div class="loading">加载持仓数据中…</div></div>
+
+<div class="section-t">大盘环境（快照）</div>
+<div class="snap" id="snap"></div>
+
+<footer>
+  数据：持仓数量/成本来自 <code>holdings.json</code>（腾讯自选股组合同步）；实时价经东方财富 push2（https/JSONP）在浏览器端每 5 秒拉取，不经任何境外 CDN。<br>
+  红涨绿跌（A股惯例）。本页为辅助盯盘工具，非投资建议；盘后/休市显示最近收盘价。
+</footer>
+
+<script>
+const ACC_LABEL = {galaxy:"银河证券", eastmoney:"东方财富证券", csc:"中信建投"};
+const IDX = [
+  {code:"000001", name:"上证"},
+  {code:"399001", name:"深证"},
+  {code:"399006", name:"创业板"},
+  {code:"000688", name:"科创50"}
+];
+const POLL_MS = 5000;
+let HOLD = null, SNAP = null, timer = null, running = true;
+
+function secidOf(code){ return /^6/.test(code) ? "1."+code : "0."+code; }
+function fmt(n, d=2){ if(n===null||n===undefined||isNaN(n)) return "—"; return Number(n).toLocaleString("zh-CN",{minimumFractionDigits:d, maximumFractionDigits:d}); }
+function sgn(n){ return (n>=0?"+":"") + fmt(n); }
+
+async function boot(){
+  try{
+    const [h, s] = await Promise.all([
+      fetch("./cache/holdings.json").then(r=>r.json()),
+      fetch("./cache/market_snapshot.json").then(r=>r.json()).catch(()=>null)
+    ]);
+    HOLD = h; SNAP = s;
+    buildStatic();
+    renderIdxShell();
+    renderSummaryShell();
+    poll();
+    timer = setInterval(poll, POLL_MS);
+  }catch(e){
+    document.getElementById("grid").innerHTML = '<div class="loading">加载失败：' + e.message + '<br>请通过 GitHub Pages 访问（file:// 下无法读取本地 JSON）。</div>';
+  }
+  document.getElementById("toggleBtn").onclick = ()=>{
+    running = !running;
+    document.getElementById("toggleBtn").textContent = running ? "暂停" : "继续";
+    document.getElementById("statusDot").className = running ? "dot" : "dot off";
+    if(running){ poll(); timer = setInterval(poll, POLL_MS); }
+    else { clearInterval(timer); document.getElementById("statusTxt").textContent = "已暂停"; }
+  };
+  document.getElementById("refreshBtn").onclick = poll;
+}
+
+function buildStatic(){
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  HOLD.positions.forEach(p=>{
+    const stopPx = (p.avg_cost * (1 - (p.stop||0))).toFixed(2);
+    const el = document.createElement("div");
+    el.className = "pos"; el.id = "pos-"+p.code+"-"+p.account;
+    el.innerHTML = `
+      <div class="top"><span><span class="nm">${p.name}</span> <span class="cd">${p.code}</span></span><span class="acc">${ACC_LABEL[p.account]||p.account}</span></div>
+      <div class="px" id="px-${p.code}-${p.account}">—</div>
+      <div class="chg" id="chg-${p.code}-${p.account}">—</div>
+      <div class="rows">
+        <span class="k">市值</span><span class="val" id="mv-${p.code}-${p.account}">—</span>
+        <span class="k">当日浮盈</span><span class="val" id="td-${p.code}-${p.account}">—</span>
+        <span class="k">总浮盈</span><span class="val" id="tp-${p.code}-${p.account}">—</span>
+        <span class="k">总收益</span><span class="val" id="tpp-${p.code}-${p.account}">—</span>
+        <span class="k">持仓成本</span><span class="val">${fmt(p.avg_cost)}</span>
+        <span class="k">数量</span><span class="val">${fmt(p.quantity,0)}</span>
+      </div>
+      <div class="stop">止损线 ${stopPx}（-${((p.stop||0)*100).toFixed(0)}%） <span id="br-${p.code}-${p.account}"></span></div>`;
+    grid.appendChild(el);
+  });
+  if(SNAP){
+    let html = "";
+    const a = SNAP.a_indexes;
+    if(a) html += "指数：" + a.map(x=>`<b>${x.name}</b> ${fmt(x.value)} (${x.chg>=0?"+":""}${x.chg}%)`).join("　");
+    const b = SNAP.market_breadth;
+    if(b) html += `<br><br>涨跌家数 <b>${fmt(b.up,0)}</b> / <b>${fmt(b.down,0)}</b>　涨停 <b class="up">${b.limit_up}</b>　跌停 <b class="down">${b.limit_down}</b>　成交额 <b>${b.amount}</b> 亿`;
+    const sf = SNAP.sector_flow;
+    if(sf && sf.in){
+      html += `<br><br>主力流入 TOP：<div class="seclist">` + sf.in.slice(0,6).map(x=>`<span class="sector">${x.name} <span class="up">+${fmt(x.net,1)}亿</span></span>`).join("") + `</div>`;
+    }
+    if(SNAP.updated_at) html += `<br><br><span style="color:var(--sub)">快照时间：${SNAP.updated_at}</span>`;
+    document.getElementById("snap").innerHTML = html || "（无快照数据）";
+  }
+}
+
+function renderIdxShell(){
+  const row = document.getElementById("idxRow");
+  row.innerHTML = IDX.map(x=>`<div class="idx"><div class="n">${x.name}</div><div class="v" id="idx-${x.code}">—</div></div>`).join("");
+}
+function renderSummaryShell(){
+  const accs = Object.keys(ACC_LABEL);
+  const cards = accs.map(a=>`<div class="sum"><div class="lab">${ACC_LABEL[a]}</div>
+      <div class="big" id="sa-mv-${a}">—</div>
+      <div class="chg" id="sa-td-${a}">当日 —</div>
+      <div class="chg" id="sa-tp-${a}">总 —</div></div>`).join("");
+  document.getElementById("summary").innerHTML = cards + `<div class="sum"><div class="lab">合计（三账户）</div>
+      <div class="big" id="sa-mv-all">—</div>
+      <div class="chg" id="sa-td-all">当日 —</div>
+      <div class="chg" id="sa-tp-all">总 —</div></div>`;
+}
+
+function fetchQuotes(secids){
+  return new Promise(resolve=>{
+    const cb = "__emcb_" + Date.now() + "_" + Math.floor(Math.random()*1e6);
+    const s = document.createElement("script");
+    const url = "https://push2.eastmoney.com/api/qt/ulist.np?pn=1&pz="+secids.length+
+      "&secids="+encodeURIComponent(secids.join(","))+
+      "&fields=f12,f13,f14,f43,f169,f170&cb="+cb+"&_="+Date.now();
+    let done = false;
+    window[cb] = function(resp){
+      if(done) return; done = true;
+      try{
+        const diff = (resp && resp.data && resp.data.diff) || [];
+        const map = {};
+        diff.forEach(d=>{ map[String(d.f12)] = d; });
+        resolve(map);
+      }catch(e){ resolve({}); }
+      delete window[cb]; s.remove();
+    };
+    s.onerror = function(){ if(done) return; done = true; delete window[cb]; s.remove(); resolve({}); };
+    s.src = url;
+    document.head.appendChild(s);
+    setTimeout(()=>{ if(!done){ done = true; delete window[cb]; s.remove(); resolve({}); } }, 4000);
+  });
+}
+
+async function poll(){
+  if(!HOLD) return;
+  const posSecids = HOLD.positions.map(p=>secidOf(p.code));
+  const idxSecids = IDX.map(x=>secidOf(x.code));
+  const map = await fetchQuotes(posSecids.concat(idxSecids));
+  updatePrices(map);
+  IDX.forEach(x=>{
+    const d = map[x.code]; const el = document.getElementById("idx-"+x.code);
+    if(d && d.f43){ const pct = (Number(d.f43)-Number(d.f170))!==0 ? Number(d.f170)/(Number(d.f43)-Number(d.f170))*100 : 0; el.textContent = fmt(d.f43); el.className = "v " + (pct>=0?"up":"down"); }
+  });
+  document.getElementById("statusDot").className = "dot";
+  document.getElementById("statusTxt").textContent = "实时";
+  document.getElementById("updTime").textContent = "更新 " + new Date().toLocaleTimeString("zh-CN");
+}
+
+function updatePrices(map){
+  const accAgg = {};
+  let allMv=0, allTd=0, allTp=0;
+  HOLD.positions.forEach(p=>{
+    const d = map[p.code];
+    const el = document.getElementById("pos-"+p.code+"-"+p.account);
+    if(!d || !d.f43){ return; }
+    const price = Number(d.f43), chg = Number(d.f170);
+    const pct = (price - chg) !== 0 ? chg / (price - chg) * 100 : 0;
+    const mv = price * p.quantity;
+    const td = chg * p.quantity;
+    const tp = (price - p.avg_cost) * p.quantity;
+    const tpp = p.avg_cost>0 ? tp / (p.avg_cost * p.quantity) * 100 : 0;
+    const cls = pct>=0 ? "up" : "down";
+    document.getElementById("px-"+p.code+"-"+p.account).textContent = fmt(price);
+    document.getElementById("px-"+p.code+"-"+p.account).className = "px " + cls;
+    document.getElementById("chg-"+p.code+"-"+p.account).innerHTML = `<span class="${cls}">${sgn(pct)}%　${sgn(chg)}</span>`;
+    document.getElementById("mv-"+p.code+"-"+p.account).textContent = fmt(mv);
+    const tdEl = document.getElementById("td-"+p.code+"-"+p.account);
+    tdEl.textContent = sgn(td); tdEl.className = "val " + (td>=0?"up":"down");
+    const tpEl = document.getElementById("tp-"+p.code+"-"+p.account);
+    tpEl.textContent = sgn(tp); tpEl.className = "val " + (tp>=0?"up":"down");
+    const tppEl = document.getElementById("tpp-"+p.code+"-"+p.account);
+    tppEl.textContent = sgn(tpp)+"%"; tppEl.className = "val " + (tp>=0?"up":"down");
+    const stopPx = p.avg_cost * (1 - (p.stop||0));
+    const breached = price <= stopPx;
+    el.classList.toggle("breach", breached);
+    document.getElementById("br-"+p.code+"-"+p.account).innerHTML = breached ? '<span class="flag">破止损</span>' : "";
+    const a = p.account;
+    if(!accAgg[a]) accAgg[a] = {mv:0, td:0, tp:0};
+    accAgg[a].mv += mv; accAgg[a].td += td; accAgg[a].tp += tp;
+    allMv += mv; allTd += td; allTp += tp;
+  });
+  Object.keys(ACC_LABEL).forEach(a=>{
+    const g = accAgg[a] || {mv:0,td:0,tp:0};
+    const mvEl = document.getElementById("sa-mv-"+a); if(mvEl) mvEl.textContent = fmt(g.mv);
+    const tdEl = document.getElementById("sa-td-"+a); if(tdEl){ tdEl.textContent = "当日 "+sgn(g.td); tdEl.className="chg "+(g.td>=0?"up":"down"); }
+    const tpEl = document.getElementById("sa-tp-"+a); if(tpEl){ tpEl.textContent = "总 "+sgn(g.tp); tpEl.className="chg "+(g.tp>=0?"up":"down"); }
+  });
+  const amv = document.getElementById("sa-mv-all"); if(amv) amv.textContent = fmt(allMv);
+  const atd = document.getElementById("sa-td-all"); if(atd){ atd.textContent = "当日 "+sgn(allTd); atd.className="chg "+(allTd>=0?"up":"down"); }
+  const atp = document.getElementById("sa-tp-all"); if(atp){ atp.textContent = "总 "+sgn(allTp); atp.className="chg "+(allTp>=0?"up":"down"); }
+}
+
+boot();
+</script>
+</body>
+</html>
