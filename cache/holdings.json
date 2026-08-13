@@ -1,7 +1,7 @@
 {
-  "source": "mobile_broker_snapshot_2026-08-12",
-  "updated_at": "2026-08-12 23:05:00",
-  "note": "2026-08-12 收盘后根据用户提供的三券商APP口径更新。持仓数量、成本、现价均按用户口径；当日盈亏/总盈亏按用户口径。由于盘中存在减仓/加仓/换股（如银河埃斯顿1000→500、中信百花1000→500/风华500→1000、新建通富微电），账户级当日盈亏可能包含已实现盈亏，与个股未实现盈亏加总存在差异。",
+  "source": "westock_quote_2026-08-13",
+  "updated_at": "2026-08-13 23:19:00",
+  "note": "2026-08-13 收盘后更新。现价=腾讯自选股 MCP 8/13 收盘价；成本/数量沿用用户 8/12 三券商APP口径（用户未提供 8/13 新成交单，视为无调仓）。pnl.today 为 8/13 当日未实现浮盈浮亏（相对 8/12 收盘），账户级 today/total 不含已实现盈亏，与券商APP口径可能存在差异。",
   "account_labels": {
     "galaxy": "银河证券",
     "eastmoney": "东方财富证券",
@@ -9,21 +9,21 @@
   },
   "account_pnl": {
     "galaxy": {
-      "today": -1505.57,
+      "today": -340.0,
       "today_pct": null,
-      "total": 442.0,
+      "total": 102.0,
       "pct": null
     },
     "eastmoney": {
-      "today": 3794.0,
+      "today": -4326.0,
       "today_pct": null,
-      "total": -4226.6,
+      "total": -8552.6,
       "pct": null
     },
     "csc": {
-      "today": -6569.0,
+      "today": -11403.0,
       "today_pct": null,
-      "total": 7391.8,
+      "total": -4011.2,
       "pct": null
     }
   },
@@ -35,14 +35,14 @@
         "account": "galaxy",
         "quantity": 500,
         "avg_cost": 33.545,
-        "price": 34.71,
-        "chg": -3.9,
+        "price": 34.67,
+        "chg": -0.12,
         "pnl": {
-          "total": 582.5,
-          "pct": 3.49,
-          "today": -705.0,
-          "today_pct": -3.9,
-          "price": 34.71
+          "total": 562.5,
+          "pct": 3.35,
+          "today": -20.0,
+          "today_pct": -0.12,
+          "price": 34.67
         }
       },
       {
@@ -51,14 +51,14 @@
         "account": "galaxy",
         "quantity": 500,
         "avg_cost": 63.141,
-        "price": 62.86,
-        "chg": 1.29,
+        "price": 62.22,
+        "chg": -1.02,
         "pnl": {
-          "total": -140.5,
-          "pct": -0.45,
-          "today": -140.5,
-          "today_pct": -0.45,
-          "price": 62.86
+          "total": -460.5,
+          "pct": -1.46,
+          "today": -320.0,
+          "today_pct": -1.02,
+          "price": 62.22
         }
       }
     ],
@@ -69,14 +69,14 @@
         "account": "eastmoney",
         "quantity": 1400,
         "avg_cost": 143.589,
-        "price": 140.57,
-        "chg": 1.97,
+        "price": 137.48,
+        "chg": -2.2,
         "pnl": {
-          "total": -4226.6,
-          "pct": -2.1,
-          "today": 3794.0,
-          "today_pct": 1.97,
-          "price": 140.57
+          "total": -8552.6,
+          "pct": -4.25,
+          "today": -4326.0,
+          "today_pct": -2.2,
+          "price": 137.48
         }
       }
     ],
@@ -87,14 +87,14 @@
         "account": "csc",
         "quantity": 500,
         "avg_cost": 11.507,
-        "price": 14.03,
-        "chg": 10.04,
+        "price": 14.5,
+        "chg": 3.35,
         "pnl": {
-          "total": 1261.5,
-          "pct": 21.87,
-          "today": 640.0,
-          "today_pct": 10.04,
-          "price": 14.03
+          "total": 1496.5,
+          "pct": 26.01,
+          "today": 235.0,
+          "today_pct": 3.35,
+          "price": 14.5
         }
       },
       {
@@ -103,14 +103,14 @@
         "account": "csc",
         "quantity": 1000,
         "avg_cost": 5.821,
-        "price": 8.81,
-        "chg": 6.53,
+        "price": 8.86,
+        "chg": 0.57,
         "pnl": {
-          "total": 2989.0,
-          "pct": 51.35,
-          "today": 540.0,
-          "today_pct": 6.53,
-          "price": 8.81
+          "total": 3039.0,
+          "pct": 52.21,
+          "today": 50.0,
+          "today_pct": 0.57,
+          "price": 8.86
         }
       },
       {
@@ -119,14 +119,14 @@
         "account": "csc",
         "quantity": 1500,
         "avg_cost": 77.513,
-        "price": 74.0,
-        "chg": 1.54,
+        "price": 70.66,
+        "chg": -4.51,
         "pnl": {
-          "total": -5269.5,
-          "pct": -4.53,
-          "today": 1680.0,
-          "today_pct": 1.54,
-          "price": 74.0
+          "total": -10279.5,
+          "pct": -8.84,
+          "today": -5010.0,
+          "today_pct": -4.51,
+          "price": 70.66
         }
       },
       {
@@ -135,14 +135,14 @@
         "account": "csc",
         "quantity": 300,
         "avg_cost": 130.144,
-        "price": 140.57,
-        "chg": 1.97,
+        "price": 137.48,
+        "chg": -2.2,
         "pnl": {
-          "total": 3127.8,
-          "pct": 8.01,
-          "today": 813.0,
-          "today_pct": 1.97,
-          "price": 140.57
+          "total": 2200.8,
+          "pct": 5.64,
+          "today": -927.0,
+          "today_pct": -2.2,
+          "price": 137.48
         }
       },
       {
@@ -151,14 +151,14 @@
         "account": "csc",
         "quantity": 200,
         "avg_cost": 56.36,
-        "price": 66.68,
-        "chg": 2.58,
+        "price": 63.6,
+        "chg": -4.62,
         "pnl": {
-          "total": 2064.0,
-          "pct": 18.31,
-          "today": 336.0,
-          "today_pct": 2.58,
-          "price": 66.68
+          "total": 1448.0,
+          "pct": 12.85,
+          "today": -616.0,
+          "today_pct": -4.62,
+          "price": 63.6
         }
       },
       {
@@ -167,14 +167,14 @@
         "account": "csc",
         "quantity": 500,
         "avg_cost": 8.438,
-        "price": 12.91,
-        "chg": 9.97,
+        "price": 11.62,
+        "chg": -9.99,
         "pnl": {
-          "total": 2236.0,
-          "pct": 53.0,
-          "today": 585.0,
-          "today_pct": 9.97,
-          "price": 12.91
+          "total": 1591.0,
+          "pct": 37.71,
+          "today": -645.0,
+          "today_pct": -9.99,
+          "price": 11.62
         }
       },
       {
@@ -183,14 +183,14 @@
         "account": "csc",
         "quantity": 1000,
         "avg_cost": 65.527,
-        "price": 66.51,
-        "chg": 1.0,
+        "price": 62.02,
+        "chg": -6.75,
         "pnl": {
-          "total": 983.0,
-          "pct": 1.5,
-          "today": 660.0,
-          "today_pct": 1.0,
-          "price": 66.51
+          "total": -3507.0,
+          "pct": -5.35,
+          "today": -4490.0,
+          "today_pct": -6.75,
+          "price": 62.02
         }
       }
     ]
@@ -202,14 +202,14 @@
       "account": "galaxy",
       "quantity": 500,
       "avg_cost": 33.545,
-      "price": 34.71,
-      "chg": -3.9,
+      "price": 34.67,
+      "chg": -0.12,
       "pnl": {
-        "total": 582.5,
-        "pct": 3.49,
-        "today": -705.0,
-        "today_pct": -3.9,
-        "price": 34.71
+        "total": 562.5,
+        "pct": 3.35,
+        "today": -20.0,
+        "today_pct": -0.12,
+        "price": 34.67
       },
       "bucket": "long",
       "stop": 0.15
@@ -220,14 +220,14 @@
       "account": "galaxy",
       "quantity": 500,
       "avg_cost": 63.141,
-      "price": 62.86,
-      "chg": 1.29,
+      "price": 62.22,
+      "chg": -1.02,
       "pnl": {
-        "total": -140.5,
-        "pct": -0.45,
-        "today": -140.5,
-        "today_pct": -0.45,
-        "price": 62.86
+        "total": -460.5,
+        "pct": -1.46,
+        "today": -320.0,
+        "today_pct": -1.02,
+        "price": 62.22
       },
       "bucket": "long",
       "stop": 0.08
@@ -238,14 +238,14 @@
       "account": "eastmoney",
       "quantity": 1400,
       "avg_cost": 143.589,
-      "price": 140.57,
-      "chg": 1.97,
+      "price": 137.48,
+      "chg": -2.2,
       "pnl": {
-        "total": -4226.6,
-        "pct": -2.1,
-        "today": 3794.0,
-        "today_pct": 1.97,
-        "price": 140.57
+        "total": -8552.6,
+        "pct": -4.25,
+        "today": -4326.0,
+        "today_pct": -2.2,
+        "price": 137.48
       },
       "bucket": "long",
       "stop": 0.15
@@ -256,14 +256,14 @@
       "account": "csc",
       "quantity": 500,
       "avg_cost": 11.507,
-      "price": 14.03,
-      "chg": 10.04,
+      "price": 14.5,
+      "chg": 3.35,
       "pnl": {
-        "total": 1261.5,
-        "pct": 21.87,
-        "today": 640.0,
-        "today_pct": 10.04,
-        "price": 14.03
+        "total": 1496.5,
+        "pct": 26.01,
+        "today": 235.0,
+        "today_pct": 3.35,
+        "price": 14.5
       },
       "bucket": "short",
       "stop": 0.08
@@ -274,14 +274,14 @@
       "account": "csc",
       "quantity": 1000,
       "avg_cost": 5.821,
-      "price": 8.81,
-      "chg": 6.53,
+      "price": 8.86,
+      "chg": 0.57,
       "pnl": {
-        "total": 2989.0,
-        "pct": 51.35,
-        "today": 540.0,
-        "today_pct": 6.53,
-        "price": 8.81
+        "total": 3039.0,
+        "pct": 52.21,
+        "today": 50.0,
+        "today_pct": 0.57,
+        "price": 8.86
       },
       "bucket": "short",
       "stop": 0.08
@@ -292,14 +292,14 @@
       "account": "csc",
       "quantity": 1500,
       "avg_cost": 77.513,
-      "price": 74.0,
-      "chg": 1.54,
+      "price": 70.66,
+      "chg": -4.51,
       "pnl": {
-        "total": -5269.5,
-        "pct": -4.53,
-        "today": 1680.0,
-        "today_pct": 1.54,
-        "price": 74.0
+        "total": -10279.5,
+        "pct": -8.84,
+        "today": -5010.0,
+        "today_pct": -4.51,
+        "price": 70.66
       },
       "bucket": "long",
       "stop": 0.15
@@ -310,14 +310,14 @@
       "account": "csc",
       "quantity": 300,
       "avg_cost": 130.144,
-      "price": 140.57,
-      "chg": 1.97,
+      "price": 137.48,
+      "chg": -2.2,
       "pnl": {
-        "total": 3127.8,
-        "pct": 8.01,
-        "today": 813.0,
-        "today_pct": 1.97,
-        "price": 140.57
+        "total": 2200.8,
+        "pct": 5.64,
+        "today": -927.0,
+        "today_pct": -2.2,
+        "price": 137.48
       },
       "bucket": "long",
       "stop": 0.15
@@ -328,14 +328,14 @@
       "account": "csc",
       "quantity": 200,
       "avg_cost": 56.36,
-      "price": 66.68,
-      "chg": 2.58,
+      "price": 63.6,
+      "chg": -4.62,
       "pnl": {
-        "total": 2064.0,
-        "pct": 18.31,
-        "today": 336.0,
-        "today_pct": 2.58,
-        "price": 66.68
+        "total": 1448.0,
+        "pct": 12.85,
+        "today": -616.0,
+        "today_pct": -4.62,
+        "price": 63.6
       },
       "bucket": "short",
       "stop": 0.1
@@ -346,14 +346,14 @@
       "account": "csc",
       "quantity": 500,
       "avg_cost": 8.438,
-      "price": 12.91,
-      "chg": 9.97,
+      "price": 11.62,
+      "chg": -9.99,
       "pnl": {
-        "total": 2236.0,
-        "pct": 53.0,
-        "today": 585.0,
-        "today_pct": 9.97,
-        "price": 12.91
+        "total": 1591.0,
+        "pct": 37.71,
+        "today": -645.0,
+        "today_pct": -9.99,
+        "price": 11.62
       },
       "bucket": "short",
       "stop": 0.08
@@ -364,14 +364,14 @@
       "account": "csc",
       "quantity": 1000,
       "avg_cost": 65.527,
-      "price": 66.51,
-      "chg": 1.0,
+      "price": 62.02,
+      "chg": -6.75,
       "pnl": {
-        "total": 983.0,
-        "pct": 1.5,
-        "today": 660.0,
-        "today_pct": 1.0,
-        "price": 66.51
+        "total": -3507.0,
+        "pct": -5.35,
+        "today": -4490.0,
+        "today_pct": -6.75,
+        "price": 62.02
       },
       "bucket": "long",
       "stop": 0.15
