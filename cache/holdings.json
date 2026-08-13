@@ -1,7 +1,7 @@
 {
-  "source": "westock_quote_2026-08-13",
-  "updated_at": "2026-08-13 23:19:00",
-  "note": "2026-08-13 收盘后更新。现价=腾讯自选股 MCP 8/13 收盘价；成本/数量沿用用户 8/12 三券商APP口径（用户未提供 8/13 新成交单，视为无调仓）。pnl.today 为 8/13 当日未实现浮盈浮亏（相对 8/12 收盘），账户级 today/total 不含已实现盈亏，与券商APP口径可能存在差异。",
+  "source": "tencent_watchlist_sync_2026-08-14",
+  "updated_at": "2026-08-14 00:06:58",
+  "note": "以腾讯自选股 watchlist 为当前实仓清单（经 westock MCP 读取），匹配回原 holdings 取 数量/成本/账户/止损 重建。已排除未列入自选的：百花医药(600721),传智教育(003032)。成本/数量为最近一次人工口径，价格由 live.html 浏览器端实时拉取。",
   "account_labels": {
     "galaxy": "银河证券",
     "eastmoney": "东方财富证券",
@@ -21,9 +21,9 @@
       "pct": null
     },
     "csc": {
-      "today": -11403.0,
+      "today": -10993.0,
       "today_pct": null,
-      "total": -4011.2,
+      "total": -7098.7,
       "pct": null
     }
   },
@@ -81,22 +81,6 @@
       }
     ],
     "csc": [
-      {
-        "code": "600721",
-        "name": "百花医药",
-        "account": "csc",
-        "quantity": 500,
-        "avg_cost": 11.507,
-        "price": 14.5,
-        "chg": 3.35,
-        "pnl": {
-          "total": 1496.5,
-          "pct": 26.01,
-          "today": 235.0,
-          "today_pct": 3.35,
-          "price": 14.5
-        }
-      },
       {
         "code": "600664",
         "name": "哈药股份",
@@ -159,22 +143,6 @@
           "today": -616.0,
           "today_pct": -4.62,
           "price": 63.6
-        }
-      },
-      {
-        "code": "003032",
-        "name": "传智教育",
-        "account": "csc",
-        "quantity": 500,
-        "avg_cost": 8.438,
-        "price": 11.62,
-        "chg": -9.99,
-        "pnl": {
-          "total": 1591.0,
-          "pct": 37.71,
-          "today": -645.0,
-          "today_pct": -9.99,
-          "price": 11.62
         }
       },
       {
@@ -251,24 +219,6 @@
       "stop": 0.15
     },
     {
-      "code": "600721",
-      "name": "百花医药",
-      "account": "csc",
-      "quantity": 500,
-      "avg_cost": 11.507,
-      "price": 14.5,
-      "chg": 3.35,
-      "pnl": {
-        "total": 1496.5,
-        "pct": 26.01,
-        "today": 235.0,
-        "today_pct": 3.35,
-        "price": 14.5
-      },
-      "bucket": "short",
-      "stop": 0.08
-    },
-    {
       "code": "600664",
       "name": "哈药股份",
       "account": "csc",
@@ -339,24 +289,6 @@
       },
       "bucket": "short",
       "stop": 0.1
-    },
-    {
-      "code": "003032",
-      "name": "传智教育",
-      "account": "csc",
-      "quantity": 500,
-      "avg_cost": 8.438,
-      "price": 11.62,
-      "chg": -9.99,
-      "pnl": {
-        "total": 1591.0,
-        "pct": 37.71,
-        "today": -645.0,
-        "today_pct": -9.99,
-        "price": 11.62
-      },
-      "bucket": "short",
-      "stop": 0.08
     },
     {
       "code": "000636",
