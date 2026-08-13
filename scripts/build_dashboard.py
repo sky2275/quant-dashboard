@@ -152,6 +152,15 @@ CSS_RULES = """
         .content { flex:1; min-width:0; overflow-y:auto; padding:20px 24px; }
         .content-panel { display:none; animation:fadeIn 0.25s ease; }
         .content-panel.active { display:block; }
+        /* ===================== 量化雷达子菜单：实时盯盘 ===================== */
+        .nav-item--sub { margin:2px 10px 2px 30px; padding:9px 14px; font-size:12.5px; font-weight:500; border-left:2px solid var(--border); border-radius:8px; background:transparent; }
+        .nav-item--sub .nav-icon { font-size:12px; opacity:.85; }
+        .nav-item--sub.active { background:var(--bg-active); color:var(--accent); border-left-color:var(--accent); }
+        .nav-item--sub .nav-status.live-dot { background:var(--accent); box-shadow:0 0 7px var(--accent); animation:livePulse 1.6s ease-in-out infinite; }
+        @keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:.35;} }
+        #nav-live.active { display:block; }
+        .live-embed { margin-top:14px; }
+        .live-embed iframe { width:100%; height:calc(100vh - 178px); min-height:520px; border:0; border-radius:12px; background:var(--bg-app); box-shadow:0 6px 24px rgba(0,0,0,.28); }
         @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
         .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#4fc3f7 0%,#22c55e 50%,#f59e0b 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
         .header .subtitle { color:var(--text-secondary); font-size:13px; }
@@ -678,6 +687,15 @@ CSS_RULES = """
         .content { flex:1; min-width:0; overflow-y:auto; padding:22px; }
         .content-panel { display:none; animation:fadeIn 0.25s ease; }
         .content-panel.active { display:block; }
+        /* ===================== 量化雷达子菜单：实时盯盘 ===================== */
+        .nav-item--sub { margin:2px 10px 2px 30px; padding:9px 14px; font-size:12.5px; font-weight:500; border-left:2px solid var(--border); border-radius:8px; background:transparent; }
+        .nav-item--sub .nav-icon { font-size:12px; opacity:.85; }
+        .nav-item--sub.active { background:var(--bg-active); color:var(--accent); border-left-color:var(--accent); }
+        .nav-item--sub .nav-status.live-dot { background:var(--accent); box-shadow:0 0 7px var(--accent); animation:livePulse 1.6s ease-in-out infinite; }
+        @keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:.35;} }
+        #nav-live.active { display:block; }
+        .live-embed { margin-top:14px; }
+        .live-embed iframe { width:100%; height:calc(100vh - 178px); min-height:520px; border:0; border-radius:12px; background:var(--bg-app); box-shadow:0 6px 24px rgba(0,0,0,.28); }
 
         .card { background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow-sm); cursor:default; transition:var(--transition); }
         .card:hover { transform:none; border-color:var(--border); box-shadow:var(--shadow-sm); }
@@ -4941,6 +4959,12 @@ def build() -> str:
          ])),
     ]
 
+    SUBMENU_HTML = (
+        '<div class="nav-item nav-item--sub" onclick="showPanel(&quot;nav-live&quot;)">'
+        '<span class="nav-icon"><i class="fas fa-bolt"></i></span>'
+        '<span class="nav-label">实时盯盘</span>'
+        '<span class="nav-status live-dot"></span></div>'
+    )
     sidebar_html = '<aside class="sidebar">' \
         '<div class="brand"><div class="logo">Q</div><div><div class="name">量化工作台</div><div class="sub">QUANT WORKBENCH</div></div></div>' \
         '<nav class="nav">' \
@@ -4949,6 +4973,7 @@ def build() -> str:
             f'<span class="nav-icon"><i class="fas {icon}"></i></span>'
             f'<span class="nav-label">{label}</span>'
             f'<span class="nav-status"></span></div>'
+            + (SUBMENU_HTML if nid == "nav-radar" else "")
             for i, (nid, label, icon, _) in enumerate(nav_items)
         ) \
         + '</nav>' \
@@ -4963,6 +4988,10 @@ def build() -> str:
             f'<div id="{nid}" class="content-panel{" active" if i==0 else ""}">{body}</div>'
             for i, (nid, _, _, body) in enumerate(nav_items)
         ) \
+        + f'<div id="nav-live" class="content-panel">' \
+        + _screen_head("实时盯盘", "浏览器端每 5 秒拉东方财富实时价 · 合并腾讯自选股真实持仓 · 实时市值 / 当日浮盈 / 总浮盈 / 止损预警", "LIVE") \
+        + '<div class="live-embed"><iframe src="live.html" title="量化实时盯盘"></iframe></div>' \
+        + '</div>' \
         + '</main>'
 
     footer = f'''
