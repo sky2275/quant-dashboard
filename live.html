@@ -51,6 +51,7 @@
   .up{color:var(--up);} .down{color:var(--down);}
   footer{margin-top:30px; font-size:11px; color:var(--sub); text-align:center; line-height:1.8;}
   .loading{padding:40px; text-align:center; color:var(--sub);}
+  .err{padding:12px 16px; background:rgba(255,77,79,.12); border:1px solid rgba(255,77,79,.3); border-radius:10px; color:var(--up); font-size:13px; margin-bottom:12px;}
 </style>
 </head>
 <body>
@@ -64,6 +65,7 @@
   </div>
 </header>
 
+<div id="errBox"></div>
 <div class="idx-row" id="idxRow"></div>
 <div class="summary" id="summary"></div>
 
@@ -74,7 +76,7 @@
 <div class="snap" id="snap"></div>
 
 <footer>
-  数据：持仓数量/成本来自 <code>holdings.json</code>（腾讯自选股组合同步）；实时价经东方财富 push2（https/JSONP）在浏览器端每 5 秒拉取，不经任何境外 CDN。<br>
+  数据：持仓数量/成本来自 <code>holdings.json</code>（腾讯自选股组合同步）；实时价经腾讯财经 qt.gtimg.cn（JSONP）在浏览器端每 5 秒拉取，不经任何境外 CDN。<br>
   红涨绿跌（A股惯例）。本页为辅助盯盘工具，非投资建议；盘后/休市显示最近收盘价。
 </footer>
 
@@ -89,9 +91,21 @@ const IDX = [
 const POLL_MS = 5000;
 let HOLD = null, SNAP = null, timer = null, running = true, ACCOUNTS = [];
 
-function secidOf(code){ return /^6/.test(code) ? "1."+code : "0."+code; }
+function tencentCode(code){
+  if(!code) return "";
+  code = String(code).replace(/^(sh|sz|bj)/i,"");
+  if(/^6/.test(code)) return "sh" + code;
+  if(/^0|^3/.test(code)) return "sz" + code;
+  if(/^8|^4/.test(code)) return "bj" + code;
+  return "sz" + code;
+}
 function fmt(n, d=2){ if(n===null||n===undefined||isNaN(n)) return "—"; return Number(n).toLocaleString("zh-CN",{minimumFractionDigits:d, maximumFractionDigits:d}); }
 function sgn(n){ return (n>=0?"+":"") + fmt(n); }
+function showErr(msg){
+  const el = document.getElementById("errBox");
+  if(!msg){ el.innerHTML=""; return; }
+  el.innerHTML = '<div class="err">'+msg+'</div>';
+}
 
 async function boot(){
   try{
@@ -100,11 +114,15 @@ async function boot(){
       fetch("./cache/market_snapshot.json").then(r=>r.json()).catch(()=>null)
     ]);
     HOLD = h; SNAP = s;
-    buildStatic();
-    renderIdxShell();
-    renderSummaryShell();
-    poll();
-    timer = setInterval(poll, POLL_MS);
+    if(!HOLD || !HOLD.positions || !HOLD.positions.length){
+      document.getElementById("grid").innerHTML = '<div class="loading">holdings.json 暂无持仓数据</div>';
+    } else {
+      buildStatic();
+      renderIdxShell();
+      renderSummaryShell();
+      poll();
+      timer = setInterval(poll, POLL_MS);
+    }
   }catch(e){
     document.getElementById("grid").innerHTML = '<div class="loading">加载失败：' + e.message + '<br>请通过 GitHub Pages 访问（file:// 下无法读取本地 JSON）。</div>';
   }
@@ -173,40 +191,58 @@ function renderSummaryShell(){
       <div class="chg" id="sa-tp-all">总 —</div></div>`;
 }
 
-function fetchQuotes(secids){
+function fetchQuotes(codes){
   return new Promise(resolve=>{
-    const cb = "__emcb_" + Date.now() + "_" + Math.floor(Math.random()*1e6);
+    const cb = "__txcb_" + Date.now() + "_" + Math.floor(Math.random()*1e6);
     const s = document.createElement("script");
-    const url = "https://push2.eastmoney.com/api/qt/ulist.np?pn=1&pz="+secids.length+
-      "&secids="+encodeURIComponent(secids.join(","))+
-      "&fields=f12,f13,f14,f43,f169,f170&cb="+cb+"&_="+Date.now();
+    const url = "https://qt.gtimg.cn/q=" + encodeURIComponent(codes.join(",")) + "&r=" + cb + "&_=" + Date.now();
     let done = false;
-    window[cb] = function(resp){
+    window[cb] = function(){};
+    s.src = url;
+    s.onload = function(){
       if(done) return; done = true;
       try{
-        const diff = (resp && resp.data && resp.data.diff) || [];
         const map = {};
-        diff.forEach(d=>{ map[String(d.f12)] = d; });
+        codes.forEach(c=>{
+          const key = "v_" + c.toLowerCase();
+          const str = window[key];
+          if(typeof str === "string"){
+            const parts = str.replace(/^"|"$/g,"").split("~");
+            if(parts.length >= 34){
+              map[c.replace(/^(sh|sz|bj)/i,"")] = {
+                name: parts[1],
+                price: Number(parts[3]),
+                prev: Number(parts[4]),
+                open: Number(parts[5]),
+                chg: Number(parts[32]),
+                pct: Number(parts[33])
+              };
+            }
+          }
+          try{ delete window[key]; }catch(e){}
+        });
         resolve(map);
-      }catch(e){ resolve({}); }
+      }catch(e){ showErr("行情解析失败："+e.message); resolve({}); }
       delete window[cb]; s.remove();
     };
-    s.onerror = function(){ if(done) return; done = true; delete window[cb]; s.remove(); resolve({}); };
-    s.src = url;
+    s.onerror = function(){ if(done) return; done = true; showErr("行情接口加载失败，请检查网络/是否使用 https 访问。"); delete window[cb]; s.remove(); resolve({}); };
     document.head.appendChild(s);
-    setTimeout(()=>{ if(!done){ done = true; delete window[cb]; s.remove(); resolve({}); } }, 4000);
+    setTimeout(()=>{ if(!done){ done = true; showErr("行情请求超时（4秒）。"); delete window[cb]; s.remove(); resolve({}); } }, 4000);
   });
 }
 
 async function poll(){
   if(!HOLD) return;
-  const posSecids = HOLD.positions.map(p=>secidOf(p.code));
-  const idxSecids = IDX.map(x=>secidOf(x.code));
-  const map = await fetchQuotes(posSecids.concat(idxSecids));
+  const posCodes = HOLD.positions.map(p=>tencentCode(p.code));
+  const idxCodes = IDX.map(x=>tencentCode(x.code));
+  const allCodes = [...new Set(posCodes.concat(idxCodes))];
+  const map = await fetchQuotes(allCodes);
   updatePrices(map);
   IDX.forEach(x=>{
-    const d = map[x.code]; const el = document.getElementById("idx-"+x.code);
-    if(d && d.f43){ const pct = (Number(d.f43)-Number(d.f170))!==0 ? Number(d.f170)/(Number(d.f43)-Number(d.f170))*100 : 0; el.textContent = fmt(d.f43); el.className = "v " + (pct>=0?"up":"down"); }
+    const c = tencentCode(x.code);
+    const d = map[c.replace(/^(sh|sz|bj)/i,"")];
+    const el = document.getElementById("idx-"+x.code);
+    if(d && !isNaN(d.price)){ el.textContent = fmt(d.price); el.className = "v " + (d.pct>=0?"up":"down"); }
   });
   document.getElementById("statusDot").className = "dot";
   document.getElementById("statusTxt").textContent = "实时";
@@ -217,11 +253,11 @@ function updatePrices(map){
   const accAgg = {};
   let allMv=0, allTd=0, allTp=0;
   HOLD.positions.forEach(p=>{
-    const d = map[p.code];
+    const c = tencentCode(p.code);
+    const d = map[c.replace(/^(sh|sz|bj)/i,"")];
     const el = document.getElementById("pos-"+p.code+"-"+p.account);
-    if(!d || !d.f43){ return; }
-    const price = Number(d.f43), chg = Number(d.f170);
-    const pct = (price - chg) !== 0 ? chg / (price - chg) * 100 : 0;
+    if(!d || isNaN(d.price)){ return; }
+    const price = d.price, chg = d.chg, pct = d.pct;
     const mv = price * p.quantity;
     const td = chg * p.quantity;
     const tp = (price - p.avg_cost) * p.quantity;
