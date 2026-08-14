@@ -1,15 +1,15 @@
 {
   "source": "tencent_paper_history_sync_2026-08-14",
-  "updated_at": "2026-08-14 09:40:02",
-  "note": "以腾讯自选股模拟交易未成交委托为意图持仓（经 westock MCP portfolio_paper_history 读取），同代码多笔委托按加权平均合并成本。价格/盈亏由 live.html 浏览器端实时拉取后计算。",
+  "updated_at": "2026-08-14 15:31:39",
+  "note": "B轨持仓：以腾讯自选股模拟交易委托为意图持仓（经 westock MCP portfolio_paper_history 读取），现价/涨跌幅于 2026-08-14 15:31:39 经 westock MCP data_quote 刷新，pnl 据此重算（成本沿用原 holdings）。",
   "account_labels": {
     "tencent": "腾讯自选股（模拟交易）"
   },
   "account_pnl": {
     "tencent": {
-      "today": 0,
+      "today": 22196.0,
       "today_pct": null,
-      "total": 0,
+      "total": 6435.9,
       "pct": null
     }
   },
@@ -21,14 +21,14 @@
         "account": "tencent",
         "quantity": 3000,
         "avg_cost": 61.78,
-        "price": 0,
-        "chg": 0,
+        "price": 62.73,
+        "chg": 1.14,
         "pnl": {
-          "total": 0,
-          "pct": 0,
-          "today": 0,
-          "today_pct": 0,
-          "price": 0
+          "total": 2850.0,
+          "pct": 1.54,
+          "today": 2130.0,
+          "today_pct": 1.14,
+          "price": 62.73
         },
         "bucket": "long",
         "stop": 0.15
@@ -39,14 +39,14 @@
         "account": "tencent",
         "quantity": 1000,
         "avg_cost": 62.75,
-        "price": 0,
-        "chg": 0,
+        "price": 62.96,
+        "chg": 1.19,
         "pnl": {
-          "total": 0,
-          "pct": 0,
-          "today": 0,
-          "today_pct": 0,
-          "price": 0
+          "total": 210.0,
+          "pct": 0.33,
+          "today": 740.0,
+          "today_pct": 1.19,
+          "price": 62.96
         },
         "bucket": "long",
         "stop": 0.08
@@ -57,14 +57,14 @@
         "account": "tencent",
         "quantity": 500,
         "avg_cost": 34.53,
-        "price": 0,
-        "chg": 0,
+        "price": 34.75,
+        "chg": 0.23,
         "pnl": {
-          "total": 0,
-          "pct": 0,
-          "today": 0,
-          "today_pct": 0,
-          "price": 0
+          "total": 110.0,
+          "pct": 0.64,
+          "today": 40.0,
+          "today_pct": 0.23,
+          "price": 34.75
         },
         "bucket": "long",
         "stop": 0.15
@@ -75,14 +75,14 @@
         "account": "tencent",
         "quantity": 500,
         "avg_cost": 63.475,
-        "price": 0,
-        "chg": 0,
+        "price": 65.16,
+        "chg": 2.45,
         "pnl": {
-          "total": 0,
-          "pct": 0,
-          "today": 0,
-          "today_pct": 0,
-          "price": 0
+          "total": 842.5,
+          "pct": 2.65,
+          "today": 780.0,
+          "today_pct": 2.45,
+          "price": 65.16
         },
         "bucket": "short",
         "stop": 0.1
@@ -93,14 +93,14 @@
         "account": "tencent",
         "quantity": 2900,
         "avg_cost": 141.974,
-        "price": 0,
-        "chg": 0,
+        "price": 143.62,
+        "chg": 4.47,
         "pnl": {
-          "total": 0,
-          "pct": 0,
-          "today": 0,
-          "today_pct": 0,
-          "price": 0
+          "total": 4773.4,
+          "pct": 1.16,
+          "today": 17806.0,
+          "today_pct": 4.47,
+          "price": 143.62
         },
         "bucket": "long",
         "stop": 0.15
@@ -111,14 +111,14 @@
         "account": "tencent",
         "quantity": 2000,
         "avg_cost": 72.283,
-        "price": 0,
-        "chg": 0,
+        "price": 70.96,
+        "chg": 0.42,
         "pnl": {
-          "total": 0,
-          "pct": 0,
-          "today": 0,
-          "today_pct": 0,
-          "price": 0
+          "total": -2646.0,
+          "pct": -1.83,
+          "today": 600.0,
+          "today_pct": 0.42,
+          "price": 70.96
         },
         "bucket": "long",
         "stop": 0.15
@@ -129,14 +129,14 @@
         "account": "tencent",
         "quantity": 2000,
         "avg_cost": 8.762,
-        "price": 0,
-        "chg": 0,
+        "price": 8.91,
+        "chg": 0.56,
         "pnl": {
-          "total": 0,
-          "pct": 0,
-          "today": 0,
-          "today_pct": 0,
-          "price": 0
+          "total": 296.0,
+          "pct": 1.69,
+          "today": 100.0,
+          "today_pct": 0.56,
+          "price": 8.91
         },
         "bucket": "short",
         "stop": 0.08
@@ -150,14 +150,14 @@
       "account": "tencent",
       "quantity": 3000,
       "avg_cost": 61.78,
-      "price": 0,
-      "chg": 0,
+      "price": 62.73,
+      "chg": 1.14,
       "pnl": {
-        "total": 0,
-        "pct": 0,
-        "today": 0,
-        "today_pct": 0,
-        "price": 0
+        "total": 2850.0,
+        "pct": 1.54,
+        "today": 2130.0,
+        "today_pct": 1.14,
+        "price": 62.73
       },
       "bucket": "long",
       "stop": 0.15
@@ -168,14 +168,14 @@
       "account": "tencent",
       "quantity": 1000,
       "avg_cost": 62.75,
-      "price": 0,
-      "chg": 0,
+      "price": 62.96,
+      "chg": 1.19,
       "pnl": {
-        "total": 0,
-        "pct": 0,
-        "today": 0,
-        "today_pct": 0,
-        "price": 0
+        "total": 210.0,
+        "pct": 0.33,
+        "today": 740.0,
+        "today_pct": 1.19,
+        "price": 62.96
       },
       "bucket": "long",
       "stop": 0.08
@@ -186,14 +186,14 @@
       "account": "tencent",
       "quantity": 500,
       "avg_cost": 34.53,
-      "price": 0,
-      "chg": 0,
+      "price": 34.75,
+      "chg": 0.23,
       "pnl": {
-        "total": 0,
-        "pct": 0,
-        "today": 0,
-        "today_pct": 0,
-        "price": 0
+        "total": 110.0,
+        "pct": 0.64,
+        "today": 40.0,
+        "today_pct": 0.23,
+        "price": 34.75
       },
       "bucket": "long",
       "stop": 0.15
@@ -204,14 +204,14 @@
       "account": "tencent",
       "quantity": 500,
       "avg_cost": 63.475,
-      "price": 0,
-      "chg": 0,
+      "price": 65.16,
+      "chg": 2.45,
       "pnl": {
-        "total": 0,
-        "pct": 0,
-        "today": 0,
-        "today_pct": 0,
-        "price": 0
+        "total": 842.5,
+        "pct": 2.65,
+        "today": 780.0,
+        "today_pct": 2.45,
+        "price": 65.16
       },
       "bucket": "short",
       "stop": 0.1
@@ -222,14 +222,14 @@
       "account": "tencent",
       "quantity": 2900,
       "avg_cost": 141.974,
-      "price": 0,
-      "chg": 0,
+      "price": 143.62,
+      "chg": 4.47,
       "pnl": {
-        "total": 0,
-        "pct": 0,
-        "today": 0,
-        "today_pct": 0,
-        "price": 0
+        "total": 4773.4,
+        "pct": 1.16,
+        "today": 17806.0,
+        "today_pct": 4.47,
+        "price": 143.62
       },
       "bucket": "long",
       "stop": 0.15
@@ -240,14 +240,14 @@
       "account": "tencent",
       "quantity": 2000,
       "avg_cost": 72.283,
-      "price": 0,
-      "chg": 0,
+      "price": 70.96,
+      "chg": 0.42,
       "pnl": {
-        "total": 0,
-        "pct": 0,
-        "today": 0,
-        "today_pct": 0,
-        "price": 0
+        "total": -2646.0,
+        "pct": -1.83,
+        "today": 600.0,
+        "today_pct": 0.42,
+        "price": 70.96
       },
       "bucket": "long",
       "stop": 0.15
@@ -258,14 +258,14 @@
       "account": "tencent",
       "quantity": 2000,
       "avg_cost": 8.762,
-      "price": 0,
-      "chg": 0,
+      "price": 8.91,
+      "chg": 0.56,
       "pnl": {
-        "total": 0,
-        "pct": 0,
-        "today": 0,
-        "today_pct": 0,
-        "price": 0
+        "total": 296.0,
+        "pct": 1.69,
+        "today": 100.0,
+        "today_pct": 0.56,
+        "price": 8.91
       },
       "bucket": "short",
       "stop": 0.08

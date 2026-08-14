@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-08-13 23:21:49",
+  "updated_at": "2026-08-14 15:31:39",
   "trade_ctx": {
     "is_trade_day": true,
     "trade_date": "20260813",
-    "source": "akshare",
+    "source": "westock",
     "stale_keys": []
   },
   "us_indices": [
@@ -26,27 +26,27 @@
   "a_indexes": [
     {
       "name": "上证指数",
-      "price": 3926.96,
-      "change_pct": -0.5,
-      "change": -19.72
+      "price": 3927.18,
+      "change": 0.22,
+      "change_pct": 0.01
     },
     {
       "name": "深证成指",
-      "price": 14289.44,
-      "change_pct": -0.87,
-      "change": -124.99
+      "price": 14354.31,
+      "change": 64.87,
+      "change_pct": 0.45
     },
     {
       "name": "创业板指",
-      "price": 3586.04,
-      "change_pct": -0.45,
-      "change": -16.04
+      "price": 3626.3,
+      "change": 40.26,
+      "change_pct": 1.12
     },
     {
       "name": "科创50",
-      "price": 1717.75,
-      "change_pct": -1.11,
-      "change": -19.24
+      "price": 1717.68,
+      "change": -0.07,
+      "change_pct": -0.0
     }
   ],
   "sector_flow": [
@@ -1707,11 +1707,11 @@
     }
   ],
   "market_breadth": {
-    "amount": 2567346170076.0,
-    "up_count": 1142,
-    "down_count": 4317,
-    "limit_up_count": 69,
-    "limit_down_count": 4
+    "amount": 2142843225402.6692,
+    "up_count": 2400,
+    "down_count": 2970,
+    "limit_up_count": 64,
+    "limit_down_count": 13
   },
   "sector_constituents": {
     "软件开发": [
