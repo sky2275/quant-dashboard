@@ -1,0 +1,80 @@
+{
+  "total": 7,
+  "critical": 0,
+  "warning": 4,
+  "buy": 2,
+  "info": 1,
+  "alerts": [
+    {
+      "type": "rsi_overbought",
+      "level": "WARNING",
+      "code": "600721",
+      "name": "百花医药",
+      "price": 12.75,
+      "rsi": 85.7,
+      "message": "百花医药 RSI=86，超买区域",
+      "action": "注意回调风险"
+    },
+    {
+      "type": "rsi_overbought",
+      "level": "WARNING",
+      "code": "003032",
+      "name": "传智教育",
+      "price": 11.45,
+      "rsi": 80.8,
+      "message": "传智教育 RSI=81，超买区域",
+      "action": "注意回调风险"
+    },
+    {
+      "type": "rsi_overbought",
+      "level": "WARNING",
+      "code": "600664",
+      "name": "哈药股份",
+      "price": 7.76,
+      "rsi": 81.1,
+      "message": "哈药股份 RSI=81，超买区域",
+      "action": "注意回调风险"
+    },
+    {
+      "type": "position_loss",
+      "level": "WARNING",
+      "code": "300223",
+      "name": "北京君正",
+      "price": 136.19,
+      "cost": 151.94,
+      "loss_pct": -10.4,
+      "message": "持仓 北京君正 浮亏 -10.4%",
+      "action": "关注是否止损"
+    },
+    {
+      "type": "strong_buy_signal",
+      "level": "BUY",
+      "code": "300285",
+      "name": "国瓷材料",
+      "price": 74.02,
+      "confidence": 79.3,
+      "message": "国瓷材料 综合信号: 强烈买入 (信心度 79.3)",
+      "action": "可考虑建仓"
+    },
+    {
+      "type": "strong_buy_signal",
+      "level": "BUY",
+      "code": "000636",
+      "name": "风华高科",
+      "price": 60.88,
+      "confidence": 79.3,
+      "message": "风华高科 综合信号: 强烈买入 (信心度 79.3)",
+      "action": "可考虑建仓"
+    },
+    {
+      "type": "vol_anomaly",
+      "level": "INFO",
+      "code": "003032",
+      "name": "传智教育",
+      "price": 11.45,
+      "vol_ratio": 4.91,
+      "message": "传智教育 量比 4.9，成交量异常放大",
+      "action": "关注资金动向"
+    }
+  ]
+}
