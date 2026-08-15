@@ -3958,12 +3958,13 @@ def _section_sector_leader(data):
             leader_code = s.get("leader_code")
             leader_chg = s.get("leader_chg")
             chg5d = s.get("chg5d")
+            lcode = (str(leader_code).lower() if leader_code else "")
             leader_html = f'<span class="leader-chip">{_stock_link(leader, leader_code)}'
             if leader_chg is not None:
-                leader_html += f'<span class="ld-chg {_cls(leader_chg)}">{_fmt_pct(leader_chg, 1)}</span>'
+                leader_html += f'<span class="ld-chg sl-ldchg {_cls(leader_chg)}">{_fmt_pct(leader_chg, 1)}</span>'
             leader_html += '</span>'
             rows += (
-                f'<tr>'
+                f'<tr data-leader-code="{lcode}" data-chg="{chg if chg is not None else 0}">'
                 f'<td><span class="rank-badge {cls_tag}">{i}</span></td>'
                 f'<td><b style="color:var(--text-1);">{name}</b></td>'
                 f'<td class="num {_cls(chg)}">{_fmt_pct(chg, 1)}</td>'
@@ -3990,7 +3991,7 @@ def _section_sector_leader(data):
                 <thead><tr>
                     <th>#</th><th>板块</th><th>今日涨幅</th><th>主力净额</th><th>涨停</th><th>涨/跌家</th><th>领涨龙头</th><th>5日涨幅</th>
                 </tr></thead>
-                <tbody>{_sector_rows(top_in, "in")}</tbody>
+                <tbody data-sl-sort="desc">{_sector_rows(top_in, "in")}</tbody>
             </table>
         </div>
     </div>'''
@@ -4004,7 +4005,7 @@ def _section_sector_leader(data):
                 <thead><tr>
                     <th>#</th><th>板块</th><th>今日涨幅</th><th>主力净额</th><th>涨停</th><th>涨/跌家</th><th>领涨龙头</th><th>5日涨幅</th>
                 </tr></thead>
-                <tbody>{_sector_rows(top_out, "out")}</tbody>
+                <tbody data-sl-sort="asc">{_sector_rows(top_out, "out")}</tbody>
             </table>
         </div>
     </div>'''
@@ -4953,6 +4954,7 @@ def build() -> str:
          +     _section_heatmap(snap, indicators)
          + '</div>'
          + '<div id="sector-tab-leader" class="tab-panel">'
+         +     '<div class="rt-hint" id="slUpdateHint" style="font-size:11px;color:var(--text-secondary);margin:0 0 10px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card2);">⏳ 龙头股实时行情加载中…</div>'
          +     _section_sector_leader(sector_leader)
          + '</div>'
         ),
@@ -6208,6 +6210,7 @@ function switchSectorTab(tab){{
     var want = (tab === 'heatmap' && b.textContent.indexOf('热力图') >= 0) || (tab === 'leader' && b.textContent.indexOf('龙头股') >= 0);
     b.classList.toggle('active', want);
   }});
+  if (tab === 'leader') startSectorLeaderRT(); else stopSectorLeaderRT();
 }}
 function showPanel(id) {{
   document.querySelectorAll('.content-panel').forEach(function(p){{ p.classList.remove('active'); }});
@@ -7118,6 +7121,78 @@ function startRealtime(){
     clearInterval(RT_TIMER);
     RT_TIMER=setInterval(rtTick, isTrading()?5000:30000);
   }, 60000);
+}
+
+/* ===== 板块强弱·龙头股：实时行情重排（item ⑥） ===== */
+var SL_TIMER = null;
+function slCollectCodes(){
+  var rows = document.querySelectorAll('#sector-tab-leader tr[data-leader-code]');
+  var codes = [], seen = {};
+  rows.forEach(function(tr){
+    var c = tr.getAttribute('data-leader-code');
+    if (c && !seen[c]){ seen[c] = 1; codes.push(c); }
+  });
+  return codes;
+}
+function slApply(map){
+  var tab = document.getElementById('sector-tab-leader');
+  if (!tab) return;
+  var tbodies = tab.querySelectorAll('.sector-table tbody');
+  tbodies.forEach(function(tb){
+    var dir = tb.getAttribute('data-sl-sort') === 'asc' ? 1 : -1;
+    var rows = Array.prototype.slice.call(tb.querySelectorAll('tr[data-leader-code]'));
+    rows.forEach(function(tr){
+      var c = tr.getAttribute('data-leader-code');
+      var live = null;
+      if (c && map[c] && !isNaN(map[c].change_pct)){ live = map[c].change_pct * 100; }
+      tr.setAttribute('data-live', live === null ? '' : live.toFixed(2));
+      var chip = tr.querySelector('.sl-ldchg');
+      if (chip && live !== null){
+        chip.textContent = (live >= 0 ? '+' : '') + live.toFixed(1) + '%';
+        chip.className = 'ld-chg sl-ldchg ' + (live >= 0 ? 'up' : 'down');
+      }
+    });
+    rows.sort(function(a, b){
+      var ka = parseFloat(a.getAttribute('data-live'));
+      var kb = parseFloat(b.getAttribute('data-live'));
+      var fa = isNaN(ka), fb = isNaN(kb);
+      if (fa && fb){ ka = parseFloat(a.getAttribute('data-chg')) || 0; kb = parseFloat(b.getAttribute('data-chg')) || 0; }
+      else if (fa){ ka = -1e9; }
+      else if (fb){ kb = -1e9; }
+      return (kb - ka) * dir;
+    });
+    rows.forEach(function(tr, i){
+      var badge = tr.querySelector('.rank-badge');
+      if (badge) badge.textContent = (i + 1);
+      tb.appendChild(tr);
+    });
+  });
+  var hint = document.getElementById('slUpdateHint');
+  if (hint){
+    var t = new Date();
+    hint.innerHTML = '<i class="dot"></i> 龙头股实时重排 · ' + t.getHours() + ':' + String(t.getMinutes()).padStart(2,'0') + '（按领涨龙头实时涨跌幅，无龙头代码者按板块当日涨幅）';
+  }
+}
+async function reorderSectorLeader(){
+  var codes = slCollectCodes();
+  if (!codes.length) return;
+  var all = {};
+  try{
+    for (var i = 0; i < codes.length; i += 40){
+      var batch = codes.slice(i, i + 40);
+      var d = await fetchQtQuotes(batch);
+      if (d) Object.assign(all, d);
+    }
+  }catch(e){ console.warn('reorderSectorLeader:', e); }
+  slApply(all);
+}
+function startSectorLeaderRT(){
+  reorderSectorLeader();
+  if (SL_TIMER) clearInterval(SL_TIMER);
+  SL_TIMER = setInterval(reorderSectorLeader, isTrading() ? 10000 : 60000);
+}
+function stopSectorLeaderRT(){
+  if (SL_TIMER){ clearInterval(SL_TIMER); SL_TIMER = null; }
 }
 '''
     js = js + REALTIME_JS
