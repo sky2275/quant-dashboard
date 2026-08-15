@@ -1,0 +1,15 @@
+{
+  "report_date": "2026-08-14",
+  "target_trade_date": "2026-08-17",
+  "source_report": "attack-picks-20260817.html",
+  "pool": [
+    {"rank": 1, "name": "中芯国际", "code": "688981", "market": "科创板", "themes": ["半导体制造"], "price": 59.80, "chg_pct": 3.25, "score": 82, "weight": 15, "signal": "BUY", "entry": 58.50, "target": 65.00, "stop": 55.00},
+    {"rank": 2, "name": "北方华创", "code": "002371", "market": "深市", "themes": ["半导体设备"], "price": 392.50, "chg_pct": 2.88, "score": 79, "weight": 12, "signal": "BUY", "entry": 385.00, "target": 430.00, "stop": 365.00},
+    {"rank": 3, "name": "汇川技术", "code": "300124", "market": "创业板", "themes": ["工业自动化"], "price": 70.20, "chg_pct": 1.95, "score": 76, "weight": 12, "signal": "BUY", "entry": 68.50, "target": 76.00, "stop": 65.00},
+    {"rank": 4, "name": "科大讯飞", "code": "002230", "market": "深市", "themes": ["AI大模型"], "price": 63.80, "chg_pct": 2.45, "score": 74, "weight": 12, "signal": "BUY", "entry": 62.00, "target": 70.00, "stop": 58.50},
+    {"rank": 5, "name": "中际旭创", "code": "300308", "market": "创业板", "themes": ["CPO光模块"], "price": 148.60, "chg_pct": 3.12, "score": 73, "weight": 12, "signal": "BUY", "entry": 145.00, "target": 165.00, "stop": 138.00},
+    {"rank": 6, "name": "恒瑞医药", "code": "600276", "market": "沪市", "themes": ["创新药"], "price": 49.80, "chg_pct": 1.35, "score": 71, "weight": 10, "signal": "BUY", "entry": 48.50, "target": 55.00, "stop": 46.00},
+    {"rank": 7, "name": "三一重工", "code": "600031", "market": "沪市", "themes": ["工程机械"], "price": 18.25, "chg_pct": 0.92, "score": 68, "weight": 10, "signal": "BUY", "entry": 17.80, "target": 20.00, "stop": 16.80},
+    {"rank": 8, "name": "宁德时代", "code": "300750", "market": "创业板", "themes": ["动力电池"], "price": 212.30, "chg_pct": 1.68, "score": 67, "weight": 10, "signal": "BUY", "entry": 205.00, "target": 235.00, "stop": 195.00}
+  ]
+}

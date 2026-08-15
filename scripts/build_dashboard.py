@@ -813,6 +813,13 @@ CSS_RULES = """
         .heatmap-legend { display:flex; align-items:center; gap:8px; margin-top:12px; font-size:11px; color:var(--text-3); }
         .heatmap-legend .sc { display:flex; height:10px; border-radius:var(--r-chip); overflow:hidden; width:190px; }
         .heatmap-legend .sc i { flex:1; }
+    /* 板块菜单 tab 切换 */
+    .tab-bar { display:flex; gap:8px; margin:14px 0; flex-wrap:wrap; }
+    .tab-btn { background:var(--bg-2, #161b22); border:1px solid var(--border-color, #30363d); color:var(--text-2); padding:7px 16px; border-radius:8px; font-size:13px; cursor:pointer; transition:.15s; }
+    .tab-btn:hover { border-color:var(--red); }
+    .tab-btn.active { background:linear-gradient(90deg,#ff4757,#ffa502); color:#fff; border-color:transparent; font-weight:600; }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
 
         /* ---- 板块&龙头股 ---- */
         .stat-strip { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
@@ -4933,21 +4940,27 @@ def build() -> str:
         ("nav-limitup", "涨停板分析", "fa-arrow-up",
          _screen_head("涨停板分析", "涨停家数 · 封单强度 · 连板梯队 · 次日建仓建议", _lu_badge)
          + _section_limitup(snap)),
-        ("nav-heatmap", "板块热点", "fa-fire",
-         _screen_head("板块热点", "板块热度 · 主力资金流向 · 国家队近似 · 成分股与龙头",
+        ("nav-sector", "板块", "fa-fire",
+         _screen_head("板块", "板块资金流热力图 · 板块强弱与龙头股",
                       f"{_sf_cnt} 个板块" if _sf_cnt else "板块数据缺失")
-         + _national_team_card(snap)
-         + _sector_heatmap_panel(snap, limit=40)
-         + _section_heatmap(snap, indicators)),
+         + '<div class="tab-bar">'
+         +   '<button class="tab-btn active" onclick="switchSectorTab(\'heatmap\')">🔥 板块热力图</button>'
+         +   '<button class="tab-btn" onclick="switchSectorTab(\'leader\')">🚀 板块强弱·龙头股</button>'
+         + '</div>'
+         + '<div id="sector-tab-heatmap" class="tab-panel active">'
+         +     _national_team_card(snap)
+         +     _sector_heatmap_panel(snap, limit=40)
+         +     _section_heatmap(snap, indicators)
+         + '</div>'
+         + '<div id="sector-tab-leader" class="tab-panel">'
+         +     _section_sector_leader(sector_leader)
+         + '</div>'
+        ),
         ("nav-holdings", "持仓复盘", "fa-briefcase",
          _screen_head("持仓复盘", "多账户合并盈亏 · RSI(6/12/24) · 量比 · 策略标签 · QC Gate 数据核查",
                       f"{_pos_cnt} 只持仓" if _pos_cnt else "无持仓")
          + _section_holdings(positions, a_quotes, indicators, account_pnl, daily_review_cache,
                              updated_at=holdings_cache.get("updated_at"))),
-        ("nav-sector", "板块&龙头股", "fa-cubes",
-         _screen_head("板块&龙头股", "每日板块资金流入/流出 TOP30 · 龙头股 · A股全量浏览器",
-                      f"{_sl_cnt} 个板块" if _sl_cnt else "板块数据缺失")
-         + _section_sector_leader(sector_leader)),
         ("nav-radar", "量化雷达", "fa-satellite-dish",
          _screen_head("量化雷达", "多策略选股池 · 明日备选 · 回测引擎 · 持仓对比回测", "STRATEGY")
          + "".join([
@@ -6183,6 +6196,18 @@ function showShareToast(msg) {{
   if (!t) return;
   t.textContent = msg; t.style.opacity = '1';
   setTimeout(function(){{ t.style.opacity = '0'; }}, 1800);
+}}
+function switchSectorTab(tab){{
+  var hp = document.getElementById('sector-tab-heatmap');
+  var lp = document.getElementById('sector-tab-leader');
+  if (hp) hp.classList.remove('active');
+  if (lp) lp.classList.remove('active');
+  var t = document.getElementById('sector-tab-' + tab);
+  if (t) t.classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(function(b){{
+    var want = (tab === 'heatmap' && b.textContent.indexOf('热力图') >= 0) || (tab === 'leader' && b.textContent.indexOf('龙头股') >= 0);
+    b.classList.toggle('active', want);
+  }});
 }}
 function showPanel(id) {{
   document.querySelectorAll('.content-panel').forEach(function(p){{ p.classList.remove('active'); }});
