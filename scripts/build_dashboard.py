@@ -2641,7 +2641,7 @@ def _section_heatmap(snap, indicators):
 
 
 # ----------------------------------------------------------------- ⑤ 持仓复盘
-ACCOUNT_LABELS = {"galaxy": "银河证券", "eastmoney": "东财", "csc": "中信建投", "manual": "手动"}
+ACCOUNT_LABELS = {"galaxy": "银河证券", "eastmoney": "东方财富证券", "csc": "中信建投", "manual": "手动"}
 
 
 def _unified_positions(cfg, broker_positions):
