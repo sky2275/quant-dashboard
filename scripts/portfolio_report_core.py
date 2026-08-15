@@ -249,13 +249,11 @@ def _load_all():
     snap = _load_cache("market_snapshot") or {}
     cfg = _load_cache("config") or {}
 
-    seen = {}
     positions = []
     for p in holdings.get("positions", []):
         name = p.get("name")
-        if not name or name in seen:
+        if not name:
             continue
-        seen[name] = True
         positions.append(p)
 
     names = [p.get("name") for p in positions]
