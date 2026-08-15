@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8月14日备选进攻股票池复盘 | 逻辑解析与胜率回测</title>
+<style>
+:root {
+  --bg: #0a0e14;
+  --card: #161b22;
+  --card2: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --red: #ff4757;
+  --green: #00d4aa;
+  --orange: #ffa502;
+  --blue: #58a6ff;
+  --purple: #a371f7;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.7; padding: 24px;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+.header {
+  background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 100%);
+  border-radius: 16px; padding: 28px; margin-bottom: 24px;
+}
+.header h1 { font-size: 26px; margin-bottom: 8px; }
+.header .subtitle { color: rgba(255,255,255,0.85); font-size: 14px; }
+.section {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 22px; margin-bottom: 20px;
+}
+.section h2 { color: var(--red); font-size: 18px; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.section h3 { color: var(--orange); font-size: 15px; margin: 16px 0 10px; }
+.section p { color: var(--text2); margin-bottom: 10px; font-size: 14px; }
+.section ul { margin-left: 20px; color: var(--text2); font-size: 14px; }
+.section li { margin-bottom: 6px; }
+.highlight { color: var(--text); background: rgba(88,166,255,0.12); padding: 2px 6px; border-radius: 4px; }
+.warn { color: var(--orange); }
+.danger { color: var(--red); }
+.success { color: var(--green); }
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 16px 0;
+}
+.stat-card {
+  background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; text-align: center;
+}
+.stat-card .label { font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+.stat-card .num { font-size: 28px; font-weight: 700; }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+.data-table th {
+  background: rgba(88,166,255,0.12); color: var(--text); padding: 10px 8px; text-align: right; font-weight: 600;
+  border-bottom: 2px solid var(--border);
+}
+.data-table th:first-child, .data-table th:nth-child(2) { text-align: left; }
+.data-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); text-align: right; color: var(--text2); }
+.data-table td:first-child, .data-table td:nth-child(2) { text-align: left; color: var(--text); }
+.data-table tr:hover { background: rgba(88,166,255,0.06); }
+.tag {
+  display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;
+}
+.tag-risk-high { background: rgba(255,71,87,0.15); color: var(--red); border: 1px solid rgba(255,71,87,0.3); }
+.tag-risk-mid { background: rgba(255,165,2,0.15); color: var(--orange); border: 1px solid rgba(255,165,2,0.3); }
+.tag-win { background: rgba(255,71,87,0.15); color: var(--red); }
+.tag-loss { background: rgba(0,212,170,0.15); color: var(--green); }
+
+.summary-box {
+  background: var(--card2); border-left: 4px solid var(--orange); padding: 16px 18px; border-radius: 0 10px 10px 0; margin-top: 16px;
+}
+.summary-box p { margin-bottom: 6px; color: var(--text); }
+
+.footer { text-align: center; color: var(--text2); font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>🎯 8月14日备选进攻股票池 · 逻辑解析与胜率回测</h1>
+  <div class="subtitle">数据来源：westock-mcp（腾讯财经） | 回测区间：2026-08-13 收盘 → 2026-08-14 收盘</div>
+</div>
+
+<div class="section">
+  <h2>一、这份股票池来自哪里</h2>
+  <p>您截图中的表格来自一份早期/实验性报告 <code>portfolio-battle-plan-20260814.html</code>，标题为“8月13日持仓复盘 & 8月14日作战计划”。</p>
+  <p>该报告<strong>不是</strong>当前固定模板体系（<code>attack-picks-YYYYMMDD.html</code>）下的产物，因此缺少规范的胜率回测、TIER 分层、操作纪律与校验流程。当前最新 validated 版本是 <code>attack-picks-20260817.html</code>。</p>
+</div>
+
+<div class="section">
+  <h2>二、选股逻辑是什么</h2>
+  <p>该池子采用的是典型的 <span class="highlight">“涨停梯队 + 主力资金净流入 + 热点板块”</span> 短线策略：</p>
+  <ul>
+    <li><strong>主线锚定</strong>：8月13日医药（医疗服务+16.14亿、生物制品+12.09亿、中药+11.70亿、化学制药+7.19亿）与金融/地产链资金大幅流入。</li>
+    <li><strong>涨停筛选</strong>：优先选取 8月13日已涨停或连板个股，博取次日溢价。</li>
+    <li><strong>龙头优先</strong>：医药线选 澳洋健康（2连板）、誉衡药业（2连板）、博济医药（20cm涨停）、近岸蛋白（20cm涨停）；连板高标选 秦安股份（5板）、京投发展（4板）、蓝盾光电（4板20cm）、城地香江（3板）。</li>
+  </ul>
+  <p class="warn">逻辑本身没问题，但执行上全部集中在“已涨停/连板”标的上，天然属于高风险博弈。</p>
+</div>
+
+<div class="section">
+  <h2>三、为什么推荐的都是高风险个股</h2>
+  <p>8只标的中 <strong>6只标注“高风险”</strong>，原因如下：</p>
+  <ul>
+    <li><strong>连板接力</strong>：秦安股份5板、京投发展4板、蓝盾光电4板、城地香江3板，均处于情绪高位，次日一旦分歧容易“派面”。</li>
+    <li><strong>20cm高波动</strong>：近岸蛋白、博济医药、蓝盾光电为科创板/创业板，单日涨跌幅上限20%，波动是主板的2倍。</li>
+    <li><strong>缩量一字/加速</strong>：澳洋健康、秦安股份、京投发展 8月13日多为缩量涨停，筹码未经过充分换手，次日开板即高点。</li>
+    <li><strong>缺少分层</strong>：没有按 TIER1/TIER2/TIER3 区分“强烈推荐/适度推荐/观察池”，也没有设置风险回避清单，导致整池风险集中。</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>四、8月14日实际表现回测</h2>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="label">close-to-close 胜率</div>
+      <div class="num" style="color:var(--red)">62.5%</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">close-to-close 平均收益</div>
+      <div class="num" style="color:var(--red)">+5.09%</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">open-to-close 胜率</div>
+      <div class="num" style="color:var(--orange)">50.0%</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">open-to-close 平均收益</div>
+      <div class="num" style="color:var(--green)">-1.17%</div>
+    </div>
+  </div>
+
+  <h3>4.1 按收盘价买入（8/13收盘）→ 收盘价卖出（8/14收盘）</h3>
+  <p>这是理论最优场景，但实战中无法买到 8/13 涨停价（已收盘）。</p>
+  <table class="data-table">
+    <thead>
+      <tr><th>名称</th><th>代码</th><th>风险</th><th>8/13 收盘</th><th>8/14 收盘</th><th>收益率</th><th>结果</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>澳洋健康</td><td>002172</td><td><span class="tag tag-risk-mid">中</span></td><td>4.13</td><td>4.54</td><td class="success">+9.93%</td><td><span class="tag tag-win">盈利</span></td></tr>
+      <tr><td>誉衡药业</td><td>002437</td><td><span class="tag tag-risk-mid">中</span></td><td>4.25</td><td>4.53</td><td class="success">+6.59%</td><td><span class="tag tag-win">盈利</span></td></tr>
+      <tr><td>近岸蛋白</td><td>688137</td><td><span class="tag tag-risk-high">高</span></td><td>64.00</td><td>69.58</td><td class="success">+8.72%</td><td><span class="tag tag-win">盈利</span></td></tr>
+      <tr><td>博济医药</td><td>300404</td><td><span class="tag tag-risk-high">高</span></td><td>14.45</td><td>17.34</td><td class="success">+20.00%</td><td><span class="tag tag-win">盈利</span></td></tr>
+      <tr><td>蓝盾光电</td><td>300862</td><td><span class="tag tag-risk-high">高</span></td><td>39.41</td><td>47.29</td><td class="success">+19.99%</td><td><span class="tag tag-win">盈利</span></td></tr>
+      <tr><td>城地香江</td><td>603887</td><td><span class="tag tag-risk-high">高</span></td><td>12.49</td><td>11.92</td><td class="danger">-4.56%</td><td><span class="tag tag-loss">亏损</span></td></tr>
+      <tr><td>秦安股份</td><td>603758</td><td><span class="tag tag-risk-high">高</span></td><td>15.35</td><td>13.82</td><td class="danger">-9.97%</td><td><span class="tag tag-loss">亏损</span></td></tr>
+      <tr><td>京投发展</td><td>600683</td><td><span class="tag tag-risk-high">高</span></td><td>12.93</td><td>11.64</td><td class="danger">-9.98%</td><td><span class="tag tag-loss">亏损</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.2 按开盘价买入（8/14开盘）→ 收盘价卖出（8/14收盘）</h3>
+  <p>更贴近实战的短线场景。高标股多开盘即跳水，导致平均收益转负。</p>
+  <table class="data-table">
+    <thead>
+      <tr><th>名称</th><th>代码</th><th>风险</th><th>8/14 开盘</th><th>8/14 收盘</th><th>收益率</th><th>最高浮盈</th><th>最大浮亏</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>澳洋健康</td><td>002172</td><td><span class="tag tag-risk-mid">中</span></td><td>4.54</td><td>4.54</td><td>0.00%</td><td>0.00%</td><td>0.00%</td></tr>
+      <tr><td>誉衡药业</td><td>002437</td><td><span class="tag tag-risk-mid">中</span></td><td>4.43</td><td>4.53</td><td class="success">+2.26%</td><td>+5.64%</td><td>-6.55%</td></tr>
+      <tr><td>近岸蛋白</td><td>688137</td><td><span class="tag tag-risk-high">高</span></td><td>63.44</td><td>69.58</td><td class="success">+9.68%</td><td>+11.92%</td><td>-3.53%</td></tr>
+      <tr><td>博济医药</td><td>300404</td><td><span class="tag tag-risk-high">高</span></td><td>16.22</td><td>17.34</td><td class="success">+6.91%</td><td>+6.91%</td><td>-4.13%</td></tr>
+      <tr><td>蓝盾光电</td><td>300862</td><td><span class="tag tag-risk-high">高</span></td><td>45.00</td><td>47.29</td><td class="success">+5.09%</td><td>+5.09%</td><td>-7.87%</td></tr>
+      <tr><td>城地香江</td><td>603887</td><td><span class="tag tag-risk-high">高</span></td><td>12.86</td><td>11.92</td><td class="danger">-7.31%</td><td>+0.08%</td><td>-12.60%</td></tr>
+      <tr><td>秦安股份</td><td>603758</td><td><span class="tag tag-risk-high">高</span></td><td>15.00</td><td>13.82</td><td class="danger">-7.87%</td><td>0.00%</td><td>-7.87%</td></tr>
+      <tr><td>京投发展</td><td>600683</td><td><span class="tag tag-risk-high">高</span></td><td>14.22</td><td>11.64</td><td class="danger">-18.14%</td><td>0.00%</td><td>-18.14%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="summary-box">
+    <p><strong>结论：</strong></p>
+    <p>• 如果按 8/13 收盘买入，次日收盘卖出：<span class="success">胜率 62.5%，平均收益 +5.09%</span>，但这是无法完全复现的理论值。</p>
+    <p>• 如果按 8/14 开盘买入，收盘卖出：<span class="warn">胜率 50%，平均收益 -1.17%</span>，高标股（秦安、京投、城地）开盘后即跳水，把医药线的盈利吃掉。</p>
+    <p>• <strong>最大单笔亏损可达 -18.14%</strong>（京投发展），说明高连板接力策略的容错率极低。</p>
+  </div>
+</div>
+
+<div class="section">
+  <h2>五、后续如何改进</h2>
+  <ul>
+    <li><strong>引入 TIER 分层</strong>：把涨停高标放进 TIER3“观察池”或“风险回避”，而不是和回踩低吸标的一起放在推荐池。</li>
+    <li><strong>增加胜率回测</strong>：每份 attack-picks 报告必须附上前一日推荐池的次日表现回测，避免只讲逻辑不讲结果。</li>
+    <li><strong>控制高风险占比</strong>：20cm/连板高标合计占比不应超过 30%，保留部分中低位启动或趋势回踩标的。</li>
+    <li><strong>严格止损纪律</strong>：高标接力必须设置 -5% 硬止损，破板即走，不能“格局”。</li>
+    <li><strong>统一使用 validated 模板</strong>：避免使用未经验证的临时报告，所有发布必须通过 <code>validate_report.py</code>。</li>
+  </ul>
+</div>
+
+<div class="footer">
+  ⚠️ 本回测仅供学习研究参考，不构成投资建议。股市有风险，投资需谨慎。
+</div>
+
+</div>
+</body>
+</html>
