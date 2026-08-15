@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>量化工作台模块扫描审计 | 实际功能与优化策略</title>
+<style>
+:root {
+  --bg: #0a0e14; --card: #121821; --card2: #0f141d; --line: #1e2733;
+  --txt: #e6edf3; --sub: #8b98a9; --up: #ff4d4f; --down: #00c853;
+  --acc1: #ff8a3d; --acc2: #a06bff; --warn: #ffb020; --blue: #4fc3f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--txt); font-family: -apple-system,"PingFang SC","Microsoft YaHei",sans-serif; line-height: 1.65; padding: 24px; }
+.container { max-width: 1080px; margin: 0 auto; }
+.header { background: linear-gradient(135deg, var(--acc1), var(--acc2)); border-radius: 16px; padding: 26px; margin-bottom: 24px; }
+.header h1 { font-size: 24px; margin-bottom: 6px; }
+.header .sub { color: rgba(255,255,255,0.85); font-size: 13px; }
+.section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-bottom: 18px; }
+.section h2 { color: var(--acc1); font-size: 17px; margin-bottom: 4px; }
+.section h3 { color: var(--blue); font-size: 14px; margin: 14px 0 6px; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 11px; margin-left: 8px; vertical-align: middle; }
+.b-live { background: rgba(0,200,83,0.15); color: var(--down); border: 1px solid rgba(0,200,83,0.4); }
+.b-static { background: rgba(255,176,32,0.15); color: var(--warn); border: 1px solid rgba(255,176,32,0.4); }
+.b-broken { background: rgba(255,77,79,0.15); color: var(--up); border: 1px solid rgba(255,77,79,0.4); }
+.kv { display: grid; grid-template-columns: 120px 1fr; gap: 6px 14px; font-size: 13px; margin: 10px 0; }
+.kv .k { color: var(--sub); }
+.kv .v { color: var(--txt); }
+.ul { margin-left: 18px; font-size: 13px; color: var(--sub); }
+.ul li { margin: 4px 0; }
+.ul strong { color: var(--txt); }
+.ok { color: var(--down); } .warn2 { color: var(--warn); } .bad { color: var(--up); }
+.foot { text-align: center; color: var(--sub); font-size: 11px; margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--line); }
+table.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 10px; }
+table.tbl th { background: rgba(79,195,247,0.1); color: var(--txt); padding: 8px; text-align: left; border-bottom: 2px solid var(--line); }
+table.tbl td { padding: 8px; border-bottom: 1px solid var(--line); color: var(--sub); vertical-align: top; }
+table.tbl td:first-child { color: var(--txt); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>📡 量化工作台模块扫描审计</h1>
+  <div class="sub">目标：https://sky2275.github.io/quant-dashboard/ ｜ 审计时间：2026-08-15 ｜ 数据源：build_dashboard.py / live.html / cache/*.json / config/modules.json</div>
+</div>
+
+<!-- 总览 -->
+<div class="section">
+  <h2>一、模块总览（侧边栏 7 大模块 + 跨栏回测引擎）</h2>
+  <table class="tbl">
+    <thead><tr><th>模块</th><th>实际功能</th><th>实时性</th><th>底层数据</th></tr></thead>
+    <tbody>
+      <tr><td>① A股大盘行情</td><td>核心指数、成交额、涨跌家数、涨停/跌停、市场情绪、板块强弱、指数K线</td><td><span class="badge b-static">静态快照</span></td><td>market_snapshot.json (08-14)</td></tr>
+      <tr><td>② 全球行情</td><td>美股三大指数+6板块ETF+龙头股K线、韩国板块、美股→A股传导预测</td><td><span class="badge b-static">半静态</span></td><td>us_overnight.json (08-08) + 前端拉实时</td></tr>
+      <tr><td>③ 涨停板分析</td><td>涨停梯队、连板数、题材标签、板块情绪、次日预测</td><td><span class="badge b-static">静态</span></td><td>zt_screen_20260813.json</td></tr>
+      <tr><td>④ 板块热点</td><td>板块资金流热力全景图（色阶=涨跌幅，排序=净流入）</td><td><span class="badge b-broken">降级显示</span></td><td>板块资金流接口偶发失败→“数据暂不可用”</td></tr>
+      <tr><td>⑤ 持仓复盘</td><td>三券商持仓总览、个股市值/浮盈、RSI、近30日K线、复盘报告入口</td><td><span class="badge b-static">静态</span></td><td>holdings.json (08-15) + 报告HTML</td></tr>
+      <tr><td>⑥ 板块&龙头股</td><td>板块强弱TOP、领涨股可点击、成分股实盘行情、板块ETF K线</td><td><span class="badge b-live">前端实时</span></td><td>腾讯/东财行情(浏览器端)</td></tr>
+      <tr><td>⑦ 量化雷达</td><td>聚合页：A股扫描 + 进攻池 + 回测引擎 + 子菜单“实时盯盘”</td><td>混合</td><td>见右栏回测引擎</td></tr>
+      <tr><td>⊞ 实时盯盘(子菜单)</td><td>真实持仓×实时报价、破位预警、暂停/刷新（iframe live.html）</td><td><span class="badge b-live">实时</span></td><td>qt.gtimg.cn JSONP 每5秒</td></tr>
+      <tr><td>⊟ 回测引擎(右栏)</td><td>任意个股K线回测、策略逻辑面板、Sharpe/最大回撤/胜率指标</td><td><span class="badge b-live">前端实时</span></td><td>腾讯K线+东财分时(浏览器端)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 模块1 -->
+<div class="section">
+  <h2>② A股大盘行情 <span class="badge b-static">静态快照</span></h2>
+  <div class="kv">
+    <div class="k">实际功能</div><div class="v">展示上证/深证/创业板/科创50/沪深300 五指数行情条、成交额、涨跌家数、涨停/跌停家数、市场情绪评级、板块强弱TOP、核心指数日K线。指数K线由前端拉腾讯 qfq 日K（<code>loadIndexSpark</code>）实时绘制迷你折线。</div>
+    <div class="k">数据来源</div><div class="v">cache/market_snapshot.json，updated_at=2026-08-14 15:31。构建时由 feed.py 注入。</div>
+    <div class="k">问题</div><div class="v"><span class="warn2">⚠</span> 快照定格 8/14 收盘，周末无更新；指数K线虽前端实时，但页面文字（成交额/涨跌家数）仍是旧值。</div>
+  </div>
+  <h3>优化策略</h3>
+  <ul class="ul">
+    <li><strong>每日盘后自动重建</strong>：把 market_snapshot 刷新接入现有 15:30 自动化，确保交易日收盘后 30 分钟内更新（目前仅 us_overnight 有 cron）。</li>
+    <li><strong>指数行情文字也走前端实时</strong>：除 K线外，指数涨跌幅/成交额同样用 qt.gtimg.cn 实时填充，避免“图新数旧”。</li>
+    <li><strong>非交易日提示</strong>：周末/节假日显示“最近交易日快照 + 实时盘外报价”角标。</li>
+  </ul>
+</div>
+
+<!-- 模块2 -->
+<div class="section">
+  <h2>③ 全球行情 <span class="badge b-static">半静态</span></h2>
+  <div class="kv">
+    <div class="k">实际功能</div><div class="v">美股三大指数 + 6 大核心板块ETF（XLK/XLE/...）涨跌幅与K线；韩国板块强弱；美股→A股传导预测（7大板块映射：驱动股实时 + A股候选股实时）。点击板块可看龙头与A股映射。</div>
+    <div class="k">数据来源</div><div class="v">cache/us_overnight.json（08-08，已 stale）；指数/ETF K线前端实时；A股候选股行情前端实时拉取（<code>refreshASectorDetailQuotes</code> 每约6秒一次）。</div>
+    <div class="k">问题</div><div class="v"><span class="warn2">⚠</span> 美股隔夜板块数据为 8/8，已严重滞后；传导预测的“美股驱动股”引用旧快照，与当前美股实际偏离大。</div>
+  </div>
+  <h3>优化策略</h3>
+  <ul class="ul">
+    <li><strong>修复 us_overnight 刷新</strong>：确认 update_dashboard.yml 的 08:00 周一至周五 cron 是否仍在跑（modules.json 声称有，但数据停在 8/8）。若为 Actions 限制，改为本地 build 时重新生成。</li>
+    <li><strong>美股驱动股改为实时</strong>：传导预测模块的美股侧也用 qt.gtimg.cn 国际代码（如 usAAPL）实时填充，而非依赖隔夜快照。</li>
+    <li><strong>韩国指数降级提示已存在</strong>：KOSDAQ 接口不稳，当前用龙头股加权呈现，建议保留并标注“估算值”。</li>
+  </ul>
+</div>
+
+<!-- 模块3 -->
+<div class="section">
+  <h2>④ 涨停板分析 <span class="badge b-static">静态</span></h2>
+  <div class="kv">
+    <div class="k">实际功能</div><div class="v">8/13 涨停梯队（连板数、题材标签）、每只个股补板块情绪/次日预测/建仓建议；由 zt_screen.py 生成 zt_screen_20260813.json/html。</div>
+    <div class="k">数据来源</div><div class="v">cache/zt_screen_20260813.json（对应 8/13 盘后）。构建时注入。</div>
+    <div class="k">问题</div><div class="v"><span class="warn2">⚠</span> 数据停更在 8/13，缺少 8/14 及之后；且 modules.json 中该模块 status=draft，样式/数据未冻结。</div>
+  </div>
+  <h3>优化策略</h3>
+  <ul class="ul">
+    <li><strong>纳入每日构建</strong>：涨停板扫描（zt_screen.py + feed.py 涨停列表）应作为 15:30 自动化的标准步骤，生成当日涨停数据。</li>
+    <li><strong>增加“晋级/断板”标签</strong>：对比前一日连板，标注今日晋级率、昨日涨停今日表现，提升实战价值（参考我们此前的连板晋级率分析）。</li>
+    <li><strong>status 升级为 active + 冻结口径</strong>：按 modules.json 工作流，稳定后导出独立 json 并标 frozen。</li>
+  </ul>
+</div>
+
+<!-- 模块4 -->
+<div class="section">
+  <h2>⑤ 板块热点（热力图） <span class="badge b-broken">降级显示</span></h2>
+  <div class="kv">
+    <div class="k">实际功能</div><div class="v">板块资金流热力全景图：按净流入排序，色阶按涨跌幅。理想状态下展示行业板块主力净流入/流出 TOP 与概念板块涨跌 TOP。</div>
+    <div class="k">数据来源</div><div class="v">a_sector_flow（同花顺即时行业资金流），build_dashboard.py 注释称“失败回退快照”。当前页面显示“板块资金流数据暂不可用”。</div>
+    <div class="k">问题</div><div class="v"><span class="bad">✕</span> 实际渲染为降级文案，主视觉模块失效；与 modules.json 里 global_a_sector_flow 标 active 但无对应 data_file 一致。</div>
+  </div>
+  <h3>优化策略</h3>
+  <ul class="ul">
+    <li><strong>替换数据源</strong>：同花顺即时接口在沙箱不稳定，改用东方财富妙想 MCP（mx-ds-mcp 行业板块资金流）或腾讯板块行情，构建期抓取并落库。</li>
+    <li><strong>缓存兜底</strong>：抓不到时回退到 market_snapshot 中已有的 sector_flow（8/14 数据其实有医疗服务/中药/半导体等），而非空白。</li>
+    <li><strong>标注数据时间</strong>：热力图每个单元标注抓取时间，避免误读。</li>
+  </ul>
+</div>
+
+<!-- 模块5 -->
+<div class="section">
+  <h2>⑥ 持仓复盘 <span class="badge b-static">静态</span></h2>
+  <div class="kv">
+    <div class="k">实际功能</div><div class="v">三券商（银河/中信建投/东方财富）持仓总览表：持股、成本、现价、盈亏额/率、市值、仓位占比、信号；并链接 portfolio-review 报告（含逐只RSI/量比/30日K线/解套作战）。</div>
+    <div class="k">数据来源</div><div class="v">cache/holdings.json（08-15，前三券商实盘，已修复跨账户同名去重）。</div>
+    <div class="k">问题</div><div class="v"><span class="ok">✓</span> 数据准确，但为盘后静态；实时盈亏需跳到“实时盯盘”子菜单才能看。</div>
+  </div>
+  <h3>优化策略</h3>
+  <ul class="ul">
+    <li><strong>与实时盯盘打通</strong>：持仓复盘页直接嵌入 live.html 同款实时报价组件，免去跳转。</li>
+    <li><strong>同步源改实盘</strong>：当前 15:30 自动化仍从腾讯自选股同步，需改为读取券商交割单/截图，否则次日会被覆盖（已多次提示）。</li>
+    <li><strong>增加预警线</strong>：在总览表标注止损价与距止损空间，联动“实时盯盘”破位提醒。</li>
+  </ul>
+</div>
+
+<!-- 模块6 -->
+<div class="section">
+  <h2>⑦ 板块&龙头股 <span class="badge b-live">前端实时</span></h2>
+  <div class="kv">
+    <div class="k">实际功能</div><div class="v">板块强弱 TOP（强势/弱势双列），领涨股可点击看成分股实时报价；板块详情弹窗含 ETF 实时K线（东财 push2）。</div>
+    <div class="k">数据来源</div><div class="v">板块列表构建期注入；成分股/ETF 行情由前端 fetch 腾讯/东财实时。</div>
+    <div class="k">问题</div><div class="v"><span class="ok">✓</span> 实时性最佳模块之一；但板块强弱排序依赖构建期快照，列表本身不实时刷新。</div>
+  </div>
+  <h3>优化策略</h3>
+  <ul class="ul">
+    <li><strong>板块强弱也实时化</strong>：用腾讯板块指数行情（如 hkHS 等）实时计算涨跌幅重排。</li>
+    <li><strong>与失效的“板块热点”合并</strong>：把模块④的资金流热力图并入本模块，作为“板块”一级菜单下的两个 tab，消除空白模块。</li>
+  </ul>
+</div>
+
+<!-- 模块7 雷达+右栏 -->
+<div class="section">
+  <h2>⑧ 量化雷达（聚合页）+ 右栏回测引擎 <span class="badge b-live">前端实时</span></h2>
+  <div class="kv">
+    <div class="k">实际功能</div><div class="v">A股扫描（全市场快照表，支持搜索/排序/翻页）、进攻池（picksTable，可按评分/策略筛选）、回测引擎（任意个股输入代码→拉腾讯500日K线→跑策略→输出Sharpe/最大回撤/胜率/年化；支持日K/分时切换、年份筛选、策略逻辑面板）。</div>
+    <div class="k">数据来源</div><div class="v">A股扫描=sector_leader_data.json（08-05，<b>严重滞后</b>）；进攻池/回测预载=backtest_engine_data.json（08-07）；K线/分时=前端实时。</div>
+    <div class="k">问题</div><div class="v"><span class="bad">✕</span> A股扫描底层是 8/5 的静态快照，名为“扫描”实为旧表；进攻池预载列表 8/7 也偏旧；回测引擎本身功能强但默认列表不更新。</div>
+  </div>
+  <h3>优化策略</h3>
+  <ul class="ul">
+    <li><strong>重建 A股扫描</strong>：用 scan_a_shares.py / mx-ds-mcp 在构建期拉全市场（或热点池）实时快照替换 sector_leader_data，使“扫描”名副其实。</li>
+    <li><strong>回测引擎默认列表联动进攻池</strong>：把当日 attack-picks 的 8 只直接灌入回测预载，开盘即可回测，无需手输代码。</li>
+    <li><strong>增加“历史胜率”页</strong>：把每份 attack-picks 的 T+1 回测结果（如我们刚做的 8/14 池回测）沉淀为历史战绩表，反向校验策略有效性。</li>
+    <li><strong>子菜单实时盯盘</strong>：live.html 已实时（qt.gtimg.cn 每5秒+破位预警），建议把盯盘组件也嵌回主面板，减少 iframe 隔离。</li>
+  </ul>
+</div>
+
+<!-- 跨栏 / 通用 -->
+<div class="section">
+  <h2>九、跨模块共性问题与优先级排序</h2>
+  <table class="tbl">
+    <thead><tr><th>优先级</th><th>问题</th><th>影响</th></tr></thead>
+    <tbody>
+      <tr><td>P0</td><td>⑤板块热点热力图降级为“数据暂不可用”</td><td>主视觉模块空白，最显眼</td></tr>
+      <tr><td>P0</td><td>⑧ A股扫描底层 8/5 静态快照</td><td>“扫描”名不副实，误导决策</td></tr>
+      <tr><td>P1</td><td>③④ 涨停板/美股隔夜停更（8/13、8/8）</td><td>盘后分析失去时效</td></tr>
+      <tr><td>P1</td><td>① 大盘文字数据定格 8/14</td><td>指数K线实时但数字旧</td></tr>
+      <tr><td>P2</td><td>持仓同步源仍是腾讯自选股</td><td>次日可能被覆盖</td></tr>
+      <tr><td>P2</td><td>缺历史回测战绩沉淀</td><td>无法反向校验策略</td></tr>
+    </tbody>
+  </table>
+  <h3>建议的下一步落地清单</h3>
+  <ul class="ul">
+    <li><strong>1.</strong> 把“板块热点”数据源切到东方财富妙想 MCP，构建期落库 + 回退 market_snapshot.sector_flow（先消除空白）。</li>
+    <li><strong>2.</strong> 在 15:30 自动化中新增：涨停板扫描(zt_screen) + 大盘快照(market_snapshot) + A股扫描快照(scam_a_shares) 三步重建。</li>
+    <li><strong>3.</strong> holdings.json 同步源从腾讯自选股改为三券商实盘（读取券商交割单/截图）。</li>
+    <li><strong>4.</strong> 每份 attack-picks 生成后，自动把标的灌入回测引擎预载，并在次日收盘后追加 T+1 回测战绩。</li>
+  </ul>
+</div>
+
+<div class="foot">
+  ⚠️ 本审计仅描述模块现状与优化方向，不构成投资建议。数据时效以各 cache 文件 mtime 为准（审计于 2026-08-15）。
+</div>
+
+</div>
+</body>
+</html>
