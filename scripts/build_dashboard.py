@@ -7229,6 +7229,78 @@ function stopSectorLeaderRT(){
 </script>
 </body>
 </html>'''
+    UX_ENHANCE = r'''
+<style id="ux-enhance">
+/* —— 交互增强层：仅补充可访问性与微交互，不改动原有格式 —— */
+:where(button, a, input, select, textarea, [role="button"],
+       .nav-item, .nav-item--sub, .tab-btn, .idx-chip,
+       .us-index-chip, .stock-detail-tab, .idx-tab):focus-visible{
+  outline: 2px solid var(--accent-2, #4F9CFF);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+::selection{ background: var(--accent, #2DD4BF); color: var(--accent-ink, #06231F); }
+#ux-scrollbar{
+  position: fixed; top: 0; left: 0; height: 3px; width: 0;
+  z-index: 10002; pointer-events: none;
+  background: linear-gradient(90deg, var(--accent, #2DD4BF), var(--accent-2, #4F9CFF));
+  transition: width .12s linear;
+}
+.tab-panel.active{ animation: uxPanelIn .26s ease both; }
+@keyframes uxPanelIn{
+  from{ opacity: 0; transform: translateY(8px); }
+  to{ opacity: 1; transform: none; }
+}
+.tab-btn:active, .idx-chip:active, .us-index-chip:active,
+.stock-detail-tab:active, .idx-tab:active{ transform: scale(.96); }
+.nav-item:active, .nav-item--sub:active{ transform: translateX(2px); }
+@media (prefers-reduced-motion: reduce){
+  #ux-scrollbar{ transition: none !important; }
+  .tab-panel.active{ animation: none !important; }
+}
+</style>
+<script id="ux-enhance">
+(function(){
+  var bar = document.createElement('div');
+  bar.id = 'ux-scrollbar';
+  document.body.appendChild(bar);
+  function uxProg(){
+    var p = document.querySelector('.content-panel.active');
+    var scrollable = p && p.scrollHeight > p.clientHeight;
+    var el = scrollable ? p : document.documentElement;
+    var max = el.scrollHeight - el.clientHeight;
+    var st = scrollable ? p.scrollTop : (window.scrollY || 0);
+    var pct = max > 0 ? Math.min(100, Math.max(0, st / max * 100)) : 0;
+    bar.style.width = pct + '%';
+  }
+  document.addEventListener('scroll', uxProg, true);
+  window.addEventListener('resize', uxProg);
+  uxProg();
+
+  var sel = '.nav-item,.nav-item--sub,.tab-btn,.idx-chip,.us-index-chip,.stock-detail-tab,.idx-tab';
+  document.querySelectorAll(sel).forEach(function(el){
+    if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+    if(!el.getAttribute('role')) el.setAttribute('role', 'button');
+  });
+  document.addEventListener('keydown', function(e){
+    var t = e.target;
+    if(!t || !t.classList) return;
+    if(e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'){
+      if(t.getAttribute && t.getAttribute('role') === 'button' && t.tagName !== 'BUTTON' && t.tagName !== 'A'){
+        e.preventDefault(); t.click(); return;
+      }
+    }
+    var navs = Array.prototype.slice.call(document.querySelectorAll('.nav-item,.nav-item--sub'));
+    var i = navs.indexOf(t);
+    if(i < 0) return;
+    if(e.key === 'ArrowDown'){ e.preventDefault(); if(navs[i+1]) navs[i+1].focus(); }
+    else if(e.key === 'ArrowUp'){ e.preventDefault(); if(navs[i-1]) navs[i-1].focus(); }
+    else if(e.key === 'Home'){ e.preventDefault(); navs[0].focus(); }
+    else if(e.key === 'End'){ e.preventDefault(); navs[navs.length-1].focus(); }
+  });
+})();
+</script>
+'''
     theme_js = '''
 <script>
   (function(){
@@ -7244,7 +7316,7 @@ function stopSectorLeaderRT(){
   })();
 </script>
 '''
-    html = html.replace('</body>', theme_js + '\n</body>')
+    html = html.replace('</body>', theme_js + UX_ENHANCE + '\n</body>')
 
     out = os.path.join(REPO_ROOT, "index.html")
     with open(out, "w", encoding="utf-8") as f:

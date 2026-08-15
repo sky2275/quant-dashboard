@@ -885,7 +885,7 @@
             <span class="status-badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;"><i class="fas fa-moon"></i> 休市 · 显示 08-14 收盘数据</span>
             <span class="live-badge" id="rtStatus"><i class="dot"></i> 实时 · 加载中</span>
             <button id="rtRefreshBtn" class="rt-refresh-btn" onclick="rtManualRefresh()" title="立即刷新所有行情"><i class="fas fa-sync-alt"></i> 立即刷新</button>
-            <span class="version-badge" title="页面构建版本">v20260815-1655</span>
+            <span class="version-badge" title="页面构建版本">v20260815-2217</span>
         </div>
     </header>
     <div class="app-layout">
@@ -957,7 +957,7 @@
         </div></div><div id="nav-us" class="content-panel">
         <div class="screen-head">
             <div><h1>全球行情</h1><div class="desc">美股三大指数 · 板块ETF · 龙头股 · K线走势 · 韩国板块 · A股映射</div></div>
-            <div class="head-badge">休市</div>
+            <div class="head-badge">盘中交易</div>
         </div>
         <div class="card section-index-bar" style="margin-bottom:16px;">
             <div class="bar-label">隔夜指数</div>
@@ -2502,7 +2502,7 @@
         </div>
 <div style="padding:8px 0;">
   <div style="font-size:22px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">📊 8月14日持仓股复盘 & 8月17日作战计划</div>
-  <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">📌 配色规则：红涨绿跌（A 股惯例） · 生成时间 2026-08-15 16:55</div>
+  <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">📌 配色规则：红涨绿跌（A 股惯例） · 生成时间 2026-08-15 22:17</div>
   
   <div class="overview" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;">
     <div class="overview-card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:16px;text-align:center;">
@@ -6397,6 +6397,77 @@ function stopSectorLeaderRT(){
       if (tl) tl.textContent = next === 'dark' ? '深色主题' : '浅色主题';
     });
   })();
+</script>
+
+<style id="ux-enhance">
+/* —— 交互增强层：仅补充可访问性与微交互，不改动原有格式 —— */
+:where(button, a, input, select, textarea, [role="button"],
+       .nav-item, .nav-item--sub, .tab-btn, .idx-chip,
+       .us-index-chip, .stock-detail-tab, .idx-tab):focus-visible{
+  outline: 2px solid var(--accent-2, #4F9CFF);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+::selection{ background: var(--accent, #2DD4BF); color: var(--accent-ink, #06231F); }
+#ux-scrollbar{
+  position: fixed; top: 0; left: 0; height: 3px; width: 0;
+  z-index: 10002; pointer-events: none;
+  background: linear-gradient(90deg, var(--accent, #2DD4BF), var(--accent-2, #4F9CFF));
+  transition: width .12s linear;
+}
+.tab-panel.active{ animation: uxPanelIn .26s ease both; }
+@keyframes uxPanelIn{
+  from{ opacity: 0; transform: translateY(8px); }
+  to{ opacity: 1; transform: none; }
+}
+.tab-btn:active, .idx-chip:active, .us-index-chip:active,
+.stock-detail-tab:active, .idx-tab:active{ transform: scale(.96); }
+.nav-item:active, .nav-item--sub:active{ transform: translateX(2px); }
+@media (prefers-reduced-motion: reduce){
+  #ux-scrollbar{ transition: none !important; }
+  .tab-panel.active{ animation: none !important; }
+}
+</style>
+<script id="ux-enhance">
+(function(){
+  var bar = document.createElement('div');
+  bar.id = 'ux-scrollbar';
+  document.body.appendChild(bar);
+  function uxProg(){
+    var p = document.querySelector('.content-panel.active');
+    var scrollable = p && p.scrollHeight > p.clientHeight;
+    var el = scrollable ? p : document.documentElement;
+    var max = el.scrollHeight - el.clientHeight;
+    var st = scrollable ? p.scrollTop : (window.scrollY || 0);
+    var pct = max > 0 ? Math.min(100, Math.max(0, st / max * 100)) : 0;
+    bar.style.width = pct + '%';
+  }
+  document.addEventListener('scroll', uxProg, true);
+  window.addEventListener('resize', uxProg);
+  uxProg();
+
+  var sel = '.nav-item,.nav-item--sub,.tab-btn,.idx-chip,.us-index-chip,.stock-detail-tab,.idx-tab';
+  document.querySelectorAll(sel).forEach(function(el){
+    if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+    if(!el.getAttribute('role')) el.setAttribute('role', 'button');
+  });
+  document.addEventListener('keydown', function(e){
+    var t = e.target;
+    if(!t || !t.classList) return;
+    if(e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'){
+      if(t.getAttribute && t.getAttribute('role') === 'button' && t.tagName !== 'BUTTON' && t.tagName !== 'A'){
+        e.preventDefault(); t.click(); return;
+      }
+    }
+    var navs = Array.prototype.slice.call(document.querySelectorAll('.nav-item,.nav-item--sub'));
+    var i = navs.indexOf(t);
+    if(i < 0) return;
+    if(e.key === 'ArrowDown'){ e.preventDefault(); if(navs[i+1]) navs[i+1].focus(); }
+    else if(e.key === 'ArrowUp'){ e.preventDefault(); if(navs[i-1]) navs[i-1].focus(); }
+    else if(e.key === 'Home'){ e.preventDefault(); navs[0].focus(); }
+    else if(e.key === 'End'){ e.preventDefault(); navs[navs.length-1].focus(); }
+  });
+})();
 </script>
 
 </body>
