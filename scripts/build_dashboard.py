@@ -1713,10 +1713,18 @@ def _breadth_card(snap, wide=False):
     else:
         mood, mood_cls = "—", ""
     wide_cls = " breadth-wide" if wide else ""
+    vol_ratio = (amount / A_AMOUNT_BASELINE) if amount else None
+    if vol_ratio is not None:
+        vol_cls = "up" if vol_ratio >= 1.1 else ("down" if vol_ratio <= 0.8 else "")
+        vol_label = "放量" if vol_ratio >= 1.1 else ("缩量" if vol_ratio <= 0.8 else "平量")
+        vol_txt = f"{vol_ratio:.2f}"
+    else:
+        vol_cls, vol_label, vol_txt = "", "—", "—"
     inner = (
         f'<div class="bw-main">'
         f'<div class="bw-bar"><i class="seg-up" style="width:{up_w:.1f}%"></i><i class="seg-down" style="width:{down_w:.1f}%"></i></div>'
         f'<div class="bw-legend"><span>上涨 <b class="up">{_safe(up, "—")}</b></span><span>下跌 <b class="down">{_safe(down, "—")}</b></span><span>涨家占比 {up_w:.0f}%</span></div>'
+        f'<div class="bw-vol">量能比 <b class="{vol_cls}">{vol_txt}</b> · {vol_label}</div>'
         f'</div>'
     )
     stats = (
@@ -1933,6 +1941,13 @@ def _section_us_map(snap, us_quotes, overnight, kr_quotes=None, cfg=None):
     idx_bar = _index_quote_bar(us_idx, "隔夜指数")
     hero = _hero_index_cards(us_idx, limit=4, clickable=False)
     # 美股情绪+美股板块 / 韩国KOSPI+韩国板块（双卡片）
+    map_card = _us_a_map_card(us_idx)
+    macro_card = _macro_placeholder_card()
+    grid2 = f'''
+        <div class="grid-2">
+            {map_card}
+            {macro_card}
+        </div>'''
     grid = f'''
         <div class="grid-2">
             {_us_breadth_card(us_quotes)}
@@ -1942,7 +1957,7 @@ def _section_us_map(snap, us_quotes, overnight, kr_quotes=None, cfg=None):
         </div>'''
     us_index_kline = _section_us_index_kline()
     transmit = _section_transmit(overnight, us_quotes)
-    return head + idx_bar + hero + grid + us_index_kline + transmit
+    return head + idx_bar + hero + grid2 + grid + us_index_kline + transmit
 
 
 # US sector ETF K线数据
@@ -2540,6 +2555,7 @@ def _section_limitup(snap):
                 <span class="badge">{total}家涨停</span>
                 <span class="click-hint"><i class="fas fa-chevron-right"></i> 点击查看详情</span>
             </div>
+            {_limitup_summary_bar(limit_up)}
             {html}
             <div style="margin-top:8px;font-size:11px;color:var(--text-secondary);">
                 <i class="fas fa-info-circle"></i> 涨停家数{total}家，连板≥2天{multi}家
@@ -3926,7 +3942,7 @@ def _mainforce_pool_card(snap):
     </div>'''
 
 
-def _section_sector_leader(data):
+def _section_sector_leader(data, sector_constituents=None):
     """板块&龙头股：板块资金流入/流出 TOP30（含领涨龙头股）+ A股全量浏览器。
     数据源：桌面 Table-板块.xls（板块资金流向）+ Tabl-A股e.xls（A股全量）→ cache/sector_leader_data.json。
     """
@@ -4057,7 +4073,8 @@ def _section_sector_leader(data):
         <div class="stat-pill"><div class="lbl">数据时间</div><div class="val" style="font-size:13px;line-height:1.9;">{updated or "—"}</div></div>
     </div>
     <div class="sector-layout">{inflow_html}{outflow_html}</div>
-    {astock_html}'''
+    {astock_html}
+    {_sector_constituents_card(sector_constituents)}'''
 
 
 def _paper_trade_card():
@@ -4798,6 +4815,106 @@ def _fetch_sector_a_indicators(overnight, cfg=None) -> dict:
     return result
 
 
+# ----------------------------------------------------------------- 模块增强：①②③④ 细化补充（纯加法，不改动既有逻辑/格式）
+
+# ① 量能比基准：近一年 A 股日均成交额约 1.8 万亿（估算，真实环境可由 data_fetcher 校准）
+A_AMOUNT_BASELINE = 1.8e12
+
+
+def _us_a_map_card(us_indices):
+    """② 隔夜美股 → A股次日情绪映射卡（纯派生，无需新数据）。"""
+    us = {x.get("name"): x for x in (us_indices or [])}
+    nx = us.get("纳斯达克", {}).get("change_pct")
+    sp = us.get("标普500", {}).get("change_pct")
+    dj = us.get("道琼斯", {}).get("change_pct")
+    vals = [v for v in (nx, sp, dj) if isinstance(v, (int, float))]
+    if not vals:
+        return ""
+    tech_bias = ((nx or 0) + (sp or 0)) / 2.0
+    if tech_bias >= 1.0:
+        level, cls, tip = "强多", "up", "纳指/标普大涨，A股科技成长板块次日高开概率大"
+    elif tech_bias >= 0.2:
+        level, cls, tip = "偏多", "up", "美股温和上涨，A股大概率平开略高"
+    elif tech_bias > -0.2:
+        level, cls, tip = "中性", "", "美股窄幅震荡，A股看自身资金面"
+    elif tech_bias > -1.0:
+        level, cls, tip = "偏空", "down", "美股走弱，A股承压低开概率大"
+    else:
+        level, cls, tip = "强空", "down", "美股大跌，避险为主，控制仓位"
+    chips = "".join(
+        f'<span class="map-chip">{n} <b class="{_cls(v)}">{_fmt_pct(v)}</b></span>'
+        for n, v in (("纳指", nx), ("标普", sp), ("道指", dj)) if isinstance(v, (int, float))
+    )
+    return f'''
+        <div class="card">
+            <div class="card-title"><span class="icon"><i class="fas fa-link"></i></span> 隔夜美股 → A股映射 <span class="badge">DERIVED</span></div>
+            <div class="map-level {cls}">次日预期：{level}</div>
+            <div class="map-chips">{chips}</div>
+            <div class="map-tip">{tip}</div>
+        </div>'''
+
+
+def _macro_placeholder_card():
+    """② 商品/汇率联动卡（数据待接入 mx-ds-mcp 宏观）。"""
+    rows = "".join(
+        f'<div class="macro-row"><span>{n}</span><b style="color:var(--text-3);">—</b></div>'
+        for n in ("黄金 COMEX", "WTI 原油", "USD-CNY", "美元指数")
+    )
+    return f'''
+        <div class="card">
+            <div class="card-title"><span class="icon"><i class="fas fa-globe"></i></span> 商品 / 汇率联动 <span class="badge">待接入</span></div>
+            <div class="macro-rows">{rows}</div>
+            <div class="map-tip">实时数据待接入 mx-ds-mcp 宏观源（黄金/原油/汇率）。</div>
+        </div>'''
+
+
+def _limitup_summary_bar(limit_up):
+    """③ 涨停连板梯队概览条。"""
+    real = [x for x in (limit_up or []) if isinstance(x, dict) and "error" not in x]
+    if not real:
+        return ""
+    cnt = {1: 0, 2: 0, 3: 0, 4: 0}
+    other = 0
+    for x in real:
+        b = int(x.get("连板数", 1) or 1)
+        if b in cnt:
+            cnt[b] += 1
+        else:
+            other += 1
+    seg = (
+        f'<span class="tb tb-1">首板 <b>{cnt[1]}</b></span>'
+        f'<span class="tb tb-2">二板 <b>{cnt[2]}</b></span>'
+        f'<span class="tb tb-3">三板 <b>{cnt[3]}</b></span>'
+        f'<span class="tb tb-4">四板 <b>{cnt[4]}</b></span>'
+        f'<span class="tb tb-5">五板+ <b>{other}</b></span>'
+    )
+    return f'<div class="limitup-bar">{seg}</div>'
+
+
+def _sector_constituents_card(sector_constituents):
+    """④ 板块成分股贡献度预览（行业板块成分股名单，实时贡献度待接入行情）。"""
+    if not isinstance(sector_constituents, dict):
+        return ""
+    parts = []
+    for nm, cons in list(sector_constituents.items())[:5]:
+        if not cons:
+            continue
+        chips = "".join(f'<span class="cons-chip">{c.get("name", "—")}</span>' for c in cons[:8])
+        parts.append(
+            f'<div class="cons-block"><div class="cons-name">{_escape_js(nm)}</div>'
+            f'<div class="cons-chips">{chips}</div></div>'
+        )
+    if not parts:
+        return ""
+    return f'''
+        <div class="card card-full">
+            <div class="card-title"><span class="icon"><i class="fas fa-project-diagram"></i></span> 板块成分股贡献度
+                <span class="badge">行业板块 TOP5</span>
+                <span class="click-hint">实时贡献度待接入行情</span></div>
+            <div class="cons-grid">{''.join(parts)}</div>
+        </div>'''
+
+
 # ----------------------------------------------------------------- 组装
 def build() -> str:
     snap = _load_cache("market_snapshot") or {"updated_at": "—"}
@@ -4955,7 +5072,7 @@ def build() -> str:
          + '</div>'
          + '<div id="sector-tab-leader" class="tab-panel">'
          +     '<div class="rt-hint" id="slUpdateHint" style="font-size:11px;color:var(--text-secondary);margin:0 0 10px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card2);">⏳ 龙头股实时行情加载中…</div>'
-         +     _section_sector_leader(sector_leader)
+         +     _section_sector_leader(sector_leader, snap.get("sector_constituents"))
          + '</div>'
         ),
         ("nav-holdings", "持仓复盘", "fa-briefcase",
@@ -7254,6 +7371,24 @@ function stopSectorLeaderRT(){
 .tab-btn:active, .idx-chip:active, .us-index-chip:active,
 .stock-detail-tab:active, .idx-tab:active{ transform: scale(.96); }
 .nav-item:active, .nav-item--sub:active{ transform: translateX(2px); }
+/* —— 模块细化补充卡片样式（新增元素，沿用主题变量） —— */
+.map-level{ font-size: 18px; font-weight: 700; margin: 6px 0 8px; }
+.map-level.up{ color: var(--up, #ef4444); }
+.map-level.down{ color: var(--down, #22c55e); }
+.map-chips{ display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.map-chip{ font-size: 12px; color: var(--text-2); background: var(--card2, rgba(255,255,255,.04)); padding: 3px 8px; border-radius: 6px; }
+.map-tip{ font-size: 12px; color: var(--text-3); line-height: 1.5; }
+.macro-rows{ display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 8px 0; }
+.macro-row{ display: flex; justify-content: space-between; gap: 12px; font-size: 13px; min-width: 110px; }
+.limitup-bar{ display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 12px; }
+.limitup-bar .tb{ font-size: 12px; padding: 4px 10px; border-radius: 8px; background: var(--card2, rgba(255,255,255,.05)); border: 1px solid var(--line, rgba(255,255,255,.08)); }
+.limitup-bar .tb b{ color: var(--accent-2, #4F9CFF); }
+.cons-grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 8px; }
+.cons-block{ background: var(--card2, rgba(255,255,255,.04)); border: 1px solid var(--line, rgba(255,255,255,.08)); border-radius: 10px; padding: 10px 12px; }
+.cons-name{ font-weight: 600; font-size: 13px; margin-bottom: 6px; color: var(--text-1); }
+.cons-chips{ display: flex; flex-wrap: wrap; gap: 6px; }
+.cons-chip{ font-size: 11px; padding: 2px 8px; border-radius: 6px; background: rgba(45,212,191,.12); color: var(--accent, #2DD4BF); }
+
 @media (prefers-reduced-motion: reduce){
   #ux-scrollbar{ transition: none !important; }
   .tab-panel.active{ animation: none !important; }
