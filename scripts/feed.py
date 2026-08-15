@@ -123,10 +123,16 @@ def get_trade_context(today: dt.date | None = None) -> dict:
             past_open = [e["trade_date"] for e in cal
                          if e["is_open"] and e["trade_date"] <= today_s]
             if past_open:
-                is_open = past_open[-1] == today_s
-                return {"is_trade_day": is_open,
-                        "trade_date": past_open[-1],
-                        "today": today_s, "source": "sqlite_cache"}
+                latest_open = past_open[-1]
+                latest_dt = dt.datetime.strptime(latest_open, "%Y%m%d").date()
+                # 缓存最新交易日若比今天滞后超过 2 天，视为过期，强制走外部源刷新
+                # （覆盖周末/节假日后的缓存 stale 场景）
+                if (today - latest_dt).days <= 2:
+                    is_open = latest_open == today_s
+                    return {"is_trade_day": is_open,
+                            "trade_date": latest_open,
+                            "today": today_s, "source": "sqlite_cache"}
+                print(f"[trade_cal] SQLite 缓存最新交易日 {latest_open} 滞后 {today_s} 超过2天，强制刷新")
 
     # 1) tushare 官方交易日历（最准确，含节假日）
     pro = _tushare_pro()

@@ -1,9 +1,9 @@
 {
   "updated_at": "2026-08-14 15:31:39",
   "trade_ctx": {
-    "is_trade_day": true,
-    "trade_date": "20260813",
-    "source": "westock",
+    "is_trade_day": false,
+    "trade_date": "20260814",
+    "source": "manual_fix_weekday",
     "stale_keys": []
   },
   "us_indices": [
