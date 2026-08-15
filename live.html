@@ -8,12 +8,12 @@
   :root{
     --bg:#0a0e14; --card:#121821; --card2:#0f141d; --line:#1e2733;
     --txt:#e6edf3; --sub:#8b98a9; --up:#ff4d4f; --down:#00c853;
-    --acc1:#ff8a3d; --acc2:#a06bff;
+    --acc1:#ff8a3d; --acc2:#a06bff; --warn:#ffb020;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{background:var(--bg); color:var(--txt); font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; font-size:14px; line-height:1.5; padding:18px 20px 60px;}
   a{color:var(--acc2); text-decoration:none;}
-  header{position:sticky; top:0; z-index:10; background:linear-gradient(90deg,rgba(255,138,61,.12),rgba(160,107,255,.12)); border:1px solid var(--line); border-radius:12px; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:18px; backdrop-filter:blur(4px);}
+  header{position:sticky; top:0; z-index:10; background:linear-gradient(90deg,rgba(255,138,61,.12),rgba(160,107,255,.12)); border:1px solid var(--line); border-radius:12px; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:18px;}
   .h-title{font-size:18px; font-weight:700; background:linear-gradient(90deg,var(--acc1),var(--acc2)); -webkit-background-clip:text; background-clip:text; color:transparent;}
   .h-meta{display:flex; align-items:center; gap:14px; font-size:12px; color:var(--sub); flex-wrap:wrap;}
   .dot{width:8px; height:8px; border-radius:50%; background:var(--down); display:inline-block; margin-right:5px; animation:pulse 1.6s infinite;}
@@ -29,7 +29,7 @@
   .sum{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px;}
   .sum .lab{font-size:12px; color:var(--sub); margin-bottom:6px;}
   .sum .big{font-size:20px; font-weight:700; font-variant-numeric:tabular-nums;}
-  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px;}
   .pos{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; transition:border-color .3s;}
   .pos.breach{border-color:var(--up); box-shadow:0 0 0 1px var(--up) inset;}
   .pos .top{display:flex; justify-content:space-between; align-items:baseline;}
@@ -43,11 +43,26 @@
   .pos .rows .val{text-align:right; font-variant-numeric:tabular-nums;}
   .pos .stop{margin-top:8px; font-size:11px; color:var(--sub);}
   .flag{font-size:11px; color:#fff; background:var(--up); border-radius:5px; padding:1px 6px; margin-left:6px;}
-  .section-t{font-size:14px; font-weight:600; margin:22px 0 12px; color:var(--txt); border-left:3px solid var(--acc1); padding-left:9px;}
+  .watch .note{font-size:11px; color:var(--sub); margin-top:8px;}
+  .section-t{font-size:14px; font-weight:600; margin:22px 0 12px; color:var(--txt); border-left:3px solid var(--acc1); padding-left:9px; display:flex; justify-content:space-between; align-items:center;}
+  .section-t .sub{font-size:11px; color:var(--sub); font-weight:400;}
   .snap{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; font-size:13px; color:var(--sub);}
   .snap b{color:var(--txt);}
-  .seclist{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;}
+  .mod2{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;}
+  @media(max-width:780px){ .mod2{grid-template-columns:1fr;} }
+  .panel{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px;}
+  table.rsi{width:100%; border-collapse:collapse; font-size:12px;}
+  table.rsi th{color:var(--sub); text-align:right; font-weight:400; padding:4px 6px; border-bottom:1px solid var(--line);}
+  table.rsi td{text-align:right; padding:5px 6px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums;}
+  table.rsi td.l{text-align:left;}
+  .lu-list{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; max-height:260px; overflow:auto;}
+  .lu{background:var(--card2); border:1px solid var(--line); border-radius:8px; padding:6px 10px; font-size:12px; min-width:130px;}
+  .lu .lu-n{font-weight:600;}
+  .lu .lu-c{color:var(--sub); font-size:11px;}
+  .flow-list{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;}
   .sector{background:var(--card2); border:1px solid var(--line); border-radius:8px; padding:5px 10px; font-size:12px;}
+  .alert-log{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 14px; font-size:12px; max-height:200px; overflow:auto; color:var(--warn);}
+  .alert-log .ai{margin:3px 0;}
   .up{color:var(--up);} .down{color:var(--down);}
   footer{margin-top:30px; font-size:11px; color:var(--sub); text-align:center; line-height:1.8;}
   .loading{padding:40px; text-align:center; color:var(--sub);}
@@ -60,8 +75,10 @@
   <div class="h-meta">
     <span><span id="statusDot" class="dot off"></span><span id="statusTxt">未连接</span></span>
     <span id="updTime">—</span>
+    <button class="btn" id="notifBtn">开启预警</button>
     <button class="btn" id="toggleBtn">暂停</button>
     <button class="btn" id="refreshBtn">立即刷新</button>
+    <a class="btn" href="index.html">← 盘后分析</a>
   </div>
 </header>
 
@@ -69,84 +86,114 @@
 <div class="idx-row" id="idxRow"></div>
 <div class="summary" id="summary"></div>
 
-<div class="section-t">持仓实时监控（真实持仓 × 实时报价）</div>
+<div class="section-t">持仓实时监控（真实持仓 × 实时报价）<span class="sub" id="posSub"></span></div>
 <div class="grid" id="grid"><div class="loading">加载持仓数据中…</div></div>
+
+<div class="section-t">自选 / 观察池<span class="sub" id="watchSub"></span></div>
+<div class="grid watch" id="watchGrid"><div class="loading">无自选数据</div></div>
+
+<div class="section-t">RSI(7) 信号<span class="sub">盘后基线 · 每5分钟刷新</span></div>
+<div class="panel"><table class="rsi" id="rsiTable"><thead><tr><th class="l">名称</th><th>代码</th><th>RSI(7)</th><th>状态</th></tr></thead><tbody><tr><td colspan="4" style="text-align:center;color:var(--sub)">计算中…</td></tr></tbody></table></div>
+
+<div class="mod2">
+  <div class="panel">
+    <div class="section-t" style="margin:0 0 10px">涨停连板<span class="sub" id="luSub">实时</span></div>
+    <div id="luCount" style="font-size:13px;color:var(--sub)">加载中…</div>
+    <div class="lu-list" id="luList"></div>
+  </div>
+  <div class="panel">
+    <div class="section-t" style="margin:0 0 10px">资金流向<span class="sub">盘后快照</span></div>
+    <div id="flowBox" style="font-size:13px;color:var(--sub)">（无数据）</div>
+  </div>
+</div>
 
 <div class="section-t">大盘环境（快照）</div>
 <div class="snap" id="snap"></div>
 
+<div class="section-t">预警记录</div>
+<div class="alert-log" id="alertLog"><div class="ai">（暂无预警；点击右上角「开启预警」授权浏览器通知，破止损/到价将弹窗+此处记录）</div></div>
+
 <footer>
-  数据：持仓数量/成本来自 <code>holdings.json</code>（腾讯自选股组合同步）；实时价经腾讯财经 qt.gtimg.cn（JSONP）在浏览器端每 5 秒拉取，不经任何境外 CDN。<br>
+  实时价经腾讯财经 qt.gtimg.cn（JSONP）在浏览器端每 5 秒拉取，RSI(7) 经东方财富 K 线、涨停板经东方财富行情接口计算，均不经任何境外 CDN。<br>
   红涨绿跌（A股惯例）。本页为辅助盯盘工具，非投资建议；盘后/休市显示最近收盘价。
 </footer>
 
 <script>
 const ACC_LABEL = {galaxy:"银河证券", eastmoney:"东方财富证券", csc:"中信建投", tencent:"腾讯自选股（模拟交易）"};
 const IDX = [
-  {code:"000001", name:"上证"},
-  {code:"399001", name:"深证"},
-  {code:"399006", name:"创业板"},
-  {code:"000688", name:"科创50"}
+  {tcode:"sh000001", name:"上证"},
+  {tcode:"sz399001", name:"深证"},
+  {tcode:"sz399006", name:"创业板"},
+  {tcode:"sh000688", name:"科创50"}
 ];
 const POLL_MS = 5000;
-let HOLD = null, SNAP = null, timer = null, running = true, ACCOUNTS = [];
+const RSI_MS = 300000;
+const LU_MS = 30000;
+let HOLD=null, SNAP=null, WATCH=[], timer=null, rsiTimer=null, luTimer=null, running=true, notifOn=false, breachState={};
 
 function tencentCode(code){
   if(!code) return "";
   code = String(code).replace(/^(sh|sz|bj)/i,"");
-  if(/^6/.test(code)) return "sh" + code;
-  if(/^0|^3/.test(code)) return "sz" + code;
-  if(/^8|^4/.test(code)) return "bj" + code;
-  return "sz" + code;
+  if(/^[69]/.test(code)) return "sh"+code;
+  if(/^[03]/.test(code)) return "sz"+code;
+  if(/^[48]/.test(code)) return "bj"+code;
+  return "sz"+code;
 }
-function fmt(n, d=2){ if(n===null||n===undefined||isNaN(n)) return "—"; return Number(n).toLocaleString("zh-CN",{minimumFractionDigits:d, maximumFractionDigits:d}); }
+function secid(code){
+  code = String(code).replace(/^(sh|sz|bj)/i,"");
+  if(/^[69]/.test(code)) return "1."+code;
+  if(/^[03]/.test(code)) return "0."+code;
+  if(/^[48]/.test(code)) return "8."+code;
+  return null;
+}
+function fmt(n,d=2){ if(n===null||n===undefined||isNaN(n)) return "—"; return Number(n).toLocaleString("zh-CN",{minimumFractionDigits:d, maximumFractionDigits:d}); }
 function sgn(n){ return (n>=0?"+":"") + fmt(n); }
-function showErr(msg){
-  const el = document.getElementById("errBox");
-  if(!msg){ el.innerHTML=""; return; }
-  el.innerHTML = '<div class="err">'+msg+'</div>';
+function showErr(msg){ const el=document.getElementById("errBox"); if(!msg){ el.innerHTML=""; return; } el.innerHTML='<div class="err">'+msg+'</div>'; }
+function logAlert(msg){
+  const box=document.getElementById("alertLog");
+  const first=box.querySelector(".ai");
+  if(first && first.textContent.startsWith("（暂无")) box.innerHTML="";
+  const d=document.createElement("div"); d.className="ai"; d.textContent="["+new Date().toLocaleTimeString("zh-CN")+"] "+msg;
+  box.insertBefore(d, box.firstChild);
+  notify("量化盯盘预警", msg);
 }
 
 async function boot(){
   try{
-    const [h, s] = await Promise.all([
+    const [h,s,w] = await Promise.all([
       fetch("./cache/holdings.json").then(r=>r.json()),
-      fetch("./cache/market_snapshot.json").then(r=>r.json()).catch(()=>null)
+      fetch("./cache/market_snapshot.json").then(r=>r.json()).catch(()=>null),
+      fetch("./watchlist.json").then(r=>r.json()).catch(()=>null)
     ]);
-    HOLD = h; SNAP = s;
-    if(!HOLD || !HOLD.positions || !HOLD.positions.length){
-      document.getElementById("grid").innerHTML = '<div class="loading">holdings.json 暂无持仓数据</div>';
+    HOLD=h; SNAP=s; WATCH=(w&&w.watch)||[];
+    if(!HOLD||!HOLD.positions||!HOLD.positions.length){
+      document.getElementById("grid").innerHTML='<div class="loading">holdings.json 暂无持仓数据</div>';
     } else {
-      buildStatic();
-      renderIdxShell();
-      renderSummaryShell();
-      poll();
-      timer = setInterval(poll, POLL_MS);
+      buildStatic(); renderIdxShell(); renderSummaryShell(); renderWatchShell();
+      poll(); timer=setInterval(poll, POLL_MS);
+      loadRSI(); rsiTimer=setInterval(loadRSI, RSI_MS);
+      loadLimitUp(); luTimer=setInterval(loadLimitUp, LU_MS);
     }
   }catch(e){
-    document.getElementById("grid").innerHTML = '<div class="loading">加载失败：' + e.message + '<br>请通过 GitHub Pages 访问（file:// 下无法读取本地 JSON）。</div>';
+    document.getElementById("grid").innerHTML='<div class="loading">加载失败：'+e.message+'<br>请通过 GitHub Pages 访问（file:// 下无法读取本地 JSON）。</div>';
   }
-  document.getElementById("toggleBtn").onclick = ()=>{
-    running = !running;
-    document.getElementById("toggleBtn").textContent = running ? "暂停" : "继续";
-    document.getElementById("statusDot").className = running ? "dot" : "dot off";
-    if(running){ poll(); timer = setInterval(poll, POLL_MS); }
-    else { clearInterval(timer); document.getElementById("statusTxt").textContent = "已暂停"; }
+  document.getElementById("toggleBtn").onclick=()=>{
+    running=!running;
+    document.getElementById("toggleBtn").textContent=running?"暂停":"继续";
+    document.getElementById("statusDot").className=running?"dot":"dot off";
+    if(running){ poll(); timer=setInterval(poll,POLL_MS); loadLimitUp(); luTimer=setInterval(loadLimitUp,LU_MS); }
+    else { clearInterval(timer); clearInterval(luTimer); document.getElementById("statusTxt").textContent="已暂停"; }
   };
-  document.getElementById("refreshBtn").onclick = poll;
+  document.getElementById("refreshBtn").onclick=poll;
+  document.getElementById("notifBtn").onclick=enableNotif;
 }
 
 function buildStatic(){
-  ACCOUNTS = [];
-  HOLD.positions.forEach(p=>{ if(!ACCOUNTS.includes(p.account)) ACCOUNTS.push(p.account); });
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
+  const grid=document.getElementById("grid"); grid.innerHTML="";
   HOLD.positions.forEach(p=>{
-    const stopPx = (p.avg_cost * (1 - (p.stop||0))).toFixed(2);
-    const el = document.createElement("div");
-    el.className = "pos"; el.id = "pos-"+p.code+"-"+p.account;
-    el.innerHTML = `
-      <div class="top"><span><span class="nm">${p.name}</span> <span class="cd">${p.code}</span></span><span class="acc">${ACC_LABEL[p.account]||p.account}</span></div>
+    const stopPx=(p.avg_cost*(1-(p.stop||0))).toFixed(2);
+    const el=document.createElement("div"); el.className="pos"; el.id="pos-"+p.code+"-"+p.account;
+    el.innerHTML=`<div class="top"><span><span class="nm">${p.name}</span> <span class="cd">${p.code}</span></span><span class="acc">${ACC_LABEL[p.account]||p.account}</span></div>
       <div class="px" id="px-${p.code}-${p.account}">—</div>
       <div class="chg" id="chg-${p.code}-${p.account}">—</div>
       <div class="rows">
@@ -160,138 +207,191 @@ function buildStatic(){
       <div class="stop">止损线 ${stopPx}（-${((p.stop||0)*100).toFixed(0)}%） <span id="br-${p.code}-${p.account}"></span></div>`;
     grid.appendChild(el);
   });
+  document.getElementById("posSub").textContent="共 "+HOLD.positions.length+" 只 · 三账户合并展示";
   if(SNAP){
-    let html = "";
-    const a = SNAP.a_indexes;
-    if(a) html += "指数：" + a.map(x=>`<b>${x.name}</b> ${fmt(x.value)} (${x.chg>=0?"+":""}${x.chg}%)`).join("　");
-    const b = SNAP.market_breadth;
-    if(b) html += `<br><br>涨跌家数 <b>${fmt(b.up,0)}</b> / <b>${fmt(b.down,0)}</b>　涨停 <b class="up">${b.limit_up}</b>　跌停 <b class="down">${b.limit_down}</b>　成交额 <b>${b.amount}</b> 亿`;
-    const sf = SNAP.sector_flow;
-    if(sf && sf.in){
-      html += `<br><br>主力流入 TOP：<div class="seclist">` + sf.in.slice(0,6).map(x=>`<span class="sector">${x.name} <span class="up">+${fmt(x.net,1)}亿</span></span>`).join("") + `</div>`;
-    }
-    if(SNAP.updated_at) html += `<br><br><span style="color:var(--sub)">快照时间：${SNAP.updated_at}</span>`;
-    document.getElementById("snap").innerHTML = html || "（无快照数据）";
+    let html="";
+    const a=SNAP.a_indexes; if(a) html+="指数："+a.map(x=>`<b>${x.name}</b> ${fmt(x.value)} (${x.chg>=0?"+":""}${x.chg}%)`).join("　");
+    const b=SNAP.market_breadth;
+    if(b) html+=`<br><br>涨跌家数 <b>${fmt(b.up,0)}</b> / <b>${fmt(b.down,0)}</b>　涨停 <b class="up">${b.limit_up}</b>　跌停 <b class="down">${b.limit_down}</b>　成交额 <b>${b.amount}</b> 亿`;
+    if(SNAP.updated_at) html+=`<br><br><span style="color:var(--sub)">快照时间：${SNAP.updated_at}</span>`;
+    document.getElementById("snap").innerHTML=html||"（无快照数据）";
   }
 }
-
+function renderWatchShell(){
+  const grid=document.getElementById("watchGrid");
+  if(!WATCH.length){ grid.innerHTML='<div class="loading">watchlist.json 无自选（可在仓库根创建 watchlist.json）</div>'; return; }
+  grid.innerHTML="";
+  WATCH.forEach(w=>{
+    const el=document.createElement("div"); el.className="pos watch"; el.id="w-"+w.code;
+    el.innerHTML=`<div class="top"><span><span class="nm">${w.name||w.code}</span> <span class="cd">${w.code}</span></span></div>
+      <div class="px" id="wpx-${w.code}">—</div>
+      <div class="chg" id="wchg-${w.code}">—</div>
+      <div class="note" id="wnote-${w.code}"></div>`;
+    grid.appendChild(el);
+  });
+  document.getElementById("watchSub").textContent="共 "+WATCH.length+" 只";
+}
 function renderIdxShell(){
-  const row = document.getElementById("idxRow");
-  row.innerHTML = IDX.map(x=>`<div class="idx"><div class="n">${x.name}</div><div class="v" id="idx-${x.code}">—</div></div>`).join("");
+  document.getElementById("idxRow").innerHTML=IDX.map(x=>`<div class="idx"><div class="n">${x.name}</div><div class="v" id="idx-${x.tcode}">—</div></div>`).join("");
 }
 function renderSummaryShell(){
-  const accs = ACCOUNTS;
-  const cards = accs.map(a=>`<div class="sum"><div class="lab">${ACC_LABEL[a]}</div>
-      <div class="big" id="sa-mv-${a}">—</div>
-      <div class="chg" id="sa-td-${a}">当日 —</div>
-      <div class="chg" id="sa-tp-${a}">总 —</div></div>`).join("");
-  document.getElementById("summary").innerHTML = cards + `<div class="sum"><div class="lab">合计</div>
-      <div class="big" id="sa-mv-all">—</div>
-      <div class="chg" id="sa-td-all">当日 —</div>
-      <div class="chg" id="sa-tp-all">总 —</div></div>`;
+  const accs=[...new Set(HOLD.positions.map(p=>p.account))];
+  const cards=accs.map(a=>`<div class="sum"><div class="lab">${ACC_LABEL[a]||a}</div><div class="big" id="sa-mv-${a}">—</div><div class="chg" id="sa-td-${a}">当日 —</div><div class="chg" id="sa-tp-${a}">总 —</div></div>`).join("");
+  document.getElementById("summary").innerHTML=cards+`<div class="sum"><div class="lab">合计</div><div class="big" id="sa-mv-all">—</div><div class="chg" id="sa-td-all">当日 —</div><div class="chg" id="sa-tp-all">总 —</div></div>`;
 }
 
 function fetchQuotes(codes){
   return new Promise(resolve=>{
-    const cb = "__txcb_" + Date.now() + "_" + Math.floor(Math.random()*1e6);
-    const s = document.createElement("script");
-    const url = "https://qt.gtimg.cn/q=" + encodeURIComponent(codes.join(",")) + "&r=" + cb + "&_=" + Date.now();
-    let done = false;
-    window[cb] = function(){};
-    s.src = url;
-    s.onload = function(){
-      if(done) return; done = true;
+    const cb="__txcb_"+Date.now()+"_"+Math.floor(Math.random()*1e6);
+    const s=document.createElement("script");
+    const url="https://qt.gtimg.cn/q="+encodeURIComponent(codes.join(","))+"&r="+cb+"&_="+Date.now();
+    let done=false; window[cb]=function(){};
+    s.src=url;
+    s.onload=function(){
+      if(done) return; done=true;
       try{
-        const map = {};
+        const map={};
         codes.forEach(c=>{
-          const key = "v_" + c.toLowerCase();
-          const str = window[key];
-          if(typeof str === "string"){
-            const parts = str.replace(/^"|"$/g,"").split("~");
-            if(parts.length >= 34){
-              map[c.replace(/^(sh|sz|bj)/i,"")] = {
-                name: parts[1],
-                price: Number(parts[3]),
-                prev: Number(parts[4]),
-                open: Number(parts[5]),
-                chg: Number(parts[32]),
-                pct: Number(parts[33])
-              };
+          const str=window["v_"+c.toLowerCase()];
+          if(typeof str==="string"){
+            const parts=str.replace(/^"|"$/g,"").split("~");
+            if(parts.length>=34){
+              map[c]={ name:parts[1], price:Number(parts[3]), prev:Number(parts[4]), open:Number(parts[5]), high:Number(parts[33]), low:Number(parts[34]), chg:Number(parts[31]), pct:Number(parts[32]) };
             }
           }
-          try{ delete window[key]; }catch(e){}
+          try{ delete window["v_"+c.toLowerCase()]; }catch(e){}
         });
         resolve(map);
       }catch(e){ showErr("行情解析失败："+e.message); resolve({}); }
       delete window[cb]; s.remove();
     };
-    s.onerror = function(){ if(done) return; done = true; showErr("行情接口加载失败，请检查网络/是否使用 https 访问。"); delete window[cb]; s.remove(); resolve({}); };
+    s.onerror=function(){ if(done) return; done=true; showErr("行情接口加载失败，请检查网络/是否用 https 访问。"); delete window[cb]; s.remove(); resolve({}); };
     document.head.appendChild(s);
-    setTimeout(()=>{ if(!done){ done = true; showErr("行情请求超时（4秒）。"); delete window[cb]; s.remove(); resolve({}); } }, 4000);
+    setTimeout(()=>{ if(!done){ done=true; showErr("行情请求超时（4秒）。"); delete window[cb]; s.remove(); resolve({}); } },4000);
   });
 }
 
 async function poll(){
   if(!HOLD) return;
-  const posCodes = HOLD.positions.map(p=>tencentCode(p.code));
-  const idxCodes = IDX.map(x=>tencentCode(x.code));
-  const allCodes = [...new Set(posCodes.concat(idxCodes))];
-  const map = await fetchQuotes(allCodes);
-  updatePrices(map);
-  IDX.forEach(x=>{
-    const c = tencentCode(x.code);
-    const d = map[c.replace(/^(sh|sz|bj)/i,"")];
-    const el = document.getElementById("idx-"+x.code);
-    if(d && !isNaN(d.price)){ el.textContent = fmt(d.price); el.className = "v " + (d.pct>=0?"up":"down"); }
-  });
-  document.getElementById("statusDot").className = "dot";
-  document.getElementById("statusTxt").textContent = "实时";
-  document.getElementById("updTime").textContent = "更新 " + new Date().toLocaleTimeString("zh-CN");
+  const posCodes=HOLD.positions.map(p=>tencentCode(p.code));
+  const idxCodes=IDX.map(x=>x.tcode);
+  const watchCodes=WATCH.map(w=>tencentCode(w.code));
+  const allCodes=[...new Set([...posCodes,...idxCodes,...watchCodes])];
+  const map=await fetchQuotes(allCodes);
+  updatePositions(map);
+  updateWatch(map);
+  IDX.forEach(x=>{ const d=map[x.tcode]; const el=document.getElementById("idx-"+x.tcode); if(d&&!isNaN(d.price)){ el.textContent=fmt(d.price); el.className="v "+(d.pct>=0?"up":"down"); } });
+  document.getElementById("statusDot").className="dot";
+  document.getElementById("statusTxt").textContent="实时";
+  document.getElementById("updTime").textContent="更新 "+new Date().toLocaleTimeString("zh-CN");
 }
 
-function updatePrices(map){
-  const accAgg = {};
-  let allMv=0, allTd=0, allTp=0;
+function updatePositions(map){
+  const accAgg={}; let allMv=0,allTd=0,allTp=0;
   HOLD.positions.forEach(p=>{
-    const c = tencentCode(p.code);
-    const d = map[c.replace(/^(sh|sz|bj)/i,"")];
-    const el = document.getElementById("pos-"+p.code+"-"+p.account);
-    if(!d || isNaN(d.price)){ return; }
-    const price = d.price, chg = d.chg, pct = d.pct;
-    const mv = price * p.quantity;
-    const td = chg * p.quantity;
-    const tp = (price - p.avg_cost) * p.quantity;
-    const tpp = p.avg_cost>0 ? tp / (p.avg_cost * p.quantity) * 100 : 0;
-    const cls = pct>=0 ? "up" : "down";
-    document.getElementById("px-"+p.code+"-"+p.account).textContent = fmt(price);
-    document.getElementById("px-"+p.code+"-"+p.account).className = "px " + cls;
-    document.getElementById("chg-"+p.code+"-"+p.account).innerHTML = `<span class="${cls}">${sgn(pct)}%　${sgn(chg)}</span>`;
-    document.getElementById("mv-"+p.code+"-"+p.account).textContent = fmt(mv);
-    const tdEl = document.getElementById("td-"+p.code+"-"+p.account);
-    tdEl.textContent = sgn(td); tdEl.className = "val " + (td>=0?"up":"down");
-    const tpEl = document.getElementById("tp-"+p.code+"-"+p.account);
-    tpEl.textContent = sgn(tp); tpEl.className = "val " + (tp>=0?"up":"down");
-    const tppEl = document.getElementById("tpp-"+p.code+"-"+p.account);
-    tppEl.textContent = sgn(tpp)+"%"; tppEl.className = "val " + (tp>=0?"up":"down");
-    const stopPx = p.avg_cost * (1 - (p.stop||0));
-    const breached = price <= stopPx;
-    el.classList.toggle("breach", breached);
-    document.getElementById("br-"+p.code+"-"+p.account).innerHTML = breached ? '<span class="flag">破止损</span>' : "";
-    const a = p.account;
-    if(!accAgg[a]) accAgg[a] = {mv:0, td:0, tp:0};
-    accAgg[a].mv += mv; accAgg[a].td += td; accAgg[a].tp += tp;
-    allMv += mv; allTd += td; allTp += tp;
+    const c=tencentCode(p.code); const d=map[c];
+    const el=document.getElementById("pos-"+p.code+"-"+p.account);
+    if(!d||isNaN(d.price)) return;
+    const price=d.price, chg=d.chg, pct=d.pct;
+    const mv=price*p.quantity, td=chg*p.quantity, tp=(price-p.avg_cost)*p.quantity;
+    const tpp=p.avg_cost>0?tp/(p.avg_cost*p.quantity)*100:0;
+    const cls=pct>=0?"up":"down";
+    document.getElementById("px-"+p.code+"-"+p.account).textContent=fmt(price);
+    document.getElementById("px-"+p.code+"-"+p.account).className="px "+cls;
+    document.getElementById("chg-"+p.code+"-"+p.account).innerHTML=`<span class="${cls}">${sgn(pct)}%　${sgn(chg)}</span>`;
+    document.getElementById("mv-"+p.code+"-"+p.account).textContent=fmt(mv);
+    const tdEl=document.getElementById("td-"+p.code+"-"+p.account); tdEl.textContent=sgn(td); tdEl.className="val "+(td>=0?"up":"down");
+    const tpEl=document.getElementById("tp-"+p.code+"-"+p.account); tpEl.textContent=sgn(tp); tpEl.className="val "+(tp>=0?"up":"down");
+    const tppEl=document.getElementById("tpp-"+p.code+"-"+p.account); tppEl.textContent=sgn(tpp)+"%"; tppEl.className="val "+(tp>=0?"up":"down");
+    const stopPx=p.avg_cost*(1-(p.stop||0));
+    const breached=price<=stopPx;
+    el.classList.toggle("breach",breached);
+    document.getElementById("br-"+p.code+"-"+p.account).innerHTML=breached?'<span class="flag">破止损</span>':"";
+    const key=p.code+"-"+p.account;
+    if(breached && !breachState[key]){ breachState[key]=true; logAlert("破止损："+p.name+"("+p.code+") 现价 "+fmt(price)+" ≤ 止损线 "+fmt(stopPx)); }
+    else if(!breached) breachState[key]=false;
+    const a=p.account; if(!accAgg[a]) accAgg[a]={mv:0,td:0,tp:0};
+    accAgg[a].mv+=mv; accAgg[a].td+=td; accAgg[a].tp+=tp; allMv+=mv; allTd+=td; allTp+=tp;
   });
-  ACCOUNTS.forEach(a=>{
-    const g = accAgg[a] || {mv:0,td:0,tp:0};
-    const mvEl = document.getElementById("sa-mv-"+a); if(mvEl) mvEl.textContent = fmt(g.mv);
-    const tdEl = document.getElementById("sa-td-"+a); if(tdEl){ tdEl.textContent = "当日 "+sgn(g.td); tdEl.className="chg "+(g.td>=0?"up":"down"); }
-    const tpEl = document.getElementById("sa-tp-"+a); if(tpEl){ tpEl.textContent = "总 "+sgn(g.tp); tpEl.className="chg "+(g.tp>=0?"up":"down"); }
+  [...new Set(HOLD.positions.map(p=>p.account))].forEach(a=>{
+    const g=accAgg[a]||{mv:0,td:0,tp:0};
+    const mvEl=document.getElementById("sa-mv-"+a); if(mvEl) mvEl.textContent=fmt(g.mv);
+    const tdEl=document.getElementById("sa-td-"+a); if(tdEl){ tdEl.textContent="当日 "+sgn(g.td); tdEl.className="chg "+(g.td>=0?"up":"down"); }
+    const tpEl=document.getElementById("sa-tp-"+a); if(tpEl){ tpEl.textContent="总 "+sgn(g.tp); tpEl.className="chg "+(g.tp>=0?"up":"down"); }
   });
-  const amv = document.getElementById("sa-mv-all"); if(amv) amv.textContent = fmt(allMv);
-  const atd = document.getElementById("sa-td-all"); if(atd){ atd.textContent = "当日 "+sgn(allTd); atd.className="chg "+(allTd>=0?"up":"down"); }
-  const atp = document.getElementById("sa-tp-all"); if(atp){ atp.textContent = "总 "+sgn(allTp); atp.className="chg "+(allTp>=0?"up":"down"); }
+  const amv=document.getElementById("sa-mv-all"); if(amv) amv.textContent=fmt(allMv);
+  const atd=document.getElementById("sa-td-all"); if(atd){ atd.textContent="当日 "+sgn(allTd); atd.className="chg "+(allTd>=0?"up":"down"); }
+  const atp=document.getElementById("sa-tp-all"); if(atp){ atp.textContent="总 "+sgn(allTp); atp.className="chg "+(allTp>=0?"up":"down"); }
 }
+function updateWatch(map){
+  WATCH.forEach(w=>{
+    const c=tencentCode(w.code); const d=map[c];
+    const pxEl=document.getElementById("wpx-"+w.code); if(!pxEl) return;
+    if(!d||isNaN(d.price)){ pxEl.textContent="—"; return; }
+    const cls=d.pct>=0?"up":"down";
+    pxEl.textContent=fmt(d.price); pxEl.className="px "+cls;
+    document.getElementById("wchg-"+w.code).innerHTML=`<span class="${cls}">${sgn(d.pct)}%　${sgn(d.chg)}</span>`;
+    let note="";
+    if(w.alert_up&&d.price>=w.alert_up) note+='<span class="flag">到价买</span> ';
+    if(w.alert_down&&d.price<=w.alert_down) note+='<span class="flag">到价卖</span> ';
+    const nEl=document.getElementById("wnote-"+w.code); if(nEl) nEl.innerHTML=note;
+    const key="w-"+w.code;
+    if(w.alert_up&&d.price>=w.alert_up&&!breachState[key]){ breachState[key]=true; logAlert("到价买："+w.name+"("+w.code+") 现价 "+fmt(d.price)+" ≥ "+fmt(w.alert_up)); }
+    else if(!(w.alert_up&&d.price>=w.alert_up)) breachState[key]=false;
+  });
+}
+
+function rsi7(closes){
+  if(closes.length<8) return null;
+  const gains=[],losses=[];
+  for(let i=1;i<closes.length;i++){ const d=closes[i]-closes[i-1]; gains.push(d>0?d:0); losses.push(d<0?-d:0); }
+  let ag=gains.slice(0,7).reduce((a,b)=>a+b,0)/7, al=losses.slice(0,7).reduce((a,b)=>a+b,0)/7;
+  for(let i=7;i<gains.length;i++){ ag=(ag*6+gains[i])/7; al=(al*6+losses[i])/7; }
+  if(al===0) return 100;
+  return 100-100/(1+ag/al);
+}
+async function fetchRSI(code){
+  const sid=secid(code); if(!sid) return null;
+  const url=`https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${sid}&fields1=f1,f2,f3&fields2=f51,f53&klt=101&fqt=1&end=20500101&lmt=40`;
+  try{ const r=await fetch(url); if(!r.ok) return null; const j=await r.json(); const kl=j&&j.data&&j.data.klines; if(!kl||!kl.length) return null; const closes=kl.map(s=>parseFloat(s.split(",")[1])).filter(n=>!isNaN(n)); return rsi7(closes); }
+  catch(e){ return null; }
+}
+async function loadRSI(){
+  const rows=[...HOLD.positions, ...WATCH.map(w=>({code:w.code,name:w.name||w.code}))];
+  const seen={}; const uniq=rows.filter(p=>{ if(seen[p.code]) return false; seen[p.code]=1; return true; });
+  const tb=document.querySelector("#rsiTable tbody"); tb.innerHTML="";
+  await Promise.all(uniq.map(async p=>{
+    const v=await fetchRSI(p.code);
+    const tr=document.createElement("tr");
+    let st="—", sc="var(--sub)";
+    if(v!==null){ if(v>=70){st="超买";sc="var(--up)";} else if(v<=30){st="超卖";sc="var(--down)";} else {st="中性";sc="var(--txt)";} }
+    tr.innerHTML=`<td class="l">${p.name}</td><td>${p.code}</td><td style="color:${v===null?'var(--sub)':'var(--txt)'}">${v===null?'—':v.toFixed(1)}</td><td style="color:${sc}">${st}</td>`;
+    tb.appendChild(tr);
+  }));
+}
+
+async function loadLimitUp(){
+  const url="https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=200&po=1&np=1&fltt=2&invt=2&fid=f3&fs=m:0+t:80+m:1+t:80&fields=f12,f14,f2,f3,f62";
+  try{
+    const r=await fetch(url); const j=await r.json();
+    const diff=(j&&j.data&&j.data.diff)||[];
+    document.getElementById("luCount").innerHTML=`当前涨停 <b class="up" style="font-size:16px">${diff.length}</b> 只`;
+    document.getElementById("luList").innerHTML=diff.slice(0,18).map(x=>`<div class="lu"><div class="lu-n">${x.f14}</div><div class="lu-c">${x.f12}　<span class="up">+${fmt(x.f3)}%</span>　主力 ${fmt((x.f62||0)/1e8,1)}亿</div></div>`).join("");
+    document.getElementById("luSub").textContent="实时 · "+new Date().toLocaleTimeString("zh-CN");
+  }catch(e){
+    document.getElementById("luCount").innerHTML='<span style="color:var(--up)">涨停板获取失败（接口限流/CORS）</span>';
+  }
+}
+
+function enableNotif(){
+  if(!("Notification" in window)){ alert("当前浏览器不支持通知"); return; }
+  Notification.requestPermission().then(p=>{
+    notifOn=(p==="granted");
+    document.getElementById("notifBtn").textContent=notifOn?"预警已开 ✓":"开启预警";
+    if(notifOn) logAlert("预警已开启");
+  });
+}
+function notify(title,body){ if(notifOn&&"Notification" in window&&Notification.permission==="granted"){ try{ new Notification(title,{body}); }catch(e){} } }
 
 boot();
 </script>

@@ -27,7 +27,7 @@ mkdir -p "$REPO/cache"
 # ---------- 部署：提交并推送到远端（让 GitHub Pages 实时更新） ----------
 deploy() {
   cd "$REPO" || return 1
-  git add index.html cache/*.json scripts/scan_a_shares.py 2>/dev/null
+  git add index.html live.html watchlist.json cache/*.json scripts/scan_a_shares.py 2>/dev/null
   if git diff --cached --quiet; then
     echo "$(date '+%F %T') [deploy] nothing to commit" >> "$LOG"
     return 0
