@@ -1913,8 +1913,8 @@ def _index_quote_bar(items, label):
         </div>'''
 
 
-def _section_ashare(snap, us_quotes, overnight):
-    """A股大盘行情：页眉 + 指数行情条 + HERO指数大卡 + 市场情绪 + 板块强弱 + 指数K线。"""
+def _section_ashare(snap, us_quotes, overnight, a_news=None):
+    """A股大盘行情：页眉 + 指数行情条 + HERO指数大卡 + 市场情绪 + 板块强弱 + 指数K线 + 新闻热点。"""
     a_idx = snap.get("a_indexes", []) or []
     head = _screen_head("A股大盘行情", "核心指数 · 市场情绪 · 板块强弱 · 指数K线", _session('a')[0])
     idx_bar = _index_quote_bar(a_idx, "核心指数")
@@ -1924,11 +1924,12 @@ def _section_ashare(snap, us_quotes, overnight):
         {_sector_strength_card(snap, topn=10)}
     '''
     idx_kline = _section_index_kline()     # 指数K线（分时 + 日K）
-    return head + idx_bar + hero + blocks + idx_kline
+    a_news_card = _news_hotspot_card(a_news, "A股财经新闻热点汇总", "mx-ds-mcp") if a_news else ""
+    return head + idx_bar + hero + blocks + idx_kline + a_news_card
 
 
 # ----------------------------------------------------------------- 重排后：美股行情映射 面板（美股隔夜 + 美股→A股传导）
-def _section_us_map(snap, us_quotes, overnight, kr_quotes=None, cfg=None, macro_data=None):
+def _section_us_map(snap, us_quotes, overnight, kr_quotes=None, cfg=None, macro_data=None, global_news=None):
     """全球行情：仿A股板块结构（HERO指数 → 市场情绪 → 板块强弱 → K线 → 韩国 → 传导）。
     Args:
         snap: market_snapshot
@@ -1958,7 +1959,8 @@ def _section_us_map(snap, us_quotes, overnight, kr_quotes=None, cfg=None, macro_
         </div>'''
     us_index_kline = _section_us_index_kline()
     transmit = _section_transmit(overnight, us_quotes)
-    return head + idx_bar + hero + grid2 + grid + us_index_kline + transmit
+    g_news_card = _news_hotspot_card(global_news, "全球财经新闻热点汇总", "mx-ds-mcp") if global_news else ""
+    return head + idx_bar + hero + grid2 + grid + us_index_kline + transmit + g_news_card
 
 
 # US sector ETF K线数据
@@ -4955,6 +4957,43 @@ def _macro_card(macro_data):
         </div>'''
 
 
+def _news_hotspot_card(news, title, badge):
+    """A股/全球 财经新闻热点汇总卡（真实数据源：东方财富妙想 mx-ds-mcp 新闻研报）。
+    news 结构：{asof, source, headlines:[{title,source,time}], analysis:{title,subtitle,points:[{h,d}],conclusion}}。"""
+    if not isinstance(news, dict):
+        return ""
+    asof = news.get("asof", "")
+    src = news.get("source", "东方财富妙想(mx-ds-mcp) 新闻研报")
+    heads = news.get("headlines") or []
+    an = news.get("analysis") or {}
+    head_items = "".join(
+        f'<li><span class="nh-t">{_escape_js(h.get("title", ""))}</span>'
+        f'<span class="nh-m">{_escape_js(h.get("source", ""))} · {_escape_js(str(h.get("time", "")))}</span></li>'
+        for h in heads[:6]
+    )
+    analysis_html = ""
+    if an.get("title"):
+        pts = "".join(
+            f'<div class="np"><div class="np-h">{_escape_js(p.get("h", ""))}</div>'
+            f'<div class="np-d">{_escape_js(p.get("d", ""))}</div></div>'
+            for p in (an.get("points") or [])
+        )
+        concl = an.get("conclusion", "")
+        concl_html = f'<div class="np-concl">{_escape_js(concl)}</div>' if concl else ""
+        analysis_html = (
+            f'<div class="news-analysis"><div class="na-head">{_escape_js(an.get("title", ""))}</div>'
+            f'<div class="na-sub">{_escape_js(an.get("subtitle", ""))}</div>{pts}{concl_html}</div>'
+        )
+    return f'''
+        <div class="card card-full">
+            <div class="card-title"><span class="icon"><i class="fas fa-newspaper"></i></span> {title}
+                <span class="badge">{badge}</span>
+                <span class="click-hint">{_escape_js(src)} · 截至 {_escape_js(str(asof))}</span></div>
+            <ul class="news-head">{head_items}</ul>
+            {analysis_html}
+        </div>'''
+
+
 def _limitup_summary_bar(limit_up):
     """③ 涨停连板梯队概览条。"""
     real = [x for x in (limit_up or []) if isinstance(x, dict) and "error" not in x]
@@ -5013,34 +5052,28 @@ def _tencent_quotes_mcap(codes):
     return out
 
 
-def _fetch_sector_contrib(sector_constituents, top_n=5):
-    """④ 板块成分股实时贡献度（真实数据源：腾讯实时行情，市值加权贡献）。
-    返回 {sector: {'sector_change', 'top':[{name,code,change_pct,weight,contrib}], 'bottom':[...], 'count'}}。
-    贡献度 = 个股权重(市值/板块总市值) × 个股涨跌幅；求和≈板块涨跌幅。"""
+def _fetch_sector_contrib(sector_constituents=None, top_n=5):
+    """④ 板块成分股实时贡献度（真实数据源：东方财富妙想 mx-ds-mcp 个股总市值+涨跌幅，市值加权）。
+    数据读取 cache/sector_contrib_mx.json（由 mx-ds-mcp 取数缓存，截至 2026-08-14）；
+    缺则优雅降级为空（卡片回退成分股名单）。贡献度 = 个股权重(市值/板块总市值) × 个股涨跌幅。"""
+    mx = _load_cache("sector_contrib_mx") or {}
+    members = mx.get("members") or {}
+    sectors = mx.get("sectors") or {}
     out = {}
-    if not isinstance(sector_constituents, dict):
+    if not members or not sectors:
         return out
-    for nm, cons in list(sector_constituents.items())[:top_n]:
-        if not cons:
-            continue
-        codes, namemap = [], {}
-        for c in cons:
-            if not isinstance(c, dict):
-                continue
-            tc = _tencent_code_from_raw(c.get("code"))
-            if tc:
-                codes.append(tc)
-                namemap[tc] = c.get("name") or c.get("code")
-        if not codes:
-            continue
-        q = _tencent_quotes_mcap(codes)
+    for nm in list(sectors.keys())[:top_n]:
+        codes = sectors.get(nm) or []
         rows = []
-        for tc, v in q.items():
-            cp = v.get("change_pct")
-            mc = v.get("mcap_yi")
+        for code in codes:
+            m = members.get(code)
+            if not isinstance(m, dict):
+                continue
+            cp = m.get("change_pct")
+            mc = m.get("mcap_yi")
             if cp is None or mc is None:
                 continue
-            rows.append({"name": namemap.get(tc, v.get("name")), "code": tc,
+            rows.append({"name": m.get("name", code), "code": code,
                          "change_pct": cp, "mcap_yi": mc})
         tot = sum(r["mcap_yi"] for r in rows)
         if tot <= 0 or not rows:
@@ -5096,8 +5129,8 @@ def _sector_constituents_card(sector_constituents, sector_contrib=None):
     return f'''
         <div class="card card-full">
             <div class="card-title"><span class="icon"><i class="fas fa-project-diagram"></i></span> 板块成分股贡献度
-                <span class="badge">行业板块 TOP5 · 实时</span>
-                <span class="click-hint">市值加权贡献 · 腾讯实时行情</span></div>
+                <span class="badge">行业板块 TOP5 · mx-ds-mcp</span>
+                <span class="click-hint">市值加权贡献 · 东方财富妙想</span></div>
             <div class="cons-grid">{''.join(parts)}</div>
         </div>'''
 
@@ -5116,8 +5149,11 @@ def build() -> str:
     cfg = _load_cfg()
     # ② 商品/汇率联动真实数据（mx-ds-mcp 缓存，缺则优雅降级为占位）
     macro_data = _load_cache("macro_commodity")
-    # ④ 板块成分股实时贡献度真实数据（腾讯实时行情，市值加权）
+    # ④ 板块成分股实时贡献度真实数据（东方财富妙想 mx-ds-mcp 缓存，市值加权）
     sector_contrib = _fetch_sector_contrib(snap.get("sector_constituents"))
+    # ① A股 / ② 全球 财经新闻热点（mx-ds-mcp 新闻研报缓存，缺则优雅降级为不渲染）
+    a_news = _load_cache("a_news_summary")
+    global_news = _load_cache("global_news_summary")
 
     # 双券商交割单 → 合并持仓（若 data/statements 下有 CSV 则自动聚合；否则回退 strategy.yaml holdings）
     # 注意：若 holdings.json 含权威盈亏快照(account_pnl)，则跳过自动合并，保留手动快照
@@ -5244,8 +5280,8 @@ def build() -> str:
     _sl_cnt = sector_leader.get("sector_count") or 0
 
     nav_items = [
-        ("nav-ashare", "A股大盘行情", "fa-chart-line", _section_ashare(snap, us_quotes, overnight)),
-        ("nav-us", "全球行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight, kr_quotes, cfg, macro_data)),
+        ("nav-ashare", "A股大盘行情", "fa-chart-line", _section_ashare(snap, us_quotes, overnight, a_news)),
+        ("nav-us", "全球行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight, kr_quotes, cfg, macro_data, global_news)),
         ("nav-limitup", "涨停板分析", "fa-arrow-up",
          _screen_head("涨停板分析", "涨停家数 · 封单强度 · 连板梯队 · 次日建仓建议", _lu_badge)
          + _section_limitup(snap)),
@@ -7587,6 +7623,18 @@ function stopSectorLeaderRT(){
 .cons-rn{ flex: 0 0 76px; color: var(--text-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cons-bar-wrap{ flex: 1 1 auto; background: var(--card, rgba(255,255,255,.06)); border-radius: 4px; height: 8px; overflow: hidden; }
 .cons-bar{ display: block; height: 100%; border-radius: 4px; }
+.news-head{ list-style: none; margin: 0; padding: 0; }
+.news-head li{ display: flex; flex-direction: column; gap: 2px; padding: 8px 0; border-bottom: 1px dashed var(--border, rgba(255,255,255,.08)); }
+.news-head li:last-child{ border-bottom: none; }
+.nh-t{ font-size: 13px; color: var(--text-1); line-height: 1.45; }
+.nh-m{ font-size: 11px; color: var(--text-3); }
+.news-analysis{ margin-top: 14px; padding: 14px; border-radius: 10px; background: var(--card2, rgba(255,255,255,.04)); border: 1px solid var(--border, rgba(255,255,255,.08)); }
+.na-head{ font-size: 15px; font-weight: 600; color: var(--text-1); margin-bottom: 2px; }
+.na-sub{ font-size: 11px; color: var(--text-3); margin-bottom: 10px; }
+.np{ margin: 10px 0; }
+.np-h{ font-size: 13px; font-weight: 600; color: var(--accent, #2DD4BF); margin-bottom: 3px; }
+.np-d{ font-size: 12.5px; color: var(--text-2); line-height: 1.65; }
+.np-concl{ margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border, rgba(255,255,255,.1)); font-size: 12.5px; color: var(--text-1); line-height: 1.65; }
 .cons-bar.up{ background: #ef4444; }
 .cons-bar.down{ background: #22c55e; }
 .cons-val{ flex: 0 0 48px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
