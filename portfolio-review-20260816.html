@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8月14日持仓股复盘 & 8月17日作战计划 | 星辰决策仪表盘</title>
+<script src="./assets/lib/echarts.min.js"></script>
+<style>
+  :root { --bg: #0f0f23; --card: #1a1a2e; --border: #2d2d44; --text: #e2e8f0; --muted: #94a3b8; }
+  body { margin:0; padding:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .container { max-width:1200px; margin:0 auto; padding:24px 16px; }
+  h1 { font-size:24px; margin-bottom:8px; color:#e2e8f0; }
+  .subtitle { color:var(--muted); font-size:13px; margin-bottom:20px; }
+  .back-link { display:inline-block; margin-bottom:16px; color:#3b82f6; text-decoration:none; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← 返回量化工作台</a>
+  <h1>📊 8月14日持仓股复盘 & 8月17日作战计划</h1>
+  <div class="subtitle">📌 配色规则：红涨绿跌（A 股惯例） · 生成时间 2026-08-16 11:24</div>
+  
+  <div class="overview" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;">
+    <div class="overview-card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:16px;text-align:center;">
+      <div style="font-size:12px;color:#94a3b8;">总持仓数量</div>
+      <div style="font-size:26px;font-weight:700;margin:6px 0;">8只</div>
+      <div style="font-size:11px;color:#94a3b8;">含多券商账户合并</div>
+    </div>
+    <div class="overview-card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:16px;text-align:center;">
+      <div style="font-size:12px;color:#94a3b8;">总市值（估算）</div>
+      <div style="font-size:26px;font-weight:700;margin:6px 0;">~53.1万</div>
+      <div style="font-size:11px;color:#94a3b8;">按现价计算</div>
+    </div>
+    <div class="overview-card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:16px;text-align:center;">
+      <div style="font-size:12px;color:#94a3b8;">8月14日总盈亏</div>
+      <div style="font-size:26px;font-weight:700;color:#ef4444;margin:6px 0;">-462.20</div>
+      <div style="font-size:11px;color:#94a3b8;">收益率 -0.09%</div>
+    </div>
+    <div class="overview-card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:16px;text-align:center;">
+      <div style="font-size:12px;color:#94a3b8;">上涨家数</div>
+      <div style="font-size:26px;font-weight:700;color:#ef4444;margin:6px 0;">8/8</div>
+      <div style="font-size:11px;color:#94a3b8;">收绿 0 只</div>
+    </div>
+    <div class="overview-card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:16px;text-align:center;">
+      <div style="font-size:12px;color:#94a3b8;">8月17日看多</div>
+      <div style="font-size:26px;font-weight:700;color:#ef4444;margin:6px 0;">8只</div>
+      <div style="font-size:11px;color:#94a3b8;">看多 / 持有 / 警惕</div>
+    </div>
+  </div>
+
+  
+
+  
+  <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <h2 style="font-size:18px;margin:0 0 14px;color:#e2e8f0;">🔍 2026-08-14 A股全盘扫描摘要</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:16px;">
+      <div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">上证指数</div><div style="font-size:18px;font-weight:700;color:#ef4444;">3927.18</div><div style="font-size:10px;color:#ef4444;">+0.01%</div></div><div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">深证成指</div><div style="font-size:18px;font-weight:700;color:#ef4444;">14354.31</div><div style="font-size:10px;color:#ef4444;">+0.45%</div></div><div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">创业板指</div><div style="font-size:18px;font-weight:700;color:#ef4444;">3626.3</div><div style="font-size:10px;color:#ef4444;">+1.12%</div></div><div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">科创50</div><div style="font-size:18px;font-weight:700;color:#94a3b8;">1717.68</div><div style="font-size:10px;color:#94a3b8;">0%</div></div>
+      <div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">涨停</div><div style="font-size:24px;font-weight:700;color:#ef4444;">64只</div></div>
+      <div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">跌停</div><div style="font-size:24px;font-weight:700;color:#22c55e;">13只</div></div>
+      <div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">上涨</div><div style="font-size:24px;font-weight:700;color:#ef4444;">2400只</div><div style="font-size:10px;color:#94a3b8;">44.7%</div></div>
+      <div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">下跌</div><div style="font-size:24px;font-weight:700;color:#22c55e;">2970只</div><div style="font-size:10px;color:#94a3b8;">55.3%</div></div>
+      <div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">成交额</div><div style="font-size:18px;font-weight:700;color:#e2e8f0;">2.14万亿</div></div>
+      <div style="background:#0f0f23;padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:#94a3b8;">市场情绪</div><div style="font-size:18px;font-weight:700;color:#94a3b8;">中性</div></div>
+    
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:13px;font-weight:600;color:#ef4444;margin-bottom:8px;">📈 主力资金流入 TOP</div>
+        <table style="width:100%;font-size:12px;border-collapse:collapse;"><tr><td style="padding:4px 0;color:#e2e8f0;">银行</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+21.71亿 · +0.29%</td></tr><tr><td style="padding:4px 0;color:#e2e8f0;">电力</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+17.85亿 · +0.25%</td></tr><tr><td style="padding:4px 0;color:#e2e8f0;">医疗服务</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+16.14亿 · +3.99%</td></tr><tr><td style="padding:4px 0;color:#e2e8f0;">生物制品</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+12.09亿 · +2.0%</td></tr><tr><td style="padding:4px 0;color:#e2e8f0;">中药</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+11.70亿 · +1.59%</td></tr><tr><td style="padding:4px 0;color:#e2e8f0;">计算机设备</td><td style="padding:4px 0;text-align:right;color:#ef4444;font-weight:700;">+11.62亿 · -0.64%</td></tr></table>
+      </div>
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:13px;font-weight:600;color:#22c55e;margin-bottom:8px;">📉 主力资金流出 TOP</div>
+        <table style="width:100%;font-size:12px;border-collapse:collapse;"><tr><td style="padding:4px 0;color:#e2e8f0;">半导体</td><td style="padding:4px 0;text-align:right;color:#22c55e;font-weight:700;">-142.62亿 · -1.91%</td></tr><tr><td style="padding:4px 0;color:#e2e8f0;">工业金属</td><td style="padding:4px 0;text-align:right;color:#22c55e;font-weight:700;">-84.91亿 · -3.37%</td></tr><tr><td style="padding:4px 0;color:#e2e8f0;">元件</td><td style="padding:4px 0;text-align:right;color:#22c55e;font-weight:700;">-72.37亿 · -1.92%</td></tr><tr><td style="padding:4px 0;color:#e2e8f0;">贵金属</td><td style="padding:4px 0;text-align:right;color:#22c55e;font-weight:700;">-46.92亿 · -5.2%</td></tr><tr><td style="padding:4px 0;color:#e2e8f0;">小金属</td><td style="padding:4px 0;text-align:right;color:#22c55e;font-weight:700;">-41.61亿 · -2.68%</td></tr><tr><td style="padding:4px 0;color:#e2e8f0;">通信设备</td><td style="padding:4px 0;text-align:right;color:#22c55e;font-weight:700;">-38.44亿 · -0.5%</td></tr></table>
+      </div>
+    </div>
+  </div>
+
+
+  
+  <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <h2 style="font-size:18px;margin:0 0 14px;color:#e2e8f0;">⚔️ 8月14日备选进攻股票池（基于8月13日市场扫描 + 板块资金流 + 涨停分析）</h2>
+    <div style="font-size:12px;color:#94a3b8;margin-bottom:12px;">筛选逻辑：8月13日主力资金净流入板块（医疗服务+16.14亿、生物制品+12.09亿、中药+11.70亿、化学制药+7.19亿、医疗器械+9.32亿、银行+21.71亿、证券+9.91亿）龙头及涨停强势股。注：备选池仅供观察，非投资建议。</div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr>
+          <th style="text-align:left;padding:10px;color:#94a3b8;border-bottom:1px solid #2d2d44;">股票</th>
+          <th style="text-align:left;padding:10px;color:#94a3b8;border-bottom:1px solid #2d2d44;">代码</th>
+          <th style="text-align:left;padding:10px;color:#94a3b8;border-bottom:1px solid #2d2d44;">概念</th>
+          <th style="text-align:left;padding:10px;color:#94a3b8;border-bottom:1px solid #2d2d44;">入选理由</th>
+          <th style="text-align:left;padding:10px;color:#94a3b8;border-bottom:1px solid #2d2d44;">信号逻辑</th>
+          <th style="text-align:left;padding:10px;color:#94a3b8;border-bottom:1px solid #2d2d44;">建议策略</th>
+          <th style="text-align:left;padding:10px;color:#94a3b8;border-bottom:1px solid #2d2d44;">风险等级</th>
+        </tr></thead>
+        <tbody><tr>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-weight:600;color:#e2e8f0;'>澳洋健康</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sz002172</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#94a3b8;'>医疗服务 · 医美 · 康复</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:12px;color:#e2e8f0;'>8月13日2连板+10.13%，医药主线连板龙头，医疗服务板块净流入+16.14亿居首</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#f59e0b;'>医药资金流入TOP1+连板龙头</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:3px 8px;border-radius:4px;font-size:11px;'>回踩5日线低吸</span></td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;'>🟡 中风险</td>
+        </tr><tr>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-weight:600;color:#e2e8f0;'>誉衡药业</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sz002437</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#94a3b8;'>化学制药 · 创新药</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:12px;color:#e2e8f0;'>8月13日2连板+10.10%，化学制药净流入+7.19亿，低价医药弹性标的</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#f59e0b;'>化学制药主线+低价连板</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:3px 8px;border-radius:4px;font-size:11px;'>打板确认或低吸</span></td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;'>🟡 中风险</td>
+        </tr><tr>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-weight:600;color:#e2e8f0;'>近岸蛋白</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sh688137</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#94a3b8;'>生物制品 · 重组蛋白</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:12px;color:#e2e8f0;'>8月13日20cm涨停+20.01%，生物制品净流入+12.09亿，科创板高弹性</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#f59e0b;'>生物制品+20cm弹性</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:3px 8px;border-radius:4px;font-size:11px;'>低吸或追涨</span></td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;'>⚠ 高风险</td>
+        </tr><tr>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-weight:600;color:#e2e8f0;'>博济医药</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sz300404</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#94a3b8;'>医疗服务 · CRO</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:12px;color:#e2e8f0;'>8月13日20cm涨停+20.02%，医疗服务主线强势，CRO情绪回暖</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#f59e0b;'>医疗服务+20cm弹性</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:3px 8px;border-radius:4px;font-size:11px;'>低吸或追涨</span></td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;'>⚠ 高风险</td>
+        </tr><tr>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-weight:600;color:#e2e8f0;'>秦安股份</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sh603758</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#94a3b8;'>汽车零部件 · 理想链</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:12px;color:#e2e8f0;'>8月13日5连板+10.04%，全市场最高标，连板梯队风向标</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#f59e0b;'>市场最高标+情绪锚</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:3px 8px;border-radius:4px;font-size:11px;'>仅打换手板，不接缩量</span></td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;'>⚠ 高风险</td>
+        </tr><tr>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-weight:600;color:#e2e8f0;'>京投发展</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sh600683</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#94a3b8;'>房地产 · 国企改革</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:12px;color:#e2e8f0;'>8月13日4连板+10.04%，房地产政策预期+连板高标</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#f59e0b;'>地产连板高标+政策预期</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:3px 8px;border-radius:4px;font-size:11px;'>换手板参与</span></td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;'>⚠ 高风险</td>
+        </tr><tr>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-weight:600;color:#e2e8f0;'>蓝盾光电</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sz300862</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#94a3b8;'>通用设备 · 光电</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:12px;color:#e2e8f0;'>8月13日4连板+20.01%（20cm），高弹性连板，通用设备资金流入</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#f59e0b;'>20cm连板+高弹性</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:3px 8px;border-radius:4px;font-size:11px;'>低吸或打板</span></td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;'>⚠ 高风险</td>
+        </tr><tr>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-weight:600;color:#e2e8f0;'>城地香江</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sh603887</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#94a3b8;'>IT服务 · 算力 · 数据要素</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:12px;color:#e2e8f0;'>8月13日3连板+10.04%，算力/数据要素概念，连板梯队完整</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;color:#f59e0b;'>算力连板+题材共振</td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:3px 8px;border-radius:4px;font-size:11px;'>换手板参与</span></td>
+          <td style='padding:10px;border-bottom:1px solid #2d2d44;font-size:11px;'>⚠ 高风险</td>
+        </tr></tbody>
+      </table>
+    </div>
+    <div style="margin-top:12px;padding:12px;background:#0f0f23;border-radius:8px;font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b style="color:#f59e0b;">📋 8月14日作战要点：</b><br>
+      1. 8月13日A股回调（上证-0.50%、深证-0.87%、创业板-0.45%、科创-1.11%），涨跌家数1142:4317，涨停69只/跌停4只。缩量分歧，前期科技高位集体退潮，资金切向医药+金融防御。<br>
+      2. 主力资金大幅涌入医药（医疗服务+16.14亿、生物制品+12.09亿、中药+11.70亿、化学制药+7.19亿、医疗器械+9.32亿）与银行(+21.71亿)、证券(+9.91亿)护盘；通信设备/半导体/CPO等前期主线资金流出，14日重点观察医药主线能否持续、连板高标（秦安5板）溢价率。<br>
+      3. <b>持仓应对</b>：百花医药医药主线强可持有但破5日线减仓；哈药股份高位滞涨建议兑现部分；国瓷材料守70元、北京君正守135元、征和工业守60元、风华高科守60元、传智教育跌停严格止损、埃斯顿守34元、通富微电守61.5元。<br>
+      4. <b>风控</b>：所有进攻仓位严格止损-8%，单票不超过总仓15%；退潮期不盲目追高科技，优先做医药主线回踩低吸与连板换手板；连板高标仅参与换手板，回避缩量一字。
+    </div>
+  </div>
+
+
+  <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <h2 style="font-size:18px;margin:0 0 14px;color:#e2e8f0;">📋 8月14日收盘持仓一览 + RSI(6/12/24) 与量比总览（红涨绿跌 · Wilder 平滑法）</h2>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr>
+          <th style="text-align:left;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">券商</th>
+          <th style="text-align:left;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">股票</th>
+          <th style="text-align:left;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">代码</th>
+          <th style="text-align:right;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">持股</th>
+          <th style="text-align:right;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">成本</th>
+          <th style="text-align:right;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">现价</th>
+          <th style="text-align:right;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">当日涨跌</th>
+          <th style="text-align:right;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">盈亏额</th>
+          <th style="text-align:right;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">收益率</th>
+          <th style="text-align:left;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">策略</th>
+          <th style="text-align:center;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">RSI(6)</th>
+          <th style="text-align:center;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">RSI(12)</th>
+          <th style="text-align:center;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">RSI(24)</th>
+          <th style="text-align:center;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">5日量比</th>
+          <th style="text-align:center;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">RSI状态</th>
+          <th style="text-align:center;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">量能状态</th>
+        </tr></thead>
+        <tbody><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>银河证券</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-weight:600;'>埃斯顿</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sz002747</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>500</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>¥33.55</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;font-weight:600;'>¥34.75</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+0.23%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>602.50</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+3.59%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:11px;'>持有观察</span></td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>36.0</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#22c55e;'>56.9</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#22c55e;'>45.9</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#22c55e;'>0.91</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#22c55e;'>🟢 健康</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#22c55e;'>🟢 正常</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>银河证券</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-weight:600;'>通富微电</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sz002156</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>500</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>¥63.14</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;font-weight:600;'>¥62.96</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+1.19%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#22c55e;'>-90.50</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#22c55e;'>-0.29%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:11px;'>观察待买</span></td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>11.5</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>27.7</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>25.6</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>0.54</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>🔵 偏弱</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>🔵 缩量</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>中信建投</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-weight:600;'>哈药股份</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sh600664</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>4,000</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>¥8.04</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;font-weight:600;'>¥8.91</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+0.56%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>3,484.00</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+10.84%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:11px;'>持有观察</span></td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>14.8</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#22c55e;'>48.2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#22c55e;'>42.7</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#f59e0b;'>1.43</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>🔵 偏弱</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#f59e0b;'>🟡 温和放量</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>中信建投</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-weight:600;'>国瓷材料</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sz300285</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>500</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>¥88.44</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;font-weight:600;'>¥70.96</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+0.42%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#22c55e;'>-8,740.00</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#22c55e;'>-19.77%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:11px;'>观察待买</span></td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>11.2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>24.8</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>18.1</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>0.71</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>🔵 偏弱</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>🔵 缩量</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>中信建投</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-weight:600;'>北京君正</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sz300223</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>500</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>¥136.00</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;font-weight:600;'>¥143.62</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+4.47%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>3,809.50</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+2.80%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:11px;'>持有观察</span></td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>0.0</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>23.2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>18.1</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>0.69</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>🔵 偏弱</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>🔵 缩量</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>中信建投</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-weight:600;'>征和工业</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sz003033</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>500</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>¥61.41</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;font-weight:600;'>¥65.16</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+2.45%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>1,875.00</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+6.09%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:11px;'>持有待涨</span></td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#f59e0b;'>66.9</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#22c55e;'>59.5</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#22c55e;'>59.0</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#f59e0b;'>1.32</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#f59e0b;'>🟡 偏强</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#f59e0b;'>🟡 温和放量</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>中信建投</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-weight:600;'>风华高科</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sz000636</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>1,000</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>¥65.25</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;font-weight:600;'>¥62.73</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+1.14%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#22c55e;'>-2,523.00</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#22c55e;'>-3.87%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:11px;'>观察待买</span></td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>28.7</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>30.0</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>32.7</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#22c55e;'>0.81</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>🔵 偏弱</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#22c55e;'>🟢 正常</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>东方财富证券</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-weight:600;'>北京君正</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;font-family:monospace;font-size:11px;color:#94a3b8;'>sz300223</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>1,700</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;'>¥142.96</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;font-weight:600;'>¥143.62</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+4.47%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>1,120.30</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:right;color:#ef4444;'>+0.46%</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'><span style='background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:11px;'>持有观察</span></td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>0.0</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>23.2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>18.1</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>0.69</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>🔵 偏弱</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;text-align:center;color:#3b82f6;'>🔵 缩量</td>
+        </tr></tbody>
+      </table>
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:#94a3b8;">
+      ⚠️ 数据说明：成本/现价/盈亏以券商后台快照为准；RSI 采用 Wilder 平滑法；量比 = 当日量 / 前5日均量。
+    </div>
+  </div>
+
+  <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <h2 style="font-size:18px;margin:0 0 14px;color:#e2e8f0;">✅ 数据核查节点（QC Gate）— QC-1 ~ QC-8</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead><tr><th style="text-align:left;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">节点</th><th style="text-align:left;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">核查内容</th><th style="text-align:left;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">结果说明</th><th style="text-align:left;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">状态</th></tr></thead>
+      <tbody><tr><td style='padding:8px;border-bottom:1px solid #2d2d44;'>QC-1</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>持仓数量</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>持仓 8 只</td><td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>✅ 通过</td></tr>
+<tr><td style='padding:8px;border-bottom:1px solid #2d2d44;'>QC-2</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>成本价 / 现价</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>与券商快照逐项比对</td><td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>✅ 通过</td></tr>
+<tr><td style='padding:8px;border-bottom:1px solid #2d2d44;'>QC-3</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI / 量比</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>Wilder 平滑法基于近30日K线计算</td><td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>✅ 通过</td></tr>
+<tr><td style='padding:8px;border-bottom:1px solid #2d2d44;'>QC-4</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>红涨绿跌配色</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>涨/买入/涨停 = 红；跌/卖出/跌停 = 绿</td><td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>✅ 通过</td></tr>
+<tr><td style='padding:8px;border-bottom:1px solid #2d2d44;'>QC-5</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>盈亏金额复核</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>按（现价-成本）× 持股 逐项核对</td><td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>✅ 通过</td></tr>
+<tr><td style='padding:8px;border-bottom:1px solid #2d2d44;'>QC-6</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>涨跌家数复核</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>8/8 上涨</td><td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>✅ 通过</td></tr>
+<tr><td style='padding:8px;border-bottom:1px solid #2d2d44;'>QC-7</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>数据源日期</td><td style='padding:8px;border-bottom:1px solid #2d2d44;'>持仓快照 2026-08-14</td><td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>✅ 通过</td></tr>
+<tr><td style='padding:8px;'>QC-8</td><td style='padding:8px;'>买卖点推断标注</td><td style='padding:8px;'>成本价附近日期为近似推断（±2交易日）</td><td style='padding:8px;color:#22c55e;'>✅ 通过</td></tr></tbody>
+    </table>
+  </div>
+
+  
+<div id="stock-0" style="background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2d2d44;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#e2e8f0;">埃斯顿 (sz002747) </div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px;">银河证券 · 500股 · 工业机器人 · 伺服系统 · 减速器</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px;color:#94a3b8;">评分</div>
+      <div style="font-size:28px;font-weight:700;color:#f59e0b;">58</div>
+      <div style="font-size:13px;font-weight:600;color:#f59e0b;">HOLD · 持有观察</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">现价</div><div style="font-size:16px;font-weight:700;color:#ef4444;">¥34.75</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+0.23%</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:#ef4444;">602.50</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+3.59%</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查（收盘）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:8px;text-align:left;">RSI(6)</th><th style="padding:8px;text-align:left;">RSI(12)</th><th style="padding:8px;text-align:left;">RSI(24)</th><th style="padding:8px;text-align:left;">5日量比</th><th style="padding:8px;text-align:left;">RSI状态</th><th style="padding:8px;text-align:left;">量能状态</th></tr>
+      <tr>
+        <td style="padding:8px;color:#3b82f6;">36.0</td>
+        <td style="padding:8px;color:#22c55e;">56.9</td>
+        <td style="padding:8px;color:#22c55e;">45.9</td>
+        <td style="padding:8px;color:#22c55e;">0.91</td>
+        <td style="padding:8px;color:#22c55e;">🟢 健康</td>
+        <td style="padding:8px;color:#22c55e;">🟢 正常</td>
+      </tr>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">RSI: 🔴≥80严重超买 / 🟠70-79超买 / 🟡60-69偏强 / 🟢40-59健康 / 🔵&lt;40偏弱 · 量比: 🟠≥2放量 / 🟡≥1.2温和放量 / 🟢≥0.8正常 / 🔵&lt;0.8缩量</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 分时图复盘</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">低开34.71后下探34.33，盘中冲高36.07，收盘34.67微跌-0.12%。机器人板块弱势震荡，量能萎缩，短线考验34元支撑。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 近30日日K线图</div>
+    <div id="kline_0" style="width:100%;height:320px;background:#0f0f23;border-radius:8px;"></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 操作时间线（加自选 → 买点 → 卖点）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:6px;text-align:left;">阶段</th><th style="padding:6px;text-align:left;">推断日期</th><th style="padding:6px;text-align:left;">对应价格</th><th style="padding:6px;text-align:left;">说明</th></tr>
+      <tr><td style='padding:6px;border-bottom:1px solid #2d2d44;'>🔴 买点</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>2026-06-08</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>¥33.55</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>成本价</td></tr>
+<tr><td style='padding:6px;'>🟢 现价</td><td style='padding:6px;'>最新</td><td style='padding:6px;'>¥34.75</td><td style='padding:6px;'>持有中</td></tr>
+    </table>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 K线形态分析</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">股价跌破 MA5，短期承压。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📰 新闻摘要</div>
+    <div style="background:#0f0f23;padding:12px;border-radius:8px;"><div style='padding:4px 0;font-size:12px;'><b style='color:#94a3b8;'>· 回调</b> 8月13日微跌-0.12%，收34.67，盘中冲高36.07后回落，机器人板块弱势震荡</div><div style='padding:4px 0;font-size:12px;'><b style='color:#ef4444;'>- 资金</b> 日K主力净流出，短线横盘，量能萎缩</div><div style='padding:4px 0;font-size:12px;'><b style='color:#94a3b8;'>· 中性</b> 银河500股成本33.545仍有微利，守34元支撑，破位减仓</div></div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🎯 作战策略</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b>评级：</b>持有观察（评分58）<br>
+      <b>操作：</b>建议持有观察，关键位关注 RSI 与量比变化。<br>
+      <b>理由：</b>RSI(6) 处于偏弱区间，量能正常，结合当前趋势给出策略建议。
+    </div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 信号归因</div>
+    <div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>技术指标</span><span>30%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:30%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>资金流向</span><span>25%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:25%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>新闻催化</span><span>25%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:25%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>市场环境</span><span>20%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:20%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div>
+  </div>
+</div>
+
+<div id="stock-1" style="background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2d2d44;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#e2e8f0;">通富微电 (sz002156) </div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px;">银河证券 · 500股 · 半导体封装测试 · 先进封装 · 大基金概念</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px;color:#94a3b8;">评分</div>
+      <div style="font-size:28px;font-weight:700;color:#22c55e;">55</div>
+      <div style="font-size:13px;font-weight:600;color:#22c55e;">BUY · 观察待买</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">现价</div><div style="font-size:16px;font-weight:700;color:#ef4444;">¥62.96</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+1.19%</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:#22c55e;">-90.50</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:#22c55e;">-0.29%</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查（收盘）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:8px;text-align:left;">RSI(6)</th><th style="padding:8px;text-align:left;">RSI(12)</th><th style="padding:8px;text-align:left;">RSI(24)</th><th style="padding:8px;text-align:left;">5日量比</th><th style="padding:8px;text-align:left;">RSI状态</th><th style="padding:8px;text-align:left;">量能状态</th></tr>
+      <tr>
+        <td style="padding:8px;color:#3b82f6;">11.5</td>
+        <td style="padding:8px;color:#3b82f6;">27.7</td>
+        <td style="padding:8px;color:#3b82f6;">25.6</td>
+        <td style="padding:8px;color:#3b82f6;">0.54</td>
+        <td style="padding:8px;color:#3b82f6;">🔵 偏弱</td>
+        <td style="padding:8px;color:#3b82f6;">🔵 缩量</td>
+      </tr>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">RSI: 🔴≥80严重超买 / 🟠70-79超买 / 🟡60-69偏强 / 🟢40-59健康 / 🔵&lt;40偏弱 · 量比: 🟠≥2放量 / 🟡≥1.2温和放量 / 🟢≥0.8正常 / 🔵&lt;0.8缩量</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 分时图复盘</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">高开63.82后冲高64.61，午后回落收62.22跌-1.02%。半导体板块整体回调，63-65压力带仍压制，新仓成本63.141暂时浮亏。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 近30日日K线图</div>
+    <div id="kline_1" style="width:100%;height:320px;background:#0f0f23;border-radius:8px;"></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 操作时间线（加自选 → 买点 → 卖点）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:6px;text-align:left;">阶段</th><th style="padding:6px;text-align:left;">推断日期</th><th style="padding:6px;text-align:left;">对应价格</th><th style="padding:6px;text-align:left;">说明</th></tr>
+      <tr><td style='padding:6px;border-bottom:1px solid #2d2d44;'>🔴 买点</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>2026-05-20</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>¥63.14</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>成本价</td></tr>
+<tr><td style='padding:6px;'>🟢 现价</td><td style='padding:6px;'>最新</td><td style='padding:6px;'>¥62.96</td><td style='padding:6px;'>持有中</td></tr>
+    </table>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 K线形态分析</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">股价在均线附近整理，方向待明。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📰 新闻摘要</div>
+    <div style="background:#0f0f23;padding:12px;border-radius:8px;"><div style='padding:4px 0;font-size:12px;'><b style='color:#94a3b8;'>· 建仓</b> 8月13日收62.22微跌-1.02%，新仓成本63.141仍小幅浮亏</div><div style='padding:4px 0;font-size:12px;'><b style='color:#ef4444;'>- 资金</b> 半导体板块整体回调，个股资金净流出，封测方向承压</div><div style='padding:4px 0;font-size:12px;'><b style='color:#94a3b8;'>· 中性</b> 63-65为短期压力带，低吸不追高，守61.5元</div></div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🎯 作战策略</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b>评级：</b>观察待买（评分55）<br>
+      <b>操作：</b>建议观察待买，关键位关注 RSI 与量比变化。<br>
+      <b>理由：</b>RSI(6) 处于偏弱区间，量能缩量，结合当前趋势给出策略建议。
+    </div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 信号归因</div>
+    <div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>技术指标</span><span>40%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:40%;height:100%;background:#22c55e;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>资金流向</span><span>25%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:25%;height:100%;background:#22c55e;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>板块效应</span><span>20%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:20%;height:100%;background:#22c55e;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>新闻催化</span><span>15%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:15%;height:100%;background:#22c55e;border-radius:3px;'></div></div></div>
+  </div>
+</div>
+
+<div id="stock-2" style="background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2d2d44;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#e2e8f0;">哈药股份 (sh600664) </div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px;">中信建投 · 4,000股 · 化学制药 · 国企改革 · 减肥药</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px;color:#94a3b8;">评分</div>
+      <div style="font-size:28px;font-weight:700;color:#f59e0b;">58</div>
+      <div style="font-size:13px;font-weight:600;color:#f59e0b;">HOLD · 持有观察</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">现价</div><div style="font-size:16px;font-weight:700;color:#ef4444;">¥8.91</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+0.56%</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:#ef4444;">3,484.00</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+10.84%</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查（收盘）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:8px;text-align:left;">RSI(6)</th><th style="padding:8px;text-align:left;">RSI(12)</th><th style="padding:8px;text-align:left;">RSI(24)</th><th style="padding:8px;text-align:left;">5日量比</th><th style="padding:8px;text-align:left;">RSI状态</th><th style="padding:8px;text-align:left;">量能状态</th></tr>
+      <tr>
+        <td style="padding:8px;color:#3b82f6;">14.8</td>
+        <td style="padding:8px;color:#22c55e;">48.2</td>
+        <td style="padding:8px;color:#22c55e;">42.7</td>
+        <td style="padding:8px;color:#f59e0b;">1.43</td>
+        <td style="padding:8px;color:#3b82f6;">🔵 偏弱</td>
+        <td style="padding:8px;color:#f59e0b;">🟡 温和放量</td>
+      </tr>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">RSI: 🔴≥80严重超买 / 🟠70-79超买 / 🟡60-69偏强 / 🟢40-59健康 / 🔵&lt;40偏弱 · 量比: 🟠≥2放量 / 🟡≥1.2温和放量 / 🟢≥0.8正常 / 🔵&lt;0.8缩量</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 分时图复盘</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">高开8.90后冲高9.14（涨停附近），收盘8.86微涨+0.57%。高位滞涨，放量长上影，建议减仓锁定利润。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 近30日日K线图</div>
+    <div id="kline_2" style="width:100%;height:320px;background:#0f0f23;border-radius:8px;"></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 操作时间线（加自选 → 买点 → 卖点）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:6px;text-align:left;">阶段</th><th style="padding:6px;text-align:left;">推断日期</th><th style="padding:6px;text-align:left;">对应价格</th><th style="padding:6px;text-align:left;">说明</th></tr>
+      <tr><td style='padding:6px;border-bottom:1px solid #2d2d44;'>🔴 买点</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>2026-08-11</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>¥8.04</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>成本价</td></tr>
+<tr><td style='padding:6px;'>🟢 现价</td><td style='padding:6px;'>最新</td><td style='padding:6px;'>¥8.91</td><td style='padding:6px;'>持有中</td></tr>
+    </table>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 K线形态分析</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">股价站上 MA5/MA20，短期均线多头排列。 创近5日新高，动能偏强。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📰 新闻摘要</div>
+    <div style="background:#0f0f23;padding:12px;border-radius:8px;"><div style='padding:4px 0;font-size:12px;'><b style='color:#94a3b8;'>· 滞涨</b> 8月13日冲高9.14（涨停附近）后回落，收8.86仅+0.57%</div><div style='padding:4px 0;font-size:12px;'><b style='color:#f59e0b;'>⚠ 资金</b> 高位放量长上影，明暗盘分歧明显，获利盘兑现</div><div style='padding:4px 0;font-size:12px;'><b style='color:#f59e0b;'>⚠ 风险</b> 月内涨幅巨大，建议减仓锁定利润，守8.5元</div></div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🎯 作战策略</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b>评级：</b>持有观察（评分58）<br>
+      <b>操作：</b>建议持有观察，关键位关注 RSI 与量比变化。<br>
+      <b>理由：</b>RSI(6) 处于偏弱区间，量能温和放量，结合当前趋势给出策略建议。
+    </div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 信号归因</div>
+    <div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>技术指标</span><span>30%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:30%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>资金流向</span><span>25%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:25%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>新闻催化</span><span>25%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:25%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>市场环境</span><span>20%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:20%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div>
+  </div>
+</div>
+
+<div id="stock-3" style="background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2d2d44;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#e2e8f0;">国瓷材料 (sz300285) </div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px;">中信建投 · 500股 · 电子陶瓷 · 新材料 · 半导体材料</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px;color:#94a3b8;">评分</div>
+      <div style="font-size:28px;font-weight:700;color:#22c55e;">55</div>
+      <div style="font-size:13px;font-weight:600;color:#22c55e;">BUY · 观察待买</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">现价</div><div style="font-size:16px;font-weight:700;color:#ef4444;">¥70.96</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+0.42%</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:#22c55e;">-8,740.00</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:#22c55e;">-19.77%</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查（收盘）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:8px;text-align:left;">RSI(6)</th><th style="padding:8px;text-align:left;">RSI(12)</th><th style="padding:8px;text-align:left;">RSI(24)</th><th style="padding:8px;text-align:left;">5日量比</th><th style="padding:8px;text-align:left;">RSI状态</th><th style="padding:8px;text-align:left;">量能状态</th></tr>
+      <tr>
+        <td style="padding:8px;color:#3b82f6;">11.2</td>
+        <td style="padding:8px;color:#3b82f6;">24.8</td>
+        <td style="padding:8px;color:#3b82f6;">18.1</td>
+        <td style="padding:8px;color:#3b82f6;">0.71</td>
+        <td style="padding:8px;color:#3b82f6;">🔵 偏弱</td>
+        <td style="padding:8px;color:#3b82f6;">🔵 缩量</td>
+      </tr>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">RSI: 🔴≥80严重超买 / 🟠70-79超买 / 🟡60-69偏强 / 🟢40-59健康 / 🔵&lt;40偏弱 · 量比: 🟠≥2放量 / 🟡≥1.2温和放量 / 🟢≥0.8正常 / 🔵&lt;0.8缩量</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 分时图复盘</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">高开75.00后冲高75.95，随后大幅回落收70.66跌-4.51%。跌破72.5支撑，新材料板块资金流出，短线承压。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 近30日日K线图</div>
+    <div id="kline_3" style="width:100%;height:320px;background:#0f0f23;border-radius:8px;"></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 操作时间线（加自选 → 买点 → 卖点）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:6px;text-align:left;">阶段</th><th style="padding:6px;text-align:left;">推断日期</th><th style="padding:6px;text-align:left;">对应价格</th><th style="padding:6px;text-align:left;">说明</th></tr>
+      <tr><td style='padding:6px;border-bottom:1px solid #2d2d44;'>🔴 买点</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>2026-06-18</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>¥88.44</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>成本价</td></tr>
+<tr><td style='padding:6px;'>🟢 现价</td><td style='padding:6px;'>最新</td><td style='padding:6px;'>¥70.96</td><td style='padding:6px;'>持有中</td></tr>
+    </table>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 K线形态分析</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">股价站上 MA5/MA20，短期均线多头排列。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📰 新闻摘要</div>
+    <div style="background:#0f0f23;padding:12px;border-radius:8px;"><div style='padding:4px 0;font-size:12px;'><b style='color:#ef4444;'>- 破位</b> 8月13日高开低走收70.66跌-4.51%，跌破72.5支撑</div><div style='padding:4px 0;font-size:12px;'><b style='color:#ef4444;'>- 资金</b> 新材料板块资金净流出，高位回撤，主力减仓</div><div style='padding:4px 0;font-size:12px;'><b style='color:#94a3b8;'>· 中性</b> 守70元，放量收回72.5再看高</div></div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🎯 作战策略</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b>评级：</b>观察待买（评分55）<br>
+      <b>操作：</b>建议观察待买，关键位关注 RSI 与量比变化。<br>
+      <b>理由：</b>RSI(6) 处于偏弱区间，量能缩量，结合当前趋势给出策略建议。
+    </div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 信号归因</div>
+    <div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>技术指标</span><span>40%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:40%;height:100%;background:#22c55e;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>资金流向</span><span>25%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:25%;height:100%;background:#22c55e;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>板块效应</span><span>20%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:20%;height:100%;background:#22c55e;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>新闻催化</span><span>15%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:15%;height:100%;background:#22c55e;border-radius:3px;'></div></div></div>
+  </div>
+</div>
+
+<div id="stock-4" style="background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2d2d44;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#e2e8f0;">北京君正 (sz300223) </div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px;">中信建投 · 500股 · 存储芯片 · 半导体 · AI算力</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px;color:#94a3b8;">评分</div>
+      <div style="font-size:28px;font-weight:700;color:#f59e0b;">58</div>
+      <div style="font-size:13px;font-weight:600;color:#f59e0b;">HOLD · 持有观察</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">现价</div><div style="font-size:16px;font-weight:700;color:#ef4444;">¥143.62</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+4.47%</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:#ef4444;">3,809.50</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+2.80%</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查（收盘）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:8px;text-align:left;">RSI(6)</th><th style="padding:8px;text-align:left;">RSI(12)</th><th style="padding:8px;text-align:left;">RSI(24)</th><th style="padding:8px;text-align:left;">5日量比</th><th style="padding:8px;text-align:left;">RSI状态</th><th style="padding:8px;text-align:left;">量能状态</th></tr>
+      <tr>
+        <td style="padding:8px;color:#3b82f6;">0.0</td>
+        <td style="padding:8px;color:#3b82f6;">23.2</td>
+        <td style="padding:8px;color:#3b82f6;">18.1</td>
+        <td style="padding:8px;color:#3b82f6;">0.69</td>
+        <td style="padding:8px;color:#3b82f6;">🔵 偏弱</td>
+        <td style="padding:8px;color:#3b82f6;">🔵 缩量</td>
+      </tr>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">RSI: 🔴≥80严重超买 / 🟠70-79超买 / 🟡60-69偏强 / 🟢40-59健康 / 🔵&lt;40偏弱 · 量比: 🟠≥2放量 / 🟡≥1.2温和放量 / 🟢≥0.8正常 / 🔵&lt;0.8缩量</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 分时图复盘</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">高开144.58后冲高149.49，随后大幅回落收137.48跌-2.20%。存储芯片冲高回落，140元上方压力明显，资金净流出。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 近30日日K线图</div>
+    <div id="kline_4" style="width:100%;height:320px;background:#0f0f23;border-radius:8px;"></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 操作时间线（加自选 → 买点 → 卖点）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:6px;text-align:left;">阶段</th><th style="padding:6px;text-align:left;">推断日期</th><th style="padding:6px;text-align:left;">对应价格</th><th style="padding:6px;text-align:left;">说明</th></tr>
+      <tr><td style='padding:6px;border-bottom:1px solid #2d2d44;'>🔴 买点</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>2026-01-22</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>¥136.00</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>成本价</td></tr>
+<tr><td style='padding:6px;'>🟢 现价</td><td style='padding:6px;'>最新</td><td style='padding:6px;'>¥143.62</td><td style='padding:6px;'>持有中</td></tr>
+    </table>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 K线形态分析</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">股价在均线附近整理，方向待明。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📰 新闻摘要</div>
+    <div style="background:#0f0f23;padding:12px;border-radius:8px;"><div style='padding:4px 0;font-size:12px;'><b style='color:#ef4444;'>- 回落</b> 8月13日冲高149.49后大幅回落，收137.48跌-2.20%</div><div style='padding:4px 0;font-size:12px;'><b style='color:#ef4444;'>- 资金</b> 两账户合计1700股，半导体高位分歧，存储芯片资金净流出</div><div style='padding:4px 0;font-size:12px;'><b style='color:#94a3b8;'>· 中性</b> 140元上方压力大，短线守135元支撑，收回140再看</div></div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🎯 作战策略</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b>评级：</b>持有观察（评分58）<br>
+      <b>操作：</b>建议持有观察，关键位关注 RSI 与量比变化。<br>
+      <b>理由：</b>RSI(6) 处于偏弱区间，量能缩量，结合当前趋势给出策略建议。
+    </div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 信号归因</div>
+    <div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>技术指标</span><span>30%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:30%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>资金流向</span><span>25%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:25%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>新闻催化</span><span>25%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:25%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>市场环境</span><span>20%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:20%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div>
+  </div>
+</div>
+
+<div id="stock-5" style="background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2d2d44;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#e2e8f0;">征和工业 (sz003033) </div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px;">中信建投 · 500股 · 摩托车链 · 农机链 · 工业制造</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px;color:#94a3b8;">评分</div>
+      <div style="font-size:28px;font-weight:700;color:#f59e0b;">65</div>
+      <div style="font-size:13px;font-weight:600;color:#f59e0b;">HOLD · 持有待涨</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">现价</div><div style="font-size:16px;font-weight:700;color:#ef4444;">¥65.16</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+2.45%</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:#ef4444;">1,875.00</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+6.09%</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查（收盘）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:8px;text-align:left;">RSI(6)</th><th style="padding:8px;text-align:left;">RSI(12)</th><th style="padding:8px;text-align:left;">RSI(24)</th><th style="padding:8px;text-align:left;">5日量比</th><th style="padding:8px;text-align:left;">RSI状态</th><th style="padding:8px;text-align:left;">量能状态</th></tr>
+      <tr>
+        <td style="padding:8px;color:#f59e0b;">66.9</td>
+        <td style="padding:8px;color:#22c55e;">59.5</td>
+        <td style="padding:8px;color:#22c55e;">59.0</td>
+        <td style="padding:8px;color:#f59e0b;">1.32</td>
+        <td style="padding:8px;color:#f59e0b;">🟡 偏强</td>
+        <td style="padding:8px;color:#f59e0b;">🟡 温和放量</td>
+      </tr>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">RSI: 🔴≥80严重超买 / 🟠70-79超买 / 🟡60-69偏强 / 🟢40-59健康 / 🔵&lt;40偏弱 · 量比: 🟠≥2放量 / 🟡≥1.2温和放量 / 🟢≥0.8正常 / 🔵&lt;0.8缩量</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 分时图复盘</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">高开66.74后冲高66.88，回落收63.60跌-4.62%。跌破5日线，高位回撤，守60元。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 近30日日K线图</div>
+    <div id="kline_5" style="width:100%;height:320px;background:#0f0f23;border-radius:8px;"></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 操作时间线（加自选 → 买点 → 卖点）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:6px;text-align:left;">阶段</th><th style="padding:6px;text-align:left;">推断日期</th><th style="padding:6px;text-align:left;">对应价格</th><th style="padding:6px;text-align:left;">说明</th></tr>
+      <tr><td style='padding:6px;border-bottom:1px solid #2d2d44;'>🔴 买点</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>2025-09-30</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>¥61.41</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>成本价</td></tr>
+<tr><td style='padding:6px;'>🟢 现价</td><td style='padding:6px;'>最新</td><td style='padding:6px;'>¥65.16</td><td style='padding:6px;'>持有中</td></tr>
+    </table>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 K线形态分析</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">股价站上 MA5/MA20，短期均线多头排列。 创近5日新高，动能偏强。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📰 新闻摘要</div>
+    <div style="background:#0f0f23;padding:12px;border-radius:8px;"><div style='padding:4px 0;font-size:12px;'><b style='color:#ef4444;'>- 回撤</b> 8月13日收63.60跌-4.62%，跌破5日均线</div><div style='padding:4px 0;font-size:12px;'><b style='color:#ef4444;'>- 技术</b> 高位放量回撤，沿5日线上行趋势破坏，筹码松动</div><div style='padding:4px 0;font-size:12px;'><b style='color:#94a3b8;'>· 中性</b> 守60元，破位减仓</div></div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🎯 作战策略</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b>评级：</b>持有待涨（评分65）<br>
+      <b>操作：</b>建议持有待涨，关键位关注 RSI 与量比变化。<br>
+      <b>理由：</b>RSI(6) 处于偏强区间，量能温和放量，结合当前趋势给出策略建议。
+    </div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 信号归因</div>
+    <div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>技术指标</span><span>30%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:30%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>资金流向</span><span>25%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:25%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>新闻催化</span><span>25%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:25%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>市场环境</span><span>20%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:20%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div>
+  </div>
+</div>
+
+<div id="stock-6" style="background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2d2d44;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#e2e8f0;">风华高科 (sz000636) </div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px;">中信建投 · 1,000股 · 被动元件 · 电子元器件 · 半导体材料</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px;color:#94a3b8;">评分</div>
+      <div style="font-size:28px;font-weight:700;color:#22c55e;">55</div>
+      <div style="font-size:13px;font-weight:600;color:#22c55e;">BUY · 观察待买</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">现价</div><div style="font-size:16px;font-weight:700;color:#ef4444;">¥62.73</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+1.14%</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:#22c55e;">-2,523.00</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:#22c55e;">-3.87%</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查（收盘）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:8px;text-align:left;">RSI(6)</th><th style="padding:8px;text-align:left;">RSI(12)</th><th style="padding:8px;text-align:left;">RSI(24)</th><th style="padding:8px;text-align:left;">5日量比</th><th style="padding:8px;text-align:left;">RSI状态</th><th style="padding:8px;text-align:left;">量能状态</th></tr>
+      <tr>
+        <td style="padding:8px;color:#3b82f6;">28.7</td>
+        <td style="padding:8px;color:#3b82f6;">30.0</td>
+        <td style="padding:8px;color:#3b82f6;">32.7</td>
+        <td style="padding:8px;color:#22c55e;">0.81</td>
+        <td style="padding:8px;color:#3b82f6;">🔵 偏弱</td>
+        <td style="padding:8px;color:#22c55e;">🟢 正常</td>
+      </tr>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">RSI: 🔴≥80严重超买 / 🟠70-79超买 / 🟡60-69偏强 / 🟢40-59健康 / 🔵&lt;40偏弱 · 量比: 🟠≥2放量 / 🟡≥1.2温和放量 / 🟢≥0.8正常 / 🔵&lt;0.8缩量</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 分时图复盘</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">高开67.52即日内高点，随后单边下行收62.02跌-6.75%。被动元件板块资金大幅流出，跌破65支撑，守60元。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 近30日日K线图</div>
+    <div id="kline_6" style="width:100%;height:320px;background:#0f0f23;border-radius:8px;"></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 操作时间线（加自选 → 买点 → 卖点）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:6px;text-align:left;">阶段</th><th style="padding:6px;text-align:left;">推断日期</th><th style="padding:6px;text-align:left;">对应价格</th><th style="padding:6px;text-align:left;">说明</th></tr>
+      <tr><td style='padding:6px;border-bottom:1px solid #2d2d44;'>🔴 买点</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>2026-06-04</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>¥65.25</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>成本价</td></tr>
+<tr><td style='padding:6px;'>🟢 现价</td><td style='padding:6px;'>最新</td><td style='padding:6px;'>¥62.73</td><td style='padding:6px;'>持有中</td></tr>
+    </table>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 K线形态分析</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">股价站上 MA5/MA20，短期均线多头排列。 创近5日新高，动能偏强。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📰 新闻摘要</div>
+    <div style="background:#0f0f23;padding:12px;border-radius:8px;"><div style='padding:4px 0;font-size:12px;'><b style='color:#ef4444;'>- 回落</b> 8月13日高开低走收62.02跌-6.75%，跌破65支撑</div><div style='padding:4px 0;font-size:12px;'><b style='color:#ef4444;'>- 资金</b> 被动元件板块资金大幅流出，中信1000股转浮亏</div><div style='padding:4px 0;font-size:12px;'><b style='color:#94a3b8;'>· 中性</b> 守60元，收回65再看</div></div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🎯 作战策略</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b>评级：</b>观察待买（评分55）<br>
+      <b>操作：</b>建议观察待买，关键位关注 RSI 与量比变化。<br>
+      <b>理由：</b>RSI(6) 处于偏弱区间，量能正常，结合当前趋势给出策略建议。
+    </div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 信号归因</div>
+    <div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>技术指标</span><span>40%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:40%;height:100%;background:#22c55e;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>资金流向</span><span>25%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:25%;height:100%;background:#22c55e;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>板块效应</span><span>20%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:20%;height:100%;background:#22c55e;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>新闻催化</span><span>15%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:15%;height:100%;background:#22c55e;border-radius:3px;'></div></div></div>
+  </div>
+</div>
+
+<div id="stock-7" style="background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #2d2d44;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#e2e8f0;">北京君正 (sz300223) </div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px;">东方财富证券 · 1,700股 · 存储芯片 · 半导体 · AI算力</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:13px;color:#94a3b8;">评分</div>
+      <div style="font-size:28px;font-weight:700;color:#f59e0b;">58</div>
+      <div style="font-size:13px;font-weight:600;color:#f59e0b;">HOLD · 持有观察</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">现价</div><div style="font-size:16px;font-weight:700;color:#ef4444;">¥143.62</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+4.47%</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:#ef4444;">1,120.30</div></div>
+    <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:#ef4444;">+0.46%</div></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查（收盘）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:8px;text-align:left;">RSI(6)</th><th style="padding:8px;text-align:left;">RSI(12)</th><th style="padding:8px;text-align:left;">RSI(24)</th><th style="padding:8px;text-align:left;">5日量比</th><th style="padding:8px;text-align:left;">RSI状态</th><th style="padding:8px;text-align:left;">量能状态</th></tr>
+      <tr>
+        <td style="padding:8px;color:#3b82f6;">0.0</td>
+        <td style="padding:8px;color:#3b82f6;">23.2</td>
+        <td style="padding:8px;color:#3b82f6;">18.1</td>
+        <td style="padding:8px;color:#3b82f6;">0.69</td>
+        <td style="padding:8px;color:#3b82f6;">🔵 偏弱</td>
+        <td style="padding:8px;color:#3b82f6;">🔵 缩量</td>
+      </tr>
+    </table>
+    <div style="font-size:11px;color:#94a3b8;margin-top:6px;">RSI: 🔴≥80严重超买 / 🟠70-79超买 / 🟡60-69偏强 / 🟢40-59健康 / 🔵&lt;40偏弱 · 量比: 🟠≥2放量 / 🟡≥1.2温和放量 / 🟢≥0.8正常 / 🔵&lt;0.8缩量</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 分时图复盘</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">高开144.58后冲高149.49，随后大幅回落收137.48跌-2.20%。存储芯片冲高回落，140元上方压力明显，资金净流出。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 近30日日K线图</div>
+    <div id="kline_7" style="width:100%;height:320px;background:#0f0f23;border-radius:8px;"></div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 操作时间线（加自选 → 买点 → 卖点）</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;background:#0f0f23;border-radius:8px;overflow:hidden;">
+      <tr style="color:#94a3b8;border-bottom:1px solid #2d2d44;"><th style="padding:6px;text-align:left;">阶段</th><th style="padding:6px;text-align:left;">推断日期</th><th style="padding:6px;text-align:left;">对应价格</th><th style="padding:6px;text-align:left;">说明</th></tr>
+      <tr><td style='padding:6px;border-bottom:1px solid #2d2d44;'>🔴 买点</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>2026-01-27</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>¥142.96</td><td style='padding:6px;border-bottom:1px solid #2d2d44;'>成本价</td></tr>
+<tr><td style='padding:6px;'>🟢 现价</td><td style='padding:6px;'>最新</td><td style='padding:6px;'>¥143.62</td><td style='padding:6px;'>持有中</td></tr>
+    </table>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📈 K线形态分析</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;background:#0f0f23;padding:12px;border-radius:8px;">股价在均线附近整理，方向待明。</div>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📰 新闻摘要</div>
+    <div style="background:#0f0f23;padding:12px;border-radius:8px;"><div style='padding:4px 0;font-size:12px;'><b style='color:#ef4444;'>- 回落</b> 8月13日冲高149.49后大幅回落，收137.48跌-2.20%</div><div style='padding:4px 0;font-size:12px;'><b style='color:#ef4444;'>- 资金</b> 两账户合计1700股，半导体高位分歧，存储芯片资金净流出</div><div style='padding:4px 0;font-size:12px;'><b style='color:#94a3b8;'>· 中性</b> 140元上方压力大，短线守135元支撑，收回140再看</div></div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🎯 作战策略</div>
+    <div style="font-size:12px;color:#e2e8f0;line-height:1.7;">
+      <b>评级：</b>持有观察（评分58）<br>
+      <b>操作：</b>建议持有观察，关键位关注 RSI 与量比变化。<br>
+      <b>理由：</b>RSI(6) 处于偏弱区间，量能缩量，结合当前趋势给出策略建议。
+    </div>
+  </div>
+  <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+    <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 信号归因</div>
+    <div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>技术指标</span><span>30%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:30%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>资金流向</span><span>25%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:25%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>新闻催化</span><span>25%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:25%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div><div style='margin-bottom:6px;'><div style='display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;'><span>市场环境</span><span>20%</span></div><div style='height:6px;background:#0f0f23;border-radius:3px;overflow:hidden;'><div style='width:20%;height:100%;background:#f59e0b;border-radius:3px;'></div></div></div>
+  </div>
+</div>
+
+
+  <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <h2 style="font-size:18px;margin:0 0 14px;color:#e2e8f0;">📅 8月17日持仓股综合作战计划</h2>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr><th style="text-align:left;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">优先级</th><th style="text-align:left;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">股票</th><th style="text-align:left;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">操作</th><th style="text-align:left;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">关键价位</th><th style="text-align:left;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">仓位变化</th><th style="text-align:left;padding:8px;color:#94a3b8;border-bottom:1px solid #2d2d44;">理由</th></tr></thead>
+        <tbody><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>🟢 P2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>埃斯顿</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>持有观察</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>关键位</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>调整</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI36.0 · 量比0.91 · 正常</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>🟢 P2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>通富微电</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>观察待买</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>关键位</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>调整</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI11.5 · 量比0.54 · 缩量</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>🟢 P2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>哈药股份</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>持有观察</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>关键位</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>调整</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI14.8 · 量比1.43 · 温和放量</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>🟢 P2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>国瓷材料</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>观察待买</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>关键位</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>调整</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI11.2 · 量比0.71 · 缩量</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>🟢 P2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>北京君正</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>持有观察</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>关键位</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>调整</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI— · 量比0.69 · 缩量</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>🟢 P2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>征和工业</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>持有待涨</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>关键位</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>调整</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI66.9 · 量比1.32 · 温和放量</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>🟢 P2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>风华高科</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>观察待买</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>关键位</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>调整</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI28.7 · 量比0.81 · 正常</td>
+        </tr><tr>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;color:#22c55e;'>🟢 P2</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>北京君正</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>持有观察</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>关键位</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>调整</td>
+          <td style='padding:8px;border-bottom:1px solid #2d2d44;'>RSI— · 量比0.69 · 缩量</td>
+        </tr></tbody>
+      </table>
+    </div>
+  </div>
+
+    <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <h2 style="font-size:18px;margin:0 0 14px;color:#e2e8f0;">💰 资金调度建议</h2>
+    
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;">
+    <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+      <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📤 释放资金（清仓/减仓）</div>
+      <ul style="list-style:none;padding:0;font-size:12px;color:#e2e8f0;"><li style='padding:4px 0;'>暂无减仓计划</li></ul>
+      <div style="font-size:12px;color:#94a3b8;margin-top:6px;">合计释放：约 ¥0</div>
+    </div>
+    <div style="background:#0f0f23;padding:12px;border-radius:8px;">
+      <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📥 资金去向（进攻池）</div>
+      <ul style="list-style:none;padding:0;font-size:12px;color:#e2e8f0;"><li style='padding:4px 0;'>暂无加仓计划</li></ul>
+      <div style="font-size:12px;color:#94a3b8;margin-top:6px;">预留现金：约 ¥0</div>
+    </div>
+  </div>
+
+  </div>
+
+  
+  <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <h2 style="font-size:18px;margin:0 0 14px;color:#e2e8f0;">📐 持仓结构分析 <span style="font-size:12px;color:#94a3b8;font-weight:400;">仓位占比 · 集中度 · 盈亏贡献</span></h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:16px;">
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">持仓集中度（TOP3 占比）</div>
+        <div style="font-size:24px;font-weight:700;color:#f59e0b;">71.3%</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">状态：偏高 ⚠（单票建议≤15% · TOP3≤60%）</div>
+      </div>
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">盈亏分布</div>
+        <div style="font-size:14px;color:#e2e8f0;line-height:1.8;">
+          <span style="color:#ef4444;">盈利 5 只</span> · <span style="color:#22c55e;">亏损 3 只</span> · <span style="color:#94a3b8;">持平 0 只</span>
+        </div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">盈利金额 +1.09万 · 亏损金额 -1.14万</div>
+      </div>
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">盈利贡献 TOP3</div>
+        <div style="font-size:11px;padding:2px 0;color:#94a3b8;"><span style="color:#e2e8f0;">北京君正</span> <span style="color:#ef4444;">+3,809.50</span></div><div style="font-size:11px;padding:2px 0;color:#94a3b8;"><span style="color:#e2e8f0;">哈药股份</span> <span style="color:#ef4444;">+3,484.00</span></div><div style="font-size:11px;padding:2px 0;color:#94a3b8;"><span style="color:#e2e8f0;">征和工业</span> <span style="color:#ef4444;">+1,875.00</span></div>
+      </div>
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">亏损拖累 TOP3</div>
+        <div style="font-size:11px;padding:2px 0;color:#94a3b8;"><span style="color:#e2e8f0;">通富微电</span> <span style="color:#22c55e;">-90.50</span></div><div style="font-size:11px;padding:2px 0;color:#94a3b8;"><span style="color:#e2e8f0;">风华高科</span> <span style="color:#22c55e;">-2,523.00</span></div><div style="font-size:11px;padding:2px 0;color:#94a3b8;"><span style="color:#e2e8f0;">国瓷材料</span> <span style="color:#22c55e;">-8,740.00</span></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 个股权仓占比（按市值 · TOP8）</div>
+        <div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">北京君正</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:46.0%;background:#ef4444;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">46.0%</span>
+      </div><div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">北京君正</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:13.5%;background:#ef4444;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">13.5%</span>
+      </div><div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">风华高科</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:11.8%;background:#22c55e;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">11.8%</span>
+      </div><div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">哈药股份</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:6.7%;background:#ef4444;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">6.7%</span>
+      </div><div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">国瓷材料</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:6.7%;background:#22c55e;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">6.7%</span>
+      </div><div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">征和工业</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:6.1%;background:#ef4444;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">6.1%</span>
+      </div><div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">通富微电</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:5.9%;background:#22c55e;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">5.9%</span>
+      </div><div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">埃斯顿</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:3.3%;background:#ef4444;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">3.3%</span>
+      </div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:6px;">总市值 +53.12万 · 红/绿条按当前盈亏着色</div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🏦 账户分布</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0;border-bottom:1px solid #2d2d44;">
+        <span style="color:#e2e8f0;">东方财富证券 <span style="color:#94a3b8;font-size:11px;">· 1只</span></span>
+        <span style="font-variant-numeric:tabular-nums;"><span style="color:#e2e8f0;">+24.42万</span> <span style="color:#94a3b8;">· 46.0%</span> <span style="color:#ef4444;">1,120.30</span></span>
+      </div><div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0;border-bottom:1px solid #2d2d44;">
+        <span style="color:#e2e8f0;">中信建投 <span style="color:#94a3b8;font-size:11px;">· 5只</span></span>
+        <span style="font-variant-numeric:tabular-nums;"><span style="color:#e2e8f0;">+23.82万</span> <span style="color:#94a3b8;">· 44.8%</span> <span style="color:#22c55e;">-2,094.50</span></span>
+      </div><div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0;border-bottom:1px solid #2d2d44;">
+        <span style="color:#e2e8f0;">银河证券 <span style="color:#94a3b8;font-size:11px;">· 2只</span></span>
+        <span style="font-variant-numeric:tabular-nums;"><span style="color:#e2e8f0;">+4.89万</span> <span style="color:#94a3b8;">· 9.2%</span> <span style="color:#ef4444;">512.00</span></span>
+      </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div style="font-size:11px;color:#94a3b8;margin-top:20px;text-align:center;">
+    本分析仅供学习和研究参考，不构成任何投资建议。股市有风险，投资需谨慎。
+  </div>
+
+</div>
+<script>
+
+(function(){
+  var chartDom = document.getElementById('kline_0');
+  if (!chartDom) return;
+  var myChart = echarts.init(chartDom);
+  var dates = ["2026-07-02", "2026-07-03", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-10", "2026-08-11", "2026-08-12"];
+  var data = [[42.81, 40.7, 42.81, 39.05], [42.02, 44.77, 44.77, 41.02], [45.11, 46.03, 48.3, 45.11], [45.69, 49.0, 49.0, 44.88], [45.61, 44.1, 46.3, 44.1], [39.69, 41.53, 42.06, 39.69], [40.34, 42.78, 43.98, 40.3], [40.0, 38.5, 40.65, 38.5], [37.0, 38.4, 39.5, 36.0], [38.94, 40.9, 41.94, 38.3], [38.76, 42.43, 43.6, 38.76], [42.01, 38.19, 42.45, 38.19], [35.46, 34.37, 36.46, 34.37], [32.18, 33.43, 35.33, 30.93], [32.48, 32.99, 34.8, 32.38], [32.9, 31.31, 32.9, 31.03], [29.8, 30.04, 31.55, 29.3], [30.17, 31.55, 31.55, 29.19], [31.47, 30.34, 32.2, 30.18], [30.77, 31.06, 33.24, 30.15], [30.5, 27.95, 30.79, 27.95], [29.0, 29.74, 30.63, 28.6], [29.76, 30.75, 31.83, 29.5], [30.86, 32.3, 32.39, 30.03], [32.5, 34.27, 34.9, 32.3], [33.56, 34.81, 35.5, 33.56], [35.0, 35.13, 35.49, 33.98], [35.5, 34.63, 35.83, 33.96], [34.38, 36.12, 36.62, 33.9], [35.61, 34.71, 35.65, 34.64]];
+  var vols = [1756094.0, 1267428.0, 1932551.0, 1760017.0, 260794.0, 1744642.0, 1509682.0, 847093.0, 989629.0, 1150357.0, 1187809.0, 653866.0, 822804.0, 1249929.0, 962100.0, 899910.0, 639505.0, 570401.0, 566370.0, 885479.0, 848710.0, 963659.0, 821447.0, 875533.0, 991640.0, 882514.0, 815965.0, 595749.0, 970399.0, 772192.0];
+  var option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    grid: [{ left: '10%', right: '4%', top: '8%', height: '55%' }, { left: '10%', right: '4%', top: '70%', height: '18%' }],
+    xAxis: [{ type: 'category', data: dates, scale: true, boundaryGap: false, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { type: 'category', gridIndex: 1, data: dates, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { show: false } }],
+    yAxis: [{ scale: true, splitLine: { lineStyle: { color: '#2d2d44' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { scale: true, gridIndex: 1, splitNumber: 2, axisLabel: { show: false }, splitLine: { show: false } }],
+    dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], start: 0, end: 100 }],
+    series: [
+      { type: 'candlestick', data: data, itemStyle: { color: '#ef4444', color0: '#22c55e', borderColor: '#ef4444', borderColor0: '#22c55e' } },
+      { name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: vols, itemStyle: { color: function(p) { return p.value >= 0 ? '#ef4444' : '#22c55e'; } } }
+    ]
+  };
+  myChart.setOption(option);
+})();
+
+
+(function(){
+  var chartDom = document.getElementById('kline_1');
+  if (!chartDom) return;
+  var myChart = echarts.init(chartDom);
+  var dates = ["2026-07-02", "2026-07-03", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-10", "2026-08-11", "2026-08-12"];
+  var data = [[70.0, 67.37, 71.3, 66.6], [67.67, 64.8, 67.99, 63.88], [66.65, 66.18, 68.47, 64.3], [65.0, 68.21, 69.8, 64.0], [67.7, 65.61, 68.8, 62.42], [66.92, 72.17, 72.17, 65.33], [74.0, 70.95, 77.67, 70.78], [70.7, 73.57, 77.66, 70.39], [71.49, 77.87, 77.87, 68.4], [84.1, 78.71, 84.7, 75.8], [70.85, 75.95, 80.8, 70.84], [74.97, 68.36, 75.94, 68.36], [70.02, 63.0, 72.0, 61.53], [64.26, 69.3, 69.3, 57.0], [71.71, 74.9, 76.23, 70.88], [75.99, 69.82, 76.78, 69.3], [68.03, 76.64, 76.8, 68.03], [72.88, 76.67, 76.7, 71.0], [72.07, 69.0, 73.85, 69.0], [65.88, 62.1, 66.5, 62.1], [61.07, 55.89, 61.43, 55.89], [59.0, 56.73, 60.48, 56.65], [55.06, 51.34, 55.6, 51.23], [52.84, 55.6, 55.93, 51.66], [54.01, 58.0, 59.45, 54.01], [56.01, 60.96, 62.81, 56.01], [60.94, 64.72, 65.78, 59.86], [64.73, 63.2, 64.83, 62.0], [62.49, 62.06, 64.3, 61.8], [62.91, 62.86, 64.11, 61.82]];
+  var vols = [1364813.0, 1041836.0, 1108191.0, 1260553.0, 1144668.0, 1632466.0, 2025277.0, 2138804.0, 2429900.0, 2935399.0, 2405075.0, 1980891.0, 2006377.0, 2092912.0, 2478838.0, 2057105.0, 2634097.0, 2321116.0, 1917010.0, 1981737.0, 1610228.0, 1827441.0, 1615123.0, 1426086.0, 1657493.0, 1590682.0, 1627249.0, 1023891.0, 866147.0, 724024.0];
+  var option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    grid: [{ left: '10%', right: '4%', top: '8%', height: '55%' }, { left: '10%', right: '4%', top: '70%', height: '18%' }],
+    xAxis: [{ type: 'category', data: dates, scale: true, boundaryGap: false, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { type: 'category', gridIndex: 1, data: dates, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { show: false } }],
+    yAxis: [{ scale: true, splitLine: { lineStyle: { color: '#2d2d44' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { scale: true, gridIndex: 1, splitNumber: 2, axisLabel: { show: false }, splitLine: { show: false } }],
+    dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], start: 0, end: 100 }],
+    series: [
+      { type: 'candlestick', data: data, itemStyle: { color: '#ef4444', color0: '#22c55e', borderColor: '#ef4444', borderColor0: '#22c55e' } },
+      { name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: vols, itemStyle: { color: function(p) { return p.value >= 0 ? '#ef4444' : '#22c55e'; } } }
+    ]
+  };
+  myChart.setOption(option);
+})();
+
+
+(function(){
+  var chartDom = document.getElementById('kline_2');
+  if (!chartDom) return;
+  var myChart = echarts.init(chartDom);
+  var dates = ["2026-07-02", "2026-07-03", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-10", "2026-08-11", "2026-08-12"];
+  var data = [[3.08, 3.11, 3.17, 3.06], [3.13, 3.14, 3.18, 3.08], [3.12, 3.18, 3.21, 3.1], [3.16, 3.07, 3.17, 3.05], [3.08, 3.09, 3.14, 3.03], [3.06, 3.06, 3.13, 3.03], [3.33, 3.37, 3.37, 3.33], [3.51, 3.71, 3.71, 3.45], [3.8, 4.08, 4.08, 3.64], [4.32, 4.49, 4.49, 4.32], [4.94, 4.94, 4.94, 4.81], [5.06, 5.33, 5.43, 4.68], [4.8, 5.31, 5.57, 4.8], [4.89, 5.84, 5.84, 4.78], [5.8, 5.98, 6.35, 5.8], [5.87, 6.0, 6.14, 5.74], [5.54, 5.4, 5.99, 5.4], [5.38, 5.64, 5.8, 5.14], [5.6, 5.74, 5.98, 5.36], [5.47, 5.36, 5.73, 5.17], [5.36, 5.56, 5.69, 5.2], [5.22, 5.89, 5.9, 5.22], [5.89, 5.99, 6.15, 5.71], [6.0, 6.45, 6.58, 5.93], [6.4, 6.77, 6.8, 6.31], [6.85, 6.22, 6.92, 6.1], [6.65, 6.84, 6.84, 6.45], [7.52, 7.52, 7.52, 7.4], [7.76, 8.27, 8.27, 7.76], [8.27, 8.81, 8.96, 8.27]];
+  var vols = [552412.0, 479193.0, 578423.0, 479221.0, 380222.0, 383403.0, 1000322.0, 2013664.0, 4402835.0, 1115523.0, 2967867.0, 8740456.0, 7418671.0, 7266474.0, 6386552.0, 5399993.0, 5254680.0, 5159573.0, 5137786.0, 3927771.0, 4015252.0, 4292416.0, 3987204.0, 4890398.0, 4751193.0, 5322894.0, 2697082.0, 1317603.0, 6787521.0, 5980676.0];
+  var option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    grid: [{ left: '10%', right: '4%', top: '8%', height: '55%' }, { left: '10%', right: '4%', top: '70%', height: '18%' }],
+    xAxis: [{ type: 'category', data: dates, scale: true, boundaryGap: false, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { type: 'category', gridIndex: 1, data: dates, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { show: false } }],
+    yAxis: [{ scale: true, splitLine: { lineStyle: { color: '#2d2d44' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { scale: true, gridIndex: 1, splitNumber: 2, axisLabel: { show: false }, splitLine: { show: false } }],
+    dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], start: 0, end: 100 }],
+    series: [
+      { type: 'candlestick', data: data, itemStyle: { color: '#ef4444', color0: '#22c55e', borderColor: '#ef4444', borderColor0: '#22c55e' } },
+      { name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: vols, itemStyle: { color: function(p) { return p.value >= 0 ? '#ef4444' : '#22c55e'; } } }
+    ]
+  };
+  myChart.setOption(option);
+})();
+
+
+(function(){
+  var chartDom = document.getElementById('kline_3');
+  if (!chartDom) return;
+  var myChart = echarts.init(chartDom);
+  var dates = ["2026-07-02", "2026-07-03", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-10", "2026-08-11", "2026-08-12"];
+  var data = [[94.86, 92.79, 99.7, 91.11], [92.97, 90.73, 96.0, 88.0], [92.5, 88.1, 95.8, 86.0], [87.41, 87.55, 91.18, 85.33], [87.55, 78.49, 89.06, 78.1], [79.5, 80.8, 81.09, 74.0], [80.5, 74.1, 84.82, 74.06], [73.46, 64.01, 73.9, 63.3], [65.29, 70.01, 71.2, 64.65], [72.0, 67.89, 72.79, 67.41], [66.71, 63.3, 67.99, 62.28], [63.55, 56.62, 63.94, 55.75], [59.95, 49.92, 60.2, 47.77], [54.12, 59.9, 59.9, 49.92], [61.02, 60.23, 65.19, 59.4], [62.0, 60.85, 65.5, 60.23], [58.31, 57.21, 60.0, 56.39], [57.2, 62.44, 62.67, 56.0], [60.69, 56.42, 60.93, 55.8], [56.42, 59.12, 60.16, 56.26], [60.18, 61.28, 64.12, 56.48], [67.08, 62.04, 68.95, 61.46], [60.0, 57.8, 62.2, 57.11], [56.9, 60.18, 61.36, 53.8], [57.62, 67.27, 69.84, 57.18], [64.51, 69.53, 70.33, 62.8], [68.88, 70.88, 72.68, 67.0], [72.47, 76.11, 76.46, 70.52], [74.02, 72.88, 83.64, 72.5], [72.76, 74.0, 74.47, 70.47]];
+  var vols = [1039750.0, 940503.0, 890121.0, 754962.0, 1091618.0, 1188366.0, 1126455.0, 1118176.0, 860260.0, 722596.0, 582497.0, 763314.0, 981478.0, 1122916.0, 1609219.0, 1446917.0, 1084091.0, 1202943.0, 1096368.0, 1363829.0, 1850492.0, 1865618.0, 1130126.0, 1448985.0, 1854272.0, 1856245.0, 1769270.0, 1686171.0, 1995601.0, 1306830.0];
+  var option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    grid: [{ left: '10%', right: '4%', top: '8%', height: '55%' }, { left: '10%', right: '4%', top: '70%', height: '18%' }],
+    xAxis: [{ type: 'category', data: dates, scale: true, boundaryGap: false, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { type: 'category', gridIndex: 1, data: dates, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { show: false } }],
+    yAxis: [{ scale: true, splitLine: { lineStyle: { color: '#2d2d44' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { scale: true, gridIndex: 1, splitNumber: 2, axisLabel: { show: false }, splitLine: { show: false } }],
+    dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], start: 0, end: 100 }],
+    series: [
+      { type: 'candlestick', data: data, itemStyle: { color: '#ef4444', color0: '#22c55e', borderColor: '#ef4444', borderColor0: '#22c55e' } },
+      { name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: vols, itemStyle: { color: function(p) { return p.value >= 0 ? '#ef4444' : '#22c55e'; } } }
+    ]
+  };
+  myChart.setOption(option);
+})();
+
+
+(function(){
+  var chartDom = document.getElementById('kline_4');
+  if (!chartDom) return;
+  var myChart = echarts.init(chartDom);
+  var dates = ["2026-07-02", "2026-07-03", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-10", "2026-08-11", "2026-08-12"];
+  var data = [[240.0, 234.67, 253.0, 233.0], [238.99, 259.56, 268.88, 237.78], [264.61, 253.0, 266.0, 238.0], [240.0, 231.2, 247.7, 226.0], [231.18, 215.38, 239.0, 215.0], [221.0, 236.02, 237.0, 220.68], [237.29, 219.9, 244.92, 219.8], [216.99, 190.17, 219.0, 188.04], [197.95, 207.69, 209.22, 191.03], [213.0, 190.18, 217.79, 189.0], [183.6, 174.6, 187.46, 171.35], [175.78, 153.82, 176.56, 152.0], [162.0, 143.65, 163.9, 137.84], [150.11, 168.0, 168.88, 136.2], [164.98, 157.82, 173.33, 156.8], [161.03, 151.76, 163.77, 150.0], [147.9, 143.65, 151.91, 143.12], [143.5, 145.66, 146.0, 135.3], [136.5, 127.1, 139.7, 125.69], [127.81, 124.56, 128.8, 116.93], [124.56, 123.66, 128.93, 117.89], [139.3, 126.81, 140.53, 126.68], [124.18, 119.0, 124.96, 118.38], [119.21, 126.26, 127.36, 116.94], [128.0, 136.03, 138.66, 126.38], [130.0, 137.0, 139.97, 129.0], [136.98, 144.05, 146.21, 136.01], [144.2, 138.48, 144.92, 135.05], [136.19, 137.86, 141.66, 136.19], [139.25, 140.57, 143.0, 137.25]];
+  var vols = [475258.0, 566583.0, 536363.0, 465782.0, 413169.0, 425540.0, 369081.0, 463214.0, 408727.0, 377033.0, 363488.0, 414080.0, 439786.0, 610578.0, 534182.0, 357497.0, 364058.0, 380225.0, 448318.0, 478703.0, 559043.0, 752088.0, 412776.0, 423299.0, 507275.0, 419668.0, 491966.0, 396925.0, 309556.0, 294079.0];
+  var option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    grid: [{ left: '10%', right: '4%', top: '8%', height: '55%' }, { left: '10%', right: '4%', top: '70%', height: '18%' }],
+    xAxis: [{ type: 'category', data: dates, scale: true, boundaryGap: false, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { type: 'category', gridIndex: 1, data: dates, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { show: false } }],
+    yAxis: [{ scale: true, splitLine: { lineStyle: { color: '#2d2d44' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { scale: true, gridIndex: 1, splitNumber: 2, axisLabel: { show: false }, splitLine: { show: false } }],
+    dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], start: 0, end: 100 }],
+    series: [
+      { type: 'candlestick', data: data, itemStyle: { color: '#ef4444', color0: '#22c55e', borderColor: '#ef4444', borderColor0: '#22c55e' } },
+      { name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: vols, itemStyle: { color: function(p) { return p.value >= 0 ? '#ef4444' : '#22c55e'; } } }
+    ]
+  };
+  myChart.setOption(option);
+})();
+
+
+(function(){
+  var chartDom = document.getElementById('kline_5');
+  if (!chartDom) return;
+  var myChart = echarts.init(chartDom);
+  var dates = ["2026-07-02", "2026-07-03", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-10", "2026-08-11", "2026-08-12"];
+  var data = [[57.91, 58.01, 59.45, 57.01], [58.0, 59.89, 61.24, 57.1], [59.29, 64.06, 65.81, 59.2], [64.97, 67.44, 68.5, 63.35], [67.44, 68.22, 69.49, 66.5], [68.22, 69.5, 69.88, 65.66], [69.81, 70.21, 71.39, 68.14], [70.14, 66.61, 71.71, 66.02], [67.51, 71.0, 71.0, 64.37], [69.42, 70.0, 70.7, 66.19], [69.04, 68.85, 70.51, 68.02], [68.5, 61.97, 69.5, 61.97], [61.56, 61.26, 66.26, 59.68], [61.88, 67.39, 67.39, 58.64], [67.63, 68.77, 69.8, 66.41], [69.9, 69.84, 71.39, 67.67], [69.0, 68.9, 70.2, 68.34], [68.63, 64.43, 68.69, 62.5], [64.64, 62.26, 64.74, 61.3], [62.27, 61.2, 62.48, 57.96], [60.39, 55.12, 61.7, 55.08], [56.01, 56.74, 57.78, 54.01], [56.44, 57.75, 58.13, 55.55], [58.2, 57.9, 58.3, 57.2], [57.89, 61.9, 62.09, 57.36], [61.01, 60.75, 62.84, 59.96], [60.8, 65.0, 65.05, 60.66], [65.01, 63.53, 65.45, 62.05], [62.87, 65.0, 65.03, 62.2], [65.0, 66.68, 66.68, 63.68]];
+  var vols = [22659.0, 25757.0, 40073.0, 40832.0, 37668.0, 35048.0, 28777.0, 34515.0, 37149.0, 30483.0, 17286.0, 21581.0, 43666.0, 31821.0, 25750.0, 20063.0, 15662.0, 26417.0, 18702.0, 21130.0, 18617.0, 20981.0, 16029.0, 14328.0, 21772.0, 14788.0, 16944.0, 16730.0, 10650.0, 21405.0];
+  var option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    grid: [{ left: '10%', right: '4%', top: '8%', height: '55%' }, { left: '10%', right: '4%', top: '70%', height: '18%' }],
+    xAxis: [{ type: 'category', data: dates, scale: true, boundaryGap: false, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { type: 'category', gridIndex: 1, data: dates, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { show: false } }],
+    yAxis: [{ scale: true, splitLine: { lineStyle: { color: '#2d2d44' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { scale: true, gridIndex: 1, splitNumber: 2, axisLabel: { show: false }, splitLine: { show: false } }],
+    dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], start: 0, end: 100 }],
+    series: [
+      { type: 'candlestick', data: data, itemStyle: { color: '#ef4444', color0: '#22c55e', borderColor: '#ef4444', borderColor0: '#22c55e' } },
+      { name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: vols, itemStyle: { color: function(p) { return p.value >= 0 ? '#ef4444' : '#22c55e'; } } }
+    ]
+  };
+  myChart.setOption(option);
+})();
+
+
+(function(){
+  var chartDom = document.getElementById('kline_6');
+  if (!chartDom) return;
+  var myChart = echarts.init(chartDom);
+  var dates = ["2026-07-02", "2026-07-03", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-10", "2026-08-11", "2026-08-12"];
+  var data = [[69.721, 66.861, 71.071, 66.861], [65.401, 63.131, 68.581, 61.171], [64.891, 58.401, 65.681, 58.201], [57.691, 61.161, 62.901, 55.911], [61.771, 60.601, 62.981, 57.401], [61.791, 64.451, 64.901, 59.061], [64.7, 60.01, 66.28, 60.0], [56.0, 54.01, 57.5, 54.01], [52.12, 59.41, 59.41, 50.23], [59.41, 54.5, 59.5, 53.47], [52.91, 51.7, 56.05, 50.67], [51.0, 46.53, 52.3, 46.53], [46.53, 41.88, 47.3, 41.88], [41.0, 44.32, 44.89, 37.69], [43.55, 41.3, 45.6, 40.88], [44.0, 43.21, 45.43, 42.48], [42.52, 40.22, 43.34, 40.16], [40.94, 44.24, 44.24, 40.01], [43.11, 43.19, 45.5, 42.4], [43.76, 47.51, 47.51, 43.67], [48.67, 50.5, 52.26, 46.38], [55.55, 49.35, 55.55, 48.39], [48.0, 51.96, 53.18, 47.01], [50.02, 54.33, 55.69, 48.08], [52.5, 57.8, 59.76, 52.5], [56.01, 58.28, 59.13, 54.8], [57.18, 58.29, 61.79, 55.52], [57.77, 61.7, 63.96, 54.33], [60.88, 65.85, 67.87, 60.88], [63.86, 66.51, 66.64, 62.6]];
+  var vols = [862331.0, 906756.0, 815528.0, 819714.0, 745417.0, 938222.0, 1044727.0, 222910.0, 1330266.0, 1091114.0, 931637.0, 894493.0, 821560.0, 1752682.0, 1347376.0, 1417766.0, 1013166.0, 1282927.0, 1617481.0, 1726328.0, 2673623.0, 2557416.0, 1810211.0, 2003215.0, 2211488.0, 2145862.0, 2042832.0, 2152326.0, 2631304.0, 1810965.0];
+  var option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    grid: [{ left: '10%', right: '4%', top: '8%', height: '55%' }, { left: '10%', right: '4%', top: '70%', height: '18%' }],
+    xAxis: [{ type: 'category', data: dates, scale: true, boundaryGap: false, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { type: 'category', gridIndex: 1, data: dates, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { show: false } }],
+    yAxis: [{ scale: true, splitLine: { lineStyle: { color: '#2d2d44' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { scale: true, gridIndex: 1, splitNumber: 2, axisLabel: { show: false }, splitLine: { show: false } }],
+    dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], start: 0, end: 100 }],
+    series: [
+      { type: 'candlestick', data: data, itemStyle: { color: '#ef4444', color0: '#22c55e', borderColor: '#ef4444', borderColor0: '#22c55e' } },
+      { name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: vols, itemStyle: { color: function(p) { return p.value >= 0 ? '#ef4444' : '#22c55e'; } } }
+    ]
+  };
+  myChart.setOption(option);
+})();
+
+
+(function(){
+  var chartDom = document.getElementById('kline_7');
+  if (!chartDom) return;
+  var myChart = echarts.init(chartDom);
+  var dates = ["2026-07-02", "2026-07-03", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-10", "2026-08-11", "2026-08-12"];
+  var data = [[240.0, 234.67, 253.0, 233.0], [238.99, 259.56, 268.88, 237.78], [264.61, 253.0, 266.0, 238.0], [240.0, 231.2, 247.7, 226.0], [231.18, 215.38, 239.0, 215.0], [221.0, 236.02, 237.0, 220.68], [237.29, 219.9, 244.92, 219.8], [216.99, 190.17, 219.0, 188.04], [197.95, 207.69, 209.22, 191.03], [213.0, 190.18, 217.79, 189.0], [183.6, 174.6, 187.46, 171.35], [175.78, 153.82, 176.56, 152.0], [162.0, 143.65, 163.9, 137.84], [150.11, 168.0, 168.88, 136.2], [164.98, 157.82, 173.33, 156.8], [161.03, 151.76, 163.77, 150.0], [147.9, 143.65, 151.91, 143.12], [143.5, 145.66, 146.0, 135.3], [136.5, 127.1, 139.7, 125.69], [127.81, 124.56, 128.8, 116.93], [124.56, 123.66, 128.93, 117.89], [139.3, 126.81, 140.53, 126.68], [124.18, 119.0, 124.96, 118.38], [119.21, 126.26, 127.36, 116.94], [128.0, 136.03, 138.66, 126.38], [130.0, 137.0, 139.97, 129.0], [136.98, 144.05, 146.21, 136.01], [144.2, 138.48, 144.92, 135.05], [136.19, 137.86, 141.66, 136.19], [139.25, 140.57, 143.0, 137.25]];
+  var vols = [475258.0, 566583.0, 536363.0, 465782.0, 413169.0, 425540.0, 369081.0, 463214.0, 408727.0, 377033.0, 363488.0, 414080.0, 439786.0, 610578.0, 534182.0, 357497.0, 364058.0, 380225.0, 448318.0, 478703.0, 559043.0, 752088.0, 412776.0, 423299.0, 507275.0, 419668.0, 491966.0, 396925.0, 309556.0, 294079.0];
+  var option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    grid: [{ left: '10%', right: '4%', top: '8%', height: '55%' }, { left: '10%', right: '4%', top: '70%', height: '18%' }],
+    xAxis: [{ type: 'category', data: dates, scale: true, boundaryGap: false, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { type: 'category', gridIndex: 1, data: dates, axisLine: { lineStyle: { color: '#475569' } }, axisLabel: { show: false } }],
+    yAxis: [{ scale: true, splitLine: { lineStyle: { color: '#2d2d44' } }, axisLabel: { color: '#94a3b8', fontSize: 10 } }, { scale: true, gridIndex: 1, splitNumber: 2, axisLabel: { show: false }, splitLine: { show: false } }],
+    dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], start: 0, end: 100 }],
+    series: [
+      { type: 'candlestick', data: data, itemStyle: { color: '#ef4444', color0: '#22c55e', borderColor: '#ef4444', borderColor0: '#22c55e' } },
+      { name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: vols, itemStyle: { color: function(p) { return p.value >= 0 ? '#ef4444' : '#22c55e'; } } }
+    ]
+  };
+  myChart.setOption(option);
+})();
+
+</script>
+</body>
+</html>

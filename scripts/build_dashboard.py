@@ -20,6 +20,7 @@ import sys
 import json
 import datetime as dt
 import re
+import requests
 
 # 北京时间（Asia/Shanghai, UTC+8）统一时间基准，与 feed.py 保持一致
 try:
@@ -1927,7 +1928,7 @@ def _section_ashare(snap, us_quotes, overnight):
 
 
 # ----------------------------------------------------------------- 重排后：美股行情映射 面板（美股隔夜 + 美股→A股传导）
-def _section_us_map(snap, us_quotes, overnight, kr_quotes=None, cfg=None):
+def _section_us_map(snap, us_quotes, overnight, kr_quotes=None, cfg=None, macro_data=None):
     """全球行情：仿A股板块结构（HERO指数 → 市场情绪 → 板块强弱 → K线 → 韩国 → 传导）。
     Args:
         snap: market_snapshot
@@ -1942,7 +1943,7 @@ def _section_us_map(snap, us_quotes, overnight, kr_quotes=None, cfg=None):
     hero = _hero_index_cards(us_idx, limit=4, clickable=False)
     # 美股情绪+美股板块 / 韩国KOSPI+韩国板块（双卡片）
     map_card = _us_a_map_card(us_idx)
-    macro_card = _macro_placeholder_card()
+    macro_card = _macro_card(macro_data)
     grid2 = f'''
         <div class="grid-2">
             {map_card}
@@ -3942,7 +3943,7 @@ def _mainforce_pool_card(snap):
     </div>'''
 
 
-def _section_sector_leader(data, sector_constituents=None):
+def _section_sector_leader(data, sector_constituents=None, sector_contrib=None):
     """板块&龙头股：板块资金流入/流出 TOP30（含领涨龙头股）+ A股全量浏览器。
     数据源：桌面 Table-板块.xls（板块资金流向）+ Tabl-A股e.xls（A股全量）→ cache/sector_leader_data.json。
     """
@@ -4074,7 +4075,7 @@ def _section_sector_leader(data, sector_constituents=None):
     </div>
     <div class="sector-layout">{inflow_html}{outflow_html}</div>
     {astock_html}
-    {_sector_constituents_card(sector_constituents)}'''
+    {_sector_constituents_card(sector_constituents, sector_contrib)}'''
 
 
 def _paper_trade_card():
@@ -4911,7 +4912,7 @@ def _us_a_map_card(us_indices):
 
 
 def _macro_placeholder_card():
-    """② 商品/汇率联动卡（数据待接入 mx-ds-mcp 宏观）。"""
+    """② 商品/汇率联动卡（优雅降级占位，无缓存数据时）。"""
     rows = "".join(
         f'<div class="macro-row"><span>{n}</span><b style="color:var(--text-3);">—</b></div>'
         for n in ("黄金 COMEX", "WTI 原油", "USD-CNY", "美元指数")
@@ -4921,6 +4922,36 @@ def _macro_placeholder_card():
             <div class="card-title"><span class="icon"><i class="fas fa-globe"></i></span> 商品 / 汇率联动 <span class="badge">待接入</span></div>
             <div class="macro-rows">{rows}</div>
             <div class="map-tip">实时数据待接入 mx-ds-mcp 宏观源（黄金/原油/汇率）。</div>
+        </div>'''
+
+
+def _macro_card(macro_data):
+    """② 商品/汇率联动卡（真实数据源：mx-ds-mcp 宏观）。
+    macro_data 结构：{"items":[{"name","price","change_pct","unit","status"}...]}。
+    status=="pending_auth" 或 price 为空时显示「待授权」，不编造数据。"""
+    items = (macro_data or {}).get("items") or []
+    if not items:
+        return _macro_placeholder_card()
+    rows = ""
+    for it in items:
+        name = it.get("name", "—")
+        price = it.get("price")
+        chg = it.get("change_pct")
+        unit = it.get("unit", "")
+        if it.get("status") == "pending_auth" or price is None:
+            rows += (f'<div class="macro-row"><span>{name}</span>'
+                     f'<b style="color:var(--text-3);">待授权</b></div>')
+            continue
+        cls = _cls(chg) if isinstance(chg, (int, float)) else ""
+        pct = _fmt_pct(chg) if isinstance(chg, (int, float)) else ""
+        rows += (f'<div class="macro-row"><span>{name}</span>'
+                 f'<b class="{cls}">{_fmt_float(price)} {unit} {pct}</b></div>')
+    src = (macro_data or {}).get("source", "数据源：东方财富妙想(mx-ds-mcp) 宏观")
+    return f'''
+        <div class="card">
+            <div class="card-title"><span class="icon"><i class="fas fa-globe"></i></span> 商品 / 汇率联动 <span class="badge">mx-ds-mcp</span></div>
+            <div class="macro-rows">{rows}</div>
+            <div class="map-tip">{src}</div>
         </div>'''
 
 
@@ -4947,26 +4978,126 @@ def _limitup_summary_bar(limit_up):
     return f'<div class="limitup-bar">{seg}</div>'
 
 
-def _sector_constituents_card(sector_constituents):
-    """④ 板块成分股贡献度预览（行业板块成分股名单，实时贡献度待接入行情）。"""
-    if not isinstance(sector_constituents, dict):
+def _tencent_code_from_raw(code: str) -> str:
+    """成分股原始代码 '688111' -> 腾讯代码 'sh688111'（沪6/9开头，深0/3开头）。"""
+    code = str(code or "").strip()
+    if len(code) < 6:
         return ""
-    parts = []
-    for nm, cons in list(sector_constituents.items())[:5]:
+    return ("sh" if code[0] in "69" else "sz") + code
+
+
+def _tencent_quotes_mcap(codes):
+    """扩展腾讯行情：{code: {name, price, change_pct, mcap_yi}}，mcap_yi=总市值(亿元)。
+    真实数据源：腾讯 qt.gtimg.cn（看板统一行情源），无需 mx-ds-mcp。"""
+    out = {}
+    if not codes:
+        return out
+    try:
+        raw = requests.get("https://qt.gtimg.cn/q=" + ",".join(codes),
+                           headers=feed.UA, timeout=15).text
+        for m in re.finditer(r'v_(\w+)="(.*?)"', raw):
+            code, f = m.group(1), m.group(2).split("~")
+            if len(f) < 46 or not f[3]:
+                continue
+            try:
+                out[code] = {
+                    "name": f[1],
+                    "price": float(f[3]),
+                    "change_pct": float(f[32]) if f[32] else None,
+                    "mcap_yi": float(f[45]) if f[45] else None,
+                }
+            except ValueError:
+                continue
+    except Exception:
+        return out
+    return out
+
+
+def _fetch_sector_contrib(sector_constituents, top_n=5):
+    """④ 板块成分股实时贡献度（真实数据源：腾讯实时行情，市值加权贡献）。
+    返回 {sector: {'sector_change', 'top':[{name,code,change_pct,weight,contrib}], 'bottom':[...], 'count'}}。
+    贡献度 = 个股权重(市值/板块总市值) × 个股涨跌幅；求和≈板块涨跌幅。"""
+    out = {}
+    if not isinstance(sector_constituents, dict):
+        return out
+    for nm, cons in list(sector_constituents.items())[:top_n]:
         if not cons:
             continue
-        chips = "".join(f'<span class="cons-chip">{c.get("name", "—")}</span>' for c in cons[:8])
+        codes, namemap = [], {}
+        for c in cons:
+            if not isinstance(c, dict):
+                continue
+            tc = _tencent_code_from_raw(c.get("code"))
+            if tc:
+                codes.append(tc)
+                namemap[tc] = c.get("name") or c.get("code")
+        if not codes:
+            continue
+        q = _tencent_quotes_mcap(codes)
+        rows = []
+        for tc, v in q.items():
+            cp = v.get("change_pct")
+            mc = v.get("mcap_yi")
+            if cp is None or mc is None:
+                continue
+            rows.append({"name": namemap.get(tc, v.get("name")), "code": tc,
+                         "change_pct": cp, "mcap_yi": mc})
+        tot = sum(r["mcap_yi"] for r in rows)
+        if tot <= 0 or not rows:
+            continue
+        for r in rows:
+            r["weight"] = r["mcap_yi"] / tot
+            r["contrib"] = r["weight"] * r["change_pct"]
+        rows.sort(key=lambda r: -r["contrib"])
+        out[nm] = {
+            "sector_change": round(sum(r["contrib"] for r in rows), 3),
+            "top": rows[:5],
+            "bottom": rows[-3:],
+            "count": len(rows),
+        }
+    return out
+
+
+def _sector_constituents_card(sector_constituents, sector_contrib=None):
+    """④ 板块成分股贡献度（真实数据：腾讯实时行情，市值加权贡献）。"""
+    if not isinstance(sector_constituents, dict):
+        return ""
+    contrib = sector_contrib or {}
+    parts = []
+    for nm in list(sector_constituents.keys())[:5]:
+        cons = sector_constituents.get(nm) or []
+        blk = contrib.get(nm)
+        if not blk:
+            chips = "".join(f'<span class="cons-chip">{c.get("name", "—")}</span>'
+                            for c in cons[:8] if isinstance(c, dict))
+            parts.append(f'<div class="cons-block"><div class="cons-name">{_escape_js(nm)}'
+                         f'<span class="cons-sub">成分股</span></div><div class="cons-chips">{chips}</div></div>')
+            continue
+
+        def _row(r):
+            w = r.get("weight", 0) * 100
+            c = r.get("contrib", 0)
+            wid = max(3, min(100, abs(c) * 40))
+            return (f'<div class="cons-row"><span class="cons-rn">{r.get("name", "—")}</span>'
+                    f'<span class="cons-bar-wrap"><span class="cons-bar {_cls(c)}" '
+                    f'style="width:{wid:.0f}%;"></span></span>'
+                    f'<span class="cons-val {_cls(c)}">{c:+.2f}</span>'
+                    f'<span class="cons-w">{w:.0f}%</span></div>')
+
+        top = "".join(_row(r) for r in blk.get("top", []))
+        bottom = "".join(_row(r) for r in blk.get("bottom", []))
         parts.append(
-            f'<div class="cons-block"><div class="cons-name">{_escape_js(nm)}</div>'
-            f'<div class="cons-chips">{chips}</div></div>'
-        )
+            f'<div class="cons-block"><div class="cons-name">{_escape_js(nm)}'
+            f'<span class="cons-sub">板块≈{blk.get("sector_change", 0):+.2f}% · {blk.get("count", 0)}只</span></div>'
+            f'<div class="cons-contrib"><div class="cons-ctitle">▲ 拉动</div>{top}'
+            f'<div class="cons-ctitle">▼ 拖累</div>{bottom}</div></div>')
     if not parts:
         return ""
     return f'''
         <div class="card card-full">
             <div class="card-title"><span class="icon"><i class="fas fa-project-diagram"></i></span> 板块成分股贡献度
-                <span class="badge">行业板块 TOP5</span>
-                <span class="click-hint">实时贡献度待接入行情</span></div>
+                <span class="badge">行业板块 TOP5 · 实时</span>
+                <span class="click-hint">市值加权贡献 · 腾讯实时行情</span></div>
             <div class="cons-grid">{''.join(parts)}</div>
         </div>'''
 
@@ -4983,6 +5114,10 @@ def build() -> str:
         snap["sector_constituents"] = _frozen_sc
     overnight = _load_cache("us_overnight")
     cfg = _load_cfg()
+    # ② 商品/汇率联动真实数据（mx-ds-mcp 缓存，缺则优雅降级为占位）
+    macro_data = _load_cache("macro_commodity")
+    # ④ 板块成分股实时贡献度真实数据（腾讯实时行情，市值加权）
+    sector_contrib = _fetch_sector_contrib(snap.get("sector_constituents"))
 
     # 双券商交割单 → 合并持仓（若 data/statements 下有 CSV 则自动聚合；否则回退 strategy.yaml holdings）
     # 注意：若 holdings.json 含权威盈亏快照(account_pnl)，则跳过自动合并，保留手动快照
@@ -5110,7 +5245,7 @@ def build() -> str:
 
     nav_items = [
         ("nav-ashare", "A股大盘行情", "fa-chart-line", _section_ashare(snap, us_quotes, overnight)),
-        ("nav-us", "全球行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight, kr_quotes, cfg)),
+        ("nav-us", "全球行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight, kr_quotes, cfg, macro_data)),
         ("nav-limitup", "涨停板分析", "fa-arrow-up",
          _screen_head("涨停板分析", "涨停家数 · 封单强度 · 连板梯队 · 次日建仓建议", _lu_badge)
          + _section_limitup(snap)),
@@ -5128,7 +5263,7 @@ def build() -> str:
          + '</div>'
          + '<div id="sector-tab-leader" class="tab-panel">'
          +     '<div class="rt-hint" id="slUpdateHint" style="font-size:11px;color:var(--text-secondary);margin:0 0 10px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card2);">⏳ 龙头股实时行情加载中…</div>'
-         +     _section_sector_leader(sector_leader, snap.get("sector_constituents"))
+         +     _section_sector_leader(sector_leader, snap.get("sector_constituents"), sector_contrib)
          + '</div>'
         ),
         ("nav-holdings", "持仓复盘", "fa-briefcase",
@@ -7445,6 +7580,17 @@ function stopSectorLeaderRT(){
 .cons-name{ font-weight: 600; font-size: 13px; margin-bottom: 6px; color: var(--text-1); }
 .cons-chips{ display: flex; flex-wrap: wrap; gap: 6px; }
 .cons-chip{ font-size: 11px; padding: 2px 8px; border-radius: 6px; background: rgba(45,212,191,.12); color: var(--accent, #2DD4BF); }
+.cons-sub{ font-weight: 400; font-size: 11px; color: var(--text-secondary); margin-left: 6px; }
+.cons-contrib{ margin-top: 4px; }
+.cons-ctitle{ font-size: 11px; color: var(--text-secondary); margin: 6px 0 3px; }
+.cons-row{ display: flex; align-items: center; gap: 8px; font-size: 12px; margin: 3px 0; }
+.cons-rn{ flex: 0 0 76px; color: var(--text-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cons-bar-wrap{ flex: 1 1 auto; background: var(--card, rgba(255,255,255,.06)); border-radius: 4px; height: 8px; overflow: hidden; }
+.cons-bar{ display: block; height: 100%; border-radius: 4px; }
+.cons-bar.up{ background: #ef4444; }
+.cons-bar.down{ background: #22c55e; }
+.cons-val{ flex: 0 0 48px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.cons-w{ flex: 0 0 38px; text-align: right; color: var(--text-secondary); font-size: 11px; }
 
 @media (prefers-reduced-motion: reduce){
   #ux-scrollbar{ transition: none !important; }

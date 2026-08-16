@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>量化雷达 · 派生分析 20260816</title>
+
+:root{
+  --bg:#0b0f17; --card:#121826; --card2:#0f1521; --line:rgba(255,255,255,.08);
+  --text-1:#e6edf3; --text-primary:#e6edf3; --text-secondary:#9aa7b8; --text-3:#6b7686;
+  --accent:#2DD4BF; --up:#ef4444; --down:#22c55e; --warn:#f59e0b;
+}
+*{ box-sizing:border-box; }
+body{ margin:0; background:var(--bg); color:var(--text-1);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+  padding:24px; line-height:1.5; }
+.wrap{ max-width:1080px; margin:0 auto; }
+h1{ font-size:22px; margin:0 0 4px; }
+.sub{ color:var(--text-secondary); font-size:13px; }
+.card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:14px 0; }
+.card-title{ font-size:15px; font-weight:600; margin:0 0 12px; display:flex; align-items:center; gap:8px; }
+.badge{ font-size:10px; padding:2px 7px; border-radius:6px; background:rgba(79,195,247,.14); color:#4fc3f7; font-weight:600; }
+.click-hint{ margin-left:auto; font-size:11px; color:var(--text-3); }
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.up{ color:var(--up); } .down{ color:var(--down); } .warn{ color:var(--warn); }
+.map-tip{ font-size:11px; color:var(--text-secondary); margin-top:8px; }
+.kpi{ background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:10px 14px; }
+.kpi .k{ font-size:11px; color:var(--text-secondary); }
+.kpi .v{ font-size:20px; font-weight:700; font-variant-numeric:tabular-nums; }
+.conc-bar{ display:flex; align-items:center; gap:10px; margin:6px 0; font-size:13px; }
+.conc-bar .nm{ flex:0 0 92px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.conc-bar .track{ flex:1; background:rgba(255,255,255,.06); border-radius:5px; height:10px; overflow:hidden; }
+.conc-bar .fill{ height:100%; border-radius:5px; }
+.conc-bar .pc{ flex:0 0 52px; text-align:right; font-variant-numeric:tabular-nums; }
+.conc-warn{ color:var(--warn); font-size:12px; margin-top:8px; }
+.conc-ok{ color:var(--down); font-size:12px; margin-top:8px; }
+.tbl{ width:100%; border-collapse:collapse; font-size:13px; }
+.tbl th,.tbl td{ padding:7px 10px; border-bottom:1px solid var(--line); text-align:right; }
+.tbl th:first-child,.tbl td:first-child{ text-align:left; }
+.tbl th{ color:var(--text-secondary); font-weight:500; }
+.val{ font-variant-numeric:tabular-nums; }
+.flag{ background:var(--up); color:#fff; font-size:10px; padding:1px 6px; border-radius:4px; }
+.note{ font-size:11px; color:var(--text-3); margin-top:10px; }
+a{ color:var(--accent); }
+
+</head>
+<body><div class="wrap">
+  <h1>📡 量化雷达 · 派生分析</h1>
+  <div class="sub">信号总览 + 机会池明细 · 红涨绿跌（A股惯例） · 数据基准 2026-08-14 15:31</div>
+  
+    <div class="card card-full" style="margin-bottom:16px;">
+        <div class="card-title"><span class="icon"><i class="fas fa-satellite-dish"></i></span> 雷达信号总览 <span class="badge">SIGNAL OVERVIEW</span>
+            <span style="margin-left:auto;font-size:12px;color:#f59e0b;font-weight:600;">市场情绪：中性 · 均衡</span></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;"><div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:118px;"><div style="font-size:11px;color:var(--text-secondary);">明日备选池</div><div style="font-size:20px;font-weight:700;color:#4fc3f7;font-variant-numeric:tabular-nums;">12</div></div><div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:118px;"><div style="font-size:11px;color:var(--text-secondary);">主力资金池</div><div style="font-size:20px;font-weight:700;color:#a06bff;font-variant-numeric:tabular-nums;">12</div></div><div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:118px;"><div style="font-size:11px;color:var(--text-secondary);">竞价优选</div><div style="font-size:20px;font-weight:700;color:#ff8a3d;font-variant-numeric:tabular-nums;">15</div></div><div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:118px;"><div style="font-size:11px;color:var(--text-secondary);">情绪优选</div><div style="font-size:20px;font-weight:700;color:#ffb020;font-variant-numeric:tabular-nums;">20</div></div><div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:118px;"><div style="font-size:11px;color:var(--text-secondary);">涨停板</div><div style="font-size:20px;font-weight:700;color:#ef4444;font-variant-numeric:tabular-nums;">64</div></div><div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:118px;"><div style="font-size:11px;color:var(--text-secondary);">跌停板</div><div style="font-size:20px;font-weight:700;color:#22c55e;font-variant-numeric:tabular-nums;">13</div></div></div>
+        <div style="font-size:11px;color:var(--text-secondary);">综合机会指数（进攻池+涨停加权）：<b style="color:var(--text-primary);">123</b> · 红涨绿跌（A股惯例）· 数据刷新即更新</div>
+    </div>
+  
+    <div class="card">
+      <div class="card-title"><span class="icon">🎯</span> 机会池明细 <span class="badge">DERIVED</span></div>
+      <div class="grid-2">
+        <div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">明日备选池（回测引擎 · 12 只）</div>
+          <table class="tbl"><tr><th>标的</th><th>评分</th><th style="text-align:left;">逻辑</th></tr><tr><td>工业富联</td><td class="val">90</td><td style="text-align:left;color:var(--text-secondary);"></td></tr><tr><td>胜宏科技</td><td class="val">85</td><td style="text-align:left;color:var(--text-secondary);"></td></tr><tr><td>长电科技</td><td class="val">85</td><td style="text-align:left;color:var(--text-secondary);"></td></tr><tr><td>紫光股份</td><td class="val">80</td><td style="text-align:left;color:var(--text-secondary);"></td></tr><tr><td>中际旭创</td><td class="val">80</td><td style="text-align:left;color:var(--text-secondary);"></td></tr><tr><td>天孚通信</td><td class="val">80</td><td style="text-align:left;color:var(--text-secondary);"></td></tr><tr><td>光迅科技</td><td class="val">80</td><td style="text-align:left;color:var(--text-secondary);"></td></tr><tr><td>工商银行</td><td class="val">80</td><td style="text-align:left;color:var(--text-secondary);"></td></tr><tr><td>中船特气</td><td class="val">85</td><td style="text-align:left;color:var(--text-secondary);"></td></tr><tr><td>长芯博创</td><td class="val">85</td><td style="text-align:left;color:var(--text-secondary);"></td></tr><tr><td>兴业银锡</td><td class="val">80</td><td style="text-align:left;color:var(--text-secondary);"></td></tr><tr><td>锡业股份</td><td class="val">80</td><td style="text-align:left;color:var(--text-secondary);"></td></tr></table>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">主力资金 TOP（实时）</div>
+          <table class="tbl"><tr><th>标的</th><th>涨跌幅</th><th>主力净额</th></tr><tr><td>—</td><td class="val up">+0.00%</td><td class="val">0</td></tr><tr><td>—</td><td class="val up">+0.00%</td><td class="val">0</td></tr><tr><td>—</td><td class="val up">+0.00%</td><td class="val">0</td></tr><tr><td>—</td><td class="val up">+0.00%</td><td class="val">0</td></tr><tr><td>—</td><td class="val up">+0.00%</td><td class="val">0</td></tr><tr><td>—</td><td class="val up">+0.00%</td><td class="val">0</td></tr><tr><td>—</td><td class="val up">+0.00%</td><td class="val">0</td></tr><tr><td>—</td><td class="val up">+0.00%</td><td class="val">0</td></tr></table>
+        </div>
+      </div>
+      <div class="note">竞价优选 15 只 · 情绪优选 20 只（详见量化工作台「量化雷达」模块）</div>
+    </div>
+  <div class="note">本报告为量化工作台「量化雷达」模块派生分析的独立快照；实时完整版见 index.html 量化雷达面板。</div>
+</div></body></html>

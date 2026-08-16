@@ -1,0 +1,10 @@
+{
+  "updated_at": "2026-08-14",
+  "source": "数据源：东方财富妙想(mx-ds-mcp) 宏观 · USD-CNY 已取数；黄金/原油/美元指数待连接器重新授权后补全",
+  "items": [
+    {"name": "黄金 COMEX", "label": "COMEX黄金", "price": null, "change_pct": null, "unit": "美元/盎司", "status": "pending_auth"},
+    {"name": "WTI 原油", "label": "WTI原油", "price": null, "change_pct": null, "unit": "美元/桶", "status": "pending_auth"},
+    {"name": "USD-CNY", "label": "美元兑人民币", "price": 6.74435, "change_pct": -0.01, "unit": "", "asof": "2026-08-14", "prev": 6.74476, "status": "ok"},
+    {"name": "美元指数", "label": "DXY", "price": null, "change_pct": null, "unit": "", "status": "pending_auth"}
+  ]
+}
