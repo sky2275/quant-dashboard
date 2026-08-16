@@ -885,7 +885,7 @@
             <span class="status-badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;"><i class="fas fa-moon"></i> 休市 · 显示 08-14 收盘数据</span>
             <span class="live-badge" id="rtStatus"><i class="dot"></i> 实时 · 加载中</span>
             <button id="rtRefreshBtn" class="rt-refresh-btn" onclick="rtManualRefresh()" title="立即刷新所有行情"><i class="fas fa-sync-alt"></i> 立即刷新</button>
-            <span class="version-badge" title="页面构建版本">v20260816-0039</span>
+            <span class="version-badge" title="页面构建版本">v20260816-1053</span>
         </div>
     </header>
     <div class="app-layout">
@@ -957,7 +957,7 @@
         </div></div><div id="nav-us" class="content-panel">
         <div class="screen-head">
             <div><h1>全球行情</h1><div class="desc">美股三大指数 · 板块ETF · 龙头股 · K线走势 · 韩国板块 · A股映射</div></div>
-            <div class="head-badge">盘中交易</div>
+            <div class="head-badge">休市</div>
         </div>
         <div class="card section-index-bar" style="margin-bottom:16px;">
             <div class="bar-label">隔夜指数</div>
@@ -2525,7 +2525,7 @@
         </div>
 <div style="padding:8px 0;">
   <div style="font-size:22px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">📊 8月14日持仓股复盘 & 8月17日作战计划</div>
-  <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">📌 配色规则：红涨绿跌（A 股惯例） · 生成时间 2026-08-16 00:39</div>
+  <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">📌 配色规则：红涨绿跌（A 股惯例） · 生成时间 2026-08-16 10:53</div>
   
   <div class="overview" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;">
     <div class="overview-card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:16px;text-align:center;">
@@ -3504,7 +3504,7 @@
     </div>
   </div>
 
-  <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
     <h2 style="font-size:18px;margin:0 0 14px;color:#e2e8f0;">💰 资金调度建议</h2>
     
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;">
@@ -3521,6 +3521,86 @@
   </div>
 
   </div>
+
+  
+  <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <h2 style="font-size:18px;margin:0 0 14px;color:#e2e8f0;">📐 持仓结构分析 <span style="font-size:12px;color:#94a3b8;font-weight:400;">仓位占比 · 集中度 · 盈亏贡献</span></h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:16px;">
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">持仓集中度（TOP3 占比）</div>
+        <div style="font-size:24px;font-weight:700;color:#f59e0b;">71.3%</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">状态：偏高 ⚠（单票建议≤15% · TOP3≤60%）</div>
+      </div>
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">盈亏分布</div>
+        <div style="font-size:14px;color:#e2e8f0;line-height:1.8;">
+          <span style="color:#ef4444;">盈利 5 只</span> · <span style="color:#22c55e;">亏损 3 只</span> · <span style="color:#94a3b8;">持平 0 只</span>
+        </div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">盈利金额 +1.09万 · 亏损金额 -1.14万</div>
+      </div>
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">盈利贡献 TOP3</div>
+        <div style="font-size:11px;padding:2px 0;color:#94a3b8;"><span style="color:#e2e8f0;">北京君正</span> <span style="color:#ef4444;">+3,809.50</span></div><div style="font-size:11px;padding:2px 0;color:#94a3b8;"><span style="color:#e2e8f0;">哈药股份</span> <span style="color:#ef4444;">+3,484.00</span></div><div style="font-size:11px;padding:2px 0;color:#94a3b8;"><span style="color:#e2e8f0;">征和工业</span> <span style="color:#ef4444;">+1,875.00</span></div>
+      </div>
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">亏损拖累 TOP3</div>
+        <div style="font-size:11px;padding:2px 0;color:#94a3b8;"><span style="color:#e2e8f0;">通富微电</span> <span style="color:#22c55e;">-90.50</span></div><div style="font-size:11px;padding:2px 0;color:#94a3b8;"><span style="color:#e2e8f0;">风华高科</span> <span style="color:#22c55e;">-2,523.00</span></div><div style="font-size:11px;padding:2px 0;color:#94a3b8;"><span style="color:#e2e8f0;">国瓷材料</span> <span style="color:#22c55e;">-8,740.00</span></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 个股权仓占比（按市值 · TOP8）</div>
+        <div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">北京君正</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:46.0%;background:#ef4444;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">46.0%</span>
+      </div><div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">北京君正</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:13.5%;background:#ef4444;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">13.5%</span>
+      </div><div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">风华高科</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:11.8%;background:#22c55e;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">11.8%</span>
+      </div><div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">哈药股份</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:6.7%;background:#ef4444;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">6.7%</span>
+      </div><div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">国瓷材料</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:6.7%;background:#22c55e;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">6.7%</span>
+      </div><div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">征和工业</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:6.1%;background:#ef4444;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">6.1%</span>
+      </div><div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">通富微电</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:5.9%;background:#22c55e;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">5.9%</span>
+      </div><div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">埃斯顿</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:3.3%;background:#ef4444;border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">3.3%</span>
+      </div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:6px;">总市值 +53.12万 · 红/绿条按当前盈亏着色</div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🏦 账户分布</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0;border-bottom:1px solid #2d2d44;">
+        <span style="color:#e2e8f0;">东方财富证券 <span style="color:#94a3b8;font-size:11px;">· 1只</span></span>
+        <span style="font-variant-numeric:tabular-nums;"><span style="color:#e2e8f0;">+24.42万</span> <span style="color:#94a3b8;">· 46.0%</span> <span style="color:#ef4444;">1,120.30</span></span>
+      </div><div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0;border-bottom:1px solid #2d2d44;">
+        <span style="color:#e2e8f0;">中信建投 <span style="color:#94a3b8;font-size:11px;">· 5只</span></span>
+        <span style="font-variant-numeric:tabular-nums;"><span style="color:#e2e8f0;">+23.82万</span> <span style="color:#94a3b8;">· 44.8%</span> <span style="color:#22c55e;">-2,094.50</span></span>
+      </div><div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0;border-bottom:1px solid #2d2d44;">
+        <span style="color:#e2e8f0;">银河证券 <span style="color:#94a3b8;font-size:11px;">· 2只</span></span>
+        <span style="font-variant-numeric:tabular-nums;"><span style="color:#e2e8f0;">+4.89万</span> <span style="color:#94a3b8;">· 9.2%</span> <span style="color:#ef4444;">512.00</span></span>
+      </div>
+      </div>
+    </div>
+  </div>
+
 
   <div style="font-size:11px;color:#94a3b8;margin-top:20px;text-align:center;">
     本分析仅供学习和研究参考，不构成任何投资建议。股市有风险，投资需谨慎。
@@ -3710,6 +3790,12 @@
             <div><h1>量化雷达</h1><div class="desc">多策略选股池 · 明日备选 · 回测引擎 · 持仓对比回测</div></div>
             <div class="head-badge">STRATEGY</div>
         </div>
+    <div class="card card-full" style="margin-bottom:16px;">
+        <div class="card-title"><span class="icon"><i class="fas fa-satellite-dish"></i></span> 雷达信号总览 <span class="badge">SIGNAL OVERVIEW</span>
+            <span style="margin-left:auto;font-size:12px;color:#f59e0b;font-weight:600;">市场情绪：中性 · 均衡</span></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;"><div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:118px;"><div style="font-size:11px;color:var(--text-secondary);">明日备选池</div><div style="font-size:20px;font-weight:700;color:#4fc3f7;font-variant-numeric:tabular-nums;">12</div></div><div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:118px;"><div style="font-size:11px;color:var(--text-secondary);">主力资金池</div><div style="font-size:20px;font-weight:700;color:#a06bff;font-variant-numeric:tabular-nums;">12</div></div><div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:118px;"><div style="font-size:11px;color:var(--text-secondary);">竞价优选</div><div style="font-size:20px;font-weight:700;color:#ff8a3d;font-variant-numeric:tabular-nums;">15</div></div><div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:118px;"><div style="font-size:11px;color:var(--text-secondary);">情绪优选</div><div style="font-size:20px;font-weight:700;color:#ffb020;font-variant-numeric:tabular-nums;">20</div></div><div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:118px;"><div style="font-size:11px;color:var(--text-secondary);">涨停板</div><div style="font-size:20px;font-weight:700;color:#ef4444;font-variant-numeric:tabular-nums;">64</div></div><div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:118px;"><div style="font-size:11px;color:var(--text-secondary);">跌停板</div><div style="font-size:20px;font-weight:700;color:#22c55e;font-variant-numeric:tabular-nums;">13</div></div></div>
+        <div style="font-size:11px;color:var(--text-secondary);">综合机会指数（进攻池+涨停加权）：<b style="color:var(--text-primary);">123</b> · 红涨绿跌（A股惯例）· 数据刷新即更新</div>
+    </div>
         <div class="card card-full" onclick="openModal('watchlist')">
             <div class="card-title">
                 <span class="icon"><i class="fas fa-star"></i></span> ⑥ 备选股票池

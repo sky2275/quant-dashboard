@@ -31,7 +31,15 @@
   .sum .big{font-size:20px; font-weight:700; font-variant-numeric:tabular-nums;}
   .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px;}
   .pos{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; transition:border-color .3s;}
-  .pos.breach{border-color:var(--up); box-shadow:0 0 0 1px var(--up) inset;}
+  .pos.breach{border-color:var(--up); animation:breachPulse 1.2s ease-in-out infinite;}
+  @keyframes breachPulse{0%,100%{box-shadow:0 0 0 1px var(--up) inset;}50%{box-shadow:0 0 10px 2px var(--up) inset;}}
+  .conc-bar{display:grid;grid-template-columns:84px 1fr 52px;align-items:center;gap:8px;font-size:11px;padding:3px 0;}
+  .conc-bar .nm{color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .conc-bar .track{height:8px;background:var(--card2);border-radius:4px;overflow:hidden;}
+  .conc-bar .fill{height:100%;border-radius:4px;}
+  .conc-bar .pc{text-align:right;color:var(--sub);font-variant-numeric:tabular-nums;}
+  .conc-warn{color:var(--up);font-size:12px;margin-top:8px;}
+  .conc-ok{color:var(--down);font-size:12px;margin-top:8px;}
   .pos .top{display:flex; justify-content:space-between; align-items:baseline;}
   .pos .nm{font-size:15px; font-weight:600;}
   .pos .cd{font-size:11px; color:var(--sub);}
@@ -85,6 +93,9 @@
 <div id="errBox"></div>
 <div class="idx-row" id="idxRow"></div>
 <div class="summary" id="summary"></div>
+
+<div class="section-t">持仓占比 / 集中度<span class="sub" id="concSub"></span></div>
+<div class="panel"><div id="concBars"><div class="loading">计算中…</div></div></div>
 
 <div class="section-t">持仓实时监控（真实持仓 × 实时报价）<span class="sub" id="posSub"></span></div>
 <div class="grid" id="grid"><div class="loading">加载持仓数据中…</div></div>
@@ -322,6 +333,27 @@ function updatePositions(map){
   const amv=document.getElementById("sa-mv-all"); if(amv) amv.textContent=fmt(allMv);
   const atd=document.getElementById("sa-td-all"); if(atd){ atd.textContent="当日 "+sgn(allTd); atd.className="chg "+(allTd>=0?"up":"down"); }
   const atp=document.getElementById("sa-tp-all"); if(atp){ atp.textContent="总 "+sgn(allTp); atp.className="chg "+(allTp>=0?"up":"down"); }
+
+  // 持仓占比 / 集中度（实时派生）
+  const arr=HOLD.positions.map(p=>{
+    const c=tencentCode(p.code); const d=map[c];
+    const price=(d&&!isNaN(d.price))?d.price:p.avg_cost;
+    const q=p.quantity||0;
+    return {name:p.name, mv:price*q, pnl:(price-p.avg_cost)*q};
+  }).filter(x=>x.mv>0).sort((a,b)=>b.mv-a.mv);
+  const concBox=document.getElementById("concBars");
+  if(allMv>0 && arr.length && concBox){
+    const top3=arr.slice(0,3).reduce((s,x)=>s+x.mv,0)/allMv*100;
+    let bars="";
+    arr.slice(0,10).forEach(x=>{
+      const pc=x.mv/allMv*100;
+      const col=x.pnl>=0?"var(--up)":"var(--down)";
+      bars+=`<div class="conc-bar"><span class="nm">${x.name}</span><div class="track"><div class="fill" style="width:${Math.min(pc,100).toFixed(1)}%;background:${col};"></div></div><span class="pc">${pc.toFixed(1)}%</span></div>`;
+    });
+    const warn=top3>=60?`<div class="conc-warn">⚠ 集中度偏高：TOP3 合计 ${top3.toFixed(1)}%（建议≤60%）· 单票建议≤15%</div>`:`<div class="conc-ok">✅ 集中度健康：TOP3 合计 ${top3.toFixed(1)}%</div>`;
+    concBox.innerHTML=bars+warn;
+    const cs=document.getElementById("concSub"); if(cs) cs.textContent="总市值 "+fmt(allMv)+" · "+arr.length+" 只";
+  }
 }
 function updateWatch(map){
   WATCH.forEach(w=>{

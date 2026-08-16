@@ -4525,12 +4525,68 @@ def _right_backtest_engine():
     </div>'''
 
 
+def _radar_signal_overview(snap):
+    """⑥ 量化雷达信号总览（纯派生）：跨池聚合机会数量 + 综合进攻/防御偏向。不新增数据源。"""
+    snap = snap or {}
+    try:
+        s26 = _load_cache("scan_0926") or {}
+        s30 = _load_cache("scan_1430") or {}
+        eng = _load_cache("backtest_engine_data") or {}
+    except Exception:
+        s26 = s30 = eng = {}
+    tomorrow = len((eng.get("tomorrow_picks") or []))
+    picks26 = s26.get("count") or len(s26.get("stocks", []) or [])
+    picks30 = s30.get("count") or len(s30.get("stocks", []) or [])
+    hm = snap.get("heatmap") or []
+    mainforce = min(12, len(hm)) if hm else 0
+
+    breadth = snap.get("market_breadth") or {}
+    up = breadth.get("up_count") or 0
+    down = breadth.get("down_count") or 0
+    limit_up = breadth.get("limit_up_count") or 0
+    limit_down = breadth.get("limit_down_count") or 0
+    total = up + down
+    if total:
+        if up > down * 1.4:
+            mood, mood_col = "偏强 · 可进攻", "#ef4444"
+        elif down > up * 1.3:
+            mood, mood_col = "分歧 · 偏防御", "#22c55e"
+        else:
+            mood, mood_col = "中性 · 均衡", "#f59e0b"
+    else:
+        mood, mood_col = "—", "#94a3b8"
+
+    opp = tomorrow + picks26 + picks30 + mainforce + limit_up
+    chips = [
+        ("明日备选池", tomorrow, "#4fc3f7"),
+        ("主力资金池", mainforce, "#a06bff"),
+        ("竞价优选", picks26, "#ff8a3d"),
+        ("情绪优选", picks30, "#ffb020"),
+        ("涨停板", limit_up, "#ef4444"),
+        ("跌停板", limit_down, "#22c55e"),
+    ]
+    chip_html = "".join(
+        f'<div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:118px;">'
+        f'<div style="font-size:11px;color:var(--text-secondary);">{lab}</div>'
+        f'<div style="font-size:20px;font-weight:700;color:{col};font-variant-numeric:tabular-nums;">{val}</div></div>'
+        for lab, val, col in chips)
+    return f'''
+    <div class="card card-full" style="margin-bottom:16px;">
+        <div class="card-title"><span class="icon"><i class="fas fa-satellite-dish"></i></span> 雷达信号总览 <span class="badge">SIGNAL OVERVIEW</span>
+            <span style="margin-left:auto;font-size:12px;color:{mood_col};font-weight:600;">市场情绪：{mood}</span></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">{chip_html}</div>
+        <div style="font-size:11px;color:var(--text-secondary);">综合机会指数（进攻池+涨停加权）：<b style="color:var(--text-primary);">{opp}</b> · 红涨绿跌（A股惯例）· 数据刷新即更新</div>
+    </div>'''
+
+
 def _section_radar(snap):
     """A股量化雷达 V2.0 三栏主体。"""
+    overview = _radar_signal_overview(snap)
     left = _left_market_scan(snap)
     middle = _middle_daily_picks()
     right = _right_backtest_engine()
     return f'''
+    {overview}
     <div class="radar-grid">
         <div class="radar-col">{left}</div>
         <div class="radar-col">{middle}</div>
@@ -5083,6 +5139,7 @@ def build() -> str:
         ("nav-radar", "量化雷达", "fa-satellite-dish",
          _screen_head("量化雷达", "多策略选股池 · 明日备选 · 回测引擎 · 持仓对比回测", "STRATEGY")
          + "".join([
+            _radar_signal_overview(snap),       # ⑥ 信号总览（纯派生，纯加法）
             _section_pool(cfg, a_quotes, indicators),
             _mainforce_pool_card(snap),       # 8/3 主力资金备选池（重点）
             _paper_trade_card(),              # 本地模拟交易账户（PAPER）

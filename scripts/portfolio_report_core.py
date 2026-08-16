@@ -843,6 +843,113 @@ def _generate_fund_allocation(rows):
 """
 
 
+def _generate_position_structure(rows):
+    """⑤ 持仓结构分析（纯派生）：仓位占比 / 集中度 / 盈亏贡献 / 账户分布。
+    不读取外部数据，全部基于已算好的 rows 派生。"""
+    if not rows:
+        return ""
+    total_mv = sum((d["price"] or 0) * d["quantity"] for d in rows)
+    total_pnl = sum(d["total_pnl"] or 0 for d in rows)
+    if total_mv <= 0:
+        return ""
+
+    # 每只 仓位占比 + 盈亏
+    alloc = []
+    for d in rows:
+        mv = (d["price"] or 0) * d["quantity"]
+        pct = mv / total_mv * 100
+        alloc.append({"name": d["name"], "mv": mv, "pct": pct, "pnl": d["total_pnl"] or 0,
+                      "cls": "up" if (d["total_pnl"] or 0) > 0 else ("down" if (d["total_pnl"] or 0) < 0 else "flat")})
+    alloc_sorted = sorted(alloc, key=lambda x: x["mv"], reverse=True)
+
+    # 集中度：top3 合计占比
+    top3 = sum(x["pct"] for x in alloc_sorted[:3])
+
+    # 盈亏分布
+    up_n = sum(1 for d in rows if (d["total_pnl"] or 0) > 0)
+    down_n = sum(1 for d in rows if (d["total_pnl"] or 0) < 0)
+    flat_n = len(rows) - up_n - down_n
+
+    # 盈亏贡献 TOP3（正/负）
+    pnl_sorted = sorted(alloc, key=lambda x: x["pnl"], reverse=True)
+    top_profit = pnl_sorted[:3]
+    top_loss = [x for x in pnl_sorted if x["pnl"] < 0][:3]
+
+    # 账户分布
+    acct_agg = {}
+    for d in rows:
+        a = d["account"]
+        g = acct_agg.setdefault(a, {"mv": 0.0, "pnl": 0.0, "n": 0})
+        g["mv"] += (d["price"] or 0) * d["quantity"]
+        g["pnl"] += (d["total_pnl"] or 0)
+        g["n"] += 1
+    acct_rows = ""
+    for a, g in sorted(acct_agg.items(), key=lambda kv: kv[1]["mv"], reverse=True):
+        apct = g["mv"] / total_mv * 100
+        acct_rows += f'''<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0;border-bottom:1px solid #2d2d44;">
+        <span style="color:#e2e8f0;">{a} <span style="color:#94a3b8;font-size:11px;">· {g['n']}只</span></span>
+        <span style="font-variant-numeric:tabular-nums;"><span style="color:#e2e8f0;">{_fmt_pnl(g['mv'])}</span> <span style="color:#94a3b8;">· {apct:.1f}%</span> <span style="color:{'#ef4444' if g['pnl']>0 else '#22c55e'};">{_fmt_pnl(g['pnl'])}</span></span>
+      </div>'''
+
+    # 仓位占比条（top 8，避免过长）
+    bar_rows = ""
+    for x in alloc_sorted[:8]:
+        bar_color = "#ef4444" if x["cls"] == "up" else ("#22c55e" if x["cls"] == "down" else "#94a3b8")
+        bar_rows += f'''<div style="display:grid;grid-template-columns:90px 1fr 56px;align-items:center;gap:8px;font-size:11px;padding:3px 0;">
+        <span style="color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{x['name']}</span>
+        <div style="height:8px;background:#0f0f23;border-radius:4px;overflow:hidden;"><div style="height:100%;width:{min(x['pct'],100):.1f}%;background:{bar_color};border-radius:4px;"></div></div>
+        <span style="text-align:right;color:#94a3b8;font-variant-numeric:tabular-nums;">{x['pct']:.1f}%</span>
+      </div>'''
+
+    # 集中度预警
+    conc_lv, conc_col = ("偏高 ⚠", "#f59e0b") if top3 >= 60 else ("健康", "#22c55e")
+    tp_html = "".join(
+        f'<div style="font-size:11px;padding:2px 0;color:#94a3b8;"><span style="color:#e2e8f0;">{x["name"]}</span> <span style="color:#ef4444;">+{_fmt_pnl(x["pnl"])}</span></div>'
+        for x in top_profit) or '<div style="font-size:11px;color:#94a3b8;">—</div>'
+    tl_html = "".join(
+        f'<div style="font-size:11px;padding:2px 0;color:#94a3b8;"><span style="color:#e2e8f0;">{x["name"]}</span> <span style="color:#22c55e;">{_fmt_pnl(x["pnl"])}</span></div>'
+        for x in top_loss) or '<div style="font-size:11px;color:#94a3b8;">—</div>'
+
+    return f"""
+  <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <h2 style="font-size:18px;margin:0 0 14px;color:#e2e8f0;">📐 持仓结构分析 <span style="font-size:12px;color:#94a3b8;font-weight:400;">仓位占比 · 集中度 · 盈亏贡献</span></h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:16px;">
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">持仓集中度（TOP3 占比）</div>
+        <div style="font-size:24px;font-weight:700;color:{conc_col};">{top3:.1f}%</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">状态：{conc_lv}{'（单票建议≤15% · TOP3≤60%）' if conc_lv.startswith('偏高') else ''}</div>
+      </div>
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">盈亏分布</div>
+        <div style="font-size:14px;color:#e2e8f0;line-height:1.8;">
+          <span style="color:#ef4444;">盈利 {up_n} 只</span> · <span style="color:#22c55e;">亏损 {down_n} 只</span> · <span style="color:#94a3b8;">持平 {flat_n} 只</span>
+        </div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">盈利金额 {_fmt_pnl(sum(x['pnl'] for x in alloc if x['pnl']>0))} · 亏损金额 {_fmt_pnl(sum(x['pnl'] for x in alloc if x['pnl']<0))}</div>
+      </div>
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">盈利贡献 TOP3</div>
+        {tp_html}
+      </div>
+      <div style="background:#0f0f23;padding:14px;border-radius:8px;">
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">亏损拖累 TOP3</div>
+        {tl_html}
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">📊 个股权仓占比（按市值 · TOP8）</div>
+        {bar_rows}
+        <div style="font-size:11px;color:#94a3b8;margin-top:6px;">总市值 {_fmt_pnl(total_mv)} · 红/绿条按当前盈亏着色</div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🏦 账户分布</div>
+        {acct_rows}
+      </div>
+    </div>
+  </div>
+"""
+
+
 # ---------------------------------------------------------------------------
 # 报告主体
 
@@ -913,6 +1020,9 @@ def _report_body(rows, hold_str, plan_str, hold_date, account_pnl=None, embedded
 
     # 资金调度
     fund_alloc = _generate_fund_allocation(rows)
+
+    # 持仓结构分析（纯派生，纯加法）
+    position_structure = _generate_position_structure(rows)
 
     body = f"""
   <div class="overview" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;">
@@ -999,10 +1109,12 @@ def _report_body(rows, hold_str, plan_str, hold_date, account_pnl=None, embedded
     </div>
   </div>
 
-  <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
+    <div class="card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:20px;margin-bottom:20px;">
     <h2 style="font-size:18px;margin:0 0 14px;color:#e2e8f0;">💰 资金调度建议</h2>
     {fund_alloc}
   </div>
+
+  {position_structure}
 
   <div style="font-size:11px;color:#94a3b8;margin-top:20px;text-align:center;">
     本分析仅供学习和研究参考，不构成任何投资建议。股市有风险，投资需谨慎。
