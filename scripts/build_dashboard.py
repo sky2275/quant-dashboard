@@ -4388,6 +4388,108 @@ def _section_sector_leader(data, sector_constituents=None, sector_contrib=None):
     {_sector_constituents_card(sector_constituents, sector_contrib)}'''
 
 
+def _sector_calendar_panel() -> str:
+    """A股月度热点日历：12个月日历效应（热点板块+驱动逻辑+代表龙头股），当前月高亮。
+    静态历史惯例数据，非实时行情；按春/夏/秋/冬配色。"""
+    import datetime as _dt
+    now_month = _dt.datetime.now().month
+    _SEASON = {"春": "#4ade80", "夏": "#fb923c", "秋": "#f59e0b", "冬": "#38bdf8"}
+
+    def _season_of(m):
+        if m in (3, 4, 5): return "春"
+        if m in (6, 7, 8): return "夏"
+        if m in (9, 10, 11): return "秋"
+        return "冬"
+
+    _MONTHS = [
+        {"m": 1, "hot": "农业种业 / 一号文件预期、春节消费、年报预增",
+         "logic": "中央一号文件 1-2 月发布，农业政策预期升温；年底消费旺季",
+         "leaders": ["隆平高科", "荃银高科", "大北农", "北大荒", "贵州茅台", "牧原股份"]},
+        {"m": 2, "hot": "农业（政策落地）、春节消费、两会预期",
+         "logic": "一号文件落地；两会临近，政策主题酝酿",
+         "leaders": ["隆平高科", "大北农", "贵州茅台", "海天味业"]},
+        {"m": 3, "hot": "两会主题（新基建、科技自主、双碳、国企改革）",
+         "logic": "两会召开、政策定调，主题投资最活跃",
+         "leaders": ["中兴通讯", "中科曙光", "中国中车", "三一重工", "宁德时代"]},
+        {"m": 4, "hot": "一季报预增、高送转填权、消费白马",
+         "logic": "一季报+年报密集披露，业绩驱动；高送转炒作",
+         "leaders": ["贵州茅台", "美的集团", "迈瑞医疗", "业绩超预期个股"]},
+        {"m": 5, "hot": "科技（半导体 / 消费电子）、军工",
+         "logic": "成长风格季度性强；苹果链备货预期",
+         "leaders": ["韦尔股份", "北方华创", "卓胜微", "立讯精密", "中航沈飞"]},
+        {"m": 6, "hot": "券商、次新股、中报预增",
+         "logic": "年中资金博弈；流动性宽松时券商常躁动；中报预告",
+         "leaders": ["中信证券", "东方财富", "同花顺", "财达证券"]},
+        {"m": 7, "hot": "军工（建军节）、电力（迎峰度夏）、中报",
+         "logic": "八一建军节催化军工；夏季用电高峰推升电力",
+         "leaders": ["中航沈飞", "航发动力", "中航西飞", "长江电力", "华能国际"]},
+        {"m": 8, "hot": "消费电子（苹果链）、白酒、中报密集",
+         "logic": "苹果秋季发布会预期；中报落地消费白马",
+         "leaders": ["立讯精密", "歌尔股份", "工业富联", "贵州茅台", "五粮液"]},
+        {"m": 9, "hot": "军工（国庆）、旅游酒店（十一）、消费",
+         "logic": "国庆节日催化军工与文旅消费",
+         "leaders": ["中航西飞", "中航沈飞", "中国中免", "宋城演艺", "锦江酒店"]},
+        {"m": 10, "hot": "双十一（电商 / 物流 / 美妆）、三季报",
+         "logic": "双十一大促，电商物流美妆链受益；三季报披露",
+         "leaders": ["顺丰控股", "圆通速递", "珀莱雅", "值得买", "美的集团"]},
+        {"m": 11, "hot": "基建、低估值蓝筹、双十一复盘",
+         "logic": "年末稳增长预期；基金排名战偏好蓝筹",
+         "leaders": ["中国建筑", "海螺水泥", "三一重工", "中国中铁"]},
+        {"m": 12, "hot": "中央经济工作会议、农业预期、消费白酒",
+         "logic": "会议定调来年；年底消费+农业预期重启",
+         "leaders": ["贵州茅台", "五粮液", "泸州老窖", "隆平高科", "大北农"]},
+    ]
+
+    cards = []
+    for d in _MONTHS:
+        m = d["m"]
+        cur = (m == now_month)
+        season = _season_of(m)
+        col = _SEASON[season]
+        chips = "".join(f'<span class="cal-chip">{x}</span>' for x in d["leaders"])
+        cur_badge = '<span class="cal-curbadge">本月</span>' if cur else ''
+        cur_cls = ' cur' if cur else ''
+        cards.append(
+            f'<div class="cal-card{cur_cls}" style="--c-season:{col};">'
+            f'<div class="cal-mhead"><span class="cal-month">{m}月</span>'
+            f'<span class="cal-season">{season}</span>{cur_badge}</div>'
+            f'<div class="cal-row"><span class="k">🔥 热点板块</span>{d["hot"]}</div>'
+            f'<div class="cal-row"><span class="k">🧭 驱动逻辑</span>{d["logic"]}</div>'
+            f'<div class="cal-row"><span class="k">🚀 代表龙头股（历史惯例）</span>'
+            f'<div class="cal-leaders">{chips}</div></div></div>'
+        )
+    grid = "\n".join(cards)
+
+    _cal_css = (
+        '<style>'
+        '.cal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:14px 0;}'
+        '.cal-card{background:var(--bg-surface);border:1px solid var(--border);border-left:4px solid var(--c-season);border-radius:10px;padding:14px 16px;position:relative;}'
+        '.cal-card.cur{box-shadow:0 0 0 2px var(--accent) inset;border-color:var(--accent);}'
+        '.cal-mhead{display:flex;align-items:center;gap:8px;margin-bottom:8px;}'
+        '.cal-month{font-size:18px;font-weight:800;color:var(--text-1);}'
+        '.cal-season{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--bg-surface-2);color:var(--text-2);border:1px solid var(--border);}'
+        '.cal-curbadge{margin-left:auto;font-size:10px;padding:2px 9px;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;}'
+        '.cal-row{font-size:12.5px;line-height:1.6;margin:6px 0;}'
+        '.cal-row .k{color:var(--text-3);font-size:11px;display:block;margin-bottom:2px;}'
+        '.cal-leaders{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}'
+        '.cal-chip{font-size:11px;padding:2px 9px;border-radius:8px;background:var(--bg-surface-2);border:1px solid var(--border);color:var(--text-1);}'
+        '.cal-disclaimer{font-size:11px;color:var(--text-3);padding:10px 12px;border:1px dashed var(--border);border-radius:8px;margin-top:8px;line-height:1.7;}'
+        '</style>'
+    )
+
+    return (
+        _cal_css
+        + '<div class="card card-full">'
+        + '<div class="card-title"><span class="icon"><i class="fas fa-calendar-alt"></i></span> A股月度热点日历'
+        + '<span class="badge">日历效应 · 历史惯例</span>'
+        + f'<span class="click-hint">当前月（{now_month}月）高亮 · 龙头随产业周期切换</span>'
+        + '</div>'
+        + f'<div class="cal-grid">{grid}</div>'
+        + '<div class="cal-disclaimer">⚠️ 以上为 A 股历史「日历效应」统计规律，非每年必现；龙头会随产业主线切换。实战需叠加【月度催化时间窗 + 当年景气方向 + 技术面位置】三因子共振，仅供参考，不构成投资建议。</div>'
+        + '</div>'
+    )
+
+
 def _paper_trade_card():
     """本地模拟交易账户卡片：读取 cache/paper_trades.json，展示总资产/收益率/持仓盈亏。
     非真实券商持仓，仅本地策略执行闭环的模拟记录。"""
@@ -5599,6 +5701,7 @@ def build() -> str:
          + '<div class="tab-bar">'
          +   '<button class="tab-btn active" onclick="switchSectorTab(\'heatmap\')">🔥 板块热力图</button>'
          +   '<button class="tab-btn" onclick="switchSectorTab(\'leader\')">🚀 板块强弱·龙头股</button>'
+         +   '<button class="tab-btn" onclick="switchSectorTab(\'calendar\')">📅 月度热点日历</button>'
          + '</div>'
          + '<div id="sector-tab-heatmap" class="tab-panel active">'
          +     _national_team_card(snap)
@@ -5608,6 +5711,9 @@ def build() -> str:
          + '<div id="sector-tab-leader" class="tab-panel">'
          +     '<div class="rt-hint" id="slUpdateHint" style="font-size:11px;color:var(--text-secondary);margin:0 0 10px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card2);">⏳ 龙头股实时行情加载中…</div>'
          +     _section_sector_leader(sector_leader, snap.get("sector_constituents"), sector_contrib)
+         + '</div>'
+         + '<div id="sector-tab-calendar" style="display:block;">'
+         +     _sector_calendar_panel()
          + '</div>'
         ),
         ("nav-holdings", "持仓复盘", "fa-briefcase",
@@ -6860,7 +6966,7 @@ function switchSectorTab(tab){{
   var t = document.getElementById('sector-tab-' + tab);
   if (t) t.classList.add('active');
   document.querySelectorAll('.tab-btn').forEach(function(b){{
-    var want = (tab === 'heatmap' && b.textContent.indexOf('热力图') >= 0) || (tab === 'leader' && b.textContent.indexOf('龙头股') >= 0);
+    var want = (tab === 'heatmap' && b.textContent.indexOf('热力图') >= 0) || (tab === 'leader' && b.textContent.indexOf('龙头股') >= 0) || (tab === 'calendar' && b.textContent.indexOf('日历') >= 0);
     b.classList.toggle('active', want);
   }});
   if (tab === 'leader') startSectorLeaderRT(); else stopSectorLeaderRT();
