@@ -2542,6 +2542,195 @@ def _limitup_sections(limit_up, sector_flow=None, foldable=False):
     return html, total, multi
 
 
+def _next_day_chase_candidates(limit_up, sector_flow=None):
+    """③ 涨停板分析：基于当日涨停动能、情绪、资金热度，给出次日可追进标的（打板策略）。
+    评分维度：连板高度(20%) + 封单比(25%) + 板块情绪(20%) + 成交额流动性(20%) + 涨幅健康度(15%)。
+    """
+    real = [x for x in (limit_up or []) if isinstance(x, dict) and "error" not in x]
+    if not real:
+        return ""
+    sector_map, alias_map, rev_alias = _sector_mood_lookup(sector_flow)
+
+    def _score(x):
+        b = int(x.get("连板数", 1) or 1)
+        amount = float(x.get("成交额") or 0)
+        seal = float(x.get("封单资金") or 0)
+        pct = x.get("涨跌幅")
+        pct = float(pct) if pct is not None else 0.0
+        seal_ratio = (seal / amount * 100) if amount > 0 else 0.0
+
+        # 连板得分：2-4 板最佳
+        if b >= 5:
+            board_score = 30
+        elif b == 4:
+            board_score = 95
+        elif b == 3:
+            board_score = 90
+        elif b == 2:
+            board_score = 80
+        else:
+            board_score = 55
+
+        # 封单比得分
+        if seal_ratio >= 50:
+            seal_score = 100
+        elif seal_ratio >= 20:
+            seal_score = 90
+        elif seal_ratio >= 10:
+            seal_score = 80
+        elif seal_ratio >= 5:
+            seal_score = 65
+        elif seal_ratio > 0:
+            seal_score = 45
+        else:
+            seal_score = 20
+
+        # 板块情绪得分
+        ind = x.get("所属行业", "—")
+        matched = _match_sector(ind, sector_map, alias_map, rev_alias)
+        spct = sector_map.get(matched) if matched else None
+        if spct is None:
+            sector_score = 50
+        elif spct >= 3:
+            sector_score = 100
+        elif spct >= 2:
+            sector_score = 85
+        elif spct >= 1:
+            sector_score = 70
+        elif spct >= 0:
+            sector_score = 55
+        else:
+            sector_score = 35
+
+        # 成交额流动性得分
+        yi = amount / 1e8
+        if yi >= 20:
+            amount_score = 100
+        elif yi >= 10:
+            amount_score = 90
+        elif yi >= 5:
+            amount_score = 80
+        elif yi >= 2:
+            amount_score = 70
+        elif yi >= 1:
+            amount_score = 60
+        else:
+            amount_score = 35
+
+        # 涨幅健康度：一字板/缩量加速风险高；放量实体板更优
+        if pct >= 19.9:
+            chg_score = 40   # 20cm 一字，次日高开低走风险大
+        elif pct >= 9.9:
+            chg_score = 75   # 10cm 涨停，健康
+        elif pct >= 7:
+            chg_score = 85   # 未封死但强势，有换手
+        else:
+            chg_score = 60
+
+        total = board_score * 0.20 + seal_score * 0.25 + sector_score * 0.20 + amount_score * 0.20 + chg_score * 0.15
+        return round(total, 1), seal_ratio, yi, spct, matched, b, pct
+
+    scored = []
+    for x in real:
+        try:
+            sc, sr, yi, spct, matched, b, pct = _score(x)
+            # 过滤明显不可追：北交所流动性差/5板以上高位风险/无封单资金/成交额<5000万
+            code = str(x.get("代码") or "")
+            if code.startswith("bj") and b >= 3:
+                risk = "high"
+            elif b >= 5:
+                risk = "high"
+            elif yi < 0.5 or sr <= 0:
+                risk = "high"
+            else:
+                risk = "normal"
+            scored.append({
+                "name": x.get("名称", "—"),
+                "code": code,
+                "score": sc,
+                "seal_ratio": sr,
+                "amount_yi": yi,
+                "sector_pct": spct,
+                "matched_sector": matched or x.get("所属行业", "—"),
+                "board": b,
+                "pct": pct,
+                "risk": risk,
+            })
+        except Exception:
+            continue
+
+    scored.sort(key=lambda r: (-r["score"], -r["seal_ratio"], -r["amount_yi"]))
+    picks = scored[:8]
+    if not picks:
+        return ""
+
+    # 分为强烈推荐（score>=75）与适度关注（score>=60）
+    strong = [r for r in picks if r["score"] >= 75 and r["risk"] != "high"]
+    watch = [r for r in picks if 60 <= r["score"] < 75 and r["risk"] != "high"]
+
+    def _reason(r):
+        parts = []
+        if r["board"] == 4:
+            parts.append("四连板，市场高度标杆")
+        elif r["board"] == 3:
+            parts.append("三连板，龙头气质初显")
+        elif r["board"] == 2:
+            parts.append("二连板，晋级窗口")
+        else:
+            parts.append("首板放量，筹码健康")
+        if r["seal_ratio"] >= 30:
+            parts.append(f"封单比 {_fmt_float(r['seal_ratio'])}%，资金抢筹极强")
+        elif r["seal_ratio"] >= 10:
+            parts.append(f"封单比 {_fmt_float(r['seal_ratio'])}%，封板结构扎实")
+        else:
+            parts.append(f"封单比 {_fmt_float(r['seal_ratio'])}%，需看次日竞价承接")
+        if r["amount_yi"] >= 10:
+            parts.append(f"成交 {r['amount_yi']:.1f} 亿，流动性充沛")
+        elif r["amount_yi"] >= 2:
+            parts.append(f"成交 {r['amount_yi']:.1f} 亿，承接尚可")
+        if r["sector_pct"] is not None and r["sector_pct"] >= 2:
+            parts.append(f"所属板块涨 {r['sector_pct']:+.2f}%，情绪助攻")
+        return "；".join(parts)
+
+    def _card(r, tag):
+        risk_tag = '<span class="chase-risk high">高位高风险</span>' if r["risk"] == "high" else ''
+        tag_html = f'<span class="chase-tag {tag}">{"强烈推荐" if tag=="strong" else "适度关注"}</span>'
+        sector_color = "var(--up)" if (r["sector_pct"] or 0) >= 0 else "var(--down)"
+        return f'''
+        <div class="chase-card">
+            <div class="chase-hd">
+                <div class="chase-name">{_stock_link(r["name"], r["code"])}</div>
+                <div class="chase-board">{r["board"]}连板</div>
+                {tag_html}{risk_tag}
+            </div>
+            <div class="chase-metrics">
+                <span>综合评分 <b>{r["score"]}</b></span>
+                <span>封单比 <b>{_fmt_float(r['seal_ratio'])}%</b></span>
+                <span>成交 <b>{r['amount_yi']:.1f}亿</b></span>
+                <span>板块 <b style="color:{sector_color};">{r['matched_sector']}{f" {r['sector_pct']:+.2f}%" if r['sector_pct'] is not None else ""}</b></span>
+            </div>
+            <div class="chase-reason">{_reason(r)}</div>
+            <div class="chase-plan">
+                <b>次日追板计划：</b>开盘观察竞价量能，若高开 3% 以内且前 5 分钟换手 &gt; 2%，可轻仓试错；一字涨停则放弃，避免炸板。
+            </div>
+        </div>'''
+
+    strong_html = "".join(_card(r, "strong") for r in strong[:5])
+    watch_html = "".join(_card(r, "watch") for r in watch[:5])
+    return f'''
+    <div class="card card-full chase-pool-card">
+        <div class="card-title"><span class="icon"><i class="fas fa-rocket"></i></span> 次日可追板标的
+            <span class="badge">打板策略 · {len(strong)}强推/{len(watch)}关注</span>
+            <span class="click-hint">基于连板高度+封单比+板块情绪+成交额综合评分</span>
+        </div>
+        {"<div class=\"chase-section-title\">🔥 强烈推荐（综合评分 ≥75，明日优先关注）</div><div class=\"chase-grid\">" + strong_html + "</div>" if strong_html else ""}
+        {"<div class=\"chase-section-title\">⚡ 适度关注（综合评分 60-75，需盘口确认）</div><div class=\"chase-grid\">" + watch_html + "</div>" if watch_html else ""}
+        <div class="chase-disclaimer">
+            <i class="fas fa-exclamation-triangle"></i> 风险提示：打板属于高风险短线策略，以上标的仅作次日竞价/开盘观察参考；若市场情绪转弱、板块分歧或个股炸板，需严格止损。仓位建议单笔 ≤3%-5%。
+        </div>
+    </div>'''
+
+
 def _section_limitup(snap):
     limit_up = snap.get("limit_up", []) or []
     html, total, multi = _limitup_sections(limit_up, sector_flow=snap.get("sector_flow"), foldable=True)
@@ -2563,7 +2752,8 @@ def _section_limitup(snap):
             <div style="margin-top:8px;font-size:11px;color:var(--text-secondary);">
                 <i class="fas fa-info-circle"></i> 涨停家数{total}家，连板≥2天{multi}家
             </div>
-        </div>'''
+        </div>
+        {_next_day_chase_candidates(limit_up, sector_flow=snap.get("sector_flow"))}'''
 
 
 # ----------------------------------------------------------------- ④ A股热力全景图（资金流向前50，含真实 RSI / MACD / 量比 / 换手）
@@ -3945,6 +4135,123 @@ def _mainforce_pool_card(snap):
     </div>'''
 
 
+def _hot_sector_build_plan(top_inflow):
+    """④ 板块：基于当日/近一周资金流入、涨幅、涨停家数，给出次日及未来一周可建仓板块与代表龙头股。"""
+    items = [s for s in (top_inflow or []) if isinstance(s, dict)]
+    if not items:
+        return ""
+
+    def _norm_rank(items, key, reverse=True):
+        vals = sorted([(i, float(s.get(key) or 0)) for i, s in enumerate(items)], key=lambda x: x[1], reverse=reverse)
+        rank = {idx: r for r, (idx, _) in enumerate(vals)}
+        return rank
+
+    n = len(items)
+    r_amt = _norm_rank(items, "main_amount", reverse=True)
+    r_chg5 = _norm_rank(items, "chg5d", reverse=True)
+    r_chg10 = _norm_rank(items, "chg10d", reverse=True)
+    r_limit = _norm_rank(items, "limit_up", reverse=True)
+
+    scored = []
+    for i, s in enumerate(items):
+        chg = float(s.get("chg") or 0)
+        chg5d = float(s.get("chg5d") or 0)
+        chg10d = float(s.get("chg10d") or 0)
+        amt = float(s.get("main_amount") or 0)
+        lim = float(s.get("limit_up") or 0)
+        # 只保留当日上涨、资金流入、5日趋势不为负
+        if chg <= 0 or amt <= 0:
+            continue
+        score = round(
+            (1 - r_amt[i] / n) * 35 +
+            (1 - r_chg5[i] / n) * 25 +
+            (1 - r_chg10[i] / n) * 15 +
+            (1 - r_limit[i] / n) * 15 +
+            (10 if chg5d > 0 else 0) +
+            (5 if chg >= 2 else 0),
+            1
+        )
+        scored.append({
+            "score": score,
+            "name": s.get("name", "—"),
+            "chg": chg,
+            "chg5d": chg5d,
+            "chg10d": chg10d,
+            "main_amount": amt,
+            "limit_up": lim,
+            "up_count": s.get("up_count", 0),
+            "down_count": s.get("down_count", 0),
+            "leader": s.get("leader") or "—",
+            "leader_code": s.get("leader_code"),
+            "leader_chg": s.get("leader_chg"),
+        })
+
+    scored.sort(key=lambda r: -r["score"])
+    picks = scored[:6]
+    if not picks:
+        return ""
+
+    def _trend_label(chg5d, chg10d):
+        if chg5d >= 5 and chg10d >= 8:
+            return "强势多头", "up"
+        if chg5d >= 3 and chg10d >= 5:
+            return "趋势向上", "up"
+        if chg5d >= 0 and chg10d >= 0:
+            return "震荡偏强", "hold"
+        return "趋势偏弱", "down"
+
+    def _plan(r):
+        if r["chg5d"] >= 5:
+            next_day = "龙头分歧低吸或板块 ETF 配置；若龙头高开 5% 以上则等回踩 5 日线。"
+            week = "周线多头排列，未来一周可沿 5 日线持有；跌破 10 日线减仓。"
+        elif r["chg5d"] >= 3:
+            next_day = "低吸前排龙头，避免追高后排；板块指数不破今日低点可试。"
+            week = "趋势初成，未来一周以轮动思路做 T，放量突破加仓。"
+        else:
+            next_day = "观察资金是否持续流入，轻仓试错龙头；板块情绪转弱则放弃。"
+            week = "处于低位反弹，未来一周若量能维持可加仓，否则按短线处理。"
+        return next_day, week
+
+    rows = ""
+    for i, r in enumerate(picks, 1):
+        trend, trend_cls = _trend_label(r["chg5d"], r["chg10d"])
+        next_day, week = _plan(r)
+        leader_html = _stock_link(r["leader"], r["leader_code"]) if r["leader"] != "—" else "—"
+        if r["leader_chg"] is not None:
+            leader_html += f' <span class="{_cls(r["leader_chg"])}" style="font-size:11px;">{_fmt_pct(r["leader_chg"], 1)}</span>'
+        rows += f'''
+        <tr>
+            <td><span class="rank-badge in">{i}</span></td>
+            <td><b>{r["name"]}</b></td>
+            <td class="num {_cls(r['chg'])}">{_fmt_pct(r['chg'], 1)}</td>
+            <td class="num {_cls(r['chg5d'])}">{_fmt_pct(r['chg5d'], 1)}</td>
+            <td class="num up">{_fmt_yi(r['main_amount'])}</td>
+            <td class="num">{int(r['limit_up'])}</td>
+            <td><span class="trend-tag {trend_cls}">{trend}</span></td>
+            <td>{leader_html}</td>
+            <td class="plan-td"><div class="plan-line">次日：{next_day}</div><div class="plan-line week">未来一周：{week}</div></td>
+        </tr>'''
+
+    return f'''
+    <div class="card card-full hot-sector-card">
+        <div class="card-title"><span class="icon"><i class="fas fa-fire"></i></span> 热点板块趋势与建仓建议
+            <span class="badge">全 A 板块 TOP6</span>
+            <span class="click-hint">基于当日涨幅 + 近 5/10 日趋势 + 主力净流入 + 涨停家数</span>
+        </div>
+        <div class="sector-table-wrap">
+            <table class="sector-table hot-sector-table">
+                <thead><tr>
+                    <th>#</th><th>板块</th><th>今日涨幅</th><th>5日涨幅</th><th>主力净额</th><th>涨停数</th><th>趋势</th><th>代表龙头</th><th>建仓建议</th>
+                </tr></thead>
+                <tbody>{rows}</tbody>
+            </table>
+        </div>
+        <div class="hot-sector-note">
+            <i class="fas fa-lightbulb"></i> 选股纪律：优先各板块成交量前 3、涨停时间早、封单足的标的；后排跟风股宁可错过不做错；单板块仓位 ≤20%，总进攻仓位 ≤50%。
+        </div>
+    </div>'''
+
+
 def _section_sector_leader(data, sector_constituents=None, sector_contrib=None):
     """板块&龙头股：板块资金流入/流出 TOP30（含领涨龙头股）+ A股全量浏览器。
     数据源：桌面 Table-板块.xls（板块资金流向）+ Tabl-A股e.xls（A股全量）→ cache/sector_leader_data.json。
@@ -4076,6 +4383,7 @@ def _section_sector_leader(data, sector_constituents=None, sector_contrib=None):
         <div class="stat-pill"><div class="lbl">数据时间</div><div class="val" style="font-size:13px;line-height:1.9;">{updated or "—"}</div></div>
     </div>
     <div class="sector-layout">{inflow_html}{outflow_html}</div>
+    {_hot_sector_build_plan(top_in)}
     {astock_html}
     {_sector_constituents_card(sector_constituents, sector_contrib)}'''
 
@@ -7639,6 +7947,32 @@ function stopSectorLeaderRT(){
 .cons-bar.down{ background: #22c55e; }
 .cons-val{ flex: 0 0 48px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
 .cons-w{ flex: 0 0 38px; text-align: right; color: var(--text-secondary); font-size: 11px; }
+.chase-pool-card{ margin-top: 14px; }
+.chase-section-title{ font-size: 13px; font-weight: 600; color: var(--text-1); margin: 14px 0 8px; padding-left: 8px; border-left: 3px solid var(--accent, #2DD4BF); }
+.chase-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+.chase-card{ background: var(--card2, rgba(255,255,255,.04)); border: 1px solid var(--border, rgba(255,255,255,.08)); border-radius: 10px; padding: 12px; }
+.chase-hd{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.chase-name{ font-size: 15px; font-weight: 700; color: var(--text-1); }
+.chase-board{ font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(239,68,68,.15); color: var(--up, #ef4444); font-weight: 600; }
+.chase-tag{ font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 600; }
+.chase-tag.strong{ background: rgba(239,68,68,.18); color: var(--up, #ef4444); }
+.chase-tag.watch{ background: rgba(245,158,11,.18); color: #f59e0b; }
+.chase-risk{ font-size: 10px; padding: 1px 6px; border-radius: 4px; background: rgba(100,116,139,.2); color: #94a3b8; }
+.chase-metrics{ display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 11px; color: var(--text-2); margin-bottom: 8px; }
+.chase-metrics b{ color: var(--text-1); font-weight: 600; }
+.chase-reason{ font-size: 12px; color: var(--text-2); line-height: 1.55; margin-bottom: 8px; padding: 8px; background: var(--card, rgba(255,255,255,.03)); border-radius: 6px; }
+.chase-plan{ font-size: 11.5px; color: var(--accent, #2DD4BF); line-height: 1.5; }
+.chase-disclaimer{ margin-top: 14px; padding: 10px 12px; background: rgba(245,158,11,.08); border-left: 3px solid #f59e0b; border-radius: 6px; font-size: 11px; color: var(--text-2); line-height: 1.5; }
+.hot-sector-card{ margin-top: 14px; }
+.hot-sector-table tbody tr:hover{ background: rgba(255,255,255,.04); }
+.trend-tag{ font-size: 10px; padding: 2px 7px; border-radius: 999px; font-weight: 600; }
+.trend-tag.up{ background: rgba(239,68,68,.15); color: var(--up, #ef4444); }
+.trend-tag.hold{ background: rgba(245,158,11,.15); color: #f59e0b; }
+.trend-tag.down{ background: rgba(34,197,94,.15); color: var(--down, #22c55e); }
+.plan-td{ font-size: 11px; color: var(--text-2); line-height: 1.55; min-width: 220px; }
+.plan-line{ margin: 3px 0; }
+.plan-line.week{ color: var(--text-3); }
+.hot-sector-note{ margin-top: 12px; padding: 10px 12px; background: rgba(79,195,247,.08); border-left: 3px solid #4fc3f7; border-radius: 6px; font-size: 11px; color: var(--text-2); line-height: 1.5; }
 
 @media (prefers-reduced-motion: reduce){
   #ux-scrollbar{ transition: none !important; }

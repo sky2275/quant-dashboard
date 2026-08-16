@@ -885,7 +885,7 @@
             <span class="status-badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;"><i class="fas fa-moon"></i> 休市 · 显示 08-14 收盘数据</span>
             <span class="live-badge" id="rtStatus"><i class="dot"></i> 实时 · 加载中</span>
             <button id="rtRefreshBtn" class="rt-refresh-btn" onclick="rtManualRefresh()" title="立即刷新所有行情"><i class="fas fa-sync-alt"></i> 立即刷新</button>
-            <span class="version-badge" title="页面构建版本">v20260816-1148</span>
+            <span class="version-badge" title="页面构建版本">v20260816-1434</span>
         </div>
     </header>
     <div class="app-layout">
@@ -1912,7 +1912,155 @@
             <div style="margin-top:8px;font-size:11px;color:var(--text-secondary);">
                 <i class="fas fa-info-circle"></i> 涨停家数69家，连板≥2天22家
             </div>
-        </div></div><div id="nav-sector" class="content-panel">
+        </div>
+        
+    <div class="card card-full chase-pool-card">
+        <div class="card-title"><span class="icon"><i class="fas fa-rocket"></i></span> 次日可追板标的
+            <span class="badge">打板策略 · 4强推/4关注</span>
+            <span class="click-hint">基于连板高度+封单比+板块情绪+成交额综合评分</span>
+        </div>
+        <div class="chase-section-title">🔥 强烈推荐（综合评分 ≥75，明日优先关注）</div><div class="chase-grid">
+        <div class="chase-card">
+            <div class="chase-hd">
+                <div class="chase-name"><span class="stock-link" onclick="event.stopPropagation(); openStockDetail('sz002172', '澳洋健康')">澳洋健康</span></div>
+                <div class="chase-board">2连板</div>
+                <span class="chase-tag strong">强烈推荐</span>
+            </div>
+            <div class="chase-metrics">
+                <span>综合评分 <b>79.2</b></span>
+                <span>封单比 <b>104.30%</b></span>
+                <span>成交 <b>1.0亿</b></span>
+                <span>板块 <b style="color:var(--up);">医疗服务 +3.99%</b></span>
+            </div>
+            <div class="chase-reason">二连板，晋级窗口；封单比 104.30%，资金抢筹极强；所属板块涨 +3.99%，情绪助攻</div>
+            <div class="chase-plan">
+                <b>次日追板计划：</b>开盘观察竞价量能，若高开 3% 以内且前 5 分钟换手 &gt; 2%，可轻仓试错；一字涨停则放弃，避免炸板。
+            </div>
+        </div>
+        <div class="chase-card">
+            <div class="chase-hd">
+                <div class="chase-name"><span class="stock-link" onclick="event.stopPropagation(); openStockDetail('sz002219', '新里程')">新里程</span></div>
+                <div class="chase-board">1连板</div>
+                <span class="chase-tag strong">强烈推荐</span>
+            </div>
+            <div class="chase-metrics">
+                <span>综合评分 <b>78.2</b></span>
+                <span>封单比 <b>10.62%</b></span>
+                <span>成交 <b>6.0亿</b></span>
+                <span>板块 <b style="color:var(--up);">医疗服务 +3.99%</b></span>
+            </div>
+            <div class="chase-reason">首板放量，筹码健康；封单比 10.62%，封板结构扎实；成交 6.0 亿，承接尚可；所属板块涨 +3.99%，情绪助攻</div>
+            <div class="chase-plan">
+                <b>次日追板计划：</b>开盘观察竞价量能，若高开 3% 以内且前 5 分钟换手 &gt; 2%，可轻仓试错；一字涨停则放弃，避免炸板。
+            </div>
+        </div>
+        <div class="chase-card">
+            <div class="chase-hd">
+                <div class="chase-name"><span class="stock-link" onclick="event.stopPropagation(); openStockDetail('sh600881', '亚泰集团')">亚泰集团</span></div>
+                <div class="chase-board">3连板</div>
+                <span class="chase-tag strong">强烈推荐</span>
+            </div>
+            <div class="chase-metrics">
+                <span>综合评分 <b>76.2</b></span>
+                <span>封单比 <b>15.65%</b></span>
+                <span>成交 <b>6.4亿</b></span>
+                <span>板块 <b style="color:var(--up);">综合 +0.26%</b></span>
+            </div>
+            <div class="chase-reason">三连板，龙头气质初显；封单比 15.65%，封板结构扎实；成交 6.4 亿，承接尚可</div>
+            <div class="chase-plan">
+                <b>次日追板计划：</b>开盘观察竞价量能，若高开 3% 以内且前 5 分钟换手 &gt; 2%，可轻仓试错；一字涨停则放弃，避免炸板。
+            </div>
+        </div>
+        <div class="chase-card">
+            <div class="chase-hd">
+                <div class="chase-name"><span class="stock-link" onclick="event.stopPropagation(); openStockDetail('sh603887', '城地香江')">城地香江</span></div>
+                <div class="chase-board">3连板</div>
+                <span class="chase-tag strong">强烈推荐</span>
+            </div>
+            <div class="chase-metrics">
+                <span>综合评分 <b>75.2</b></span>
+                <span>封单比 <b>118.89%</b></span>
+                <span>成交 <b>2.3亿</b></span>
+                <span>板块 <b style="color:var(--down);">IT服务 -1.31%</b></span>
+            </div>
+            <div class="chase-reason">三连板，龙头气质初显；封单比 118.89%，资金抢筹极强；成交 2.3 亿，承接尚可</div>
+            <div class="chase-plan">
+                <b>次日追板计划：</b>开盘观察竞价量能，若高开 3% 以内且前 5 分钟换手 &gt; 2%，可轻仓试错；一字涨停则放弃，避免炸板。
+            </div>
+        </div></div>
+        <div class="chase-section-title">⚡ 适度关注（综合评分 60-75，需盘口确认）</div><div class="chase-grid">
+        <div class="chase-card">
+            <div class="chase-hd">
+                <div class="chase-name"><span class="stock-link" onclick="event.stopPropagation(); openStockDetail('sz002081', '金 螳 螂')">金 螳 螂</span></div>
+                <div class="chase-board">2连板</div>
+                <span class="chase-tag watch">适度关注</span>
+            </div>
+            <div class="chase-metrics">
+                <span>综合评分 <b>74.2</b></span>
+                <span>封单比 <b>239.77%</b></span>
+                <span>成交 <b>1.3亿</b></span>
+                <span>板块 <b style="color:var(--up);">装修装饰</b></span>
+            </div>
+            <div class="chase-reason">二连板，晋级窗口；封单比 239.77%，资金抢筹极强</div>
+            <div class="chase-plan">
+                <b>次日追板计划：</b>开盘观察竞价量能，若高开 3% 以内且前 5 分钟换手 &gt; 2%，可轻仓试错；一字涨停则放弃，避免炸板。
+            </div>
+        </div>
+        <div class="chase-card">
+            <div class="chase-hd">
+                <div class="chase-name"><span class="stock-link" onclick="event.stopPropagation(); openStockDetail('sh600613', '神奇制药')">神奇制药</span></div>
+                <div class="chase-board">1连板</div>
+                <span class="chase-tag watch">适度关注</span>
+            </div>
+            <div class="chase-metrics">
+                <span>综合评分 <b>73.2</b></span>
+                <span>封单比 <b>76.78%</b></span>
+                <span>成交 <b>1.3亿</b></span>
+                <span>板块 <b style="color:var(--up);">化学制药 +1.38%</b></span>
+            </div>
+            <div class="chase-reason">首板放量，筹码健康；封单比 76.78%，资金抢筹极强</div>
+            <div class="chase-plan">
+                <b>次日追板计划：</b>开盘观察竞价量能，若高开 3% 以内且前 5 分钟换手 &gt; 2%，可轻仓试错；一字涨停则放弃，避免炸板。
+            </div>
+        </div>
+        <div class="chase-card">
+            <div class="chase-hd">
+                <div class="chase-name"><span class="stock-link" onclick="event.stopPropagation(); openStockDetail('sz000802', '北京文化')">北京文化</span></div>
+                <div class="chase-board">4连板</div>
+                <span class="chase-tag watch">适度关注</span>
+            </div>
+            <div class="chase-metrics">
+                <span>综合评分 <b>73.2</b></span>
+                <span>封单比 <b>19.73%</b></span>
+                <span>成交 <b>8.5亿</b></span>
+                <span>板块 <b style="color:var(--down);">影视院线 -1.95%</b></span>
+            </div>
+            <div class="chase-reason">四连板，市场高度标杆；封单比 19.73%，封板结构扎实；成交 8.5 亿，承接尚可</div>
+            <div class="chase-plan">
+                <b>次日追板计划：</b>开盘观察竞价量能，若高开 3% 以内且前 5 分钟换手 &gt; 2%，可轻仓试错；一字涨停则放弃，避免炸板。
+            </div>
+        </div>
+        <div class="chase-card">
+            <div class="chase-hd">
+                <div class="chase-name"><span class="stock-link" onclick="event.stopPropagation(); openStockDetail('sz300404', '博济医药')">博济医药</span></div>
+                <div class="chase-board">1连板</div>
+                <span class="chase-tag watch">适度关注</span>
+            </div>
+            <div class="chase-metrics">
+                <span>综合评分 <b>73.0</b></span>
+                <span>封单比 <b>11.43%</b></span>
+                <span>成交 <b>8.2亿</b></span>
+                <span>板块 <b style="color:var(--up);">医疗服务 +3.99%</b></span>
+            </div>
+            <div class="chase-reason">首板放量，筹码健康；封单比 11.43%，封板结构扎实；成交 8.2 亿，承接尚可；所属板块涨 +3.99%，情绪助攻</div>
+            <div class="chase-plan">
+                <b>次日追板计划：</b>开盘观察竞价量能，若高开 3% 以内且前 5 分钟换手 &gt; 2%，可轻仓试错；一字涨停则放弃，避免炸板。
+            </div>
+        </div></div>
+        <div class="chase-disclaimer">
+            <i class="fas fa-exclamation-triangle"></i> 风险提示：打板属于高风险短线策略，以上标的仅作次日竞价/开盘观察参考；若市场情绪转弱、板块分歧或个股炸板，需严格止损。仓位建议单笔 ≤3%-5%。
+        </div>
+    </div></div><div id="nav-sector" class="content-panel">
         <div class="screen-head">
             <div><h1>板块</h1><div class="desc">板块资金流热力图 · 板块强弱与龙头股</div></div>
             <div class="head-badge">90 个板块</div>
@@ -2490,6 +2638,90 @@
         </div>
     </div></div>
     
+    <div class="card card-full hot-sector-card">
+        <div class="card-title"><span class="icon"><i class="fas fa-fire"></i></span> 热点板块趋势与建仓建议
+            <span class="badge">全 A 板块 TOP6</span>
+            <span class="click-hint">基于当日涨幅 + 近 5/10 日趋势 + 主力净流入 + 涨停家数</span>
+        </div>
+        <div class="sector-table-wrap">
+            <table class="sector-table hot-sector-table">
+                <thead><tr>
+                    <th>#</th><th>板块</th><th>今日涨幅</th><th>5日涨幅</th><th>主力净额</th><th>涨停数</th><th>趋势</th><th>代表龙头</th><th>建仓建议</th>
+                </tr></thead>
+                <tbody>
+        <tr>
+            <td><span class="rank-badge in">1</span></td>
+            <td><b>华为概念</b></td>
+            <td class="num up">+2.5%</td>
+            <td class="num up">+8.1%</td>
+            <td class="num up">+168.43亿</td>
+            <td class="num">27</td>
+            <td><span class="trend-tag up">强势多头</span></td>
+            <td>汉鑫科技</td>
+            <td class="plan-td"><div class="plan-line">次日：龙头分歧低吸或板块 ETF 配置；若龙头高开 5% 以上则等回踩 5 日线。</div><div class="plan-line week">未来一周：周线多头排列，未来一周可沿 5 日线持有；跌破 10 日线减仓。</div></td>
+        </tr>
+        <tr>
+            <td><span class="rank-badge in">2</span></td>
+            <td><b>机器人概念</b></td>
+            <td class="num up">+2.3%</td>
+            <td class="num up">+7.0%</td>
+            <td class="num up">+223.85亿</td>
+            <td class="num">17</td>
+            <td><span class="trend-tag up">强势多头</span></td>
+            <td>汉鑫科技</td>
+            <td class="plan-td"><div class="plan-line">次日：龙头分歧低吸或板块 ETF 配置；若龙头高开 5% 以上则等回踩 5 日线。</div><div class="plan-line week">未来一周：周线多头排列，未来一周可沿 5 日线持有；跌破 10 日线减仓。</div></td>
+        </tr>
+        <tr>
+            <td><span class="rank-badge in">3</span></td>
+            <td><b>物联网</b></td>
+            <td class="num up">+2.2%</td>
+            <td class="num up">+7.8%</td>
+            <td class="num up">+160.97亿</td>
+            <td class="num">15</td>
+            <td><span class="trend-tag up">强势多头</span></td>
+            <td>汉鑫科技</td>
+            <td class="plan-td"><div class="plan-line">次日：龙头分歧低吸或板块 ETF 配置；若龙头高开 5% 以上则等回踩 5 日线。</div><div class="plan-line week">未来一周：周线多头排列，未来一周可沿 5 日线持有；跌破 10 日线减仓。</div></td>
+        </tr>
+        <tr>
+            <td><span class="rank-badge in">4</span></td>
+            <td><b>芯片概念</b></td>
+            <td class="num up">+4.1%</td>
+            <td class="num up">+6.9%</td>
+            <td class="num up">+353.79亿</td>
+            <td class="num">33</td>
+            <td><span class="trend-tag up">趋势向上</span></td>
+            <td><span class="stock-link" onclick="event.stopPropagation(); openStockDetail('SH688549', '中巨芯-U')">中巨芯-U</span> <span class="up" style="font-size:11px;">+20.0%</span></td>
+            <td class="plan-td"><div class="plan-line">次日：龙头分歧低吸或板块 ETF 配置；若龙头高开 5% 以上则等回踩 5 日线。</div><div class="plan-line week">未来一周：周线多头排列，未来一周可沿 5 日线持有；跌破 10 日线减仓。</div></td>
+        </tr>
+        <tr>
+            <td><span class="rank-badge in">5</span></td>
+            <td><b>新能源汽车</b></td>
+            <td class="num up">+2.6%</td>
+            <td class="num up">+6.6%</td>
+            <td class="num up">+206.88亿</td>
+            <td class="num">25</td>
+            <td><span class="trend-tag up">强势多头</span></td>
+            <td><span class="stock-link" onclick="event.stopPropagation(); openStockDetail('SZ300686', '智动力')">智动力</span> <span class="up" style="font-size:11px;">+20.0%</span></td>
+            <td class="plan-td"><div class="plan-line">次日：龙头分歧低吸或板块 ETF 配置；若龙头高开 5% 以上则等回踩 5 日线。</div><div class="plan-line week">未来一周：周线多头排列，未来一周可沿 5 日线持有；跌破 10 日线减仓。</div></td>
+        </tr>
+        <tr>
+            <td><span class="rank-badge in">6</span></td>
+            <td><b>5G</b></td>
+            <td class="num up">+3.2%</td>
+            <td class="num up">+7.7%</td>
+            <td class="num up">+177.70亿</td>
+            <td class="num">18</td>
+            <td><span class="trend-tag up">趋势向上</span></td>
+            <td><span class="stock-link" onclick="event.stopPropagation(); openStockDetail('SZ300615', '欣天科技')">欣天科技</span> <span class="up" style="font-size:11px;">+20.0%</span></td>
+            <td class="plan-td"><div class="plan-line">次日：龙头分歧低吸或板块 ETF 配置；若龙头高开 5% 以上则等回踩 5 日线。</div><div class="plan-line week">未来一周：周线多头排列，未来一周可沿 5 日线持有；跌破 10 日线减仓。</div></td>
+        </tr></tbody>
+            </table>
+        </div>
+        <div class="hot-sector-note">
+            <i class="fas fa-lightbulb"></i> 选股纪律：优先各板块成交量前 3、涨停时间早、封单足的标的；后排跟风股宁可错过不做错；单板块仓位 ≤20%，总进攻仓位 ≤50%。
+        </div>
+    </div>
+    
     <div class="card card-full">
         <div class="card-title"><span class="icon"><i class="fas fa-table"></i></span> A股全量浏览器
             <span class="badge">5213 只</span>
@@ -2539,7 +2771,7 @@
         </div>
 <div style="padding:8px 0;">
   <div style="font-size:22px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">📊 8月14日持仓股复盘 & 8月17日作战计划</div>
-  <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">📌 配色规则：红涨绿跌（A 股惯例） · 生成时间 2026-08-16 11:48</div>
+  <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">📌 配色规则：红涨绿跌（A 股惯例） · 生成时间 2026-08-16 14:34</div>
   
   <div class="overview" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;">
     <div class="overview-card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:16px;text-align:center;">
@@ -6586,6 +6818,32 @@ function stopSectorLeaderRT(){
 .cons-bar.down{ background: #22c55e; }
 .cons-val{ flex: 0 0 48px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
 .cons-w{ flex: 0 0 38px; text-align: right; color: var(--text-secondary); font-size: 11px; }
+.chase-pool-card{ margin-top: 14px; }
+.chase-section-title{ font-size: 13px; font-weight: 600; color: var(--text-1); margin: 14px 0 8px; padding-left: 8px; border-left: 3px solid var(--accent, #2DD4BF); }
+.chase-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+.chase-card{ background: var(--card2, rgba(255,255,255,.04)); border: 1px solid var(--border, rgba(255,255,255,.08)); border-radius: 10px; padding: 12px; }
+.chase-hd{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.chase-name{ font-size: 15px; font-weight: 700; color: var(--text-1); }
+.chase-board{ font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(239,68,68,.15); color: var(--up, #ef4444); font-weight: 600; }
+.chase-tag{ font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 600; }
+.chase-tag.strong{ background: rgba(239,68,68,.18); color: var(--up, #ef4444); }
+.chase-tag.watch{ background: rgba(245,158,11,.18); color: #f59e0b; }
+.chase-risk{ font-size: 10px; padding: 1px 6px; border-radius: 4px; background: rgba(100,116,139,.2); color: #94a3b8; }
+.chase-metrics{ display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 11px; color: var(--text-2); margin-bottom: 8px; }
+.chase-metrics b{ color: var(--text-1); font-weight: 600; }
+.chase-reason{ font-size: 12px; color: var(--text-2); line-height: 1.55; margin-bottom: 8px; padding: 8px; background: var(--card, rgba(255,255,255,.03)); border-radius: 6px; }
+.chase-plan{ font-size: 11.5px; color: var(--accent, #2DD4BF); line-height: 1.5; }
+.chase-disclaimer{ margin-top: 14px; padding: 10px 12px; background: rgba(245,158,11,.08); border-left: 3px solid #f59e0b; border-radius: 6px; font-size: 11px; color: var(--text-2); line-height: 1.5; }
+.hot-sector-card{ margin-top: 14px; }
+.hot-sector-table tbody tr:hover{ background: rgba(255,255,255,.04); }
+.trend-tag{ font-size: 10px; padding: 2px 7px; border-radius: 999px; font-weight: 600; }
+.trend-tag.up{ background: rgba(239,68,68,.15); color: var(--up, #ef4444); }
+.trend-tag.hold{ background: rgba(245,158,11,.15); color: #f59e0b; }
+.trend-tag.down{ background: rgba(34,197,94,.15); color: var(--down, #22c55e); }
+.plan-td{ font-size: 11px; color: var(--text-2); line-height: 1.55; min-width: 220px; }
+.plan-line{ margin: 3px 0; }
+.plan-line.week{ color: var(--text-3); }
+.hot-sector-note{ margin-top: 12px; padding: 10px 12px; background: rgba(79,195,247,.08); border-left: 3px solid #4fc3f7; border-radius: 6px; font-size: 11px; color: var(--text-2); line-height: 1.5; }
 
 @media (prefers-reduced-motion: reduce){
   #ux-scrollbar{ transition: none !important; }
