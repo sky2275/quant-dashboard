@@ -7973,6 +7973,22 @@ function stopSectorLeaderRT(){
 .plan-line{ margin: 3px 0; }
 .plan-line.week{ color: var(--text-3); }
 .hot-sector-note{ margin-top: 12px; padding: 10px 12px; background: rgba(79,195,247,.08); border-left: 3px solid #4fc3f7; border-radius: 6px; font-size: 11px; color: var(--text-2); line-height: 1.5; }
+/* —— 实时刷新条：盘中轮询腾讯行情，数字自动跳动（纯加法） —— */
+.live-ticker{ position: sticky; top: 0; z-index: 10001; display: flex; align-items: center; gap: 14px;
+  padding: 7px 16px; background: var(--card2, rgba(20,24,33,.96)); border-bottom: 1px solid var(--line, rgba(255,255,255,.1));
+  backdrop-filter: blur(6px); font-size: 13px; }
+.live-ticker .lt-title{ font-weight: 700; color: var(--accent, #2DD4BF); white-space: nowrap; }
+.live-ticker .lt-items{ display: flex; gap: 16px; flex: 1 1 auto; overflow-x: auto; }
+.live-ticker .lt-item{ display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; }
+.live-ticker .lt-item b{ color: var(--text-1); font-weight: 600; }
+.live-ticker .lt-px{ font-variant-numeric: tabular-nums; font-weight: 700; }
+.live-ticker .lt-ch{ font-variant-numeric: tabular-nums; font-weight: 600; }
+.live-ticker .lt-px.up, .live-ticker .lt-ch.up{ color: var(--up, #ef4444); }
+.live-ticker .lt-px.down, .live-ticker .lt-ch.down{ color: var(--down, #22c55e); }
+.live-ticker .lt-status{ font-size: 11px; white-space: nowrap; color: var(--text-3); }
+.live-ticker .lt-status.on{ color: var(--up, #ef4444); }
+.live-ticker .lt-status.off{ color: var(--text-3); }
+@media (max-width: 720px){ .live-ticker .lt-title{ display: none; } .live-ticker .lt-items{ gap: 10px; } }
 
 @media (prefers-reduced-motion: reduce){
   #ux-scrollbar{ transition: none !important; }
@@ -8018,6 +8034,66 @@ function stopSectorLeaderRT(){
     else if(e.key === 'Home'){ e.preventDefault(); navs[0].focus(); }
     else if(e.key === 'End'){ e.preventDefault(); navs[navs.length-1].focus(); }
   });
+})();
+/* —— 实时刷新条：盘中轮询腾讯行情，指数数字自动跳动 —— */
+(function(){
+  if (window.__liveTickerLoaded) return; window.__liveTickerLoaded = true;
+  var IDX = [
+    {code:'sh000001', name:'上证指数'},
+    {code:'sz399001', name:'深证成指'},
+    {code:'sz399006', name:'创业板指'},
+    {code:'sh000688', name:'科创50'}
+  ];
+  var bar = document.createElement('div');
+  bar.id = 'liveTicker'; bar.className = 'live-ticker';
+  var html = '<span class="lt-title">📡 实时行情</span><span class="lt-items">';
+  IDX.forEach(function(x){
+    html += '<span class="lt-item" data-code="'+x.code+'"><b>'+x.name+'</b>'
+          + ' <span class="lt-px">—</span> <span class="lt-ch">—</span></span>';
+  });
+  html += '</span><span class="lt-status" id="ltStatus">连接中…</span>';
+  bar.innerHTML = html;
+  document.body.insertBefore(bar, document.body.firstChild);
+
+  function isTrading(){
+    var d = new Date(), day = d.getDay();
+    if (day === 0 || day === 6) return false;
+    var t = d.getHours()*60 + d.getMinutes();
+    return (t >= 570 && t <= 690) || (t >= 780 && t <= 900); // 9:30-11:30 / 13:00-15:00 (本地=北京时区)
+  }
+  function setItem(code, px, chg){
+    var el = bar.querySelector('[data-code="'+code+'"]'); if(!el) return;
+    var up = chg >= 0;
+    el.querySelector('.lt-px').textContent = px.toFixed(2);
+    el.querySelector('.lt-px').className = 'lt-px ' + (up ? 'up' : 'down');
+    var ch = el.querySelector('.lt-ch');
+    ch.textContent = (up ? '+' : '') + chg.toFixed(2) + '%';
+    ch.className = 'lt-ch ' + (up ? 'up' : 'down');
+  }
+  function tick(){
+    var codes = IDX.map(function(x){ return x.code; }).join(',');
+    fetch('https://qt.gtimg.cn/q=' + codes, {cache:'no-store'})
+      .then(function(r){ return r.text(); })
+      .then(function(txt){
+        IDX.forEach(function(x){
+          var m = txt.match(new RegExp('v_' + x.code + '="([^"]*)"'));
+          if(!m) return;
+          var f = m[1].split('~');
+          var px = parseFloat(f[3]), chg = parseFloat(f[32]);
+          if(!isNaN(px) && !isNaN(chg)) setItem(x.code, px, chg);
+        });
+        var st = document.getElementById('ltStatus');
+        var trading = isTrading();
+        st.textContent = (trading ? '交易中' : '已休市') + ' · 实时 ' + new Date().toLocaleTimeString('zh-CN');
+        st.className = 'lt-status ' + (trading ? 'on' : 'off');
+      })
+      .catch(function(){
+        var st = document.getElementById('ltStatus');
+        if(st) st.textContent = '实时获取失败（网络/CORS）';
+      });
+  }
+  tick();
+  setInterval(tick, 5000);
 })();
 </script>
 '''
