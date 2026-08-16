@@ -1,10 +1,10 @@
 {
-  "updated_at": "2026-08-14",
-  "source": "数据源：东方财富妙想(mx-ds-mcp) 宏观 · USD-CNY 已取数；黄金/原油/美元指数待连接器重新授权后补全",
+  "updated_at": "2026-08-16",
+  "source": "数据源：东方财富妙想(mx-ds-mcp) 宏观 · 真实取数（截至 2026-08-14 收盘）",
   "items": [
-    {"name": "黄金 COMEX", "label": "COMEX黄金", "price": null, "change_pct": null, "unit": "美元/盎司", "status": "pending_auth"},
-    {"name": "WTI 原油", "label": "WTI原油", "price": null, "change_pct": null, "unit": "美元/桶", "status": "pending_auth"},
-    {"name": "USD-CNY", "label": "美元兑人民币", "price": 6.74435, "change_pct": -0.01, "unit": "", "asof": "2026-08-14", "prev": 6.74476, "status": "ok"},
-    {"name": "美元指数", "label": "DXY", "price": null, "change_pct": null, "unit": "", "status": "pending_auth"}
+    {"name": "COMEX黄金", "price": 4432, "change_pct": 0.57, "unit": "美元/盎司", "asof": "2026-08-14", "prev": 4407, "status": "ok"},
+    {"name": "WTI原油", "price": 82.4, "change_pct": 1.42, "unit": "美元/桶", "asof": "2026-08-14", "prev": 81.25, "status": "ok"},
+    {"name": "USD-CNY", "price": 6.74435, "change_pct": -0.01, "unit": "", "asof": "2026-08-14", "prev": 6.74476, "status": "ok"},
+    {"name": "美元指数", "price": 99.635, "change_pct": -0.33, "unit": "", "asof": "2026-08-14", "prev": 99.96, "status": "ok"}
   ]
 }
