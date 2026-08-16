@@ -2064,7 +2064,7 @@
         <div class="screen-head">
             <div><h1>板块</h1><div class="desc">板块资金流热力图 · 板块强弱与龙头股</div></div>
             <div class="head-badge">90 个板块</div>
-        </div><div class="tab-bar"><button class="tab-btn active" onclick="switchSectorTab('heatmap')">🔥 板块热力图</button><button class="tab-btn" onclick="switchSectorTab('leader')">🚀 板块强弱·龙头股</button></div><div id="sector-tab-heatmap" class="tab-panel active">
+        </div><div class="tab-bar"><button class="tab-btn active" onclick="switchSectorTab('heatmap')">🔥 板块热力图</button><button class="tab-btn" onclick="switchSectorTab('leader')">🚀 板块强弱·龙头股</button><button class="tab-btn" onclick="switchSectorTab('calendar')">📅 月度热点日历</button></div><div id="sector-tab-heatmap" class="tab-panel active">
         <div class="card card-full">
             <div class="card-title"><span class="icon"><i class="fas fa-flag-checkered"></i></span> 主力 / 国家队资金流向 <span class="badge">FUND FLOW</span>
                 <span class="click-hint">口径：主力净流入近似国家队方向（东财无专属字段）</span>
@@ -2731,7 +2731,106 @@
                 <span class="badge">行业板块 TOP5 · mx-ds-mcp</span>
                 <span class="click-hint">市值加权贡献 · 东方财富妙想</span></div>
             <div class="cons-grid"><div class="cons-block"><div class="cons-name">建筑装饰<span class="cons-sub">成分股</span></div><div class="cons-chips"><span class="cons-chip">中国建筑</span><span class="cons-chip">中国中铁</span><span class="cons-chip">中国铁建</span><span class="cons-chip">中国交建</span></div></div><div class="cons-block"><div class="cons-name">化学制药<span class="cons-sub">板块≈-1.97% · 4只</span></div><div class="cons-contrib"><div class="cons-ctitle">▲ 拉动</div><div class="cons-row"><span class="cons-rn">复星医药</span><span class="cons-bar-wrap"><span class="cons-bar down" style="width:3%;"></span></span><span class="cons-val down">-0.06</span><span class="cons-w">7%</span></div><div class="cons-row"><span class="cons-rn">科伦药业</span><span class="cons-bar-wrap"><span class="cons-bar down" style="width:8%;"></span></span><span class="cons-val down">-0.19</span><span class="cons-w">7%</span></div><div class="cons-row"><span class="cons-rn">恒瑞医药</span><span class="cons-bar-wrap"><span class="cons-bar down" style="width:31%;"></span></span><span class="cons-val down">-0.77</span><span class="cons-w">36%</span></div><div class="cons-row"><span class="cons-rn">药明康德</span><span class="cons-bar-wrap"><span class="cons-bar down" style="width:38%;"></span></span><span class="cons-val down">-0.94</span><span class="cons-w">49%</span></div><div class="cons-ctitle">▼ 拖累</div><div class="cons-row"><span class="cons-rn">科伦药业</span><span class="cons-bar-wrap"><span class="cons-bar down" style="width:8%;"></span></span><span class="cons-val down">-0.19</span><span class="cons-w">7%</span></div><div class="cons-row"><span class="cons-rn">恒瑞医药</span><span class="cons-bar-wrap"><span class="cons-bar down" style="width:31%;"></span></span><span class="cons-val down">-0.77</span><span class="cons-w">36%</span></div><div class="cons-row"><span class="cons-rn">药明康德</span><span class="cons-bar-wrap"><span class="cons-bar down" style="width:38%;"></span></span><span class="cons-val down">-0.94</span><span class="cons-w">49%</span></div></div></div><div class="cons-block"><div class="cons-name">计算机设备<span class="cons-sub">成分股</span></div><div class="cons-chips"><span class="cons-chip">海康威视</span><span class="cons-chip">大华股份</span><span class="cons-chip">同方股份</span><span class="cons-chip">浪潮信息</span></div></div><div class="cons-block"><div class="cons-name">电子化学品<span class="cons-sub">成分股</span></div><div class="cons-chips"><span class="cons-chip">江化微</span><span class="cons-chip">晶瑞电材</span><span class="cons-chip">飞凯材料</span><span class="cons-chip">上海新阳</span></div></div><div class="cons-block"><div class="cons-name">证券<span class="cons-sub">成分股</span></div><div class="cons-chips"><span class="cons-chip">中信证券</span><span class="cons-chip">东方财富</span><span class="cons-chip">中信建投</span><span class="cons-chip">招商证券</span></div></div></div>
-        </div></div></div><div id="nav-holdings" class="content-panel">
+        <div id="sector-tab-calendar" class="tab-panel">
+
+<style>
+.cal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:14px 0;}
+.cal-card{background:var(--bg-surface);border:1px solid var(--border);border-left:4px solid var(--c-season);border-radius:10px;padding:14px 16px;position:relative;}
+.cal-card.cur{box-shadow:0 0 0 2px var(--accent) inset;border-color:var(--accent);}
+.cal-mhead{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.cal-month{font-size:18px;font-weight:800;color:var(--text-1);}
+.cal-season{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--bg-surface-2);color:var(--text-2);border:1px solid var(--border);}
+.cal-curbadge{margin-left:auto;font-size:10px;padding:2px 9px;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;}
+.cal-row{font-size:12.5px;line-height:1.6;margin:6px 0;}
+.cal-row .k{color:var(--text-3);font-size:11px;display:block;margin-bottom:2px;}
+.cal-leaders{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}
+.cal-chip{font-size:11px;padding:2px 9px;border-radius:8px;background:var(--bg-surface-2);border:1px solid var(--border);color:var(--text-1);}
+.cal-disclaimer{font-size:11px;color:var(--text-3);padding:10px 12px;border:1px dashed var(--border);border-radius:8px;margin-top:8px;line-height:1.7;}
+.cal-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.cal-head .badge{font-size:10.5px;padding:2px 9px;border-radius:10px;background:rgba(79,195,247,.12);color:var(--accent-blue);font-weight:600;}
+.cal-head .note{font-size:11.5px;color:var(--text-3);}
+</style>
+
+  <div class="card card-full">
+    <div class="card-title"><span class="icon"><i class="fas fa-calendar-alt"></i></span> A股月度热点日历
+      <span class="badge">日历效应 · 历史惯例</span>
+      <span class="click-hint">当前月（8月）高亮 · 龙头随产业周期切换</span>
+    </div>
+    <div class="cal-grid"><div class="cal-card" style="--c-season:#38bdf8;">
+  <div class="cal-mhead"><span class="cal-month">1月</span><span class="cal-season">冬</span></div>
+  <div class="cal-row"><span class="k">🔥 热点板块</span>农业种业 / 一号文件预期、春节消费、年报预增</div>
+  <div class="cal-row"><span class="k">🧭 驱动逻辑</span>中央一号文件 1-2 月发布，农业政策预期升温；年底消费旺季</div>
+  <div class="cal-row"><span class="k">🚀 代表龙头股（历史惯例）</span><div class="cal-leaders"><span class="cal-chip">隆平高科</span><span class="cal-chip">荃银高科</span><span class="cal-chip">大北农</span><span class="cal-chip">北大荒</span><span class="cal-chip">贵州茅台</span><span class="cal-chip">牧原股份</span></div></div>
+</div>
+<div class="cal-card" style="--c-season:#38bdf8;">
+  <div class="cal-mhead"><span class="cal-month">2月</span><span class="cal-season">冬</span></div>
+  <div class="cal-row"><span class="k">🔥 热点板块</span>农业（政策落地）、春节消费、两会预期</div>
+  <div class="cal-row"><span class="k">🧭 驱动逻辑</span>一号文件落地；两会临近，政策主题酝酿</div>
+  <div class="cal-row"><span class="k">🚀 代表龙头股（历史惯例）</span><div class="cal-leaders"><span class="cal-chip">隆平高科</span><span class="cal-chip">大北农</span><span class="cal-chip">贵州茅台</span><span class="cal-chip">海天味业</span></div></div>
+</div>
+<div class="cal-card" style="--c-season:#4ade80;">
+  <div class="cal-mhead"><span class="cal-month">3月</span><span class="cal-season">春</span></div>
+  <div class="cal-row"><span class="k">🔥 热点板块</span>两会主题（新基建、科技自主、双碳、国企改革）</div>
+  <div class="cal-row"><span class="k">🧭 驱动逻辑</span>两会召开、政策定调，主题投资最活跃</div>
+  <div class="cal-row"><span class="k">🚀 代表龙头股（历史惯例）</span><div class="cal-leaders"><span class="cal-chip">中兴通讯</span><span class="cal-chip">中科曙光</span><span class="cal-chip">中国中车</span><span class="cal-chip">三一重工</span><span class="cal-chip">宁德时代</span></div></div>
+</div>
+<div class="cal-card" style="--c-season:#4ade80;">
+  <div class="cal-mhead"><span class="cal-month">4月</span><span class="cal-season">春</span></div>
+  <div class="cal-row"><span class="k">🔥 热点板块</span>一季报预增、高送转填权、消费白马</div>
+  <div class="cal-row"><span class="k">🧭 驱动逻辑</span>一季报+年报密集披露，业绩驱动；高送转炒作</div>
+  <div class="cal-row"><span class="k">🚀 代表龙头股（历史惯例）</span><div class="cal-leaders"><span class="cal-chip">贵州茅台</span><span class="cal-chip">美的集团</span><span class="cal-chip">迈瑞医疗</span><span class="cal-chip">业绩超预期个股</span></div></div>
+</div>
+<div class="cal-card" style="--c-season:#4ade80;">
+  <div class="cal-mhead"><span class="cal-month">5月</span><span class="cal-season">春</span></div>
+  <div class="cal-row"><span class="k">🔥 热点板块</span>科技（半导体 / 消费电子）、军工</div>
+  <div class="cal-row"><span class="k">🧭 驱动逻辑</span>成长风格季度性强；苹果链备货预期</div>
+  <div class="cal-row"><span class="k">🚀 代表龙头股（历史惯例）</span><div class="cal-leaders"><span class="cal-chip">韦尔股份</span><span class="cal-chip">北方华创</span><span class="cal-chip">卓胜微</span><span class="cal-chip">立讯精密</span><span class="cal-chip">中航沈飞</span></div></div>
+</div>
+<div class="cal-card" style="--c-season:#fb923c;">
+  <div class="cal-mhead"><span class="cal-month">6月</span><span class="cal-season">夏</span></div>
+  <div class="cal-row"><span class="k">🔥 热点板块</span>券商、次新股、中报预增</div>
+  <div class="cal-row"><span class="k">🧭 驱动逻辑</span>年中资金博弈；流动性宽松时券商常躁动；中报预告</div>
+  <div class="cal-row"><span class="k">🚀 代表龙头股（历史惯例）</span><div class="cal-leaders"><span class="cal-chip">中信证券</span><span class="cal-chip">东方财富</span><span class="cal-chip">同花顺</span><span class="cal-chip">财达证券</span></div></div>
+</div>
+<div class="cal-card" style="--c-season:#fb923c;">
+  <div class="cal-mhead"><span class="cal-month">7月</span><span class="cal-season">夏</span></div>
+  <div class="cal-row"><span class="k">🔥 热点板块</span>军工（建军节）、电力（迎峰度夏）、中报</div>
+  <div class="cal-row"><span class="k">🧭 驱动逻辑</span>八一建军节催化军工；夏季用电高峰推升电力</div>
+  <div class="cal-row"><span class="k">🚀 代表龙头股（历史惯例）</span><div class="cal-leaders"><span class="cal-chip">中航沈飞</span><span class="cal-chip">航发动力</span><span class="cal-chip">中航西飞</span><span class="cal-chip">长江电力</span><span class="cal-chip">华能国际</span></div></div>
+</div>
+<div class="cal-card cur" style="--c-season:#fb923c;">
+  <div class="cal-mhead"><span class="cal-month">8月</span><span class="cal-season">夏</span><span class="cal-curbadge">本月</span></div>
+  <div class="cal-row"><span class="k">🔥 热点板块</span>消费电子（苹果链）、白酒、中报密集</div>
+  <div class="cal-row"><span class="k">🧭 驱动逻辑</span>苹果秋季发布会预期；中报落地消费白马</div>
+  <div class="cal-row"><span class="k">🚀 代表龙头股（历史惯例）</span><div class="cal-leaders"><span class="cal-chip">立讯精密</span><span class="cal-chip">歌尔股份</span><span class="cal-chip">工业富联</span><span class="cal-chip">贵州茅台</span><span class="cal-chip">五粮液</span></div></div>
+</div>
+<div class="cal-card" style="--c-season:#f59e0b;">
+  <div class="cal-mhead"><span class="cal-month">9月</span><span class="cal-season">秋</span></div>
+  <div class="cal-row"><span class="k">🔥 热点板块</span>军工（国庆）、旅游酒店（十一）、消费</div>
+  <div class="cal-row"><span class="k">🧭 驱动逻辑</span>国庆节日催化军工与文旅消费</div>
+  <div class="cal-row"><span class="k">🚀 代表龙头股（历史惯例）</span><div class="cal-leaders"><span class="cal-chip">中航西飞</span><span class="cal-chip">中航沈飞</span><span class="cal-chip">中国中免</span><span class="cal-chip">宋城演艺</span><span class="cal-chip">锦江酒店</span></div></div>
+</div>
+<div class="cal-card" style="--c-season:#f59e0b;">
+  <div class="cal-mhead"><span class="cal-month">10月</span><span class="cal-season">秋</span></div>
+  <div class="cal-row"><span class="k">🔥 热点板块</span>双十一（电商 / 物流 / 美妆）、三季报</div>
+  <div class="cal-row"><span class="k">🧭 驱动逻辑</span>双十一大促，电商物流美妆链受益；三季报披露</div>
+  <div class="cal-row"><span class="k">🚀 代表龙头股（历史惯例）</span><div class="cal-leaders"><span class="cal-chip">顺丰控股</span><span class="cal-chip">圆通速递</span><span class="cal-chip">珀莱雅</span><span class="cal-chip">值得买</span><span class="cal-chip">美的集团</span></div></div>
+</div>
+<div class="cal-card" style="--c-season:#f59e0b;">
+  <div class="cal-mhead"><span class="cal-month">11月</span><span class="cal-season">秋</span></div>
+  <div class="cal-row"><span class="k">🔥 热点板块</span>基建、低估值蓝筹、双十一复盘</div>
+  <div class="cal-row"><span class="k">🧭 驱动逻辑</span>年末稳增长预期；基金排名战偏好蓝筹</div>
+  <div class="cal-row"><span class="k">🚀 代表龙头股（历史惯例）</span><div class="cal-leaders"><span class="cal-chip">中国建筑</span><span class="cal-chip">海螺水泥</span><span class="cal-chip">三一重工</span><span class="cal-chip">中国中铁</span></div></div>
+</div>
+<div class="cal-card" style="--c-season:#38bdf8;">
+  <div class="cal-mhead"><span class="cal-month">12月</span><span class="cal-season">冬</span></div>
+  <div class="cal-row"><span class="k">🔥 热点板块</span>中央经济工作会议、农业预期、消费白酒</div>
+  <div class="cal-row"><span class="k">🧭 驱动逻辑</span>会议定调来年；年底消费+农业预期重启</div>
+  <div class="cal-row"><span class="k">🚀 代表龙头股（历史惯例）</span><div class="cal-leaders"><span class="cal-chip">贵州茅台</span><span class="cal-chip">五粮液</span><span class="cal-chip">泸州老窖</span><span class="cal-chip">隆平高科</span><span class="cal-chip">大北农</span></div></div>
+</div></div>
+    <div class="cal-disclaimer">⚠️ 以上为 A 股历史「日历效应」统计规律，非每年必现；龙头会随产业主线切换。实战需叠加【月度催化时间窗 + 当年景气方向 + 技术面位置】三因子共振，仅供参考，不构成投资建议。</div>
+  </div>
+</div></div></div></div><div id="nav-holdings" class="content-panel">
         <div class="screen-head">
             <div><h1>持仓复盘</h1><div class="desc">多账户合并盈亏 · RSI(6/12/24) · 量比 · 策略标签 · QC Gate 数据核查</div></div>
             <div class="head-badge">8 只持仓</div>
@@ -5725,7 +5824,7 @@ function switchSectorTab(tab){
   var t = document.getElementById('sector-tab-' + tab);
   if (t) t.classList.add('active');
   document.querySelectorAll('.tab-btn').forEach(function(b){
-    var want = (tab === 'heatmap' && b.textContent.indexOf('热力图') >= 0) || (tab === 'leader' && b.textContent.indexOf('龙头股') >= 0);
+    var want = (tab === 'heatmap' && b.textContent.indexOf('热力图') >= 0) || (tab === 'leader' && b.textContent.indexOf('龙头股') >= 0) || (tab === 'calendar' && b.textContent.indexOf('日历') >= 0);
     b.classList.toggle('active', want);
   });
   if (tab === 'leader') startSectorLeaderRT(); else stopSectorLeaderRT();
