@@ -1,0 +1,25 @@
+{
+  "upCount": 4335,
+  "downCount": 1064,
+  "flatCount": 145,
+  "upLimitCount": 110,
+  "downLimitCount": 1,
+  "suspensionCount": 3,
+  "upRatio": 78,
+  "upRatioComment": "当前市场上涨家数占比全市场78%，市场情绪偏高。",
+  "detail": [
+    {"section":"涨停","count":110,"flag":1},
+    {"section":">7%","count":170,"flag":1},
+    {"section":"7~5%","count":273,"flag":1},
+    {"section":"5~2%","count":1436,"flag":1},
+    {"section":"2~0%","count":2346,"flag":1},
+    {"section":"平","count":145,"flag":0},
+    {"section":"0~2%","count":870,"flag":-1},
+    {"section":"2~5%","count":165,"flag":-1},
+    {"section":"5~7%","count":18,"flag":-1},
+    {"section":"7%<","count":10,"flag":-1},
+    {"section":"跌停","count":1,"flag":-1}
+  ],
+  "totalAmount": 2387457189783.2314,
+  "amountChange": 244613964452.3015
+}
