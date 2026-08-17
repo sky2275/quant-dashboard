@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-17 08:51:14",
+  "updated_at": "2026-08-17 15:29:45",
   "trade_ctx": {
     "is_trade_day": true,
     "trade_date": "20260817",
@@ -30,27 +30,27 @@
   "a_indexes": [
     {
       "name": "上证指数",
-      "price": 3927.18,
-      "change_pct": 0.01,
-      "change": 0.22
+      "price": 3982.65,
+      "change_pct": 1.41,
+      "change": 55.47
     },
     {
       "name": "深证成指",
-      "price": 14354.31,
-      "change_pct": 0.45,
-      "change": 64.87
+      "price": 14704.27,
+      "change_pct": 2.44,
+      "change": 349.96
     },
     {
       "name": "创业板指",
-      "price": 3626.3,
-      "change_pct": 1.12,
-      "change": 40.26
+      "price": 3740.16,
+      "change_pct": 3.14,
+      "change": 113.86
     },
     {
       "name": "科创50",
-      "price": 1717.68,
-      "change_pct": -0.0,
-      "change": -0.07
+      "price": 1788.85,
+      "change_pct": 4.14,
+      "change": 71.17
     }
   ],
   "sector_flow": [
@@ -1711,11 +1711,12 @@
     }
   ],
   "market_breadth": {
-    "amount": null,
-    "up_count": null,
-    "down_count": null,
-    "limit_up_count": null,
-    "limit_down_count": null
+    "amount": 2387457189783.2314,
+    "up_count": 4335,
+    "down_count": 1064,
+    "limit_up_count": 110,
+    "limit_down_count": 1,
+    "flat_count": 145
   },
   "sector_constituents": {
     "半导体": [
