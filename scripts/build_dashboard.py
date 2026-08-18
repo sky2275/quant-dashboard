@@ -318,6 +318,19 @@ CSS_RULES = """
         .kr-stock-row .nm { font-weight:500; }
         .kr-stock-row .data { display:flex; gap:8px; align-items:baseline; font-family:var(--font-num); }
 
+        /* Global Index Hero（全球指数总览） */
+        .gi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:12px; }
+        @media (max-width:1024px) { .gi-grid { grid-template-columns:repeat(2,1fr); } }
+        @media (max-width:600px) { .gi-grid { grid-template-columns:1fr; } }
+        .gi-group { background:rgba(255,255,255,0.025); border:1px solid var(--border-color); border-radius:10px; padding:12px 14px; }
+        .gi-group-title { font-size:11.5px; font-weight:600; color:var(--accent-blue); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+        .gi-items { display:flex; flex-direction:column; gap:5px; }
+        .gi-item { display:flex; justify-content:space-between; align-items:center; padding:4px 6px; background:rgba(255,255,255,0.02); border-radius:6px; font-size:12px; }
+        .gi-item:hover { background:rgba(79,195,247,0.08); }
+        .gi-name { color:var(--text-secondary); font-weight:500; font-size:11px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis; max-width:120px; }
+        .gi-price { font-family:var(--font-num); font-weight:600; font-size:13px; min-width:70px; text-align:right; }
+        .gi-pct { font-family:var(--font-num); font-weight:600; font-size:11px; min-width:55px; text-align:right; }
+
         .us-sector-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
         @media (max-width:768px) { .us-sector-grid { grid-template-columns:1fr 1fr; } }
         @media (max-width:480px) { .us-sector-grid { grid-template-columns:1fr; } }
@@ -1928,8 +1941,93 @@ def _section_ashare(snap, us_quotes, overnight, a_news=None):
     return head + idx_bar + hero + blocks + idx_kline + a_news_card
 
 
+# ----------------------------------------------------------------- 全球指数总览（美股细分+韩国+日本+港股）
+def _global_index_hero(us_quotes, kr_quotes=None, jp_quotes=None, hk_quotes=None):
+    """全球指数总览 HERO 卡片：美股三大+科技/半导体/AI + 韩国 KOSPI/KOSDAQ + 日本日经225/东证 + 港股恒生/恒生科技。
+    所有指数显示实时价格和涨跌幅，按地区分组展示。
+    """
+    # 美组：三大指数 + 科技(QQQ/XLK) + 半导体(SOXX/SMH) + AI机器人(BOTZ/ARKQ)
+    us_groups = [
+        ("🇺🇸 美股核心", [
+            ("纳斯达克", "IXIC"), ("道琼斯", "DJI"), ("标普500", "INX"),
+        ]),
+        ("🔬 美股科技", [
+            ("纳指100(QQQ)", "QQQ"), ("科技ETF(XLK)", "XLK"),
+        ]),
+        ("💻 美股半导体", [
+            ("费城半导体(SOXX)", "SOXX"), ("半导体ETF(SMH)", "SMH"),
+        ]),
+        ("🤖 美股AI/机器人", [
+            ("机器人AI(BOTZ)", "BOTZ"), ("自主科技(ARKQ)", "ARKQ"),
+        ]),
+    ]
+    # 韩国组
+    kr_groups = [
+        ("🇰🇷 韩国综合", [
+            ("KOSPI", "KS11"), ("KOSDAQ", "KOSDAQ"),
+        ]),
+    ]
+    # 日本组
+    jp_groups = [
+        ("🇯🇵 日本主要", [
+            ("日经225", "N225"), ("东证指数", "TOPIX"),
+        ]),
+    ]
+    # 港股组
+    hk_groups = [
+        ("🇭🇰 港股主要", [
+            ("恒生指数", "HSI"), ("恒生科技", "HSTECH"),
+        ]),
+    ]
+
+    def _render_group(title, items, quotes, prefix=""):
+        """渲染一组指数卡片"""
+        rows = ""
+        for name, sym in items:
+            key = prefix + sym if prefix else sym
+            q = (quotes or {}).get(key) or (quotes or {}).get(sym)
+            if q and q.get("price") is not None:
+                price = q["price"]
+                pct = q.get("change_pct")
+                cls = _cls(pct) if pct is not None else ""
+                rows += (f'<div class="gi-item">'
+                        f'<span class="gi-name">{name}</span>'
+                        f'<span class="gi-price {cls}">{_safe(price)}</span>'
+                        f'<span class="gi-pct {cls}">{_fmt_pct(pct) if pct is not None else "—"}</span>'
+                        f'</div>')
+            else:
+                rows += (f'<div class="gi-item">'
+                        f'<span class="gi-name">{name}</span>'
+                        f'<span class="gi-price muted">—</span>'
+                        f'<span class="gi-pct muted">—</span>'
+                        f'</div>')
+        return f'''
+        <div class="gi-group">
+            <div class="gi-group-title">{title}</div>
+            <div class="gi-items">{rows}</div>
+        </div>'''
+
+    html = ""
+    for title, items in us_groups:
+        html += _render_group(title, items, us_quotes)
+    for title, items in kr_groups:
+        html += _render_group(title, items, kr_quotes, "kr")
+    for title, items in jp_groups:
+        html += _render_group(title, items, jp_quotes, "jp")
+    for title, items in hk_groups:
+        html += _render_group(title, items, hk_quotes, "hk")
+
+    return f'''
+    <div class="card card-full" id="globalIndexHero">
+        <div class="card-title"><span class="icon"><i class="fas fa-globe"></i></span> 全球指数总览 <span class="badge">REAL-TIME</span>
+            <span class="click-hint">美股·韩国·日本·港股 实时行情</span>
+        </div>
+        <div class="gi-grid">{html}</div>
+    </div>'''
+
+
 # ----------------------------------------------------------------- 重排后：美股行情映射 面板（美股隔夜 + 美股→A股传导）
-def _section_us_map(snap, us_quotes, overnight, kr_quotes=None, cfg=None, macro_data=None, global_news=None):
+def _section_us_map(snap, us_quotes, overnight, kr_quotes=None, cfg=None, macro_data=None, global_news=None, jp_quotes=None, hk_quotes=None):
     """全球行情：仿A股板块结构（HERO指数 → 市场情绪 → 板块强弱 → K线 → 韩国 → 传导）。
     Args:
         snap: market_snapshot
@@ -1937,11 +2035,15 @@ def _section_us_map(snap, us_quotes, overnight, kr_quotes=None, cfg=None, macro_
         overnight: us_overnight.json（板块传导映射）
         kr_quotes: 韩国股市实时行情 {symbol: {price, change_pct}}
         cfg: 策略配置（含 korea_sector_mapping）
+        jp_quotes: 日本股市实时行情（日经225/东证）
+        hk_quotes: 港股实时行情（恒生/恒生科技）
     """
     us_idx = snap.get("us_indices", []) or []
     head = _screen_head("全球行情", "美股三大指数 · 板块ETF · 龙头股 · K线走势 · 韩国板块 · A股映射", _session('us')[0])
     idx_bar = _index_quote_bar(us_idx, "隔夜指数")
     hero = _hero_index_cards(us_idx, limit=4, clickable=False)
+    # 🆕 全球指数总览（美股细分+韩国+日本+港股）
+    global_idx_hero = _global_index_hero(us_quotes, kr_quotes, jp_quotes, hk_quotes)
     # 美股情绪+美股板块 / 韩国KOSPI+韩国板块（双卡片）
     map_card = _us_a_map_card(us_idx)
     macro_card = _macro_card(macro_data)
@@ -1960,7 +2062,7 @@ def _section_us_map(snap, us_quotes, overnight, kr_quotes=None, cfg=None, macro_
     us_index_kline = _section_us_index_kline()
     transmit = _section_transmit(overnight, us_quotes)
     g_news_card = _news_hotspot_card(global_news, "全球财经新闻热点汇总", "mx-ds-mcp") if global_news else ""
-    return head + idx_bar + hero + grid2 + grid + us_index_kline + transmit + g_news_card
+    return head + idx_bar + hero + global_idx_hero + grid2 + grid + us_index_kline + transmit + g_news_card
 
 
 # US sector ETF K线数据
@@ -5620,6 +5722,25 @@ def build() -> str:
     except Exception:
         pass
 
+    # 🆕 日本股市（日经225/东证指数）+ 港股（恒生/恒生科技）
+    jp_codes = ["jpN225", "jpTOPIX"]
+    hk_codes = ["hkHSI", "hkHSTECH"]
+    jp_quotes, hk_quotes = {}, {}
+    try:
+        raw_jp = feed.tencent_quotes(jp_codes)
+        for k, v in raw_jp.items():
+            short = k[2:] if k.startswith("jp") else k
+            jp_quotes[short] = {"symbol": short, "name": v.get("name", short), "price": v.get("price"), "change_pct": v.get("change_pct")}
+    except Exception:
+        pass
+    try:
+        raw_hk = feed.tencent_quotes(hk_codes)
+        for k, v in raw_hk.items():
+            short = k[2:] if k.startswith("hk") else k
+            hk_quotes[short] = {"symbol": short, "name": v.get("name", short), "price": v.get("price"), "change_pct": v.get("change_pct")}
+    except Exception:
+        pass
+
     # 批量技术指标（RSI/MACD/量比/换手）：收集全部标的 ts_code，调用 feed.get_indicators 一次
     items = []
     seen = set()
@@ -5691,7 +5812,7 @@ def build() -> str:
 
     nav_items = [
         ("nav-ashare", "A股大盘行情", "fa-chart-line", _section_ashare(snap, us_quotes, overnight, a_news)),
-        ("nav-us", "全球行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight, kr_quotes, cfg, macro_data, global_news)),
+        ("nav-us", "全球行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight, kr_quotes, cfg, macro_data, global_news, jp_quotes, hk_quotes)),
         ("nav-limitup", "涨停板分析", "fa-arrow-up",
          _screen_head("涨停板分析", "涨停家数 · 封单强度 · 连板梯队 · 次日建仓建议", _lu_badge)
          + _section_limitup(snap)),
