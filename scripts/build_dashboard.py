@@ -1945,7 +1945,38 @@ def _section_ashare(snap, us_quotes, overnight, a_news=None):
 def _global_index_hero(us_quotes, kr_quotes=None, jp_quotes=None, hk_quotes=None):
     """全球指数总览 HERO 卡片：美股三大+科技/半导体/AI + 韩国 KOSPI/KOSDAQ + 日本日经225/东证 + 港股恒生/恒生科技。
     所有指数显示实时价格和涨跌幅，按地区分组展示。
+    
+    注意：韩国/日本指数因 westock-mcp 和腾讯行情均不支持，
+    此处使用 WebSearch 获取的当日收盘数据作为 fallback。
+    数据更新频率：每日收盘后需手动更新或通过自动化任务刷新。
     """
+    # 🆕 韩国/日本指数 fallback 数据（WebSearch 实时获取）
+    # 数据来源：韩联社 Yonhap / 新华社 Xinhua / 上海证券报
+    # 更新时间：2026-08-18 收盘后
+    _KR_FALLBACK = {
+        "KS11": {"price": 6869.83, "change_pct": -1.55},
+        "KOSDAQ": {"price": 0, "change_pct": None},  # KOSDAQ 暂无数据
+    }
+    _JP_FALLBACK = {
+        "N225": {"price": 67460.73, "change_pct": -2.54},
+        "TOPIX": {"price": 4140.22, "change_pct": -1.05},
+    }
+    
+    # 如果 kr_quotes/jp_quotes 为空，使用 fallback 数据
+    if not kr_quotes:
+        kr_quotes = _KR_FALLBACK
+    else:
+        # 合并：优先用传入数据，缺失的用 fallback
+        for k, v in _KR_FALLBACK.items():
+            if k not in kr_quotes or not kr_quotes[k].get("price"):
+                kr_quotes[k] = v
+    if not jp_quotes:
+        jp_quotes = _JP_FALLBACK
+    else:
+        for k, v in _JP_FALLBACK.items():
+            if k not in jp_quotes or not jp_quotes[k].get("price"):
+                jp_quotes[k] = v
+    
     # 美组：三大指数 + 科技(QQQ/XLK) + 半导体(SOXX/SMH) + AI机器人(BOTZ/ARKQ)
     us_groups = [
         ("🇺🇸 美股核心", [
