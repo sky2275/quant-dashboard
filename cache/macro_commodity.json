@@ -1,10 +1,10 @@
 {
-  "updated_at": "2026-08-17",
-  "source": "数据源：东方财富妙想(mx-ds-mcp) 宏观 · 真实取数（最新收盘 2026-08-14，周末无新数据）",
+  "updated_at": "2026-08-18",
+  "source": "东方财富妙想(mx-ds-mcp) 宏观 · 8/17收盘真实取数（mx_macro_data工具本次需重新授权，价格取自同次mx新闻检索的8/17收盘播报）",
   "items": [
-    {"name": "COMEX黄金", "price": 4432, "change_pct": 0.57, "unit": "美元/盎司", "asof": "2026-08-14", "prev": 4407, "status": "ok"},
-    {"name": "WTI原油", "price": 82.4, "change_pct": 1.42, "unit": "美元/桶", "asof": "2026-08-14", "prev": 81.25, "change_pct_mx": 1.47, "prev_mx": 81.21, "status": "ok"},
-    {"name": "USD-CNY", "price": 6.74435, "change_pct": -0.01, "unit": "", "asof": "2026-08-14", "prev": 6.74476, "status": "ok"},
-    {"name": "美元指数", "price": 99.635, "change_pct": -0.33, "unit": "", "asof": "2026-08-14", "prev": 99.96, "status": "ok"}
+    {"name": "COMEX黄金", "price": 4473.1, "change_pct": 0.81, "unit": "美元/盎司", "asof": "2026-08-17", "prev": 4437.3, "status": "ok"},
+    {"name": "WTI原油", "price": 84.95, "change_pct": 3.09, "unit": "美元/桶", "asof": "2026-08-17", "prev": 82.40, "status": "ok"},
+    {"name": "USD-CNY", "price": 6.739, "change_pct": -0.08, "unit": "", "asof": "2026-08-17", "prev": 6.74435, "status": "ok"},
+    {"name": "美元指数", "price": 99.636, "change_pct": -0.03, "unit": "", "asof": "2026-08-17", "prev": 99.666, "status": "ok"}
   ]
 }
