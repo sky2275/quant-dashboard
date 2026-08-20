@@ -1,1 +1,172 @@
-{"source": "三券商实盘交割单_2026-08-19", "updated_at": "2026-08-19 22:30:00", "note": "基于 2026-08-19 收盘后三券商账户实际持仓同步。重大变更：①通富微电减仓600→300股(成本摊薄至55.252) ②君正股份东财减仓1300→1000股 ③国瓷材料大幅减仓1200→500股(深套割肉) ④风华高科大幅减仓1500→500股(深套割肉) ⑤北大荒大幅加仓500→2000股(农业主线加码)。当日总亏损-50,841元(黑色的一天！)。价格/盈亏由 live.html 浏览器端实时拉取后计算。", "account_labels": {"yinheng": "银河证券", "eastmoney": "东方财富证券", "csc": "中信建投"}, "account_pnl": {"yinheng": {"today": -1426.0, "today_pct": null, "total": null, "pct": null}, "eastmoney": {"today": -20882.59, "today_pct": null, "total": -4202.4, "pct": null}, "csc": {"today": -28533.0, "today_pct": null, "total": null, "pct": null}}, "accounts": {"yinheng": [{"code": "002156", "name": "通富微电", "account": "yinheng", "quantity": 300, "avg_cost": 55.252, "price": 63.59, "chg": -2.3, "pnl": {"total": 2501.4, "pct": 15.09, "today": -1426.0, "today_pct": -2.3, "price": 63.59}, "bucket": "short", "stop": 0.08}], "eastmoney": [{"code": "300223", "name": "君正股份", "account": "eastmoney", "quantity": 1000, "avg_cost": 141.452, "price": 137.25, "chg": -3.06, "pnl": {"total": -4202.4, "pct": -2.97, "today": -4202.4, "today_pct": -3.06, "price": 137.25}, "bucket": "mid", "stop": 0.1}], "csc": [{"code": "300285", "name": "国瓷材料", "account": "csc", "quantity": 500, "avg_cost": 98.518, "price": 64.12, "chg": -13.04, "pnl": {"total": -17199.0, "pct": -34.91, "today": -11447.0, "today_pct": -13.04, "price": 64.12}, "bucket": "long", "stop": 0.15}, {"code": "601216", "name": "君正股份", "account": "csc", "quantity": 500, "avg_cost": 133.504, "price": 137.25, "chg": -8.22, "pnl": {"total": 1873.0, "pct": 2.81, "today": -1750.0, "today_pct": -8.22, "price": 137.25}, "bucket": "mid", "stop": 0.1}, {"code": "003033", "name": "征和工业", "account": "csc", "quantity": 200, "avg_cost": 46.729, "price": 65.88, "chg": -7.22, "pnl": {"total": 3830.2, "pct": 41.09, "today": -9395.0, "today_pct": -7.22, "price": 65.88}, "bucket": "short", "stop": 0.08}, {"code": "000636", "name": "风华高科", "account": "csc", "quantity": 500, "avg_cost": 78.89, "price": 56.11, "chg": -10.55, "pnl": {"total": -11390.0, "pct": -28.89, "today": -6390.0, "today_pct": -10.55, "price": 56.11}, "bucket": "long", "stop": 0.15}, {"code": "600598", "name": "北大荒", "account": "csc", "quantity": 2000, "avg_cost": 13.368, "price": 13.86, "chg": 3.68, "pnl": {"total": 984.0, "pct": 3.68, "today": 995.0, "today_pct": 3.68, "price": 13.86}, "bucket": "mid", "stop": 0.1}]}}, "summary": {"total_stocks": 7, "total_quantity": 3700, "total_market_value": 684500, "total_pnl_today": -50841.0, "win_count": 2, "lose_count": 5}}
+{
+  "source": "三券商实盘交割单_2026-08-19",
+  "updated_at": "2026-08-19 22:30:00",
+  "note": "基于 2026-08-19 收盘后三券商账户实际持仓同步。重大变更：①通富微电减仓600→300股(成本摊薄至55.252) ②君正股份东财减仓1300→1000股 ③国瓷材料大幅减仓1200→500股(深套割肉) ④风华高科大幅减仓1500→500股(深套割肉) ⑤北大荒大幅加仓500→2000股(农业主线加码)。当日总亏损-50,841元(黑色的一天！)。价格/盈亏由 live.html 浏览器端实时拉取后计算。",
+  "account_labels": {
+    "yinheng": "银河证券",
+    "eastmoney": "东方财富证券",
+    "csc": "中信建投"
+  },
+  "account_pnl": {
+    "yinheng": {
+      "today": -1426.0,
+      "today_pct": null,
+      "total": null,
+      "pct": null
+    },
+    "eastmoney": {
+      "today": -20882.59,
+      "today_pct": null,
+      "total": -4202.4,
+      "pct": null
+    },
+    "csc": {
+      "today": -28533.0,
+      "today_pct": null,
+      "total": null,
+      "pct": null
+    }
+  },
+  "accounts": {
+    "yinheng": [
+      {
+        "code": "002156",
+        "name": "通富微电",
+        "account": "yinheng",
+        "quantity": 300,
+        "avg_cost": 55.252,
+        "price": 63.59,
+        "chg": -2.3,
+        "pnl": {
+          "total": 2501.4,
+          "pct": 15.09,
+          "today": -1426.0,
+          "today_pct": -2.3,
+          "price": 63.59
+        },
+        "bucket": "short",
+        "stop": 0.08
+      }
+    ],
+    "eastmoney": [
+      {
+        "code": "300223",
+        "name": "君正股份",
+        "account": "eastmoney",
+        "quantity": 1000,
+        "avg_cost": 141.452,
+        "price": 137.25,
+        "chg": -3.06,
+        "pnl": {
+          "total": -4202.4,
+          "pct": -2.97,
+          "today": -4202.4,
+          "today_pct": -3.06,
+          "price": 137.25
+        },
+        "bucket": "mid",
+        "stop": 0.1
+      }
+    ],
+    "csc": [
+      {
+        "code": "300285",
+        "name": "国瓷材料",
+        "account": "csc",
+        "quantity": 500,
+        "avg_cost": 98.518,
+        "price": 64.12,
+        "chg": -13.04,
+        "pnl": {
+          "total": -17199.0,
+          "pct": -34.91,
+          "today": -11447.0,
+          "today_pct": -13.04,
+          "price": 64.12
+        },
+        "bucket": "long",
+        "stop": 0.15
+      },
+      {
+        "code": "601216",
+        "name": "君正股份",
+        "account": "csc",
+        "quantity": 500,
+        "avg_cost": 133.504,
+        "price": 137.25,
+        "chg": -8.22,
+        "pnl": {
+          "total": 1873.0,
+          "pct": 2.81,
+          "today": -1750.0,
+          "today_pct": -8.22,
+          "price": 137.25
+        },
+        "bucket": "mid",
+        "stop": 0.1
+      },
+      {
+        "code": "003033",
+        "name": "征和工业",
+        "account": "csc",
+        "quantity": 200,
+        "avg_cost": 46.729,
+        "price": 65.88,
+        "chg": -7.22,
+        "pnl": {
+          "total": 3830.2,
+          "pct": 41.09,
+          "today": -9395.0,
+          "today_pct": -7.22,
+          "price": 65.88
+        },
+        "bucket": "short",
+        "stop": 0.08
+      },
+      {
+        "code": "000636",
+        "name": "风华高科",
+        "account": "csc",
+        "quantity": 500,
+        "avg_cost": 78.89,
+        "price": 56.11,
+        "chg": -10.55,
+        "pnl": {
+          "total": -11390.0,
+          "pct": -28.89,
+          "today": -6390.0,
+          "today_pct": -10.55,
+          "price": 56.11
+        },
+        "bucket": "long",
+        "stop": 0.15
+      },
+      {
+        "code": "600598",
+        "name": "北大荒",
+        "account": "csc",
+        "quantity": 2000,
+        "avg_cost": 13.368,
+        "price": 13.86,
+        "chg": 3.68,
+        "pnl": {
+          "total": 984.0,
+          "pct": 3.68,
+          "today": 995.0,
+          "today_pct": 3.68,
+          "price": 13.86
+        },
+        "bucket": "mid",
+        "stop": 0.1
+      }
+    ]
+  },
+  "summary": {
+    "total_stocks": 7,
+    "total_quantity": 3700,
+    "total_market_value": 684500,
+    "total_pnl_today": -50841.0,
+    "win_count": 2,
+    "lose_count": 5
+  }
+}

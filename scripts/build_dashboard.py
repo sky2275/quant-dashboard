@@ -5712,6 +5712,18 @@ def build() -> str:
         except Exception as e:
             print(f"[warn] 交割单合并失败，回退手动持仓: {e}")
     broker_positions = holdings_cache.get("positions") or []
+    if not broker_positions:
+        # 兼容 holdings.json 的分账户结构 accounts{broker:[{...}]}：展平为扁平 positions。
+        # 缺少本分支时，持仓/风险/任务/弹窗全部拿不到数据（看板"持仓数"会显示 0）。
+        for _acct, _lst in (holdings_cache.get("accounts") or {}).items():
+            for _p in (_lst or []):
+                if not isinstance(_p, dict):
+                    continue
+                _row = dict(_p)
+                _row.setdefault("account", _acct)
+                broker_positions.append(_row)
+        if broker_positions:
+            print(f"[info] holdings.json 使用 accounts 结构，已展平 {len(broker_positions)} 条持仓")
     positions = _unified_positions(cfg, broker_positions)
     account_pnl = holdings_cache.get("account_pnl")   # 分账户权威盈亏（含已平仓盈亏）
     daily_review_cache = _load_cache("daily_review")  # 交易日 22:00 盘后复盘
