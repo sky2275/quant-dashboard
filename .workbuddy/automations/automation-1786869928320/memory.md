@@ -1,5 +1,17 @@
 # 自动化执行记忆：量化工作台实时数据刷新
 
+## 2026-08-20 09:05 (周四盘前) 执行
+- 分支：main ✅（commit 3ab8ce7，push 870f62f..3ab8ce7 成功）
+- 步骤1 feed.py：market_snapshot.json updated_at=2026-08-20 09:05:50 ✅
+- 步骤2 westock-mcp data_sector(ranking,sw1,30)：写入 sector_raw_westock.json，refresh_sector_data.py → sector_leader_data.json updated_at=2026-08-20T09:06:58（top_inflow=8/top_outflow=3/astocks=5213）。流入TOP3：焦炭Ⅱ(+7.56%,主净+6.9亿)、航运港口(+1.11%,+5.9亿)、风电设备(-3.35%,+6.0亿)；流出TOP3：半导体(-7.57%,-355.5亿)、通信设备(-8.66%,-255.8亿)、元件(-9.04%,-168.3亿) ✅
+- 步骤3 mx-ds-mcp：⚠️ 连接器仍 disconnected（连续第2次），**跳过**。4 缓存保留原值、未伪造时间戳：macro_commodity / a_news_summary / global_news_summary updated_at=2026-08-18，sector_contrib_mx asof=2026-08-14。已连续 2 个交易日未刷新，需提醒用户重连。
+- 步骤4/5 ✅ index.html 4.85MB，commit 3ab8ce7 push 成功，GitHub Pages 自动重建。
+- **本次修复两个真实缺陷（重要，勿回退）**：
+  1. cache/holdings.json 自 commit 870f62f(8/19 22:30) 起 JSON 损坏——第 2418 字符多一个 `}` 提前闭合根对象，尾部 `, "summary": {...}}` 成为非法多余数据。修法：`s[:2418] + s[2419:]` 后 json.loads 通过，7 只持仓与 summary 完整，数据未改动。成因是手工/Agent 写入括号错位，非脚本级复发 bug（无脚本产出该 summary 块）。
+  2. build_dashboard.py 只读 `holdings_cache["positions"]`，而 holdings.json 实为 `accounts{broker:[...]}` 分账户结构 → broker_positions 恒为 []，致持仓 section/风险/任务/弹窗全空（看板"持仓数"曾显示 0）。已在 L5714 call site 增加 accounts→positions 展平分支（仅 positions 缺失时触发，加法式改动），恢复 7 条持仓渲染，index.html 4835335→4850861 字节。
+- 排查笔记：`_paper_trade_card()` 里的「持仓数 0」属模拟盘无仓位，与实盘无关，非缺陷，勿误改。
+- 盘面特征：半导体/通信设备/元件 三大科技板块重挫（-7.5%~-9%），主力合计净流出近 780 亿；资金避险流向焦炭、航运港口、银行（国有大行/股份制/城商行齐涨）。持仓 8/19 已大幅调仓：通富微电 600→300、君正(东财) 1300→1000、国瓷 1200→500 割肉、风华 1500→500 割肉、北大荒 500→2000 加仓，当日 -50,841 元。
+
 ## 2026-08-19 08:50 (周三盘前) 执行
 - 分支：main ✅（commit c2ab92b，push 9d24abe..c2ab92b 成功）
 - 步骤1 feed.py：market_snapshot.json updated_at=2026-08-19 08:50:46 ✅
