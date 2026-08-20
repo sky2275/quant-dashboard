@@ -30,27 +30,33 @@
   "a_indexes": [
     {
       "name": "上证指数",
-      "price": 3894.42,
-      "change_pct": -2.4,
-      "change": -95.88
+      "price": 3903.72,
+      "change_pct": 0.24,
+      "change": 9.3
     },
     {
       "name": "深证成指",
-      "price": 13890.15,
-      "change_pct": -5.01,
-      "change": -732.35
+      "price": 13972.78,
+      "change_pct": 0.59,
+      "change": 82.63
     },
     {
       "name": "创业板指",
-      "price": 3473.49,
-      "change_pct": -6.26,
-      "change": -232.07
+      "price": 3495.59,
+      "change_pct": 0.64,
+      "change": 22.1
     },
     {
       "name": "科创50",
-      "price": 1667.52,
-      "change_pct": -6.89,
-      "change": -123.35
+      "price": 1652.97,
+      "change_pct": -0.87,
+      "change": -14.55
+    },
+    {
+      "name": "北证50",
+      "price": 1081.58,
+      "change_pct": -0.06,
+      "change": -0.61
     }
   ],
   "sector_flow": [
