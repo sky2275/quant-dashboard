@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-21 09:04:30",
+  "updated_at": "2026-08-22 00:08",
   "trade_ctx": {
     "is_trade_day": true,
     "trade_date": "20260821",
@@ -30,27 +30,33 @@
   "a_indexes": [
     {
       "name": "上证指数",
-      "price": 3903.72,
-      "change_pct": 0.24,
-      "change": 9.3
+      "price": 3905.2,
+      "change_pct": 0.04,
+      "change": 1.48
     },
     {
       "name": "深证成指",
-      "price": 13972.78,
-      "change_pct": 0.59,
-      "change": 82.63
+      "price": 14094.17,
+      "change_pct": 0.87,
+      "change": 121.39
     },
     {
       "name": "创业板指",
-      "price": 3495.59,
-      "change_pct": 0.64,
-      "change": 22.1
+      "price": 3545.58,
+      "change_pct": 1.43,
+      "change": 49.99
     },
     {
       "name": "科创50",
-      "price": 1652.97,
-      "change_pct": -0.87,
-      "change": -14.55
+      "price": 1653.56,
+      "change_pct": 0.04,
+      "change": 0.59
+    },
+    {
+      "name": "北证50",
+      "price": 1075.38,
+      "change_pct": -0.57,
+      "change": -6.2
     }
   ],
   "sector_flow": [
