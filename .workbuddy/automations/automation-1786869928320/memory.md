@@ -1,5 +1,14 @@
 # 自动化执行记忆：量化工作台实时数据刷新
 
+## 2026-08-21 09:07 (周五盘前) 执行
+- 分支：main ✅（commit be247e1，push badd57b..be247e1 成功）
+- 步骤1 feed.py：market_snapshot.json updated_at=2026-08-21 09:04:30 ✅
+- 步骤2 westock-mcp data_sector(ranking,sw1,30)：写入 sector_raw_westock.json(updated_at 09:07:0x)，refresh_sector_data.py → sector_leader_data.json updated_at=2026-08-21T09:07:01（top_inflow=7/top_outflow=3/astocks=5213）。流入TOP3：生物制品(+7.85%,主净+33.1亿)、医疗服务(+4.24%,主净+38.7亿)、化学制药(+2.55%,主净+27.7亿)；流出TOP3：半导体(-0.36%,主净-70.0亿)、电池(-0.84%,-15.6亿)、小金属(-1.08%,-15.5亿) ✅
+- 步骤3 mx-ds-mcp：⚠️ 连接器仍 disconnected（连续第4次，自 8/19 起），**跳过**。4 缓存保留原值、未伪造时间戳：macro_commodity / a_news_summary / global_news_summary / sector_contrib_mx 均 asof=updated_at=2026-08-18，source=mx-ds-mcp。已连续 4 个交易日未刷新，需提醒用户重连。
+- 步骤4/5 ✅ index.html 4.85MB，commit be247e1 push 成功，GitHub Pages 自动重建。
+- 盘面特征（盘前快照）：医药链全面领涨（生物制品/医疗服务/化学制药/医疗器械主力净流入居前），半导体主力净流出居首（-70亿，但板块指数仅-0.36%，内部思瑞浦+15.31%领涨分化），避险方向贵金属(+5.50%)延续强势。
+- holdings.json accounts 展平修复仍生效（7 条持仓正常渲染）。
+
 ## 2026-08-20 09:05 (周四盘前) 执行
 - 分支：main ✅（commit 3ab8ce7，push 870f62f..3ab8ce7 成功）
 - 步骤1 feed.py：market_snapshot.json updated_at=2026-08-20 09:05:50 ✅

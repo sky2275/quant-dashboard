@@ -18,6 +18,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
 import feed
+from scoring import ComprehensiveScorer, batch_score_holdings
 
 # ---------------------------------------------------------------------------
 # 名称 → 腾讯代码（与 build_dashboard.py 保持一致）
@@ -250,11 +251,22 @@ def _load_all():
     cfg = _load_cache("config") or {}
 
     positions = []
+    # 优先从 positions 字段获取
     for p in holdings.get("positions", []):
         name = p.get("name")
         if not name:
             continue
         positions.append(p)
+
+    # 兼容 accounts 结构（展平为扁平列表）
+    if not positions:
+        for acct, lst in (holdings.get("accounts") or {}).items():
+            for p in (lst or []):
+                if not isinstance(p, dict):
+                    continue
+                row = dict(p)
+                row.setdefault("account", acct)
+                positions.append(row)
 
     names = [p.get("name") for p in positions]
     a_quotes = _fetch_a_quotes(names)
@@ -664,7 +676,7 @@ def _kline_chart_js(rows, prefix="kline_"):
     return "\n".join(scripts)
 
 
-def _generate_stock_card(d, idx, prefix="kline_"):
+def _generate_stock_card(d, idx, prefix="kline_", score_results=None):
     chart_id = f"{prefix}{idx}"
     name = d["name"]
     code = d["code"]
@@ -673,6 +685,16 @@ def _generate_stock_card(d, idx, prefix="kline_"):
     signal_text = "SELL" if d["signal_cls"] == "sell" else ("BUY" if d["signal_cls"] == "buy" else "HOLD")
     chg_color = "#ef4444" if (d["chg_pct"] or 0) > 0 else ("#22c55e" if (d["chg_pct"] or 0) < 0 else "#94a3b8")
     limit_up_tag = "<span style='background:rgba(239,68,68,0.2);color:#ef4444;padding:2px 6px;border-radius:4px;font-size:11px;margin-left:8px;'>涨停</span>" if (d["chg_pct"] or 0) >= 9.9 else ""
+
+    # 获取HARNESS评分结果
+    harness_score = score_results.get(name, {}) if score_results else {}
+    risk_level = harness_score.get('risk_level', '—')
+    risk_color = harness_score.get('risk_color', '#94a3b8')
+    total_score = harness_score.get('total_score', '—')
+    target_price = harness_score.get('target_price', 0)
+    stop_loss = harness_score.get('stop_loss', 0)
+    expected_return = harness_score.get('expected_return', 'N/A')
+    rating_stars = harness_score.get('rating_stars', '')
 
     # 操作时间线
     timeline_rows = ""
@@ -713,6 +735,8 @@ def _generate_stock_card(d, idx, prefix="kline_"):
       <div style="font-size:13px;color:#94a3b8;">评分</div>
       <div style="font-size:28px;font-weight:700;color:{signal_color};">{score}</div>
       <div style="font-size:13px;font-weight:600;color:{signal_color};">{signal_text} · {d['strategy']}</div>
+      <!-- HARNESS风险标识 -->
+      <div style="margin-top:8px;"><span class="risk-badge" style="background:{risk_color};padding:4px 12px;border-radius:12px;font-size:11px;font-weight:500;color:#FFFFFF;">{risk_level} ★{total_score}{rating_stars}</span></div>
     </div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:16px;">
@@ -720,6 +744,12 @@ def _generate_stock_card(d, idx, prefix="kline_"):
     <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">涨跌幅</div><div style="font-size:16px;font-weight:700;color:{chg_color};">{_fmt_pct(d['chg_pct'])}</div></div>
     <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">盈亏额</div><div style="font-size:16px;font-weight:700;color:{_pnl_cls(d['total_pnl'])};">{_fmt_pnl(d['total_pnl'])}</div></div>
     <div style="background:#0f0f23;padding:10px;border-radius:8px;"><div style="font-size:11px;color:#94a3b8;">收益率</div><div style="font-size:16px;font-weight:700;color:{_pnl_cls(d['total_pnl'])};">{_fmt_pct(d['pnl_rate'])}</div></div>
+  </div>
+  <!-- HARNESS目标价/止损价信息 -->
+  <div style="margin-top:8px;font-size:12px;color:#94a3b8;text-align:center;padding:8px;background:#0f0f23;border-radius:8px;">
+    目标: <span style="color:#00d4aa;font-weight:600;">¥{_fmt_price(target_price) if target_price else '—'}</span>
+    | 止损: <span style="color:#ff4757;font-weight:600;">¥{_fmt_price(stop_loss) if stop_loss else '—'}</span>
+    | 预期: <span style="font-weight:600;color:#e2e8f0;">{expected_return}</span>
   </div>
   <div style="margin-bottom:16px;">
     <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">🔍 现阶段 RSI 与量比核查（收盘）</div>
@@ -953,7 +983,7 @@ def _generate_position_structure(rows):
 # ---------------------------------------------------------------------------
 # 报告主体
 
-def _report_body(rows, hold_str, plan_str, hold_date, account_pnl=None, embedded=False):
+def _report_body(rows, hold_str, plan_str, hold_date, account_pnl=None, embedded=False, score_results=None):
     total_mv = sum((d["price"] or 0) * d["quantity"] for d in rows)
     total_pnl = sum(d["total_pnl"] or 0 for d in rows)
     n_up = sum(1 for d in rows if (d["chg_pct"] or 0) > 0)
@@ -1013,7 +1043,7 @@ def _report_body(rows, hold_str, plan_str, hold_date, account_pnl=None, embedded
 
     # 个股卡片
     prefix = "emb_kline_" if embedded else "kline_"
-    stock_cards = "".join(_generate_stock_card(d, i, prefix) for i, d in enumerate(rows))
+    stock_cards = "".join(_generate_stock_card(d, i, prefix, score_results) for i, d in enumerate(rows))
 
     # 综合作战计划
     battle_plan = _generate_battle_plan(rows, plan_str)
@@ -1191,6 +1221,35 @@ def build_embedded(account_pnl=None):
     if not rows:
         return "<div style='padding:20px;color:var(--text-secondary);'>未检测到持仓数据。</div>"
 
+    # 计算HARNESS风格综合评分
+    market_data_for_scoring = {
+        'hot_sectors': [s.get('名称', '') for s in (snap.get('sector_flow') or [])[:10] if isinstance(s, dict)]
+    }
+    scorer = ComprehensiveScorer(market_data_for_scoring)
+    score_results = {}
+    for row in rows:
+        # 构建评分所需的股票数据
+        stock_data = {
+            'code': row.get('code', ''),
+            'name': row.get('name', ''),
+            'price': row.get('price', 0),
+            'cost': row.get('cost', 0),
+            'quantity': row.get('quantity', 0),
+            # 技术面数据
+            'rsi6': row.get('rsi', {}).get(6),
+            'rsi12': row.get('rsi', {}).get(12),
+            'rsi24': row.get('rsi', {}).get(24),
+            'volume_ratio': row.get('volume_ratio'),
+            'ma5': row.get('mas', {}).get('MA5'),
+            'ma10': row.get('mas', {}).get('MA10'),
+            'ma20': row.get('mas', {}).get('MA20'),
+            'change_pct': row.get('chg_pct'),
+            # 资金面数据
+            'main_net_flow': row.get('main_flow'),
+        }
+        result = scorer.calculate_score(stock_data)
+        score_results[row.get('name', '')] = result
+
     hold_date = (holdings.get("updated_at") or "")[:10]
     if hold_date:
         hd = dt.datetime.strptime(hold_date, "%Y-%m-%d")
@@ -1203,7 +1262,7 @@ def build_embedded(account_pnl=None):
         hold_str = "—"
         plan_str = "—"
 
-    body, prefix = _report_body(rows, hold_str, plan_str, hold_date, account_pnl=account_pnl, embedded=True)
+    body, prefix = _report_body(rows, hold_str, plan_str, hold_date, account_pnl=account_pnl, embedded=True, score_results=score_results)
     chart_js = _kline_chart_js(rows, prefix)
 
     return f"""

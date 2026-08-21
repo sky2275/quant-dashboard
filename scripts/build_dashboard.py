@@ -1662,6 +1662,109 @@ def _to_secid(full: str) -> str:
     return full
 
 
+def _build_market_env_bar(snap: dict) -> str:
+    """
+    生成6维市场环境监控条（HARNESS风格）
+    展示：时龄、温度、宽度、指所率、机会、Pitch、环境
+    """
+    # 1. 时龄（数据新鲜度）
+    updated_at = snap.get("updated_at") or ""
+    hours_since_update = "—"
+    if updated_at:
+        try:
+            from dateutil import parser as du_parser
+            dt_update = du_parser.parse(updated_at)
+            if _BJ_TZ:
+                now_bj = dt.datetime.now(_BJ_TZ)
+            else:
+                now_bj = dt.datetime.now()
+            delta = now_bj - dt_update.replace(tzinfo=None) if dt_update.tzinfo else (now_bj - dt_update)
+            hours_since_update = f"{max(0, delta.total_seconds() / 3600):.1f}h"
+        except Exception:
+            hours_since_update = "—"
+
+    # 2. 温度（基于涨跌停数据计算）
+    market_heat = 50.0  # 默认中性
+    breadth = snap.get("market_breadth") or {}
+    limit_up_count = breadth.get("limit_up_count") or 0
+    limit_down_count = breadth.get("limit_down_count") or 0
+    total_stocks = (breadth.get("up_count") or 0) + (breadth.get("down_count") or 0)
+    if total_stocks > 0:
+        # 温度算法：(涨停数×2 - 跌停数) / max(总股票数,1) × 100 + 50
+        market_heat = (limit_up_count * 2 - limit_down_count) / max(total_stocks, 1) * 100 + 50
+        market_heat = max(0, min(100, market_heat))  # 限制在0-100范围
+
+    # 3. 宽度（上涨家数占比）
+    up_count = breadth.get("up_count") or 0
+    down_count = breadth.get("down_count") or 0
+    total_ud = up_count + down_count
+    breadth_pct = f"{up_count / total_ud * 100:.1f}%" if total_ud > 0 else "—"
+
+    # 4. 指所率（指数预期收益率，简化为主要指数平均涨跌幅）
+    a_indexes = snap.get("a_indexes", []) or []
+    if a_indexes:
+        valid_changes = [x.get("change_pct") for x in a_indexes if isinstance(x.get("change_pct"), (int, float))]
+        index_expected_return = sum(valid_changes) / len(valid_changes) if valid_changes else 0
+        index_expected_return_str = f"{index_expected_return:.2f}%"
+    else:
+        index_expected_return_str = "—"
+
+    # 5. 机会（可用攻击池数量）
+    candidate_pool = []  # 可从 cfg 或其他数据源获取
+    opportunity_count = len(candidate_pool)
+
+    # 6. Pitch（当前推荐数量，简化为持仓数）
+    recommendations_count = len([])  # 可从评分结果获取
+
+    # 环境判断逻辑
+    if market_heat > 70 and up_count / max(total_ud, 1) > 0.6:
+        env_judgment = "贪婪型盛 · 谨慎追高"
+        env_color = "#ff4757"  # 红色
+    elif market_heat < 30 and up_count / max(total_ud, 1) < 0.4:
+        env_judgment = "恐慌型盛 · 寻找机会"
+        env_color = "#00d4aa"  # 绿色
+    elif market_heat >= 50:
+        env_judgment = "中性偏强"
+        env_color = "#378add"  # 蓝色
+    else:
+        env_judgment = "中性偏弱"
+        env_color = "#378add"  # 蓝色
+
+    return f'''
+    <div style="background:#1a1b26;border-radius:8px;padding:12px 20px;margin:12px 24px;border:1px solid #2d2d44;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+            <div style="display:flex;flex-direction:column;gap:2px;">
+                <div style="font-size:11px;color:#94a3b8;">时龄</div>
+                <div style="font-size:16px;font-weight:700;color:#e2e8f0;">{hours_since_update}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px;">
+                <div style="font-size:11px;color:#94a3b8;">温度</div>
+                <div style="font-size:16px;font-weight:700;color:{'#ff4757' if market_heat > 60 else ('#00d4aa' if market_heat < 40 else '#e2e8f0')};">{market_heat:.1f}°</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px;">
+                <div style="font-size:11px;color:#94a3b8;">宽度</div>
+                <div style="font-size:16px;font-weight:700;color:#e2e8f0;">{breadth_pct}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px;">
+                <div style="font-size:11px;color:#94a3b8;">指所率</div>
+                <div style="font-size:16px;font-weight:700;color:{'#ef4444' if isinstance(index_expected_return, float) and index_expected_return > 0 else '#22c55e'};">{index_expected_return_str}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px;">
+                <div style="font-size:11px;color:#94a3b8;">机会</div>
+                <div style="font-size:16px;font-weight:700;color:#e2e8f0;">{opportunity_count}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px;">
+                <div style="font-size:11px;color:#94a3b8;">Pitch</div>
+                <div style="font-size:16px;font-weight:700;color:#e2e8f0;">{recommendations_count}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px;padding-left:16px;border-left:1px solid #2d2d44;">
+                <div style="font-size:11px;color:#94a3b8;">环境</div>
+                <div style="font-size:14px;font-weight:700;color:{env_color};">{env_judgment}</div>
+            </div>
+        </div>
+    </div>'''
+
+
 def _screen_head(title: str, desc: str, badge: str = "") -> str:
     """每个板块面板顶部的页眉：标题 + 副说明 + 右侧状态徽标。"""
     badge_html = f'<div class="head-badge">{badge}</div>' if badge else ""
@@ -5842,6 +5945,9 @@ def build() -> str:
         </div>
     </header>'''
 
+    # 6维市场环境监控条（HARNESS风格）
+    market_env_bar = _build_market_env_bar(snap)
+
     # 左侧导航 + 右侧内容面板（按用户指定顺序重排为 5 个板块）
     # 涨停家数（用于涨停板页眉徽标）
     _lu_all = [x for x in (snap.get("limit_up", []) or []) if isinstance(x, dict) and "error" not in x]
@@ -8137,6 +8243,7 @@ function stopSectorLeaderRT(){
 <body>
 <div class="dashboard">
 {header}
+{market_env_bar}
     <div class="app-layout">
 {sidebar_html}
 {content_html}
