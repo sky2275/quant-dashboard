@@ -9,47 +9,49 @@
   zljlr     主力净流入（万元），d5/d20 为 5 日 / 20 日累计
   lzg       领涨股 {code,name,zdf}
   nzg_*     板块内领涨股
+
+数据日：2026-08-21 09:0x 盘前拉取（westock-mcp data_sector mode=ranking scope=sw1 limit=30）。
 """
 import json, datetime, os
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "cache", "sector_raw_westock.json")
 
-# ---- 数据日：2026-08-19 收盘（2026-08-20 盘前拉取）----
+# ---- 数据日：2026-08-21 盘前（westock-mcp 实时，腾讯自选股）----
 fundflow_top = [
-    {"code": "pt01801952", "name": "焦炭Ⅱ", "zdf": "7.56", "cje": 279245.00, "hsl": "5.61",
-     "zljlr": 68911.82, "zljlr_d5": 69659.74, "zljlr_d20": 56937.12,
-     "lzg": {"code": "sh601011", "name": "宝泰隆", "zdf": "10.14"}},
-    {"code": "pt01801736", "name": "风电设备", "zdf": "-3.35", "cje": 1693476.00, "hsl": "3.61",
-     "zljlr": 60182.66, "zljlr_d5": 25836.15, "zljlr_d20": 18543.38,
-     "lzg": {"code": "sz301232", "name": "飞沃科技", "zdf": "1.68"}},
-    {"code": "pt01801992", "name": "航运港口", "zdf": "1.11", "cje": 1267888.00, "hsl": "0.96",
-     "zljlr": 59461.58, "zljlr_d5": 65572.30, "zljlr_d20": -217892.08,
-     "lzg": {"code": "sz002040", "name": "南 京 港", "zdf": "9.95"}},
+    {"code": "pt01801156", "name": "医疗服务", "zdf": "4.24", "cje": 6230760.00, "hsl": "5.45",
+     "zljlr": 387223.81, "zljlr_d5": -221620.08, "zljlr_d20": -112629.50,
+     "lzg": {"code": "sz300363", "name": "博腾股份", "zdf": "20.00"}},
+    {"code": "pt01801152", "name": "生物制品", "zdf": "7.85", "cje": 3087464.00, "hsl": "3.96",
+     "zljlr": 330543.64, "zljlr_d5": 157381.71, "zljlr_d20": -29357.76,
+     "lzg": {"code": "sz301166", "name": "优宁维", "zdf": "20.01"}},
+    {"code": "pt01801151", "name": "化学制药", "zdf": "2.55", "cje": 8624901.00, "hsl": "5.12",
+     "zljlr": 277072.53, "zljlr_d5": -377920.39, "zljlr_d20": -1035402.10,
+     "lzg": {"code": "sz300006", "name": "莱美药业", "zdf": "20.00"}},
 ]
 fundflow_bottom = [
-    {"code": "pt01801081", "name": "半导体", "zdf": "-7.57", "cje": 40454292.00, "hsl": "5.44",
-     "zljlr": -3554534.45, "zljlr_d5": -4109063.36, "zljlr_d20": -9549590.38,
-     "lzg": {"code": "sh603290", "name": "斯达半导", "zdf": "10.00"}},
-    {"code": "pt01801102", "name": "通信设备", "zdf": "-8.66", "cje": 18496531.00, "hsl": "5.06",
-     "zljlr": -2557987.90, "zljlr_d5": -1872409.45, "zljlr_d20": -3730426.26,
-     "lzg": {"code": "sz300628", "name": "亿联网络", "zdf": "-0.55"}},
-    {"code": "pt01801083", "name": "元件", "zdf": "-9.04", "cje": 13029287.00, "hsl": "6.22",
-     "zljlr": -1682606.22, "zljlr_d5": -2986231.93, "zljlr_d20": -1655915.41,
-     "lzg": {"code": "sz301251", "name": "威尔高", "zdf": "1.42"}},
+    {"code": "pt01801081", "name": "半导体", "zdf": "-0.36", "cje": 29178723.00, "hsl": "4.02",
+     "zljlr": -699821.08, "zljlr_d5": -3920541.70, "zljlr_d20": -8377032.45,
+     "lzg": {"code": "sh688536", "name": "思瑞浦", "zdf": "15.31"}},
+    {"code": "pt01801737", "name": "电池", "zdf": "-0.84", "cje": 4949906.00, "hsl": "2.16",
+     "zljlr": -155997.93, "zljlr_d5": -804639.22, "zljlr_d20": -986659.35,
+     "lzg": {"code": "sh688772", "name": "珠海冠宇", "zdf": "6.90"}},
+    {"code": "pt01801054", "name": "小金属", "zdf": "-1.08", "cje": 3549151.00, "hsl": "3.29",
+     "zljlr": -155063.95, "zljlr_d5": -501234.00, "zljlr_d20": -762224.71,
+     "lzg": {"code": "sz000960", "name": "锡业股份", "zdf": "2.10"}},
 ]
 rank_plate = [
-    {"bd_code": "pt01801952", "bd_name": "焦炭Ⅱ", "bd_zdf": "7.56", "bd_zdf5": "5.79", "bd_zdf20": "12.01",
-     "nzg_code": "sh601011", "nzg_name": "宝泰隆", "nzg_zdf": "10.14"},
-    {"bd_code": "pt01801114", "bd_name": "厨卫电器", "bd_zdf": "4.56", "bd_zdf5": "2.87", "bd_zdf20": "13.29",
-     "nzg_code": "sz300911", "nzg_name": "亿田智能", "nzg_zdf": "19.98"},
-    {"bd_code": "pt01801963", "bd_name": "炼化及贸易", "bd_zdf": "2.08", "bd_zdf5": "3.42", "bd_zdf20": "6.38",
-     "nzg_code": "sz000059", "nzg_name": "华锦股份", "nzg_zdf": "9.98"},
-    {"bd_code": "pt01801783", "bd_name": "股份制银行Ⅱ", "bd_zdf": "1.91", "bd_zdf5": "0.61", "bd_zdf20": "0.66",
-     "nzg_code": "sh601998", "nzg_name": "中信银行", "nzg_zdf": "4.48"},
-    {"bd_code": "pt01801784", "bd_name": "城商行Ⅱ", "bd_zdf": "1.80", "bd_zdf5": "2.72", "bd_zdf20": "3.76",
-     "nzg_code": "sh601009", "nzg_name": "南京银行", "nzg_zdf": "2.53"},
-    {"bd_code": "pt01801782", "bd_name": "国有大型银行Ⅱ", "bd_zdf": "1.70", "bd_zdf5": "3.84", "bd_zdf20": "2.67",
-     "nzg_code": "sh601288", "nzg_name": "农业银行", "nzg_zdf": "2.58"},
+    {"bd_code": "pt01801152", "bd_name": "生物制品", "bd_zdf": "7.85", "bd_zdf5": "3.06", "bd_zdf20": "11.78",
+     "nzg_code": "sz301166", "nzg_name": "优宁维", "nzg_zdf": "20.01"},
+    {"bd_code": "pt01801053", "bd_name": "贵金属", "bd_zdf": "5.50", "bd_zdf5": "11.52", "bd_zdf20": "20.69",
+     "nzg_code": "sh600547", "nzg_name": "山东黄金", "nzg_zdf": "8.59"},
+    {"bd_code": "pt01801153", "bd_name": "医疗器械", "bd_zdf": "4.27", "bd_zdf5": "0.87", "bd_zdf20": "6.71",
+     "nzg_code": "sh688114", "nzg_name": "华大智造", "nzg_zdf": "20.00"},
+    {"bd_code": "pt01801156", "bd_name": "医疗服务", "bd_zdf": "4.24", "bd_zdf5": "1.32", "bd_zdf20": "23.90",
+     "nzg_code": "sz300363", "nzg_name": "博腾股份", "nzg_zdf": "20.00"},
+    {"bd_code": "pt01801206", "bd_name": "互联网电商", "bd_zdf": "3.18", "bd_zdf5": "-3.53", "bd_zdf20": "3.16",
+     "nzg_code": "sh600539", "nzg_name": "狮头股份", "nzg_zdf": "10.03"},
+    {"bd_code": "pt01801993", "bd_name": "旅游及景区", "bd_zdf": "3.05", "bd_zdf5": "-0.24", "bd_zdf20": "5.39",
+     "nzg_code": "sh600250", "nzg_name": "南京商旅", "nzg_zdf": "10.00"},
 ]
 
 data = {
