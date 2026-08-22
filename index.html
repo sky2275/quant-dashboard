@@ -6,9 +6,10 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>📊 量化工作台</title>
-    <link rel="stylesheet" href="assets/lib/font-awesome/css/all.min.css">
-    <script src="assets/lib/echarts.min.js"></script>
+    <meta name="last-modified" content="2026-08-22T15:22:00+08:00">
+    <title>📊 量化工作台 | v20260822-0014</title>
+    <link rel="stylesheet" href="assets/lib/font-awesome/css/all.min.css?v=20260822-0014">
+    <script src="assets/lib/echarts.min.js?v=20260822-0014"></script>
     <style>
         :root, [data-theme="dark"] {
             /* 原型双主题 TOKEN（深色默认） */
@@ -6889,6 +6890,24 @@ function stopSectorLeaderRT(){
   }
   tick();
   setInterval(tick, 5000);
+})();
+</script>
+
+<!-- 缓存版本检测：强制用户加载最新版本 -->
+<script>
+(function() {
+  const CURRENT_VERSION = 'v20260822-0014';
+  const storedVersion = localStorage.getItem('dashboard_version');
+
+  if (storedVersion && storedVersion !== CURRENT_VERSION) {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:linear-gradient(90deg,#f59e0b,#ef4444);color:white;text-align:center;padding:10px;font-size:14px;z-index:99999;font-weight:bold;';
+    banner.innerHTML = '📢 检测到新版本 ' + CURRENT_VERSION + '，正在自动刷新...';
+    document.body.prepend(banner);
+    setTimeout(() => location.reload(true), 1500);
+  }
+
+  localStorage.setItem('dashboard_version', CURRENT_VERSION);
 })();
 </script>
 
