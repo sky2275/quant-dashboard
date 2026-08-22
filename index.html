@@ -6,10 +6,10 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="last-modified" content="2026-08-22T15:22:00+08:00">
-    <title>📊 量化工作台 | v20260822-0014</title>
-    <link rel="stylesheet" href="assets/lib/font-awesome/css/all.min.css?v=20260822-0014">
-    <script src="assets/lib/echarts.min.js?v=20260822-0014"></script>
+    <meta name="last-modified" content="2026-08-22T20:00:00+08:00">
+    <title>📊 量化工作台 | v20260822-2000</title>
+    <link rel="stylesheet" href="assets/lib/font-awesome/css/all.min.css?v=20260822-2000">
+    <script src="assets/lib/echarts.min.js?v=20260822-2000"></script>
     <style>
         :root, [data-theme="dark"] {
             /* 原型双主题 TOKEN（深色默认） */
@@ -899,7 +899,7 @@
             <span class="status-badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;"><i class="fas fa-moon"></i> 休市 · 显示 08-21 收盘数据</span>
             <span class="live-badge" id="rtStatus"><i class="dot"></i> 实时 · 加载中</span>
             <button id="rtRefreshBtn" class="rt-refresh-btn" onclick="rtManualRefresh()" title="立即刷新所有行情"><i class="fas fa-sync-alt"></i> 立即刷新</button>
-            <span class="version-badge" title="页面构建版本">v20260822-0014</span>
+            <span class="version-badge" title="页面构建版本">v20260822-2000</span>
         </div>
     </header>
 
@@ -6896,7 +6896,7 @@ function stopSectorLeaderRT(){
 <!-- 缓存版本检测：强制用户加载最新版本 -->
 <script>
 (function() {
-  const CURRENT_VERSION = 'v20260822-0014';
+  const CURRENT_VERSION = 'v20260822-2000';
   const storedVersion = localStorage.getItem('dashboard_version');
 
   if (storedVersion && storedVersion !== CURRENT_VERSION) {
