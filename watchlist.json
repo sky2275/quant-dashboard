@@ -1,9 +1,63 @@
 {
-  "watch": [
-    {"code":"300750", "name":"宁德时代", "alert_up": null, "alert_down": null},
-    {"code":"300308", "name":"中际旭创", "alert_up": null, "alert_down": null},
-    {"code":"600519", "name":"贵州茅台", "alert_up": null, "alert_down": null},
-    {"code":"002463", "name":"沪电股份", "alert_up": null, "alert_down": null},
-    {"code":"688256", "name":"寒武纪",   "alert_up": null, "alert_down": null}
-  ]
+ "watch": [
+  {
+   "code": "sz002371",
+   "name": "北方华创",
+   "concept": "半导体设备",
+   "alert_up": 750.0,
+   "alert_down": 680.0
+  },
+  {
+   "code": "sh601138",
+   "name": "工业富联",
+   "concept": "AI算力/苹果链",
+   "alert_up": 68.0,
+   "alert_down": 58.0
+  },
+  {
+   "code": "sz300596",
+   "name": "利安隆",
+   "concept": "防老化材料",
+   "alert_up": 48.0,
+   "alert_down": 40.0
+  },
+  {
+   "code": "sz000063",
+   "name": "中兴通讯",
+   "concept": "5G/通信",
+   "alert_up": 36.0,
+   "alert_down": 31.0
+  },
+  {
+   "code": "sz301183",
+   "name": "东田微",
+   "concept": "CPO光通信",
+   "alert_up": 260.0,
+   "alert_down": 220.0
+  },
+  {
+   "code": "sh688037",
+   "name": "芯源微",
+   "concept": "半导体设备",
+   "alert_up": 165.0,
+   "alert_down": 140.0
+  },
+  {
+   "code": "sz300223",
+   "name": "北京君正",
+   "concept": "存储/SoC",
+   "alert_up": 148.0,
+   "alert_down": 130.0
+  },
+  {
+   "code": "sz300433",
+   "name": "蓝思科技",
+   "concept": "苹果供应链",
+   "alert_up": 28.0,
+   "alert_down": 23.0
+  }
+ ],
+ "updated_at": "2026-08-21 16:00",
+ "note": "自选池v20260823：8只标的覆盖半导体设备/算力/苹果链/光通信/防老化材料/5G/存储。alert_up=突破买入预警，alert_down=回踩买入预警。",
+ "asof": "2026-08-21"
 }

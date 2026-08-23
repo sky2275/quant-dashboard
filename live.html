@@ -221,11 +221,20 @@ function buildStatic(){
   document.getElementById("posSub").textContent="共 "+HOLD.positions.length+" 只 · 三账户合并展示";
   if(SNAP){
     let html="";
-    const a=SNAP.a_indexes; if(a) html+="指数："+a.map(x=>`<b>${x.name}</b> ${fmt(x.value)} (${x.chg>=0?"+":""}${x.chg}%)`).join("　");
+    const a=SNAP.a_indexes; if(a) html+="指数："+a.map(x=>{const v=x.value??x.price; const c=x.chg??x.change_pct; return `<b>${x.name}</b> ${fmt(v)} (${c>=0?"+":""}${c}%)`}).join("　");
     const b=SNAP.market_breadth;
     if(b) html+=`<br><br>涨跌家数 <b>${fmt(b.up,0)}</b> / <b>${fmt(b.down,0)}</b>　涨停 <b class="up">${b.limit_up}</b>　跌停 <b class="down">${b.limit_down}</b>　成交额 <b>${b.amount}</b> 亿`;
     if(SNAP.updated_at) html+=`<br><br><span style="color:var(--sub)">快照时间：${SNAP.updated_at}</span>`;
     document.getElementById("snap").innerHTML=html||"（无快照数据）";
+  }
+  // 资金流向：sector_flow TOP5 净流入 + TOP5 净流出
+  const flowEl=document.getElementById("flowBox");
+  if(flowEl && SNAP && Array.isArray(SNAP.sector_flow) && SNAP.sector_flow.length){
+    const sorted=[...SNAP.sector_flow].sort((x,y)=>(y.净流入||0)-(x.净流入||0));
+    const topIn=sorted.slice(0,5);
+    const topOut=sorted.slice(-5).reverse();
+    const row=(s)=>{const net=s.净流入||0; const c=net>=0?"up":"down"; const sgn=net>=0?"+":""; return `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dashed rgba(255,255,255,.04);font-size:12px;"><span>${s.名称}</span><b class="${c}">${sgn}${(net/1e8).toFixed(2)}亿 · ${sgn}${s.涨跌幅||0}%</b></div>`;};
+    flowEl.innerHTML=`<div style="color:var(--up);font-weight:600;margin-bottom:6px;font-size:12px;">📈 主力净流入TOP5</div>${topIn.map(row).join("")}<div style="color:var(--down);font-weight:600;margin:10px 0 6px;font-size:12px;">📉 主力净流出TOP5</div>${topOut.map(row).join("")}`;
   }
 }
 function renderWatchShell(){
