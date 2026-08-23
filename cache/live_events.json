@@ -1,0 +1,85 @@
+{
+ "updated_at": "2026-08-23 16:04:44",
+ "scanned": 14,
+ "quote_count": 13,
+ "events": [
+  {
+   "code": "sh600598",
+   "name": "北大荒",
+   "type": "急跌",
+   "price": 12.52,
+   "change_pct": -5.94,
+   "vol_ratio": 0.77,
+   "turnover": 3.63,
+   "msg": "跌幅 -5.94%，快速跳水",
+   "severity": "critical",
+   "is_holding": true,
+   "time": "08-23 16:04"
+  },
+  {
+   "code": "sz300285",
+   "name": "国瓷材料",
+   "type": "急拉",
+   "price": 67.86,
+   "change_pct": 7.85,
+   "vol_ratio": 1.17,
+   "turnover": 16.04,
+   "msg": "涨幅 +7.85%，快速拉升",
+   "severity": "high",
+   "is_holding": true,
+   "time": "08-23 16:04"
+  },
+  {
+   "code": "sz003033",
+   "name": "征和工业",
+   "type": "急拉",
+   "price": 69.0,
+   "change_pct": 5.28,
+   "vol_ratio": 0.57,
+   "turnover": 2.63,
+   "msg": "涨幅 +5.28%，快速拉升",
+   "severity": "high",
+   "is_holding": true,
+   "time": "08-23 16:04"
+  },
+  {
+   "code": "sz301183",
+   "name": "东田微",
+   "type": "急拉",
+   "price": 242.41,
+   "change_pct": 7.56,
+   "vol_ratio": 1.88,
+   "turnover": 19.73,
+   "msg": "涨幅 +7.56%，快速拉升",
+   "severity": "high",
+   "is_holding": false,
+   "time": "08-23 16:04"
+  },
+  {
+   "code": "sz300285",
+   "name": "国瓷材料",
+   "type": "高换手",
+   "price": 67.86,
+   "change_pct": 7.85,
+   "vol_ratio": 1.17,
+   "turnover": 16.04,
+   "msg": "换手率 16.0%，筹码剧烈交换",
+   "severity": "warn",
+   "is_holding": true,
+   "time": "08-23 16:04"
+  },
+  {
+   "code": "sz301183",
+   "name": "东田微",
+   "type": "高换手",
+   "price": 242.41,
+   "change_pct": 7.56,
+   "vol_ratio": 1.88,
+   "turnover": 19.73,
+   "msg": "换手率 19.7%，筹码剧烈交换",
+   "severity": "warn",
+   "is_holding": false,
+   "time": "08-23 16:04"
+  }
+ ]
+}

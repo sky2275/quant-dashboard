@@ -898,7 +898,7 @@
             <span class="status-badge" style="background:rgba(245,158,11,0.2);color:#f59e0b;"><i class="fas fa-moon"></i> 休市 · 显示  收盘数据</span>
             <span class="live-badge" id="rtStatus"><i class="dot"></i> 实时 · 加载中</span>
             <button id="rtRefreshBtn" class="rt-refresh-btn" onclick="rtManualRefresh()" title="立即刷新所有行情"><i class="fas fa-sync-alt"></i> 立即刷新</button>
-            <span class="version-badge" title="页面构建版本">v20260823-1129</span>
+            <span class="version-badge" title="页面构建版本">v20260823-1607</span>
         </div>
     </header>
 
@@ -935,8 +935,12 @@
         </div>
     </div>
     <div class="app-layout">
-<aside class="sidebar"><div class="brand"><div class="logo">Q</div><div><div class="name">量化工作台</div><div class="sub">QUANT WORKBENCH</div></div></div><nav class="nav"><div class="nav-item active" onclick="showPanel(&quot;nav-ashare&quot;)"><span class="nav-icon"><i class="fas fa-chart-line"></i></span><span class="nav-label">A股大盘行情</span><span class="nav-status"></span></div><div class="nav-item" onclick="showPanel(&quot;nav-us&quot;)"><span class="nav-icon"><i class="fas fa-globe-americas"></i></span><span class="nav-label">全球行情</span><span class="nav-status"></span></div><div class="nav-item" onclick="showPanel(&quot;nav-limitup&quot;)"><span class="nav-icon"><i class="fas fa-arrow-up"></i></span><span class="nav-label">涨停板分析</span><span class="nav-status"></span></div><div class="nav-item" onclick="showPanel(&quot;nav-sector&quot;)"><span class="nav-icon"><i class="fas fa-fire"></i></span><span class="nav-label">板块</span><span class="nav-status"></span></div><div class="nav-item" onclick="showPanel(&quot;nav-holdings&quot;)"><span class="nav-icon"><i class="fas fa-briefcase"></i></span><span class="nav-label">持仓复盘</span><span class="nav-status"></span></div><div class="nav-item" onclick="showPanel(&quot;nav-radar&quot;)"><span class="nav-icon"><i class="fas fa-satellite-dish"></i></span><span class="nav-label">量化雷达</span><span class="nav-status"></span></div><div class="nav-item nav-item--sub" onclick="showPanel(&quot;nav-live&quot;)"><span class="nav-icon"><i class="fas fa-bolt"></i></span><span class="nav-label">实时盯盘</span><span class="nav-status"></span></div></nav><div class="side-foot"><div class="theme-toggle" id="themeToggle"><span id="themeIcon">🌙</span> <span id="themeLabel">深色主题</span></div><div class="env-tag">量化工作台 · 实时行情</div></div></aside>
-<main class="content"><div id="nav-ashare" class="content-panel active">
+<aside class="sidebar"><div class="brand"><div class="logo">Q</div><div><div class="name">量化工作台</div><div class="sub">QUANT WORKBENCH</div></div></div><nav class="nav"><div class="nav-item active" onclick="showPanel(&quot;nav-decision&quot;)"><span class="nav-icon"><i class="fas fa-bolt"></i></span><span class="nav-label">实时决策</span><span class="nav-status"></span></div><div class="nav-item" onclick="showPanel(&quot;nav-ashare&quot;)"><span class="nav-icon"><i class="fas fa-chart-line"></i></span><span class="nav-label">A股大盘行情</span><span class="nav-status"></span></div><div class="nav-item" onclick="showPanel(&quot;nav-us&quot;)"><span class="nav-icon"><i class="fas fa-globe-americas"></i></span><span class="nav-label">全球行情</span><span class="nav-status"></span></div><div class="nav-item" onclick="showPanel(&quot;nav-limitup&quot;)"><span class="nav-icon"><i class="fas fa-arrow-up"></i></span><span class="nav-label">涨停板分析</span><span class="nav-status"></span></div><div class="nav-item" onclick="showPanel(&quot;nav-sector&quot;)"><span class="nav-icon"><i class="fas fa-fire"></i></span><span class="nav-label">板块</span><span class="nav-status"></span></div><div class="nav-item" onclick="showPanel(&quot;nav-holdings&quot;)"><span class="nav-icon"><i class="fas fa-briefcase"></i></span><span class="nav-label">持仓复盘</span><span class="nav-status"></span></div><div class="nav-item" onclick="showPanel(&quot;nav-radar&quot;)"><span class="nav-icon"><i class="fas fa-satellite-dish"></i></span><span class="nav-label">量化雷达</span><span class="nav-status"></span></div><div class="nav-item nav-item--sub" onclick="showPanel(&quot;nav-live&quot;)"><span class="nav-icon"><i class="fas fa-bolt"></i></span><span class="nav-label">实时盯盘</span><span class="nav-status"></span></div></nav><div class="side-foot"><div class="theme-toggle" id="themeToggle"><span id="themeIcon">🌙</span> <span id="themeLabel">深色主题</span></div><div class="env-tag">量化工作台 · 实时行情</div></div></aside>
+<main class="content"><div id="nav-decision" class="content-panel active">
+        <div class="screen-head">
+            <div><h1>实时决策</h1><div class="desc">盘中变化检测 · 异动流 · 进攻/防守信号 · 你只需判断是否进攻</div></div>
+            <div class="head-badge">LIVE</div>
+        </div><div class="live-embed"><iframe src="decision.html" title="实时决策台"></iframe></div></div><div id="nav-ashare" class="content-panel">
         <div class="screen-head">
             <div><h1>A股大盘行情</h1><div class="desc">核心指数 · 市场情绪 · 板块强弱 · 指数K线</div></div>
             <div class="head-badge">休市</div>
@@ -2370,7 +2374,7 @@
         </div>
 <div style="padding:8px 0;">
   <div style="font-size:22px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">📊 8月21日持仓股复盘 & 8月24日作战计划</div>
-  <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">📌 配色规则：红涨绿跌（A 股惯例） · 生成时间 2026-08-23 11:29</div>
+  <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">📌 配色规则：红涨绿跌（A 股惯例） · 生成时间 2026-08-23 16:07</div>
   
   <div class="overview" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;">
     <div class="overview-card" style="background:#1a1a2e;border:1px solid #2d2d44;border-radius:12px;padding:16px;text-align:center;">
@@ -6429,7 +6433,7 @@ function stopSectorLeaderRT(){
 <script>
   (function(){
     // 版本检测器：localStorage 对比，版本不一致自动硬刷新（CDN缓存破坏机制之一）
-    var CURRENT_VERSION = 'v20260823-1129';
+    var CURRENT_VERSION = 'v20260823-1607';
     var storedVersion = localStorage.getItem('dashboard_version');
     if (storedVersion && storedVersion !== CURRENT_VERSION) {
       try {

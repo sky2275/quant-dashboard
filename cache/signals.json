@@ -1,0 +1,64 @@
+{
+ "updated_at": "2026-08-23 16:05:28",
+ "signal_count": 4,
+ "attack_count": 3,
+ "defend_count": 1,
+ "signals": [
+  {
+   "type": "防守",
+   "action": "减仓/回避",
+   "code": "sh600598",
+   "name": "北大荒",
+   "severity": "high",
+   "price": 12.52,
+   "ref_price": "不追跌",
+   "position": "回避",
+   "stop": null,
+   "reason": "跌幅 -5.94%，量比 0.8，警惕资金出逃",
+   "confidence": 75,
+   "trigger": "急跌"
+  },
+  {
+   "type": "进攻",
+   "action": "买入",
+   "code": "sz300285",
+   "name": "国瓷材料",
+   "severity": "high",
+   "price": 67.86,
+   "ref_price": "66.50-69.22",
+   "position": "10%（短线仓）",
+   "stop": 62.43,
+   "reason": "涨幅 +7.85% 拉升，趋势+量能共振",
+   "confidence": 70,
+   "trigger": "急拉"
+  },
+  {
+   "type": "进攻",
+   "action": "买入",
+   "code": "sz003033",
+   "name": "征和工业",
+   "severity": "high",
+   "price": 69.0,
+   "ref_price": "67.62-70.38",
+   "position": "10%（短线仓）",
+   "stop": 63.48,
+   "reason": "涨幅 +5.28% 拉升，趋势+量能共振",
+   "confidence": 70,
+   "trigger": "急拉"
+  },
+  {
+   "type": "进攻",
+   "action": "买入",
+   "code": "sz301183",
+   "name": "东田微",
+   "severity": "high",
+   "price": 242.41,
+   "ref_price": "237.56-247.26",
+   "position": "10%（短线仓）",
+   "stop": 223.02,
+   "reason": "涨幅 +7.56% 拉升，趋势+量能共振",
+   "confidence": 70,
+   "trigger": "急拉"
+  }
+ ]
+}

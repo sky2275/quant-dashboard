@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>实时决策台 · 量化工作台</title>
+<style>
+:root{--bg:#0a0e14;--card:#121826;--line:#1f2937;--txt:#e2e8f0;--sub:#94a3b8;--up:#ef4444;--down:#22c55e;--amber:#f59e0b;--blue:#4f9cff;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;line-height:1.6;padding:16px;max-width:1200px;margin:0 auto;}
+header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:14px 18px;background:linear-gradient(90deg,rgba(255,138,61,.12),rgba(160,107,255,.12));border:1px solid var(--line);border-radius:12px;margin-bottom:16px;}
+h1{font-size:18px;font-weight:600;}
+.badge{font-size:11px;color:var(--sub);background:rgba(255,255,255,.06);padding:2px 8px;border-radius:10px;margin-left:6px;}
+.grid{display:grid;gap:16px;}
+.row2{grid-template-columns:1fr 1fr;}
+@media(max-width:800px){.row2{grid-template-columns:1fr;}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;}
+.panel h2{font-size:14px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.panel h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:blink 1.2s infinite;}
+@keyframes blink{50%{opacity:.3;}}
+.snap{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:12.5px;color:var(--sub);}
+.snap b{color:var(--txt);}
+.evt{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed rgba(255,255,255,.05);}
+.evt:last-child{border-bottom:none;}
+.evt .tag{flex-shrink:0;font-size:11px;padding:2px 8px;border-radius:6px;font-weight:600;min-width:56px;text-align:center;}
+.sev-critical{background:rgba(239,68,68,.15);color:#f87171;}
+.sev-high{background:rgba(245,158,11,.15);color:#fbbf24;}
+.sev-warn{background:rgba(148,163,184,.15);color:#cbd5e1;}
+.evt .nm{font-weight:600;}
+.evt .msg{color:var(--sub);font-size:12px;}
+.sig{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:10px;margin-bottom:10px;}
+.sig.attack{border-left:3px solid var(--up);}
+.sig.defend{border-left:3px solid var(--down);}
+.sig.watch{border-left:3px solid var(--amber);}
+.sig .main{flex:1;}
+.sig .act{font-weight:700;font-size:14px;}
+.sig .act.attack{color:var(--up);}
+.sig .act.defend{color:var(--down);}
+.sig .act.watch{color:var(--amber);}
+.sig .meta{color:var(--sub);font-size:12px;margin-top:4px;}
+.sig .conf{flex-shrink:0;text-align:center;}
+.sig .conf .num{font-size:22px;font-weight:700;}
+.sig .conf .lab{font-size:10px;color:var(--sub);}
+.mon{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;}
+.mon .cell{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;}
+.mon .cell .n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mon .cell .p{font-size:15px;font-weight:700;}
+.mon .cell .m{font-size:10px;color:var(--sub);}
+.up{color:var(--up);}.down{color:var(--down);}.flat{color:var(--sub);}
+.empty{color:var(--sub);text-align:center;padding:20px 0;}
+.back{display:inline-block;margin-top:16px;color:var(--blue);text-decoration:none;font-size:12px;}
+.fresh{font-size:11px;color:var(--sub);text-align:right;margin-top:8px;}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>⚡ 实时决策台 <span class="badge">Phase 1 · 变化检测 + 信号引擎</span></h1></div>
+  <div style="font-size:12px;color:var(--sub);">每 30 秒自动刷新 · 红涨绿跌</div>
+</header>
+
+<div class="snap" id="snap">大盘环境加载中…</div>
+
+<div class="grid row2">
+  <div class="panel">
+    <h2><span class="dot"></span>实时异动流 <span class="badge" id="evtSub">什么在变</span></h2>
+    <div id="evtBox"><div class="empty">加载中…</div></div>
+  </div>
+  <div class="panel">
+    <h2>进攻 / 防守信号 <span class="badge" id="sigSub">为什么 · 怎么打</span></h2>
+    <div id="sigBox"><div class="empty">加载中…</div></div>
+  </div>
+</div>
+
+<div class="panel" style="margin-top:16px;">
+  <h2>监控清单状态 <span class="badge" id="monSub">持仓 + 自选</span></h2>
+  <div class="mon" id="monBox"><div class="empty">加载中…</div></div>
+</div>
+
+<div class="fresh" id="freshTxt"></div>
+<a class="back" href="./index.html">← 返回量化工作台</a>
+
+<script>
+function fmt(v,d=2){return v===null||v===undefined||isNaN(v)?"—":Number(v).toFixed(d);}
+function cls(v){return v>0?"up":(v<0?"down":"flat");}
+
+async function boot(){
+  try{
+    const [e,s,h,m]=await Promise.all([
+      fetch("./cache/live_events.json").then(r=>r.json()).catch(()=>null),
+      fetch("./cache/signals.json").then(r=>r.json()).catch(()=>null),
+      fetch("./cache/holdings.json").then(r=>r.json()).catch(()=>null),
+      fetch("./cache/market_snapshot.json").then(r=>r.json()).catch(()=>null),
+    ]);
+    renderSnap(m); renderEvents(e); renderSignals(s); renderMonitor(h,e);
+  }catch(err){ document.getElementById("evtBox").innerHTML='<div class="empty">加载失败：'+err.message+'</div>'; }
+  document.getElementById("freshTxt").textContent="最近刷新："+new Date().toLocaleTimeString("zh-CN");
+}
+
+function renderSnap(m){
+  const el=document.getElementById("snap");
+  if(!m){ el.innerHTML="无快照数据"; return; }
+  let h="";
+  const a=m.a_indexes; if(a) h+="指数　"+a.map(x=>`<b>${x.name}</b> <span class="${cls(x.change_pct)}">${fmt(x.price)}（${x.change_pct>=0?"+":""}${x.change_pct}%）</span>`).join("　");
+  const b=m.market_breadth; if(b) h+=`<br>涨跌 <b>${fmt(b.up_count,0)}</b>/<b>${fmt(b.down_count,0)}</b>　涨停 <b class="up">${fmt(b.limit_up_count,0)}</b>　跌停 <b class="down">${fmt(b.limit_down_count,0)}</b>　成交额 <b>${fmt(b.amount/1e12,2)}万亿</b>`;
+  if(m.updated_at) h+=`　<span style="color:var(--sub)">快照 ${m.updated_at}</span>`;
+  el.innerHTML=h||"无快照数据";
+}
+
+function renderEvents(e){
+  const box=document.getElementById("evtBox");
+  const evs=(e&&e.events)||[];
+  document.getElementById("evtSub").textContent=(e&&e.scanned)?("扫描 "+e.scanned+" 只 · 异动 "+evs.length+" 条"):"无数据";
+  if(!evs.length){ box.innerHTML='<div class="empty">当前无异动（盘中每分钟检测）</div>'; return; }
+  box.innerHTML=evs.map(x=>`<div class="evt">
+    <span class="tag sev-${x.severity}">${({critical:"严重",high:"异动",warn:"关注"})[x.severity]||x.severity}</span>
+    <span class="nm">${x.name}</span><span style="color:var(--sub);font-size:11px">${x.type}</span>
+    <span class="msg">${x.msg}</span>
+    <span style="margin-left:auto;font-size:11px;color:var(--sub)">${x.time}</span>
+  </div>`).join("");
+}
+
+function renderSignals(s){
+  const box=document.getElementById("sigBox");
+  const sigs=(s&&s.signals)||[];
+  document.getElementById("sigSub").textContent=(s&&s.signal_count)?("进攻"+s.attack_count+" · 防守"+s.defend_count):"无信号";
+  if(!sigs.length){ box.innerHTML='<div class="empty">当前无进攻/防守信号</div>'; return; }
+  box.innerHTML=sigs.map(x=>{
+    const t=(x.type==="防守"?"defend":(x.type==="进攻"?"attack":"watch"));
+    const cc=x.confidence>=80?"var(--up)":(x.confidence>=65?"var(--amber)":"var(--sub)");
+    return `<div class="sig ${t}">
+      <div class="main">
+        <div class="act ${t}">【${x.type}】${x.name} ${x.action}</div>
+        <div class="meta">现价 <b>${fmt(x.price)}</b>　参考 <b>${x.ref_price||"—"}</b>　仓位 <b>${x.position||"—"}</b>${x.stop?("　止损 <b>${fmt(x.stop)}</b>"):""}</div>
+        <div class="meta">理由：${x.reason}（触发：${x.trigger}）</div>
+      </div>
+      <div class="conf"><div class="num" style="color:${cc}">${x.confidence}</div><div class="lab">置信度</div></div>
+    </div>`;
+  }).join("");
+}
+
+function renderMonitor(h,e){
+  const box=document.getElementById("monBox");
+  const evtMap={}; ((e&&e.events)||[]).forEach(x=>{ evtMap[x.code]=(evtMap[x.code]||[]).concat(x.type); });
+  const pos=(h&&h.positions)||[];
+  document.getElementById("monSub").textContent="持仓 "+pos.length+" 只";
+  if(!pos.length){ box.innerHTML='<div class="empty">无监控标的</div>'; return; }
+  box.innerHTML=pos.map(p=>{
+    const c=p.chg||0; const flags=(evtMap[p.code]||[]).slice(0,2).join("/");
+    return `<div class="cell">
+      <div class="n">${p.name}</div>
+      <div class="p ${cls(c)}">${fmt(p.price)}</div>
+      <div class="m ${cls(c)}">${c>=0?"+":""}${fmt(c)}%${flags?(" · "+flags):""}</div>
+    </div>`;
+  }).join("");
+}
+
+boot();
+setInterval(boot,30000);
+</script>
+</body>
+</html>

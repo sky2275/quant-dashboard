@@ -5984,6 +5984,9 @@ def build() -> str:
     _sl_cnt = sector_leader.get("sector_count") or 0
 
     nav_items = [
+        ("nav-decision", "实时决策", "fa-bolt",
+         _screen_head("实时决策", "盘中变化检测 · 异动流 · 进攻/防守信号 · 你只需判断是否进攻", "LIVE")
+         + '<div class="live-embed"><iframe src="decision.html" title="实时决策台"></iframe></div>'),
         ("nav-ashare", "A股大盘行情", "fa-chart-line", _section_ashare(snap, us_quotes, overnight, a_news)),
         ("nav-us", "全球行情", "fa-globe-americas", _section_us_map(snap, us_quotes, overnight, kr_quotes, cfg, macro_data, global_news, jp_quotes, hk_quotes)),
         ("nav-limitup", "涨停板分析", "fa-arrow-up",
