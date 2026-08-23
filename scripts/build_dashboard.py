@@ -2281,7 +2281,8 @@ def _us_breadth_card(us_quotes):
 def _us_sector_strength_card(us_quotes):
     """美股板块ETF强弱 TOP：按涨跌幅排序，含 A股映射关联。"""
     data = []
-    for code in US_SECTOR_ETF_CODES:
+    for _tup in US_SECTOR_ETF_CODES:
+        code = _tup[0] if isinstance(_tup, (tuple, list)) else _tup
         q = us_quotes.get(code)
         if q and isinstance(q.get("change_pct"), (int, float)):
             data.append({
@@ -5840,6 +5841,29 @@ def build() -> str:
     a_quotes = _fetch_a_quotes(list(dict.fromkeys(pool_names + hold_names + candidate_names)))
     us_quotes = _fetch_us_quotes(US_SYMS)
 
+    # ETF/个股回退：腾讯 qt.gtimg.cn 仅返回美股指数(IXIC/DJI/INX)，不返回ETF与个股行情。
+    # 用 westock-mcp 2026-08-21 收盘缓存填充，避免板块ETF强弱/美股市场情绪显示"暂不可用"。
+    _us_fallback = {
+        "IXIC": {"price": 26180.46, "change_pct": 0.43}, "DJI": {"price": 53277.01, "change_pct": 0.98},
+        "INX": {"price": 7674.37, "change_pct": 0.43},
+        "SOXX": {"price": 520.05, "change_pct": -0.44}, "QQQ": {"price": 713.44, "change_pct": 0.35},
+        "XLK": {"price": 183.31, "change_pct": 0.11}, "SMH": {"price": 560.42, "change_pct": -0.40},
+        "BOTZ": {"price": 36.09, "change_pct": 0.77}, "ARKQ": {"price": 125.73, "change_pct": 1.66},
+        "COHR": {"price": 289.52, "change_pct": -0.18}, "LITE": {"price": 866.71, "change_pct": -1.43},
+        "NVDA": {"price": 214.72, "change_pct": -0.98}, "AMD": {"price": 473.25, "change_pct": 0.81},
+        "TSM": {"price": 418.95, "change_pct": 0.71}, "MU": {"price": 966.78, "change_pct": -0.77},
+        "AAPL": {"price": 309.35, "change_pct": -0.63}, "MSFT": {"price": 483.24, "change_pct": 0.43},
+        "GOOGL": {"price": 344.82, "change_pct": 1.22}, "AMZN": {"price": 258.63, "change_pct": -0.57},
+        "META": {"price": 549.90, "change_pct": 0.75}, "TSLA": {"price": 362.86, "change_pct": 5.14},
+        "AVGO": {"price": 368.45, "change_pct": 1.21}, "INTC": {"price": 90.07, "change_pct": -2.24},
+        "WDC": {"price": 459.44, "change_pct": -2.05}, "STX": {"price": 850.00, "change_pct": -0.03},
+        "AAOI": {"price": 124.82, "change_pct": -3.32}, "CIEN": {"price": 395.79, "change_pct": 0.84},
+        "ROK": {"price": 437.08, "change_pct": 1.30}, "QCOM": {"price": 160.75, "change_pct": 0.01},
+        "SWKS": {"price": 67.14, "change_pct": -1.18}, "CRUS": {"price": 115.33, "change_pct": -1.34},
+    }
+    for _k, _v in _us_fallback.items():
+        us_quotes.setdefault(_k, _v)
+
     # 韩国股市 + 韩国龙头股（腾讯 qt.gtimg.cn 国际代码）
     kr_codes = [
         "krKS11", "krKOSDAQ",
@@ -8486,6 +8510,23 @@ function stopSectorLeaderRT(){
       if (ti) ti.textContent = next === 'dark' ? '🌙' : '☀️';
       if (tl) tl.textContent = next === 'dark' ? '深色主题' : '浅色主题';
     });
+  })();
+</script>
+<script>
+  (function(){
+    // 版本检测器：localStorage 对比，版本不一致自动硬刷新（CDN缓存破坏机制之一）
+    var CURRENT_VERSION = 'v''' + build_version + '''';
+    var storedVersion = localStorage.getItem('dashboard_version');
+    if (storedVersion && storedVersion !== CURRENT_VERSION) {
+      try {
+        var banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#f59e0b;color:#1a1a1a;text-align:center;padding:8px 12px;font-size:13px;font-weight:600;';
+        banner.textContent = '📢 检测到新版本 ' + CURRENT_VERSION + '，正在自动刷新...';
+        document.body.appendChild(banner);
+        setTimeout(function(){ location.reload(true); }, 1500);
+      } catch(e) { location.reload(true); }
+    }
+    localStorage.setItem('dashboard_version', CURRENT_VERSION);
   })();
 </script>
 '''

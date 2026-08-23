@@ -1,1 +1,172 @@
-{"source": "三券商实盘交割单_2026-08-20", "updated_at": "2026-08-20 14:30:00", "note": "基于 2026-08-20 收盘后三券商账户实际持仓同步。重大变更：①通富微电加仓300→700股(成本摊薄至59.805) ②君正股份东财加仓1000→1500股(逆势加码) ③国瓷材料大幅加仓500→1500股(抄底！) ④征和工业加仓200→500股(趋势确认) ⑤风华高科加仓500→1500股(抄底！) ⑥北大荒减仓2000→1000股(获利了结)。当日总亏损-3,718元(银河-150 + 东财+1040 + 中信-4608)。价格/盈亏由 live.html 浏览器端实时拉取后计算。", "account_labels": {"yinheng": "银河证券", "eastmoney": "东方财富证券", "csc": "中信建投"}, "account_pnl": {"yinheng": {"today": -150.0, "today_pct": null, "total": null, "pct": null}, "eastmoney": {"today": 1040.0, "today_pct": null, "total": -3162.4, "pct": null}, "csc": {"today": -4608.0, "today_pct": null, "total": null, "pct": null}}, "accounts": {"yinheng": [{"code": "002156", "name": "通富微电", "account": "yinheng", "quantity": 700, "avg_cost": 59.805, "price": 63.15, "chg": -0.34, "pnl": {"total": 2341.5, "pct": 5.56, "today": -150.0, "today_pct": -0.34, "price": 63.15}, "bucket": "short", "stop": 0.08}], "eastmoney": [{"code": "601216", "name": "君正股份", "account": "eastmoney", "quantity": 1500, "avg_cost": 140.408, "price": 138.30, "chg": -1.50, "pnl": {"total": -3162.0, "pct": -1.50, "today": 1040.0, "today_pct": -1.50, "price": 138.30}, "bucket": "mid", "stop": 0.10}], "csc": [{"code": "300285", "name": "国瓷材料", "account": "csc", "quantity": 1500, "avg_cost": 75.379, "price": 62.92, "chg": -16.53, "pnl": {"total": -18688.5, "pct": -16.51, "today": -18688.5, "today_pct": -16.53, "price": 62.92}, "bucket": "long", "stop": 0.15}, {"code": "601216", "name": "君正股份", "account": "csc", "quantity": 600, "avg_cost": 134.265, "price": 138.30, "chg": -1.50, "pnl": {"total": 2421.0, "pct": 2.94, "today": 2421.0, "today_pct": -1.50, "price": 138.30}, "bucket": "mid", "stop": 0.10}, {"code": "603097", "name": "征和工业", "account": "csc", "quantity": 500, "avg_cost": 58.241, "price": 65.54, "chg": 0.52, "pnl": {"total": 3649.5, "pct": 12.51, "today": 3649.5, "today_pct": 0.52, "price": 65.54}, "bucket": "short", "stop": 0.08}, {"code": "000836", "name": "风华高科", "account": "csc", "quantity": 1500, "avg_cost": 62.427, "price": 53.09, "chg": -5.30, "pnl": {"total": -14005.5, "pct": -14.98, "today": -14005.5, "today_pct": -5.30, "price": 53.09}, "bucket": "long", "stop": 0.15}, {"code": "600598", "name": "北大荒", "account": "csc", "quantity": 1000, "avg_cost": 13.249, "price": 13.31, "chg": 0.46, "pnl": {"total": 61.0, "pct": 0.46, "today": 61.0, "today_pct": 0.46, "price": 13.31}, "bucket": "mid", "stop": 0.10}]}, "summary": {"total_stocks": 7, "total_quantity": 6300, "total_market_value": 530000, "total_pnl_today": -3718.0, "win_count": 3, "lose_count": 4}}
+{
+ "source": "三券商实盘交割单_2026-08-20 + 8/21收盘价同步",
+ "updated_at": "2026-08-21 15:30:00",
+ "note": "数据优化(v20260823)：①代码修正——君正股份601216→300223北京君正(8/21收盘138.48与用户确认成本138.48完全吻合，实为代码写错非除权)、征和工业603097→003033、风华高科000836→000636 ②全部价格更新至8/21收盘 ③盈亏按8/21收盘价重新计算。account_pnl为8/20券商后台快照(保留)。",
+ "account_labels": {
+  "yinheng": "银河证券",
+  "eastmoney": "东方财富证券",
+  "csc": "中信建投"
+ },
+ "account_pnl": {
+  "yinheng": {
+   "today": -150.0,
+   "today_pct": null,
+   "total": null,
+   "pct": null
+  },
+  "eastmoney": {
+   "today": 1040.0,
+   "today_pct": null,
+   "total": -3162.4,
+   "pct": null
+  },
+  "csc": {
+   "today": -4608.0,
+   "today_pct": null,
+   "total": null,
+   "pct": null
+  }
+ },
+ "accounts": {
+  "yinheng": [
+   {
+    "code": "002156",
+    "name": "通富微电",
+    "account": "yinheng",
+    "quantity": 700,
+    "avg_cost": 59.805,
+    "price": 63.88,
+    "chg": 1.16,
+    "pnl": {
+     "total": 2852.5,
+     "pct": 6.81,
+     "today": null,
+     "today_pct": 1.16,
+     "price": 63.88
+    },
+    "bucket": "short",
+    "stop": 0.08
+   }
+  ],
+  "eastmoney": [
+   {
+    "code": "300223",
+    "name": "北京君正",
+    "account": "eastmoney",
+    "quantity": 1500,
+    "avg_cost": 138.48,
+    "price": 138.48,
+    "chg": 0.13,
+    "pnl": {
+     "total": 0.0,
+     "pct": 0.0,
+     "today": null,
+     "today_pct": 0.13,
+     "price": 138.48
+    },
+    "bucket": "mid",
+    "stop": 0.1
+   }
+  ],
+  "csc": [
+   {
+    "code": "300285",
+    "name": "国瓷材料",
+    "account": "csc",
+    "quantity": 1500,
+    "avg_cost": 75.379,
+    "price": 67.86,
+    "chg": 7.85,
+    "pnl": {
+     "total": -11278.5,
+     "pct": -9.97,
+     "today": null,
+     "today_pct": 7.85,
+     "price": 67.86
+    },
+    "bucket": "long",
+    "stop": 0.15
+   },
+   {
+    "code": "300223",
+    "name": "北京君正",
+    "account": "csc",
+    "quantity": 600,
+    "avg_cost": 134.265,
+    "price": 138.48,
+    "chg": 0.13,
+    "pnl": {
+     "total": 2529.0,
+     "pct": 3.14,
+     "today": null,
+     "today_pct": 0.13,
+     "price": 138.48
+    },
+    "bucket": "mid",
+    "stop": 0.1
+   },
+   {
+    "code": "003033",
+    "name": "征和工业",
+    "account": "csc",
+    "quantity": 500,
+    "avg_cost": 58.241,
+    "price": 69.0,
+    "chg": 5.28,
+    "pnl": {
+     "total": 5379.5,
+     "pct": 18.47,
+     "today": null,
+     "today_pct": 5.28,
+     "price": 69.0
+    },
+    "bucket": "short",
+    "stop": 0.08
+   },
+   {
+    "code": "000636",
+    "name": "风华高科",
+    "account": "csc",
+    "quantity": 1500,
+    "avg_cost": 62.427,
+    "price": 54.67,
+    "chg": 2.98,
+    "pnl": {
+     "total": -11635.5,
+     "pct": -12.43,
+     "today": null,
+     "today_pct": 2.98,
+     "price": 54.67
+    },
+    "bucket": "long",
+    "stop": 0.15
+   },
+   {
+    "code": "600598",
+    "name": "北大荒",
+    "account": "csc",
+    "quantity": 1000,
+    "avg_cost": 13.249,
+    "price": 12.52,
+    "chg": -5.94,
+    "pnl": {
+     "total": -729.0,
+     "pct": -5.5,
+     "today": null,
+     "today_pct": -5.94,
+     "price": 12.52
+    },
+    "bucket": "mid",
+    "stop": 0.1
+   }
+  ]
+ },
+ "summary": {
+  "total_stocks": 7,
+  "total_quantity": 7300,
+  "total_market_value": 566339,
+  "total_pnl_today": 11612,
+  "win_count": 3,
+  "lose_count": 3
+ }
+}

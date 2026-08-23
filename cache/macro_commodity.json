@@ -1,10 +1,86 @@
 {
-  "updated_at": "2026-08-18",
-  "source": "东方财富妙想(mx-ds-mcp) 宏观 · 8/17收盘真实取数（mx_macro_data工具本次需重新授权，价格取自同次mx新闻检索的8/17收盘播报）",
-  "items": [
-    {"name": "COMEX黄金", "price": 4473.1, "change_pct": 0.81, "unit": "美元/盎司", "asof": "2026-08-17", "prev": 4437.3, "status": "ok"},
-    {"name": "WTI原油", "price": 84.95, "change_pct": 3.09, "unit": "美元/桶", "asof": "2026-08-17", "prev": 82.40, "status": "ok"},
-    {"name": "USD-CNY", "price": 6.739, "change_pct": -0.08, "unit": "", "asof": "2026-08-17", "prev": 6.74435, "status": "ok"},
-    {"name": "美元指数", "price": 99.636, "change_pct": -0.03, "unit": "", "asof": "2026-08-17", "prev": 99.666, "status": "ok"}
-  ]
+ "updated_at": "2026-08-21 16:30",
+ "source": "证券时报/新华社/东方财富Choice 8/21收盘权威数据（westock交叉验证）",
+ "items": [
+  {
+   "name": "现货黄金",
+   "price": 4604.53,
+   "change_pct": 1.89,
+   "unit": "美元/盎司",
+   "asof": "2026-08-21",
+   "prev": 4519.14,
+   "status": "ok",
+   "note": "重回4600关口 创三个月新高 本周累涨5%"
+  },
+  {
+   "name": "现货白银",
+   "price": 68.97,
+   "change_pct": 1.32,
+   "unit": "美元/盎司",
+   "asof": "2026-08-21",
+   "prev": 68.09,
+   "status": "ok",
+   "note": "创两个月新高"
+  },
+  {
+   "name": "WTI原油",
+   "price": 87.06,
+   "change_pct": 0.26,
+   "unit": "美元/桶",
+   "asof": "2026-08-21",
+   "prev": 86.21,
+   "status": "ok",
+   "note": "连续第六日收高 美对伊制裁+霍尔木兹海峡受限"
+  },
+  {
+   "name": "布伦特原油",
+   "price": 94.39,
+   "change_pct": 0.65,
+   "unit": "美元/桶",
+   "asof": "2026-08-21",
+   "prev": 93.17,
+   "status": "ok",
+   "note": "地缘溢价维持高位"
+  },
+  {
+   "name": "LME铜",
+   "price": 14290.0,
+   "change_pct": 1.73,
+   "unit": "美元/吨",
+   "asof": "2026-08-21",
+   "prev": 14041.5,
+   "status": "ok",
+   "note": "工业需求回暖"
+  },
+  {
+   "name": "美元指数DXY",
+   "price": 98.83,
+   "change_pct": 0.13,
+   "unit": "点",
+   "asof": "2026-08-21",
+   "prev": 98.87,
+   "status": "ok",
+   "note": "美元企稳"
+  },
+  {
+   "name": "美债10Y收益率",
+   "price": 4.734,
+   "change_pct": 0.03,
+   "unit": "%",
+   "asof": "2026-08-21",
+   "prev": 4.705,
+   "status": "ok",
+   "note": "长端利率上行 压制风险偏好"
+  },
+  {
+   "name": "VIX恐慌指数",
+   "price": 15.13,
+   "change_pct": -5.49,
+   "unit": "点",
+   "asof": "2026-08-21",
+   "prev": 16.0,
+   "status": "ok",
+   "note": "市场情绪缓和"
+  }
+ ]
 }
