@@ -284,19 +284,6 @@ def _score(rsi, week_pct, month_pct, volume_ratio) -> int:
     return int(round(w + m + trend + v))
 
 
-def _tushare_pro():
-    """读取 TUSHARE_TOKEN 环境变量，返回 pro_api；缺 token 或库未装返回 None。"""
-    token = os.getenv("TUSHARE_TOKEN")
-    if not token:
-        return None
-    try:
-        import tushare as ts
-        ts.set_token(token)
-        return ts.pro_api()
-    except Exception:
-        return None
-
-
 def _ak_volume_ratio_map() -> dict:
     """名称 -> 量比（来自全市场快照，一次调用覆盖全部）。失败返回 {}。"""
     try:
@@ -1167,8 +1154,19 @@ def get_market_breadth() -> dict:
 
 
 def _tushare_pro():
-    """返回 tushare pro 实例（无 token 返回 None）。"""
+    """返回 tushare pro 实例（无 token 返回 None）。token 读取：环境变量优先，其次本地 config_local.py。"""
     token = os.environ.get("TUSHARE_TOKEN")
+    if not token:
+        try:
+            import importlib.util
+            _cfg = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config_local.py")
+            if os.path.exists(_cfg):
+                spec = importlib.util.spec_from_file_location("config_local", _cfg)
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                token = getattr(mod, "TUSHARE_TOKEN", None)
+        except Exception:
+            token = None
     if not token:
         return None
     try:
