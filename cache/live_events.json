@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-08-23 21:08:16",
+ "updated_at": "2026-08-23 22:23:22",
  "scanned": 14,
  "quote_count": 13,
  "events": [
@@ -14,7 +14,7 @@
    "msg": "跌幅 -5.94%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "08-23 21:08"
+   "time": "08-23 22:23"
   },
   {
    "code": "sz300285",
@@ -27,7 +27,7 @@
    "msg": "涨幅 +7.85%，快速拉升",
    "severity": "high",
    "is_holding": true,
-   "time": "08-23 21:08"
+   "time": "08-23 22:23"
   },
   {
    "code": "sz003033",
@@ -40,7 +40,7 @@
    "msg": "涨幅 +5.28%，快速拉升",
    "severity": "high",
    "is_holding": true,
-   "time": "08-23 21:08"
+   "time": "08-23 22:23"
   },
   {
    "code": "sz301183",
@@ -53,7 +53,7 @@
    "msg": "涨幅 +7.56%，快速拉升",
    "severity": "high",
    "is_holding": false,
-   "time": "08-23 21:08"
+   "time": "08-23 22:23"
   },
   {
    "code": "sz300285",
@@ -66,7 +66,7 @@
    "msg": "换手率 16.0%，筹码剧烈交换",
    "severity": "warn",
    "is_holding": true,
-   "time": "08-23 21:08"
+   "time": "08-23 22:23"
   },
   {
    "code": "sz301183",
@@ -79,7 +79,7 @@
    "msg": "换手率 19.7%，筹码剧烈交换",
    "severity": "warn",
    "is_holding": false,
-   "time": "08-23 21:08"
+   "time": "08-23 22:23"
   }
  ]
 }

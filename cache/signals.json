@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-08-23 16:05:28",
+ "updated_at": "2026-08-23 22:23:23",
  "signal_count": 4,
  "attack_count": 3,
  "defend_count": 1,
@@ -14,8 +14,8 @@
    "ref_price": "不追跌",
    "position": "回避",
    "stop": null,
-   "reason": "跌幅 -5.94%，量比 0.8，警惕资金出逃",
-   "confidence": 75,
+   "reason": "跌幅 -5.94%、主力净流出-1.31亿确认，警惕资金出逃",
+   "confidence": 90,
    "trigger": "急跌"
   },
   {
@@ -28,8 +28,8 @@
    "ref_price": "66.50-69.22",
    "position": "10%（短线仓）",
    "stop": 62.43,
-   "reason": "涨幅 +7.85% 拉升，趋势+量能共振",
-   "confidence": 70,
+   "reason": "主力净流入+13.54亿，趋势+量能共振",
+   "confidence": 85,
    "trigger": "急拉"
   },
   {
@@ -56,8 +56,8 @@
    "ref_price": "237.56-247.26",
    "position": "10%（短线仓）",
    "stop": 223.02,
-   "reason": "涨幅 +7.56% 拉升，趋势+量能共振",
-   "confidence": 70,
+   "reason": "主力净流入+2.02亿，趋势+量能共振",
+   "confidence": 85,
    "trigger": "急拉"
   }
  ]
