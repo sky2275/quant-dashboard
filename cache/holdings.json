@@ -1,7 +1,7 @@
 {
- "source": "三券商实盘_2026-08-20 + 8/21收盘价",
- "updated_at": "2026-08-21 15:30:00",
- "note": "数据优化v20260823：①代码修正 君正股份601216→300223北京君正(8/21收盘138.48与成本138.48吻合)、征和603097→003033、风华000836→000636 ②8/21收盘价更新 ③新增顶层positions数组供live.html实时盯盘使用(同时保留accounts字典供build_dashboard.py)",
+ "source": "三券商实盘_2026-08-20 + 8/24收盘价同步",
+ "updated_at": "2026-08-24 15:30:00",
+ "note": "8/24收盘更新：持仓全线承压(创业板-3.21%/科创50-3.10%)，仅北大荒+2.00%红盘。征和-6.41%/国瓷-5.54%/风华-5.05%领跌。",
  "account_labels": {
   "yinheng": "银河证券",
   "eastmoney": "东方财富证券",
@@ -28,11 +28,16 @@
    "account": "yinheng",
    "quantity": 700,
    "avg_cost": 59.805,
-   "price": 63.88,
-   "chg": 1.16,
+   "price": 61.24,
+   "chg": -4.13,
    "bucket": "short",
    "stop": 0.08,
-   "tcode": "sz002156"
+   "tcode": "sz002156",
+   "pnl": {
+    "total": 1004.5,
+    "pct": 2.4,
+    "price": 61.24
+   }
   },
   {
    "code": "300223",
@@ -40,11 +45,16 @@
    "account": "eastmoney",
    "quantity": 1500,
    "avg_cost": 138.48,
-   "price": 138.48,
-   "chg": 0.13,
+   "price": 133.66,
+   "chg": -3.48,
    "bucket": "mid",
    "stop": 0.1,
-   "tcode": "sz300223"
+   "tcode": "sz300223",
+   "pnl": {
+    "total": -7230.0,
+    "pct": -3.48,
+    "price": 133.66
+   }
   },
   {
    "code": "300285",
@@ -52,11 +62,16 @@
    "account": "csc",
    "quantity": 1500,
    "avg_cost": 75.379,
-   "price": 67.86,
-   "chg": 7.85,
+   "price": 64.1,
+   "chg": -5.54,
    "bucket": "long",
    "stop": 0.15,
-   "tcode": "sz300285"
+   "tcode": "sz300285",
+   "pnl": {
+    "total": -16918.5,
+    "pct": -14.96,
+    "price": 64.1
+   }
   },
   {
    "code": "300223",
@@ -64,11 +79,16 @@
    "account": "csc",
    "quantity": 600,
    "avg_cost": 134.265,
-   "price": 138.48,
-   "chg": 0.13,
+   "price": 133.66,
+   "chg": -3.48,
    "bucket": "mid",
    "stop": 0.1,
-   "tcode": "sz300223"
+   "tcode": "sz300223",
+   "pnl": {
+    "total": -363.0,
+    "pct": -0.45,
+    "price": 133.66
+   }
   },
   {
    "code": "003033",
@@ -76,11 +96,16 @@
    "account": "csc",
    "quantity": 500,
    "avg_cost": 58.241,
-   "price": 69.0,
-   "chg": 5.28,
+   "price": 64.58,
+   "chg": -6.41,
    "bucket": "short",
    "stop": 0.08,
-   "tcode": "sz003033"
+   "tcode": "sz003033",
+   "pnl": {
+    "total": 3169.5,
+    "pct": 10.88,
+    "price": 64.58
+   }
   },
   {
    "code": "000636",
@@ -88,11 +113,16 @@
    "account": "csc",
    "quantity": 1500,
    "avg_cost": 62.427,
-   "price": 54.67,
-   "chg": 2.98,
+   "price": 51.91,
+   "chg": -5.05,
    "bucket": "long",
    "stop": 0.15,
-   "tcode": "sz000636"
+   "tcode": "sz000636",
+   "pnl": {
+    "total": -15775.5,
+    "pct": -16.85,
+    "price": 51.91
+   }
   },
   {
    "code": "600598",
@@ -100,11 +130,16 @@
    "account": "csc",
    "quantity": 1000,
    "avg_cost": 13.249,
-   "price": 12.52,
-   "chg": -5.94,
+   "price": 12.77,
+   "chg": 2.0,
    "bucket": "mid",
    "stop": 0.1,
-   "tcode": "sh600598"
+   "tcode": "sh600598",
+   "pnl": {
+    "total": -479.0,
+    "pct": -3.62,
+    "price": 12.77
+   }
   }
  ],
  "accounts": {
@@ -115,11 +150,16 @@
     "account": "yinheng",
     "quantity": 700,
     "avg_cost": 59.805,
-    "price": 63.88,
-    "chg": 1.16,
+    "price": 61.24,
+    "chg": -4.13,
     "bucket": "short",
     "stop": 0.08,
-    "tcode": "sz002156"
+    "tcode": "sz002156",
+    "pnl": {
+     "total": 1004.5,
+     "pct": 2.4,
+     "price": 61.24
+    }
    }
   ],
   "eastmoney": [
@@ -129,11 +169,16 @@
     "account": "eastmoney",
     "quantity": 1500,
     "avg_cost": 138.48,
-    "price": 138.48,
-    "chg": 0.13,
+    "price": 133.66,
+    "chg": -3.48,
     "bucket": "mid",
     "stop": 0.1,
-    "tcode": "sz300223"
+    "tcode": "sz300223",
+    "pnl": {
+     "total": -7230.0,
+     "pct": -3.48,
+     "price": 133.66
+    }
    }
   ],
   "csc": [
@@ -143,11 +188,16 @@
     "account": "csc",
     "quantity": 1500,
     "avg_cost": 75.379,
-    "price": 67.86,
-    "chg": 7.85,
+    "price": 64.1,
+    "chg": -5.54,
     "bucket": "long",
     "stop": 0.15,
-    "tcode": "sz300285"
+    "tcode": "sz300285",
+    "pnl": {
+     "total": -16918.5,
+     "pct": -14.96,
+     "price": 64.1
+    }
    },
    {
     "code": "300223",
@@ -155,11 +205,16 @@
     "account": "csc",
     "quantity": 600,
     "avg_cost": 134.265,
-    "price": 138.48,
-    "chg": 0.13,
+    "price": 133.66,
+    "chg": -3.48,
     "bucket": "mid",
     "stop": 0.1,
-    "tcode": "sz300223"
+    "tcode": "sz300223",
+    "pnl": {
+     "total": -363.0,
+     "pct": -0.45,
+     "price": 133.66
+    }
    },
    {
     "code": "003033",
@@ -167,11 +222,16 @@
     "account": "csc",
     "quantity": 500,
     "avg_cost": 58.241,
-    "price": 69.0,
-    "chg": 5.28,
+    "price": 64.58,
+    "chg": -6.41,
     "bucket": "short",
     "stop": 0.08,
-    "tcode": "sz003033"
+    "tcode": "sz003033",
+    "pnl": {
+     "total": 3169.5,
+     "pct": 10.88,
+     "price": 64.58
+    }
    },
    {
     "code": "000636",
@@ -179,11 +239,16 @@
     "account": "csc",
     "quantity": 1500,
     "avg_cost": 62.427,
-    "price": 54.67,
-    "chg": 2.98,
+    "price": 51.91,
+    "chg": -5.05,
     "bucket": "long",
     "stop": 0.15,
-    "tcode": "sz000636"
+    "tcode": "sz000636",
+    "pnl": {
+     "total": -15775.5,
+     "pct": -16.85,
+     "price": 51.91
+    }
    },
    {
     "code": "600598",
@@ -191,20 +256,24 @@
     "account": "csc",
     "quantity": 1000,
     "avg_cost": 13.249,
-    "price": 12.52,
-    "chg": -5.94,
+    "price": 12.77,
+    "chg": 2.0,
     "bucket": "mid",
     "stop": 0.1,
-    "tcode": "sh600598"
+    "tcode": "sh600598",
+    "pnl": {
+     "total": -479.0,
+     "pct": -3.62,
+     "price": 12.77
+    }
    }
   ]
  },
  "summary": {
   "total_stocks": 7,
   "total_quantity": 7300,
-  "total_market_value": 566339,
-  "win_count": 3,
-  "lose_count": 3,
-  "flat_count": 1
+  "total_market_value": 542629,
+  "win_count": 2,
+  "lose_count": 5
  }
 }

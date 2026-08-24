@@ -1,5 +1,15 @@
 # 自动化执行记忆：量化工作台实时数据刷新
 
+## 2026-08-24 09:06 (周一盘前) 执行
+- 分支：main ✅（commit c9b1b11，push 646a570..c9b1b11 成功，GitHub Pages 自动重建）
+- 步骤1 feed.py：market_snapshot.json updated_at=2026-08-24 09:06:04 ✅
+- 步骤2 monitor.py：live_events.json updated_at=2026-08-24 09:06:09，扫描14只异动6条（北大荒急跌-5.94%、国瓷/征和/东田微急拉、国瓷/东田微高换手）✅
+- 步骤3 signal.py：signals.json updated_at=2026-08-24 09:06:14，信号4条（进攻3：国瓷材料/征和工业/东田微 买入；防守1：北大荒 减仓回避）✅
+- 步骤4 westock-mcp data_sector(ranking,sw1,30) ✅ → sector_raw_westock.json updated_at=2026-08-24T09:07:22 → refresh_sector_data.py → sector_leader_data.json updated_at=2026-08-24T09:07:22（top_inflow=7/top_outflow=3）。流入TOP3：通信设备(+2.98%,主净+88.9亿)、元件(+2.80%,+46.8亿)、工业金属(+2.42%,+44.4亿)；流出TOP3：化学制药(-4.33%,-34.1亿)、医疗服务(-3.75%,-28.3亿)、生物制品(-3.63%,-11.4亿)。
+- 步骤5 mx-ds-mcp：⚠️ **OAuth 令牌过期需重新授权**（mx_macro_data 与 global news 两次调用均报"requires re-authorization"，重试仍失败，按技能文档 401 不可重试）。A股新闻那次调用成功 → a_news_summary.json 真实刷新(updated_at 2026-08-24 09:08)。macro_commodity/global_news_summary/sector_contrib_mx 三项保留原值未伪造时间戳（asof 分别 8/21/8/21/8/14）。**需用户重连 mx-ds-mcp 授权**。
+- 步骤6 build_dashboard.py：index.html 重建成功(4.1MB)；非致命警告 feed.get_indicators(list index out of range) 与 tushare us_daily 无权限，已回退腾讯源成功拉取美股ETF K线。
+- 盘面特征：贵金属/能源金属/通信硬件/锂矿/元件领涨；医药链(化学制药/医疗服务/生物制品)集体回调，北大荒急跌-5.94%触发防守信号；国瓷材料急拉+7.85%触发进攻。
+
 ## 2026-08-21 09:07 (周五盘前) 执行
 - 分支：main ✅（commit be247e1，push badd57b..be247e1 成功）
 - 步骤1 feed.py：market_snapshot.json updated_at=2026-08-21 09:04:30 ✅

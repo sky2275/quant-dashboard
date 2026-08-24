@@ -174,6 +174,14 @@ def _fmt_yi(wan):
         return None
 
 
+def _norm_code(code: str):
+    """归一化股票代码：sz300285 -> 300285（去掉 sz/sh/bj 前缀，与 holdings.json 的 6 位数字一致）"""
+    c = str(code).lower()
+    if c[:2] in ("sz", "sh", "bj") and len(c) == 8:
+        return c[2:]
+    return c
+
+
 def build_signals():
     events = (_load("live_events.json") or {}).get("events") or []
     holdings = _holding_map()
@@ -190,13 +198,14 @@ def build_signals():
 
     for ev in events:
         code = ev["code"]
+        code_norm = _norm_code(code)  # 归一化（去 sz/sh/bj 前缀），与 holdings.json 的 6 位数字一致
         name = ev["name"]
         etype = ev["type"]
         sev = ev["severity"]
         chg = ev.get("change_pct") or 0
         vr = ev.get("vol_ratio") or 0
         price = ev.get("price")
-        is_holding = code in holdings
+        is_holding = code_norm in holdings
 
         key = (code, etype)
         if key in seen:
@@ -204,7 +213,7 @@ def build_signals():
 
         # ── 防守信号 ──────────────────────────────
         if etype == "触止损" and is_holding:
-            h = holdings[code]
+            h = holdings[code_norm]
             seen.add(key)
             signals.append({
                 "type": "防守", "action": "止损", "code": code, "name": name,
@@ -217,7 +226,7 @@ def build_signals():
             })
         elif etype == "急跌":
             seen.add(key)
-            h = holdings.get(code)
+            h = holdings.get(code_norm)
             bucket = h["bucket"] if h else "mid"
             reasons = [f"跌幅 {chg:+.2f}%"]
             conf = 75
@@ -249,7 +258,7 @@ def build_signals():
         # ── 进攻信号 ──────────────────────────────
         elif etype in ("急拉", "突破") and chg > 0:
             seen.add(key)
-            h = holdings.get(code)
+            h = holdings.get(code_norm)
             bucket = h["bucket"] if h else "short"
             stop = h["avg_cost"] * (1 - h["stop_pct"]) if h else round(price * 0.92, 2) if price else None
             reasons = []
