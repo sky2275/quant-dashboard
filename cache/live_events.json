@@ -1,59 +1,33 @@
 {
- "updated_at": "2026-08-24 23:33:24",
+ "updated_at": "2026-08-26 09:06:27",
  "scanned": 14,
  "quote_count": 13,
  "events": [
   {
    "code": "sz300285",
    "name": "国瓷材料",
-   "type": "急跌",
-   "price": 64.1,
-   "change_pct": -5.54,
-   "vol_ratio": 0.78,
-   "turnover": 11.36,
-   "msg": "跌幅 -5.54%，快速跳水",
+   "type": "触止损",
+   "price": 63.24,
+   "change_pct": -1.34,
+   "vol_ratio": 0.56,
+   "turnover": 7.98,
+   "msg": "跌破止损线 64.07（-15%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "08-24 23:33"
-  },
-  {
-   "code": "sz003033",
-   "name": "征和工业",
-   "type": "急跌",
-   "price": 64.58,
-   "change_pct": -6.41,
-   "vol_ratio": 0.43,
-   "turnover": 2.0,
-   "msg": "跌幅 -6.41%，快速跳水",
-   "severity": "critical",
-   "is_holding": true,
-   "time": "08-24 23:33"
-  },
-  {
-   "code": "sz000636",
-   "name": "风华高科",
-   "type": "急跌",
-   "price": 51.91,
-   "change_pct": -5.05,
-   "vol_ratio": 0.7,
-   "turnover": 9.29,
-   "msg": "跌幅 -5.05%，快速跳水",
-   "severity": "critical",
-   "is_holding": true,
-   "time": "08-24 23:33"
+   "time": "08-26 09:06"
   },
   {
    "code": "sz000636",
    "name": "风华高科",
    "type": "触止损",
-   "price": 51.91,
-   "change_pct": -5.05,
-   "vol_ratio": 0.7,
-   "turnover": 9.29,
+   "price": 51.33,
+   "change_pct": -1.12,
+   "vol_ratio": 0.59,
+   "turnover": 7.31,
    "msg": "跌破止损线 53.06（-15%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "08-24 23:33"
+   "time": "08-26 09:06"
   }
  ]
 }
