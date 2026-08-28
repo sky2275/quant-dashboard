@@ -1,3 +1,15 @@
+## 2026-08-28 09:20 (周五盘前) 执行
+- 分支：main ✅（commit c96a9fb，push 7dad1f1..c96a9fb 成功）
+- 步骤1 feed.py：market_snapshot.json updated_at=2026-08-28 09:05:44 ✅
+- 步骤2 monitor.py：live_events.json updated_at=2026-08-28 09:05:49，扫描14只异动6条（北京君正/国瓷材料/征和工业/风华高科/工业富联急拉 +5%~+9%）✅
+- 步骤3 signal.py：signals.json 信号5条（进攻5：北京君正/国瓷材料/征和工业/风华高科/工业富联；防守0）✅
+- 步骤4 westock-mcp data_sector(ranking,sw1) 返回申万一级全行业124条→sector_raw_westock.json(updated_at 09:10)→refresh_sector_data.py→sector_leader_data.json(updated_at 09:10, top_inflow=57/top_outflow=67/astocks=5213)。流入TOP：非金属材料Ⅱ(+9.63%,主净+7.6亿)、电子化学品Ⅱ(+5.56%,+31.3亿)、玻璃玻纤(+5.36%,+17.0亿) ✅
+- 步骤5 mx-ds-mcp：本次连接器已恢复(connected)，4缓存全部以真实数据刷新：macro_commodity(09:18, 金4594.49/-1.38%、银69.22/+1.66%、WTI83.54/+1.99%、布油89.56/+0.82%、伦铜14490/-0.28%、美元99.13/-0.01%、10Y4.65%、VIX stale)、a_news_summary/global_news_summary(09:18, asof 08-28, 7条headlines+analysis)、sector_contrib_mx(09:20, 16只成分股change_pct/mcap_yi来自mx_ashare_finance_data 8/27) ✅
+- 步骤6 build_dashboard.py：index.html 重建成功(3.8MB)；非致命警告 feed.get_indicators(list index out of range) 与 tushare us_daily 无权限，已回退腾讯API成功拉取美股ETF K线。
+- 步骤7 提交推送：commit c96a9fb，push origin main 成功（7dad1f1..c96a9fb）。GitHub Pages 自动重建。
+- 失败项：无（全链路通过）。
+- 盘面特征：半导体链全爆发（前日科创50 +3.77%），非金属材料Ⅱ/电子化学品Ⅱ/元件/玻璃玻纤领涨；黄金高位4600+；美股纳指+1.57%、英伟达+8.7%催化A股科技修复。持仓端北京君正/国瓷/征和/风华/工业富联急拉触发进攻信号。
+
 # 自动化执行记忆：量化工作台实时数据刷新
 
 ## 2026-08-26 09:16 (周三盘前) 执行
