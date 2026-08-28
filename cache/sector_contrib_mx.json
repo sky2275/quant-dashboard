@@ -1,87 +1,87 @@
 {
-  "asof": "2026-08-25",
-  "updated_at": "2026-08-26 09:16",
-  "source": "东方财富妙想(mx-ds-mcp) 2026-08-26 盘前刷新 | mx_ashare_finance_data 个股总市值+涨跌幅 2026-08-25",
+  "asof": "2026-08-27",
+  "updated_at": "2026-08-28 09:20",
+  "source": "东方财富妙想(mx-ds-mcp) 2026-08-28 盘前刷新 | mx_ashare_finance_data 个股总市值+涨跌幅 2026-08-27",
   "members": {
     "688111": {
       "name": "金山办公",
-      "change_pct": 0.6215,
-      "mcap_yi": 1089.0
+      "change_pct": 2.227,
+      "mcap_yi": 1105.0
     },
     "002230": {
       "name": "科大讯飞",
-      "change_pct": 1.079,
-      "mcap_yi": 945.2
+      "change_pct": 0.2774,
+      "mcap_yi": 955.3
     },
     "600845": {
       "name": "宝信软件",
-      "change_pct": 1.108,
-      "mcap_yi": 495.6
+      "change_pct": 0.1146,
+      "mcap_yi": 499.3
     },
     "600276": {
       "name": "恒瑞医药",
-      "change_pct": -0.5774,
-      "mcap_yi": 3086.0
+      "change_pct": 1.861,
+      "mcap_yi": 3160.0
     },
     "603259": {
       "name": "药明康德",
-      "change_pct": 3.311,
-      "mcap_yi": 4804.0
+      "change_pct": 0.4333,
+      "mcap_yi": 4772.0
     },
     "600196": {
       "name": "复星医药",
-      "change_pct": 1.009,
-      "mcap_yi": 614.7
+      "change_pct": 0.1312,
+      "mcap_yi": 611.3
     },
     "002422": {
       "name": "科伦药业",
-      "change_pct": 2.727,
-      "mcap_yi": 677.2
+      "change_pct": -3.116,
+      "mcap_yi": 672.6
     },
     "002475": {
       "name": "立讯精密",
-      "change_pct": 2.122,
-      "mcap_yi": 4245.0
+      "change_pct": 0.1226,
+      "mcap_yi": 4424.0
     },
     "002241": {
       "name": "歌尔股份",
-      "change_pct": -1.746,
-      "mcap_yi": 819.5
+      "change_pct": 0.2939,
+      "mcap_yi": 848.6
     },
     "688036": {
       "name": "传音控股",
-      "change_pct": 4.214,
-      "mcap_yi": 680.4
+      "change_pct": -0.1557,
+      "mcap_yi": 664.6
     },
     "300433": {
       "name": "蓝思科技",
-      "change_pct": -0.1318,
-      "mcap_yi": 2001.0
+      "change_pct": 0.07688,
+      "mcap_yi": 2061.0
     },
     "300750": {
       "name": "宁德时代",
-      "change_pct": -2.877,
-      "mcap_yi": 17430.0
+      "change_pct": -1.583,
+      "mcap_yi": 17260.0
     },
     "300014": {
       "name": "亿纬锂能",
-      "change_pct": -2.239,
-      "mcap_yi": 1186.0
+      "change_pct": -0.7692,
+      "mcap_yi": 1206.0
     },
     "002594": {
       "name": "比亚迪",
-      "change_pct": 0.7721,
-      "mcap_yi": 8329.0
+      "change_pct": -0.6515,
+      "mcap_yi": 8341.0
     },
     "002074": {
       "name": "国轩高科",
-      "change_pct": -0.8833,
-      "mcap_yi": 488.7
+      "change_pct": -0.7171,
+      "mcap_yi": 502.5
     },
     "600570": {
       "name": "恒生电子",
-      "change_pct": 0.19,
-      "mcap_yi": 401.1
+      "change_pct": 2.314,
+      "mcap_yi": 418.7
     }
   },
   "sectors": {

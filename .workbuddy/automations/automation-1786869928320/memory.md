@@ -1,5 +1,15 @@
 # 自动化执行记忆：量化工作台实时数据刷新
 
+## 2026-08-26 09:16 (周三盘前) 执行
+- 分支：main ✅（commit 7dad1f1，push 04d5ad2..7dad1f1 成功，GitHub Pages 自动重建）
+- 步骤1 feed.py：market_snapshot.json updated_at=2026-08-26 09:06:18 ✅
+- 步骤2 monitor.py：live_events.json updated_at=2026-08-26 09:06:27，扫描14只行情13条，异动2条（均为 critical 触止损：国瓷材料跌破64.07/-15%、风华高科跌破53.06/-15%）✅
+- 步骤3 signal.py：signals.json updated_at=2026-08-26 09:06:35，信号2条（进攻0/防守2，均 long仓纪律止损：国瓷材料@63.24、风华高科@51.33）✅
+- 步骤4 westock-mcp data_sector(ranking,sw1,limit=30)：**实际返回全量124个申万一级行业（limit未截断）**，已落盘 _westock_rank_raw.json 再转写为 sector_raw_westock.json（新增 scripts/_transcribe_sector.py，按净流入>0取前30 / <0取前20，避免看板TOP30表过长）。→ sector_raw_westock.json updated_at=2026-08-26T09:11:43 → refresh_sector_data.py → sector_leader_data.json updated_at=2026-08-26T09:11:43（top_inflow=30/top_outflow=20/astocks=5213）。净流入TOP3：通信设备(+23.4亿)/元件(+20.8亿)/专用设备(+20.3亿)；净流出TOP3：工业金属(-26.3亿)/电池(-25.4亿)/半导体(-18.2亿)。贵金属(-3.83%)/能源金属(-3.84%)领跌（油价暴跌拖累）。
+- 步骤5 mx-ds-mcp：**本次已连通（前次8/24 OAuth过期，本次正常）**，4缓存全部真刷新（updated_at 均 2026-08-26 09:15，asof 2026-08-25 真实数据日）：macro_commodity(WTI81.11/-4.59%、布油88.58/-3.9%、COMEX金4715.9/+0.39%、DXY98.914、10Y美债4.635)、a_news_summary(7条，十五五新型工业化/芯片设计高光/脑机接口政策等)、global_news_summary(7条+analysis dict，霍尔木兹停火致油价暴跌/英伟达财报/中概+1.11%)、sector_contrib_mx(16只成分股市值+涨跌幅，600570恒生电子 mx未返回沿用旧值)。新增 scripts/_refresh_mx_caches.py。
+- **修复 build_dashboard.py 崩溃**：_news_hotspot_card 期望 global_news_summary.json 的 analysis 为 dict{title,subtitle,points,conclusion}，首版误填 list 导致 AttributeError；改为 dict 后重建成功（index.html 3.74MB）。非致命：tushare us_daily 无权限，已回退腾讯API抓取9只美股ETF K线(各251点)。
+- 盘面特征（盘前快照）：油价因霍尔木兹临时航道+美伊停火预期重挫(WTI破82/布油跌近4%)，避险资产(贵金属/能源金属)跟跌；持仓国瓷材料/风华高科触发long仓-15%纪律止损信号；半导体主力净流出-18.2亿但板块仅-0.2%分化；科技股隔夜反弹(英伟达+2%止步七连跌)待今晚财报与核心PCE验证。
+
 ## 2026-08-24 09:06 (周一盘前) 执行
 - 分支：main ✅（commit c9b1b11，push 646a570..c9b1b11 成功，GitHub Pages 自动重建）
 - 步骤1 feed.py：market_snapshot.json updated_at=2026-08-24 09:06:04 ✅

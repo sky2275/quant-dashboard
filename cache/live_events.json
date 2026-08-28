@@ -1,33 +1,85 @@
 {
- "updated_at": "2026-08-26 09:06:27",
+ "updated_at": "2026-08-28 09:05:49",
  "scanned": 14,
  "quote_count": 13,
  "events": [
   {
+   "code": "sz300223",
+   "name": "北京君正",
+   "type": "急拉",
+   "price": 140.48,
+   "change_pct": 6.37,
+   "vol_ratio": 1.18,
+   "turnover": 6.51,
+   "msg": "涨幅 +6.37%，快速拉升",
+   "severity": "high",
+   "is_holding": true,
+   "time": "08-28 09:05"
+  },
+  {
    "code": "sz300285",
    "name": "国瓷材料",
-   "type": "触止损",
-   "price": 63.24,
-   "change_pct": -1.34,
-   "vol_ratio": 0.56,
-   "turnover": 7.98,
-   "msg": "跌破止损线 64.07（-15%）",
-   "severity": "critical",
+   "type": "急拉",
+   "price": 70.01,
+   "change_pct": 9.19,
+   "vol_ratio": 1.18,
+   "turnover": 13.13,
+   "msg": "涨幅 +9.19%，快速拉升",
+   "severity": "high",
    "is_holding": true,
-   "time": "08-26 09:06"
+   "time": "08-28 09:05"
+  },
+  {
+   "code": "sz300223",
+   "name": "北京君正",
+   "type": "急拉",
+   "price": 140.48,
+   "change_pct": 6.37,
+   "vol_ratio": 1.18,
+   "turnover": 6.51,
+   "msg": "涨幅 +6.37%，快速拉升",
+   "severity": "high",
+   "is_holding": true,
+   "time": "08-28 09:05"
+  },
+  {
+   "code": "sz003033",
+   "name": "征和工业",
+   "type": "急拉",
+   "price": 68.98,
+   "change_pct": 7.85,
+   "vol_ratio": 1.38,
+   "turnover": 2.34,
+   "msg": "涨幅 +7.85%，快速拉升",
+   "severity": "high",
+   "is_holding": true,
+   "time": "08-28 09:05"
   },
   {
    "code": "sz000636",
    "name": "风华高科",
-   "type": "触止损",
-   "price": 51.33,
-   "change_pct": -1.12,
-   "vol_ratio": 0.59,
-   "turnover": 7.31,
-   "msg": "跌破止损线 53.06（-15%）",
-   "severity": "critical",
+   "type": "急拉",
+   "price": 54.11,
+   "change_pct": 6.08,
+   "vol_ratio": 1.12,
+   "turnover": 11.09,
+   "msg": "涨幅 +6.08%，快速拉升",
+   "severity": "high",
    "is_holding": true,
-   "time": "08-26 09:06"
+   "time": "08-28 09:05"
+  },
+  {
+   "code": "sh601138",
+   "name": "工业富联",
+   "type": "急拉",
+   "price": 63.86,
+   "change_pct": 5.43,
+   "vol_ratio": 1.84,
+   "turnover": 0.75,
+   "msg": "涨幅 +5.43%，快速拉升",
+   "severity": "high",
+   "is_holding": false,
+   "time": "08-28 09:05"
   }
  ]
 }
