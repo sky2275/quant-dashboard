@@ -21,7 +21,7 @@ from typing import Any
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE_DIR = os.path.join(REPO_ROOT, "cache")
 
-# 因子权重（可调）
+# 因子权重（基础权重，可调；会被 factor_ic.py 生成的动态权重覆盖）
 FACTOR_WEIGHTS = {
     "momentum": 0.25,
     "vol_price": 0.15,
@@ -29,6 +29,41 @@ FACTOR_WEIGHTS = {
     "volatility": 0.15,
     "rsi": 0.20,
 }
+
+_IC_WEIGHTS_CACHE: dict | None = None
+_IC_WEIGHTS_LOADED_AT: float | None = None
+
+
+def get_weights(force_reload: bool = False) -> dict:
+    """
+    返回当前生效的因子权重。
+    优先读 cache/factor_ic.json 的「动态权重」（因子 IC 失效自动降权）；
+    无该文件或文件损坏时回退到硬编码 FACTOR_WEIGHTS。
+    带 30 秒缓存，避免每次评分都读盘。
+    """
+    global _IC_WEIGHTS_CACHE, _IC_WEIGHTS_LOADED_AT
+    import time
+    now = time.time()
+    if (not force_reload and _IC_WEIGHTS_CACHE is not None
+            and _IC_WEIGHTS_LOADED_AT and now - _IC_WEIGHTS_LOADED_AT < 30):
+        return _IC_WEIGHTS_CACHE
+
+    w: dict = dict(FACTOR_WEIGHTS)
+    path = os.path.join(CACHE_DIR, "factor_ic.json")
+    if os.path.exists(path):
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+            ic_w = data.get("weights")
+            if isinstance(ic_w, dict) and ic_w:
+                # 仅当权重字段完整且总和≈1 时采纳（防止损坏文件污染评分）
+                if set(ic_w) == set(FACTOR_WEIGHTS) and abs(sum(ic_w.values()) - 1.0) < 0.01:
+                    w = {k: float(ic_w[k]) for k in FACTOR_WEIGHTS}
+        except Exception:
+            pass
+    _IC_WEIGHTS_CACHE = w
+    _IC_WEIGHTS_LOADED_AT = now
+    return w
 
 
 def _load_klines(code: str) -> list | None:
@@ -61,7 +96,7 @@ def _atr(klines: list, period: int = 14) -> float | None:
     for i in range(1, len(klines)):
         high = float(klines[i][3])
         low = float(klines[i][4])
-        prev_close = float(klines[i - 1][1])
+        prev_close = float(klines[i - 1][2])
         tr = max(high - low, abs(high - prev_close), abs(low - prev_close))
         trs.append(tr)
     return sum(trs[-period:]) / period if len(trs) >= period else None
@@ -93,7 +128,7 @@ def score_stock(klines: list) -> dict:
     if not klines or len(klines) < 60:
         return {"total_score": 0, "factor_scores": {}, "signals": ["数据不足"]}
 
-    closes = [float(k[1]) for k in klines]
+    closes = [float(k[2]) for k in klines]
     volumes = [float(k[5]) for k in klines]
     last_close = closes[-1]
     scores = {}
@@ -187,8 +222,8 @@ def score_stock(klines: list) -> dict:
     else:
         scores["rsi"] = 50
 
-    # 加权总分
-    total = sum(scores.get(k, 50) * w for k, w in FACTOR_WEIGHTS.items())
+    # 加权总分（动态权重：因子 IC 失效自动降权）
+    total = sum(scores.get(k, 50) * w for k, w in get_weights().items())
 
     return {
         "total_score": round(total, 1),

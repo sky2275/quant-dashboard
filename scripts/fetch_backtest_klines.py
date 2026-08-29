@@ -46,7 +46,8 @@ def _full_code(code: str) -> str:
 
 def fetch_kline(full_code: str, days: int = 500) -> list:
     """
-    获取腾讯前复权日K。返回 [[date, open, close, low, high, volume], ...] 旧→新。
+    获取腾讯前复权日K。返回 [[date, open, close, high, low, volume], ...] 旧→新。
+    字段顺序与腾讯 fqkline 接口一致：row[3]=high, row[4]=low。
     """
     url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={full_code},day,,,{days},qfq"
     try:
@@ -124,8 +125,8 @@ def compute_signals(kline: list) -> dict:
     dates = [row[0] for row in kline]
     opens = [row[1] for row in kline]
     closes = [row[2] for row in kline]
-    lows = [row[3] for row in kline]
-    highs = [row[4] for row in kline]
+    lows = [row[4] for row in kline]   # 修正：row[4]=low（此前误用 row[3]=high）
+    highs = [row[3] for row in kline]  # 修正：row[3]=high（此前误用 row[4]=low）
     volumes = [row[5] for row in kline]
 
     ma5 = _sma(closes, 5)
@@ -253,6 +254,15 @@ def main():
         if code:
             targets[code.replace("sh", "").replace("sz", "")] = name
 
+    # 4) 全行业龙头（_SECTOR_LEADERS，扩池用于因子 IC 横截面计算）
+    #    覆盖 71 个东财行业 × 3-4 只龙头，行业分散，是 IC 评估的代表性样本
+    for sector, leaders in feed._SECTOR_LEADERS.items():
+        for s in leaders:
+            code = str(s.get("code", "")).strip()
+            name = str(s.get("name", "")).strip()
+            if code and name:
+                targets[code] = name
+
     if not targets:
         print("[kline] 无目标股票")
         return
@@ -263,21 +273,34 @@ def main():
         "days": 500,
         "stocks": {},
     }
-    for code, name in targets.items():
+
+    def _fetch_one(code, name):
         full = _full_code(code)
         if not full:
-            continue
+            return None
         kline = fetch_kline(full, 500)
-        if kline:
-            signals = compute_signals(kline)
-            out["stocks"][code] = {
-                "name": name,
-                "full_code": full,
-                "kline": kline,
-                "signals": signals,
-            }
-            print(f"[kline] {code} {name}: {len(kline)} 天, 信号 {signals.get('ma_cross')}/{signals.get('macd_cross')}")
-        time.sleep(0.12)  # 礼貌限速
+        if not kline:
+            return None
+        signals = compute_signals(kline)
+        return code, {
+            "name": name,
+            "full_code": full,
+            "kline": kline,
+            "signals": signals,
+        }
+
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    with ThreadPoolExecutor(max_workers=6) as exe:
+        futures = {exe.submit(_fetch_one, c, n): c for c, n in targets.items()}
+        for fut in as_completed(futures):
+            try:
+                result = fut.result()
+                if result:
+                    code, payload = result
+                    out["stocks"][code] = payload
+                    print(f"[kline] {code} {payload['name']}: {len(payload['kline'])} 天")
+            except Exception as e:
+                print(f"[kline] worker error: {e}")
 
     out["count"] = len(out["stocks"])
     out_path = os.path.join(CACHE_DIR, "backtest_klines.json")

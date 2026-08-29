@@ -62,7 +62,7 @@ def _atr(klines: list, period: int = 14) -> float | None:
     for i in range(1, len(klines)):
         high = float(klines[i][3])
         low = float(klines[i][4])
-        prev_close = float(klines[i - 1][1])
+        prev_close = float(klines[i - 1][2])  # 修正：prev_close 用收盘价 [2]（此前误用开盘价 [1]）
         tr = max(high - low, abs(high - prev_close), abs(low - prev_close))
         trs.append(tr)
     return sum(trs[-period:]) / period if len(trs) >= period else None
@@ -214,6 +214,53 @@ class RiskManager:
             "side": side,
         }
 
+    # ------------------------------------------------------------------ 组合 VaR
+    def _portfolio_var(self, positions: list[dict], total_capital: float) -> dict | None:
+        """
+        组合级 VaR(95%)：基于持仓近 60 日收益率按市值加权，正态近似。
+        VaR(95%) = 1.645 × σ(组合日收益率) × 组合市值。
+        当 VaR 超过总资产 2%（对齐 strategy.yaml 的 single_day_drawdown: 2）触发降仓。
+        """
+        rets: dict[str, list] = {}
+        weights: dict[str, float] = {}
+        for p in positions:
+            code = p.get("code")
+            mv = p.get("market_value", 0)
+            if not code or mv <= 0:
+                continue
+            klines = _load_klines(code)
+            if not klines or len(klines) < 60:
+                continue
+            closes = [float(k[2]) for k in klines]
+            r = [closes[i] / closes[i - 1] - 1 for i in range(1, len(closes))]
+            rets[code] = r[-60:]  # 近 60 个交易日
+            weights[code] = mv
+        if not rets:
+            return None
+        min_len = min(len(r) for r in rets.values())
+        total_mv = sum(weights.values())
+        if total_mv <= 0 or min_len < 2:
+            return None
+        # 市值加权组合日收益率序列
+        port_rets = []
+        for i in range(min_len):
+            pr = sum(rets[c][i] * weights[c] / total_mv for c in rets)
+            port_rets.append(pr)
+        n = len(port_rets)
+        mean = sum(port_rets) / n
+        var_ = sum((r - mean) ** 2 for r in port_rets) / (n - 1)
+        sigma = var_ ** 0.5
+        var_95 = 1.645 * sigma * total_mv
+        var_pct = var_95 / total_capital if total_capital > 0 else 0.0
+        return {
+            "sigma_daily": round(sigma, 5),
+            "var_95_amount": round(var_95, 2),
+            "var_95_pct": round(var_pct * 100, 2),
+            "daily_drawdown_limit_pct": 2.0,
+            "trigger_deleverage": var_pct > 0.02,
+            "n_days": n,
+        }
+
     # ------------------------------------------------------------------ 组合风控
     def portfolio_risk(self, positions: list[dict]) -> dict:
         """
@@ -264,6 +311,13 @@ class RiskManager:
         if exposure_pct > MAX_TOTAL_PCT:
             warnings.append(f"总仓位 {exposure_pct*100:.1f}% 超过上限 {MAX_TOTAL_PCT*100:.0f}%")
 
+        # 组合级 VaR 风险预算（95% 单日，超过总资产 2% 触发降仓）
+        var_result = self._portfolio_var(positions, total_capital)
+        if var_result and var_result["trigger_deleverage"]:
+            warnings.append(
+                f"组合单日 VaR(95%) {var_result['var_95_pct']}% 超过 {var_result['daily_drawdown_limit_pct']}% 上限，建议降仓"
+            )
+
         return {
             "total_capital": round(total_capital, 2),
             "total_market_value": round(total_mv, 2),
@@ -273,6 +327,7 @@ class RiskManager:
             "max_total_pct": MAX_TOTAL_PCT * 100,
             "position_checks": position_checks,
             "sector_checks": sector_checks,
+            "var_95": var_result,
             "warnings": warnings,
             "risk_level": "HIGH" if len(warnings) >= 3 else ("MEDIUM" if warnings else "LOW"),
         }

@@ -13,8 +13,26 @@ scoring.py - HARNESS风格100分制综合评分系统
 输出：0-100分 + PASS/WATCH/AVOID 三级风险标识
 """
 
+import json
 import math
+import os
 from typing import Dict, Tuple, Optional, List
+
+# 新闻情绪缓存路径（sentiment.py 输出，NLP 情绪因子）
+_SENTIMENT_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "cache", "sentiment.json",
+)
+
+
+def _load_sentiment() -> dict:
+    """读 cache/sentiment.json，返回个股情绪映射 {name: {score, label, hits}}。"""
+    try:
+        with open(_SENTIMENT_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+        return data.get("stocks", {})
+    except Exception:
+        return {}
 
 
 class ComprehensiveScorer:
@@ -35,6 +53,8 @@ class ComprehensiveScorer:
         :param market_data: 市场快照数据（用于板块热点判断）
         """
         self.market_data = market_data or {}
+        # NLP 情绪因子：个股情绪映射（name -> {score, label, hits}）
+        self.sentiment_stocks = _load_sentiment()
 
     def calculate_score(self, stock_data: Dict) -> Dict:
         """
@@ -275,6 +295,13 @@ class ComprehensiveScorer:
             score += 20
         elif data.get('limit_down'):
             score -= 40
+
+        # 新闻情绪分（NLP 情绪因子，来自 sentiment.py）
+        # 情绪分 -1~+1 → 映射为 ±25 分；无相关新闻则不调整
+        name = data.get('name', '')
+        senti = self.sentiment_stocks.get(name)
+        if senti and senti.get('score') is not None:
+            score += senti['score'] * 25
 
         return max(0, min(100, score))
 
