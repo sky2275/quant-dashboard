@@ -1,0 +1,96 @@
+{
+  "updated_at": "2026-08-30T00:33:30",
+  "forward": 5,
+  "subsets": {
+    "全部20因子": {
+      "factors": [
+        "mom_20d",
+        "rev_5d",
+        "mom_120_20",
+        "dist_high",
+        "vol_atr",
+        "idio_vol",
+        "downside_vol",
+        "max_dd",
+        "amihud",
+        "vol_trend",
+        "vol_stab",
+        "vol_price",
+        "vp_corr",
+        "trend_ma20",
+        "ma_slope60",
+        "rsi_mid",
+        "bb_pos",
+        "macd_hist",
+        "skew",
+        "beta_low"
+      ],
+      "n": 20,
+      "q1": 0.0019302064327115418,
+      "long_short": 0.0007940527812069039,
+      "ir": 0.02589568073154441,
+      "win_rate": 0.47368421052631576
+    },
+    "分层多空为正": {
+      "factors": [
+        "mom_20d",
+        "rev_5d",
+        "mom_120_20",
+        "max_dd",
+        "vol_trend",
+        "vol_stab",
+        "ma_slope60",
+        "macd_hist",
+        "skew"
+      ],
+      "n": 9,
+      "q1": 0.015496270993551697,
+      "long_short": 0.016736582567856095,
+      "ir": 0.5072099493411378,
+      "win_rate": 0.6842105263157895
+    },
+    "双验证(多空>0且胜率≥55%)": {
+      "factors": [
+        "mom_20d",
+        "mom_120_20",
+        "max_dd",
+        "vol_stab",
+        "ma_slope60",
+        "macd_hist"
+      ],
+      "n": 6,
+      "q1": 0.01427232381679149,
+      "long_short": 0.014220927603283353,
+      "ir": 0.41800041172877256,
+      "win_rate": 0.631578947368421
+    },
+    "趋势动量组": {
+      "factors": [
+        "ma_slope60",
+        "mom_120_20",
+        "macd_hist",
+        "mom_20d",
+        "trend_ma20"
+      ],
+      "n": 5,
+      "q1": 0.008779332079284186,
+      "long_short": 0.007323635705978756,
+      "ir": 0.19665673756773466,
+      "win_rate": 0.631578947368421
+    },
+    "旧5因子": {
+      "factors": [
+        "mom_20d",
+        "trend_ma20",
+        "vol_atr",
+        "vol_price",
+        "rsi_mid"
+      ],
+      "n": 5,
+      "q1": 0.0010545647719906702,
+      "long_short": -0.006238893237212519,
+      "ir": -0.20493759234095665,
+      "win_rate": 0.5263157894736842
+    }
+  }
+}

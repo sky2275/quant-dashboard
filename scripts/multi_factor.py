@@ -1,54 +1,74 @@
 """
-multi_factor.py -- 多因子选股模型
-从"看盘工具"升级为"量化系统"的核心模块之一。
+multi_factor.py -- 多因子选股模型（v2 · 接入 factor_lib 因子库）
 
-因子体系（5 大因子）：
-  1. 动量因子 (momentum)   : 20日涨幅，越高越好
-  2. 量价因子 (vol_price)  : 量比+换手率组合，适度放量最佳
-  3. 趋势因子 (trend)      : MA20上方加分，MA60斜率为正加分
-  4. 波动因子 (volatility) : ATR/Price 比率，低波动更优
-  5. RSI因子 (rsi)         : 40-60中性区最佳，避免超买超卖
+================================================================================
+v2 改造（2026-08-30）
+================================================================================
+1. 因子定义迁出到 factor_lib.py，本文件不再硬编码任何因子逻辑。
+   补因子 → 只改 factor_lib.FACTORS，本文件零改动。
 
-输出：每只股票的综合评分 (0-100)，按评分排序选股。
+2. 评分方式从「分档 if/else」改为「raw 值线性映射到 0-100」。
+   旧版 5 因子的分档打分（如"站上MA20 +20分"）是台阶状的，同一档内
+   差异被抹平，且与 factor_ic 算 IC 用的原始值定义不一致——
+   导致"IC 说这个因子有效，评分却把它压在低档"。
+   现在评分与 IC 同源，单调映射保证排序一致。
+
+3. 支持因子翻转：IC 显著为负的因子（如 mom_20d）自动按 100-score 使用。
+   旧版只是把反向因子降权，等于承认方向错还留半仓继续做错。
+
+4. 因子数 5 → 20，按大类分配权重（抑制共线性）。
+
+================================================================================
+下游调用方（保持返回结构不变）
+================================================================================
+  signal_generator.py : total_score / factor_scores / signals / ma20 / ma60 / rsi
+  backtest_engine.py  : score_stock(klines)["total_score"]
+  screener.py         : factor_score
 """
 from __future__ import annotations
 
 import json
 import os
-import math
-from typing import Any
+import sys
+import time
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE_DIR = os.path.join(REPO_ROOT, "cache")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# 因子权重（基础权重，可调；会被 factor_ic.py 生成的动态权重覆盖）
-FACTOR_WEIGHTS = {
-    "momentum": 0.25,
-    "vol_price": 0.15,
-    "trend": 0.25,
-    "volatility": 0.15,
-    "rsi": 0.20,
-}
+import factor_lib as flib  # noqa: E402
 
-_IC_WEIGHTS_CACHE: dict | None = None
-_IC_WEIGHTS_LOADED_AT: float | None = None
+# 因子权重（基础权重由 factor_lib 按大类生成；被 factor_ic.json 的动态权重覆盖）
+FACTOR_WEIGHTS: dict = flib.base_weights()
+
+_IC_CACHE: dict | None = None
+_IC_LOADED_AT: float | None = None
+
+# 旧因子名 → 新因子名（历史 IC 记录/旧缓存的平滑迁移）
+LEGACY_MAP: dict[str, str] = flib.LEGACY_MAP
 
 
-def get_weights(force_reload: bool = False) -> dict:
+def load_ic_state(force_reload: bool = False) -> dict:
     """
-    返回当前生效的因子权重。
-    优先读 cache/factor_ic.json 的「动态权重」（因子 IC 失效自动降权）；
-    无该文件或文件损坏时回退到硬编码 FACTOR_WEIGHTS。
-    带 30 秒缓存，避免每次评分都读盘。
+    读取 factor_ic.json 的动态权重 + 翻转标记。
+    返回 {"weights": {...}, "flips": {...}, "source": "ic"|"base", "updated_at": ...}
+
+    容错策略（重要）：
+      旧版要求 IC 文件的因子集合与硬编码集合**完全一致**才采纳，
+      一旦新增/删除因子就整体回退到硬编码权重 —— 新因子永远用不上动态权重。
+      新版改为「逐因子合并」：IC 文件里有该因子就用它的权重，
+      没有的新因子用基础权重，缺失的旧因子直接丢弃，最后统一归一化。
     """
-    global _IC_WEIGHTS_CACHE, _IC_WEIGHTS_LOADED_AT
-    import time
+    global _IC_CACHE, _IC_LOADED_AT
     now = time.time()
-    if (not force_reload and _IC_WEIGHTS_CACHE is not None
-            and _IC_WEIGHTS_LOADED_AT and now - _IC_WEIGHTS_LOADED_AT < 30):
-        return _IC_WEIGHTS_CACHE
+    if (not force_reload and _IC_CACHE is not None
+            and _IC_LOADED_AT and now - _IC_LOADED_AT < 30):
+        return _IC_CACHE
 
-    w: dict = dict(FACTOR_WEIGHTS)
+    base = flib.base_weights()
+    state = {"weights": dict(base), "flips": {}, "source": "base",
+             "updated_at": None}
+
     path = os.path.join(CACHE_DIR, "factor_ic.json")
     if os.path.exists(path):
         try:
@@ -56,190 +76,155 @@ def get_weights(force_reload: bool = False) -> dict:
                 data = json.load(f)
             ic_w = data.get("weights")
             if isinstance(ic_w, dict) and ic_w:
-                # 仅当权重字段完整且总和≈1 时采纳（防止损坏文件污染评分）
-                if set(ic_w) == set(FACTOR_WEIGHTS) and abs(sum(ic_w.values()) - 1.0) < 0.01:
-                    w = {k: float(ic_w[k]) for k in FACTOR_WEIGHTS}
+                merged = {}
+                for name in base:
+                    v = ic_w.get(name)
+                    # 只接受合法正数权重，且不覆盖基础权重为 0 的因子
+                    if isinstance(v, (int, float)) and v > 0:
+                        merged[name] = float(v)
+                    else:
+                        merged[name] = base[name]
+                total = sum(merged.values())
+                if total > 0:
+                    state["weights"] = {k: round(v / total, 4)
+                                        for k, v in merged.items()}
+                    state["flips"] = {
+                        k: True for k, v in (data.get("flips") or {}).items()
+                        if v and k in base
+                    }
+                    state["source"] = "ic"
+                    state["updated_at"] = data.get("updated_at")
         except Exception:
-            pass
-    _IC_WEIGHTS_CACHE = w
-    _IC_WEIGHTS_LOADED_AT = now
-    return w
+            pass  # IC 文件损坏 → 静默回退基础权重
+
+    _IC_CACHE = state
+    _IC_LOADED_AT = now
+    return state
 
 
-def _load_klines(code: str) -> list | None:
-    """从 backtest_klines.json 加载某只股票的K线。"""
-    path = os.path.join(CACHE_DIR, "backtest_klines.json")
-    if not os.path.exists(path):
-        return None
-    try:
-        with open(path, encoding="utf-8") as f:
-            data = json.load(f)
-        stock = data.get("stocks", {}).get(code)
-        if stock and stock.get("kline"):
-            return stock["kline"]
-    except Exception:
-        pass
-    return None
+def get_weights(force_reload: bool = False) -> dict:
+    """当前生效的因子权重（动态权重优先，回退基础权重）。"""
+    return load_ic_state(force_reload)["weights"]
 
 
+def get_flips(force_reload: bool = False) -> dict:
+    """需要翻转使用的因子（IC 显著为负）。"""
+    return load_ic_state(force_reload)["flips"]
+
+
+# ---------------------------------------------------------------- 兼容辅助
+# ⚠️ 以下三个函数被 signal_generator.py 等下游以 mf._rsi / mf._atr / mf._sma
+#    的形式直接调用。重构时曾误删导致整条流水线崩溃，不要再次移除。
+#    新代码请优先直接用 factor_lib 里的同名函数。
 def _sma(values: list[float], period: int) -> float | None:
-    if len(values) < period:
-        return None
-    return sum(values[-period:]) / period
-
-
-def _atr(klines: list, period: int = 14) -> float | None:
-    """Average True Range."""
-    if len(klines) < period + 1:
-        return None
-    trs = []
-    for i in range(1, len(klines)):
-        high = float(klines[i][3])
-        low = float(klines[i][4])
-        prev_close = float(klines[i - 1][2])
-        tr = max(high - low, abs(high - prev_close), abs(low - prev_close))
-        trs.append(tr)
-    return sum(trs[-period:]) / period if len(trs) >= period else None
+    return flib._sma(values, period)
 
 
 def _rsi(closes: list[float], period: int = 14) -> float | None:
-    if len(closes) < period + 1:
-        return None
-    deltas = [closes[i] - closes[i - 1] for i in range(1, len(closes))]
-    gains = [d if d > 0 else 0.0 for d in deltas]
-    losses = [-d if d < 0 else 0.0 for d in deltas]
-    avg_gain = sum(gains[:period]) / period
-    avg_loss = sum(losses[:period]) / period
-    for i in range(period, len(deltas)):
-        avg_gain = (avg_gain * (period - 1) + gains[i]) / period
-        avg_loss = (avg_loss * (period - 1) + losses[i]) / period
-    if avg_loss == 0:
-        return 100.0 if avg_gain > 0 else 50.0
-    rs = avg_gain / avg_loss
-    return round(100 - 100 / (1 + rs), 1)
+    return flib._rsi(closes, period)
 
 
-def score_stock(klines: list) -> dict:
-    """
-    对单只股票计算 5 大因子评分。
-    klines: [[date, open, close, high, low, volume], ...] 旧->新
-    返回: {factor_scores: {...}, total_score: float, signals: [...]}
-    """
-    if not klines or len(klines) < 60:
-        return {"total_score": 0, "factor_scores": {}, "signals": ["数据不足"]}
+def _atr(klines: list, period: int = 14) -> float | None:
+    """兼容旧签名：接收 K 线列表（旧→新），内部转为 KLineView。"""
+    v = flib.KLineView(klines)
+    v._build()
+    return flib._atr(v, period)
 
-    closes = [float(k[2]) for k in klines]
-    volumes = [float(k[5]) for k in klines]
-    last_close = closes[-1]
-    scores = {}
-    signals = []
 
-    # 1. 动量因子：20日涨幅
-    if len(closes) >= 21:
-        ret_20d = (closes[-1] / closes[-21] - 1) * 100
-        # 评分映射：+10%→100, 0%→50, -10%→0
-        scores["momentum"] = max(0, min(100, 50 + ret_20d * 5))
-        if ret_20d > 5:
-            signals.append(f"20日涨幅+{ret_20d:.1f}%，动量强劲")
-        elif ret_20d < -5:
-            signals.append(f"20日跌幅{ret_20d:.1f}%，动量疲弱")
+# 展示阈值：权重低于此值的因子已被双重检验判定为无效/有害，
+# 不能出现在"强项/弱项"里——否则等于展示层否定权重层的判断，误导决策。
+SIGNAL_MIN_WEIGHT = 0.04
+
+
+def _build_signals(scores: dict[str, float], flips: dict[str, bool],
+                   extras: dict, weights: dict | None = None) -> list[str]:
+    """从因子得分生成可读信号：列出最强 3 项与最弱 3 项。
+    只展示在当前权重体系下真正"说话算数"的因子。
+    翻转因子在括号内标注「(反向)」，避免读者误读方向。"""
+    if not scores:
+        return ["数据不足"]
+
+    if weights:
+        pool = {k: v for k, v in scores.items()
+                if weights.get(k, 0) >= SIGNAL_MIN_WEIGHT}
     else:
-        scores["momentum"] = 50
+        pool = dict(scores)
+    if not pool:
+        return ["因子信号不足"]
 
-    # 2. 量价因子：量比（最近5日均量/前20日均量）
-    if len(volumes) >= 25:
-        recent_vol = sum(volumes[-5:]) / 5
-        base_vol = sum(volumes[-25:-5]) / 20
-        vol_ratio = recent_vol / base_vol if base_vol > 0 else 1.0
-        # 量比 1.5-2.5 最佳
-        if 1.5 <= vol_ratio <= 2.5:
-            scores["vol_price"] = 90
-            signals.append(f"量比{vol_ratio:.2f}，适度放量")
-        elif vol_ratio > 3:
-            scores["vol_price"] = 40
-            signals.append(f"量比{vol_ratio:.2f}，放量过大需警惕")
-        elif vol_ratio < 0.7:
-            scores["vol_price"] = 30
-            signals.append(f"量比{vol_ratio:.2f}，缩量明显")
+    ranked = sorted(pool.items(), key=lambda kv: kv[1], reverse=True)
+    out: list[str] = []
+    for name, s in ranked[:3]:
+        if s >= 60:
+            tag = "（反向）" if flips.get(name) else ""
+            out.append(f"强项·{flib.FACTORS[name]['label']}{tag} {s:.0f}分")
+    for name, s in ranked[-3:]:
+        if s <= 40:
+            tag = "（反向）" if flips.get(name) else ""
+            out.append(f"弱项·{flib.FACTORS[name]['label']}{tag} {s:.0f}分")
+
+    # 关键指标补充（下游 signal_generator 会展示这些字段）
+    if extras.get("rsi") is not None:
+        r = extras["rsi"]
+        if r >= 70:
+            out.append(f"RSI={r:.0f}，超买风险")
+        elif r <= 30:
+            out.append(f"RSI={r:.0f}，超卖区间")
+    if extras.get("ma20") and extras.get("close"):
+        if extras["close"] > extras["ma20"]:
+            out.append("股价在MA20上方")
         else:
-            scores["vol_price"] = 60
-    else:
-        scores["vol_price"] = 50
+            out.append("股价跌破MA20")
+    return out
 
-    # 3. 趋势因子：MA20/MA60 位置 + MA60斜率
+
+def score_stock(klines: list, ctx: dict | None = None) -> dict:
+    """
+    对单只股票计算全部因子评分。
+    klines: [[date, open, close, high, low, volume], ...] 旧->新
+
+    返回结构与 v1 完全一致（下游无需改动）：
+      {total_score, factor_scores, signals, rsi, ma20, ma60, atr_pct, coverage}
+    """
+    if not klines or len(klines) < 20:
+        return {"total_score": 0, "factor_scores": {}, "signals": ["数据不足"],
+                "rsi": None, "ma20": None, "ma60": None, "atr_pct": None,
+                "coverage": 0.0}
+
+    weights = get_weights()
+    flips = get_flips()
+
+    raws = flib.compute_raw(klines, ctx)
+    res = flib.score_stock_raw(raws, weights, flips)
+
+    # 关键指标（下游展示用，独立于因子体系）
+    closes = [float(k[2]) for k in klines]
+    last_close = closes[-1]
     ma20 = _sma(closes, 20)
     ma60 = _sma(closes, 60)
-    if ma20 and ma60:
-        trend_score = 50
-        if last_close > ma20:
-            trend_score += 20
-            signals.append("股价在MA20上方")
-        if ma20 > ma60:
-            trend_score += 20
-            signals.append("MA20 > MA60，多头排列")
-        # MA60 斜率（5日前vs现在）
-        if len(closes) >= 65:
-            ma60_5d_ago = sum(closes[-65:-5]) / 60
-            if ma60 > ma60_5d_ago:
-                trend_score += 10
-        scores["trend"] = min(100, trend_score)
-    else:
-        scores["trend"] = 50
+    v = flib.KLineView(klines[-flib.MAX_LOOKBACK:])
+    v._build()
+    rsi_val = flib._rsi(v.closes, 14)
+    atr_val = flib._atr(v, 14)
 
-    # 4. 波动因子：ATR/Price
-    atr_val = _atr(klines, 14)
-    if atr_val and last_close > 0:
-        atr_pct = atr_val / last_close * 100
-        # ATR% < 2%→高分, 2-4%→中, >5%→低分
-        if atr_pct < 2:
-            scores["volatility"] = 85
-        elif atr_pct < 4:
-            scores["volatility"] = 65
-        else:
-            scores["volatility"] = 35
-            signals.append(f"ATR占比{atr_pct:.1f}%，波动较大")
-    else:
-        scores["volatility"] = 50
-
-    # 5. RSI因子
-    rsi_val = _rsi(closes, 14)
-    if rsi_val is not None:
-        if 40 <= rsi_val <= 60:
-            scores["rsi"] = 85
-            signals.append(f"RSI={rsi_val:.0f}，中性区")
-        elif 30 <= rsi_val < 40:
-            scores["rsi"] = 75
-            signals.append(f"RSI={rsi_val:.0f}，接近超卖")
-        elif 60 < rsi_val <= 70:
-            scores["rsi"] = 60
-            signals.append(f"RSI={rsi_val:.0f}，偏强")
-        elif rsi_val < 30:
-            scores["rsi"] = 50
-            signals.append(f"RSI={rsi_val:.0f}，超卖反弹机会")
-        else:
-            scores["rsi"] = 30
-            signals.append(f"RSI={rsi_val:.0f}，超买风险")
-    else:
-        scores["rsi"] = 50
-
-    # 加权总分（动态权重：因子 IC 失效自动降权）
-    total = sum(scores.get(k, 50) * w for k, w in get_weights().items())
-
+    extras = {"rsi": rsi_val, "ma20": ma20, "close": last_close}
     return {
-        "total_score": round(total, 1),
-        "factor_scores": {k: round(v, 1) for k, v in scores.items()},
-        "rsi": rsi_val,
+        "total_score": res["total_score"],
+        "factor_scores": res["factor_scores"],
+        "signals": _build_signals(res["factor_scores"], flips, extras, weights),
+        "rsi": round(rsi_val, 1) if rsi_val is not None else None,
         "ma20": round(ma20, 2) if ma20 else None,
         "ma60": round(ma60, 2) if ma60 else None,
         "atr_pct": round(atr_val / last_close * 100, 2) if atr_val and last_close else None,
-        "signals": signals,
+        "coverage": res["coverage"],
+        "raw": {k: (round(x, 4) if isinstance(x, float) else x)
+                for k, x in raws.items() if x is not None},
     }
 
 
 def rank_stocks(codes: list[str] | None = None, top_n: int = 20) -> list[dict]:
     """
     对多只股票评分并排名。
-    codes: 股票代码列表，None则用 backtest_klines.json 中全部
     返回: [{code, name, total_score, factor_scores, signals}, ...] 按分数降序
     """
     path = os.path.join(CACHE_DIR, "backtest_klines.json")
@@ -253,13 +238,21 @@ def rank_stocks(codes: list[str] | None = None, top_n: int = 20) -> list[dict]:
     if codes is None:
         codes = list(stocks.keys())
 
+    # 市场基准只需构造一次（beta / 特异波动因子依赖它）
+    all_kl = {c: s.get("kline", []) for c, s in stocks.items() if s.get("kline")}
+    mkt_ctx = flib.build_market_ctx(all_kl) if all_kl else {}
+
     results = []
     for code in codes:
         stock = stocks.get(code)
         if not stock:
             continue
         klines = stock.get("kline", [])
-        result = score_stock(klines)
+        if len(klines) < 20:
+            continue
+        dates = [str(k[0]) for k in klines[-flib.MAX_LOOKBACK:]]
+        ctx = flib.slice_market_ctx(mkt_ctx, dates)
+        result = score_stock(klines, ctx)
         result["code"] = code
         result["name"] = stock.get("name", code)
         results.append(result)
@@ -269,13 +262,22 @@ def rank_stocks(codes: list[str] | None = None, top_n: int = 20) -> list[dict]:
 
 
 if __name__ == "__main__":
+    st = load_ic_state()
+    print(f"\n权重来源: {st['source']}"
+          + (f"  (IC 更新于 {st['updated_at']})" if st["updated_at"] else ""))
+    if st["flips"]:
+        print("翻转因子:", ", ".join(st["flips"]))
+
     ranking = rank_stocks()
-    print(f"\n=== 多因子选股排名 (Top {len(ranking)}) ===")
-    print(f"{'排名':<4} {'代码':<8} {'名称':<8} {'总分':<6} {'动量':<6} {'量价':<6} {'趋势':<6} {'波动':<6} {'RSI':<6} 信号")
+    names = [n for n in flib.FACTOR_NAMES if any(
+        n in r["factor_scores"] for r in ranking)][:6]
+    header = f"{'排名':<4}{'代码':<10}{'名称':<10}{'总分':>6}" + "".join(
+        f"{n[:9]:>10}" for n in names)
+    print(f"\n=== 多因子选股排名 Top {len(ranking)}（{len(flib.FACTORS)} 因子）===")
+    print(header)
     for i, r in enumerate(ranking, 1):
         fs = r["factor_scores"]
-        sig = "; ".join(r["signals"][:2]) if r["signals"] else ""
-        print(f"{i:<4} {r['code']:<8} {r['name']:<8} {r['total_score']:<6} "
-              f"{fs.get('momentum', 0):<6} {fs.get('vol_price', 0):<6} "
-              f"{fs.get('trend', 0):<6} {fs.get('volatility', 0):<6} "
-              f"{fs.get('rsi', 0):<6} {sig}")
+        row = f"{i:<4}{r['code']:<10}{r['name']:<10}{r['total_score']:>6}"
+        row += "".join(f"{fs.get(n, 0):>10.0f}" for n in names)
+        print(row)
+    print("\n说明：分数为因子 raw 值映射后的 0-100，已对 IC 显著为负的因子翻转。")
