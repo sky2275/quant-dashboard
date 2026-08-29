@@ -972,6 +972,38 @@ CSS_RULES = """
 
 
 # ----------------------------------------------------------------- 工具函数
+# 回测 K 线内联上限（每只保留最近 N 根日K）
+# 2026-08-29：股票池由 43 扩到 297 只后，全量 500 根内联会让 index.html 从 5.2MB 涨到 ~12MB。
+# 截断到 120 根后 BT_KLINES 约 1.9MB，页面约 6.3MB；120 根足够覆盖 MA60 / RSI / 回测区间。
+BT_KLINE_KEEP = 120
+
+
+def _truncate_klines(klines: dict, keep: int = BT_KLINE_KEEP) -> dict:
+    """把 backtest_klines 每只股票的日K裁到最近 keep 根，控制内联体积。
+
+    兼容两种形态：{code: [kline...]} 与 {code: {"kline": [...]}}。
+    任何异常都原样返回，绝不因裁剪失败而中断构建。
+    """
+    if not isinstance(klines, dict):
+        return klines
+    stocks = klines.get("stocks")
+    if not isinstance(stocks, dict):
+        return klines
+    for code, item in stocks.items():
+        try:
+            if isinstance(item, dict):
+                arr = item.get("kline")
+                if isinstance(arr, list) and len(arr) > keep:
+                    item["kline"] = arr[-keep:]
+            elif isinstance(item, list) and len(item) > keep:
+                stocks[code] = item[-keep:]
+        except Exception:
+            continue
+    if isinstance(klines.get("days"), int):
+        klines["days"] = min(klines["days"], keep)
+    return klines
+
+
 def _load_cache(name: str):
     p = os.path.join(feed.CACHE_DIR, f"{name}.json")
     if os.path.exists(p):
@@ -6125,7 +6157,7 @@ def build() -> str:
         "refresh_holdings": _modal_refresh_holdings(),
     }
 
-    klines = _load_cache("backtest_klines") or {"stocks": {}}
+    klines = _truncate_klines(_load_cache("backtest_klines") or {"stocks": {}})
 
     engine_data = _load_cache("backtest_engine_data") or {}
 
