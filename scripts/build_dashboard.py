@@ -8533,7 +8533,58 @@ function stopSectorLeaderRT(){
   })();
 </script>
 '''
-    html = html.replace('</body>', theme_js + UX_ENHANCE + '\n</body>')
+    # ===== RT V3 实时引擎：从独立 JS 文件读取并注入（避免在此巨文件中维护 JS）=====
+    rt_engine = ''
+    try:
+        _rt_path = os.path.join(REPO_ROOT, "scripts", "rt_engine.js")
+        if os.path.exists(_rt_path):
+            with open(_rt_path, encoding="utf-8") as _f:
+                rt_engine = _f.read()
+            _n2c = {}
+            # 1) 持仓（唯一权威源 cache/holdings.json）
+            try:
+                _p = os.path.join(REPO_ROOT, "cache", "holdings.json")
+                if os.path.exists(_p):
+                    with open(_p, encoding="utf-8") as _f:
+                        for _x in (json.load(_f).get("positions") or []):
+                            if _x.get("name") and _x.get("code"):
+                                _n2c[str(_x["name"]).strip()] = str(_x["code"]).strip()
+            except Exception:
+                pass
+            # 2) 自选池（仓库根或 cache 下均可）
+            for _p in (os.path.join(REPO_ROOT, "watchlist.json"),
+                       os.path.join(REPO_ROOT, "cache", "watchlist.json")):
+                try:
+                    if os.path.exists(_p):
+                        with open(_p, encoding="utf-8") as _f:
+                            _w = json.load(_f)
+                        for _x in (_w.get("watch") or []):
+                            if _x.get("name") and _x.get("code"):
+                                _n2c[str(_x["name"]).strip()] = str(_x["code"]).strip()
+                        break
+                except Exception:
+                    pass
+            # 3) 快照中的涨停池 / 热力图
+            try:
+                _p = os.path.join(REPO_ROOT, "cache", "market_snapshot.json")
+                if os.path.exists(_p):
+                    with open(_p, encoding="utf-8") as _f:
+                        _s = json.load(_f)
+                    for _key in ("limit_up", "heatmap"):
+                        for _x in (_s.get(_key) or []):
+                            if _x.get("\u540d\u79f0") and _x.get("\u4ee3\u7801"):
+                                _n2c[str(_x["\u540d\u79f0"]).strip()] = str(_x["\u4ee3\u7801"]).strip()
+            except Exception:
+                pass
+            rt_engine = rt_engine.replace("/*__RT_NAME2CODE__*/{}/**/",
+                                          json.dumps(_n2c, ensure_ascii=False))
+            rt_engine = "<script>\n" + rt_engine + "\n</script>"
+            print("[rt] \u5b9e\u65f6\u5f15\u64ce V3 \u5df2\u6ce8\u5165\uff0c\u540d\u79f0\u2192\u4ee3\u7801\u6620\u5c04 %d \u6761" % len(_n2c))
+    except Exception as _e:
+        print("[warn] rt_engine inject failed:", _e)
+        rt_engine = ''
+
+    html = html.replace('</body>', theme_js + UX_ENHANCE + '\n' + rt_engine + '\n</body>')
 
     out = os.path.join(REPO_ROOT, "index.html")
     with open(out, "w", encoding="utf-8") as f:
