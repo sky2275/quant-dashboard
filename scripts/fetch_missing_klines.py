@@ -33,9 +33,9 @@ def _market_prefix(code):
     """证券代码 → 腾讯 market 前缀。"""
     if code.startswith("6"):
         return "sh"
-    if code.startswith(("302", "920", "8", "4", "43")):
-        return "bj"   # 北交所 / 老三板
-    return "sz"
+    if code.startswith(("8", "4", "43", "92")):
+        return "bj"   # 北交所(8/92) / 老三板(4/43)
+    return "sz"       # 深市主板(0/2) + 创业板(3，含 300/301/302)
 
 
 def fetch_kline(code, retries=3):
