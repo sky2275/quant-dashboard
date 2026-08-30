@@ -57,6 +57,8 @@ WATCHLIST = [
     {"code": "sh688037", "name": "芯源微"},
     {"code": "sz300433", "name": "蓝思科技"},
 ]
+# 注意：WATCHLIST（自选观察池）当前无单一权威源（config/strategy.yaml 只有 attack_pool/sector_mapping），
+# 故保留硬编码；持仓（HOLDINGS）已收敛到 cache/holdings.json，见 _load_holdings_from_json()。
 
 # ── 异动阈值 ──────────────────────────────────────────────
 VOL_RATIO_TH = 2.0     # 量比阈值（放量）
@@ -69,6 +71,40 @@ HIGH20_LOOKBACK = 20   # 突破近N日高点
 def _to_tencent_full(code: str) -> str:
     """sz300223 -> sz300223（腾讯已用完整前缀，直接返回）"""
     return code
+
+
+def _load_holdings_from_json():
+    """从 cache/holdings.json（单一权威源）读持仓，替代硬编码 HOLDINGS。
+    返回 [{code(tcode), name, avg_cost, stop_pct, bucket}, ...]。
+    读取失败或 positions 为空时回退硬编码 HOLDINGS（兜底，保证监控不中断）。"""
+    try:
+        path = os.path.join(CACHE, "holdings.json")
+        if not os.path.exists(path):
+            return HOLDINGS
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        positions = data.get("positions") or []
+        out = []
+        for p in positions:
+            if not isinstance(p, dict):
+                continue
+            tcode = p.get("tcode")
+            if not tcode:
+                code = str(p.get("code") or "")
+                if not code:
+                    continue
+                tcode = ("sh" if code.startswith(("6", "9")) else "sz") + code
+            out.append({
+                "code": tcode,
+                "name": p.get("name") or tcode,
+                "avg_cost": p.get("avg_cost"),
+                "stop_pct": p.get("stop", 0.10),
+                "bucket": p.get("bucket", "mid"),
+            })
+        return out if out else HOLDINGS
+    except Exception as e:
+        print(f"[monitor] 读 holdings.json 失败，回退硬编码持仓: {e}")
+        return HOLDINGS
 
 
 def enhanced_quotes(codes):
@@ -169,12 +205,13 @@ def detect(stock, q, high20, is_holding):
 
 def run_once():
     """单次扫描：拉行情 → 检测 → 写事件"""
-    stocks = HOLDINGS + WATCHLIST
+    holdings = _load_holdings_from_json()  # 持仓收敛到 holdings.json 单一权威源
+    stocks = holdings + WATCHLIST
     codes = list(dict.fromkeys(s["code"] for s in stocks))
     q = enhanced_quotes(codes)
     high20 = _kline_high20(codes)
 
-    holding_codes = {s["code"] for s in HOLDINGS}
+    holding_codes = {s["code"] for s in holdings}
     events = []
     for s in stocks:
         code = s["code"]
