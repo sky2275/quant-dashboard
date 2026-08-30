@@ -201,11 +201,55 @@ def _aggregate(rows, m, account):
     return out
 
 
+def _extract_trades(rows, m, account):
+    """提取每一笔买卖的原始记录（含已清仓股），用于历史交易回测。
+
+    与 _aggregate 不同：这里不聚合成当前持仓，而是保留逐笔 buy/sell
+    的日期/代码/方向/数量/价格/金额/费用，输出到 cache/trades_history.json。
+    """
+    trades = []
+    for r in rows:
+        code = str(r.get(m.get("code"), "") or "").strip()
+        name = str(r.get(m.get("name"), "") or "").strip()
+        if not code and not name:
+            continue
+        side = _side(r, m)
+        if side not in ("buy", "sell"):
+            continue
+        qty = abs(_num(r.get(m.get("qty"))))
+        if qty <= 0:
+            continue
+        price = _num(r.get(m.get("price")))
+        if price == 0:
+            amt = _num(r.get(m.get("amount")))
+            if amt > 0:
+                price = amt / qty
+        amt = _num(r.get(m.get("amount")))
+        if amt <= 0:
+            amt = price * qty
+        fee = _fees(r, m)
+        dt = _parse_date(r.get(m.get("date")))
+        trades.append({
+            "date": dt.strftime("%Y-%m-%d") if dt else "",
+            "code": code,
+            "name": name,
+            "account": account,
+            "side": side,           # buy / sell
+            "qty": int(round(qty)),
+            "price": round(price, 4),
+            "amount": round(amt, 2),
+            "fees": round(fee, 2),
+        })
+    trades.sort(key=lambda t: (t["date"], t["code"], t["side"]))
+    return trades
+
+
 def build():
     maps = _load_maps()
     brokers = maps.get("brokers") or {}
     accounts = {}
     positions = []
+    all_trades = []
     found_any = False
     for acc, m in brokers.items():
         d = os.path.join(STATEMENT_DIR, acc)
@@ -227,8 +271,10 @@ def build():
                 rows += r
         if rows:
             acc_pos = _aggregate(rows, m, acc)
+            acc_trades = _extract_trades(rows, m, acc)
             accounts[acc] = acc_pos
             positions += acc_pos
+            all_trades += acc_trades
     # 未检测到任何交割单文件（如云端仓库未含原始文件）：保留现有 holdings.json，避免清空
     if not found_any:
         existing = os.path.join(CACHE_DIR, "holdings.json")
@@ -246,6 +292,26 @@ def build():
     out_path = os.path.join(CACHE_DIR, "holdings.json")
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
+
+    # 逐笔买卖点历史（含已清仓股）→ cache/trades_history.json，供历史交易回测
+    trades_result = {
+        "source": "broker_statements",
+        "updated_at": _bj_now().strftime("%Y-%m-%d %H:%M:%S"),
+        "account_labels": ACCOUNT_LABELS,
+        "trades": all_trades,
+        "summary": {
+            "total_trades": len(all_trades),
+            "buy_count": sum(1 for t in all_trades if t["side"] == "buy"),
+            "sell_count": sum(1 for t in all_trades if t["side"] == "sell"),
+            "distinct_codes": sorted({t["code"] for t in all_trades if t["code"]}),
+        },
+    }
+    trades_path = os.path.join(CACHE_DIR, "trades_history.json")
+    with open(trades_path, "w", encoding="utf-8") as f:
+        json.dump(trades_result, f, ensure_ascii=False, indent=2)
+    print(f"[ingest] 逐笔买卖点 {len(all_trades)} 笔（买 {trades_result['summary']['buy_count']} / "
+          f"卖 {trades_result['summary']['sell_count']}），写入 {trades_path}")
+
     print(f"[ingest] 合并持仓 {len(positions)} 只 "
           f"（银河 {len(accounts.get('galaxy', []))} / 东财 {len(accounts.get('eastmoney', []))}），"
           f"写入 {out_path}")
