@@ -1,7 +1,7 @@
 {
- "source": "三券商实盘_2026-08-20 + 8/24收盘价同步",
- "updated_at": "2026-08-24 15:30:00",
- "note": "8/24收盘更新：持仓全线承压(创业板-3.21%/科创50-3.10%)，仅北大荒+2.00%红盘。征和-6.41%/国瓷-5.54%/风华-5.05%领跌。",
+ "source": "三券商实盘_2026-08-28",
+ "updated_at": "2026-08-28 15:30:00",
+ "note": "8/28收盘：持仓大调仓——清仓国瓷材料/风华高科/北大荒，新建仓高澜股份/数字认证/亨通光电；通富微电逆势抗跌+0.03%红盘，君正/亨通高开低走领跌。当日三账户合计-10455元。",
  "account_labels": {
   "yinheng": "银河证券",
   "eastmoney": "东方财富证券",
@@ -9,16 +9,16 @@
  },
  "account_pnl": {
   "yinheng": {
-   "today": -150.0,
-   "total": null
+   "today": 200.0,
+   "total": 1975.5
   },
   "eastmoney": {
-   "today": 1040.0,
-   "total": -3162.4
+   "today": -7462.34,
+   "total": -7462.34
   },
   "csc": {
-   "today": -4608.0,
-   "total": null
+   "today": -3193.0,
+   "total": 13324.67
   }
  },
  "positions": [
@@ -26,254 +26,114 @@
    "code": "002156",
    "name": "通富微电",
    "account": "yinheng",
-   "quantity": 700,
-   "avg_cost": 59.805,
-   "price": 61.24,
-   "chg": -4.13,
+   "quantity": 300,
+   "avg_cost": 57.165,
+   "price": 63.75,
+   "chg": 0.03,
    "bucket": "short",
    "stop": 0.08,
    "tcode": "sz002156",
-   "pnl": {
-    "total": 1004.5,
-    "pct": 2.4,
-    "price": 61.24
-   }
+   "pnl": {"total": 1975.5, "pct": 11.52, "price": 63.75}
   },
   {
    "code": "300223",
-   "name": "北京君正",
+   "name": "君正股份",
    "account": "eastmoney",
-   "quantity": 1500,
-   "avg_cost": 138.48,
-   "price": 133.66,
-   "chg": -3.48,
+   "quantity": 1100,
+   "avg_cost": 142.484,
+   "price": 135.7,
+   "chg": -3.4,
    "bucket": "mid",
    "stop": 0.1,
    "tcode": "sz300223",
-   "pnl": {
-    "total": -7230.0,
-    "pct": -3.48,
-    "price": 133.66
-   }
-  },
-  {
-   "code": "300285",
-   "name": "国瓷材料",
-   "account": "csc",
-   "quantity": 1500,
-   "avg_cost": 75.379,
-   "price": 64.1,
-   "chg": -5.54,
-   "bucket": "long",
-   "stop": 0.15,
-   "tcode": "sz300285",
-   "pnl": {
-    "total": -16918.5,
-    "pct": -14.96,
-    "price": 64.1
-   }
+   "pnl": {"total": -7462.34, "pct": -4.76, "price": 135.7}
   },
   {
    "code": "300223",
-   "name": "北京君正",
+   "name": "君正股份",
    "account": "csc",
-   "quantity": 600,
-   "avg_cost": 134.265,
-   "price": 133.66,
-   "chg": -3.48,
+   "quantity": 700,
+   "avg_cost": 132.354,
+   "price": 135.7,
+   "chg": -3.4,
    "bucket": "mid",
    "stop": 0.1,
    "tcode": "sz300223",
-   "pnl": {
-    "total": -363.0,
-    "pct": -0.45,
-    "price": 133.66
-   }
+   "pnl": {"total": 2341.93, "pct": 2.53, "price": 135.7}
   },
   {
    "code": "003033",
    "name": "征和工业",
    "account": "csc",
    "quantity": 500,
-   "avg_cost": 58.241,
-   "price": 64.58,
-   "chg": -6.41,
+   "avg_cost": 56.274,
+   "price": 68.37,
+   "chg": -0.88,
    "bucket": "short",
    "stop": 0.08,
    "tcode": "sz003033",
-   "pnl": {
-    "total": 3169.5,
-    "pct": 10.88,
-    "price": 64.58
-   }
+   "pnl": {"total": 6046.08, "pct": 21.5, "price": 68.37}
   },
   {
-   "code": "000636",
-   "name": "风华高科",
+   "code": "300499",
+   "name": "高澜股份",
    "account": "csc",
-   "quantity": 1500,
-   "avg_cost": 62.427,
-   "price": 51.91,
-   "chg": -5.05,
-   "bucket": "long",
-   "stop": 0.15,
-   "tcode": "sz000636",
-   "pnl": {
-    "total": -15775.5,
-    "pct": -16.85,
-    "price": 51.91
-   }
+   "quantity": 300,
+   "avg_cost": 26.467,
+   "price": 30.92,
+   "chg": -1.84,
+   "bucket": "short",
+   "stop": 0.08,
+   "tcode": "sz300499",
+   "pnl": {"total": 1335.83, "pct": 16.82, "price": 30.92}
   },
   {
-   "code": "600598",
-   "name": "北大荒",
+   "code": "300579",
+   "name": "数字认证",
    "account": "csc",
    "quantity": 1000,
-   "avg_cost": 13.249,
-   "price": 12.77,
-   "chg": 2.0,
+   "avg_cost": 22.612,
+   "price": 23.12,
+   "chg": 0.0,
+   "bucket": "short",
+   "stop": 0.08,
+   "tcode": "sz300579",
+   "pnl": {"total": 508.37, "pct": 2.25, "price": 23.12}
+  },
+  {
+   "code": "600487",
+   "name": "亨通光电",
+   "account": "csc",
+   "quantity": 500,
+   "avg_cost": 62.515,
+   "price": 68.7,
+   "chg": -3.65,
    "bucket": "mid",
    "stop": 0.1,
-   "tcode": "sh600598",
-   "pnl": {
-    "total": -479.0,
-    "pct": -3.62,
-    "price": 12.77
-   }
+   "tcode": "sh600487",
+   "pnl": {"total": 3092.46, "pct": 9.89, "price": 68.7}
   }
  ],
  "accounts": {
   "yinheng": [
-   {
-    "code": "002156",
-    "name": "通富微电",
-    "account": "yinheng",
-    "quantity": 700,
-    "avg_cost": 59.805,
-    "price": 61.24,
-    "chg": -4.13,
-    "bucket": "short",
-    "stop": 0.08,
-    "tcode": "sz002156",
-    "pnl": {
-     "total": 1004.5,
-     "pct": 2.4,
-     "price": 61.24
-    }
-   }
+   {"code": "002156", "name": "通富微电", "account": "yinheng", "quantity": 300, "avg_cost": 57.165, "price": 63.75, "chg": 0.03, "bucket": "short", "stop": 0.08, "tcode": "sz002156", "pnl": {"total": 1975.5, "pct": 11.52, "price": 63.75}}
   ],
   "eastmoney": [
-   {
-    "code": "300223",
-    "name": "北京君正",
-    "account": "eastmoney",
-    "quantity": 1500,
-    "avg_cost": 138.48,
-    "price": 133.66,
-    "chg": -3.48,
-    "bucket": "mid",
-    "stop": 0.1,
-    "tcode": "sz300223",
-    "pnl": {
-     "total": -7230.0,
-     "pct": -3.48,
-     "price": 133.66
-    }
-   }
+   {"code": "300223", "name": "君正股份", "account": "eastmoney", "quantity": 1100, "avg_cost": 142.484, "price": 135.7, "chg": -3.4, "bucket": "mid", "stop": 0.1, "tcode": "sz300223", "pnl": {"total": -7462.34, "pct": -4.76, "price": 135.7}}
   ],
   "csc": [
-   {
-    "code": "300285",
-    "name": "国瓷材料",
-    "account": "csc",
-    "quantity": 1500,
-    "avg_cost": 75.379,
-    "price": 64.1,
-    "chg": -5.54,
-    "bucket": "long",
-    "stop": 0.15,
-    "tcode": "sz300285",
-    "pnl": {
-     "total": -16918.5,
-     "pct": -14.96,
-     "price": 64.1
-    }
-   },
-   {
-    "code": "300223",
-    "name": "北京君正",
-    "account": "csc",
-    "quantity": 600,
-    "avg_cost": 134.265,
-    "price": 133.66,
-    "chg": -3.48,
-    "bucket": "mid",
-    "stop": 0.1,
-    "tcode": "sz300223",
-    "pnl": {
-     "total": -363.0,
-     "pct": -0.45,
-     "price": 133.66
-    }
-   },
-   {
-    "code": "003033",
-    "name": "征和工业",
-    "account": "csc",
-    "quantity": 500,
-    "avg_cost": 58.241,
-    "price": 64.58,
-    "chg": -6.41,
-    "bucket": "short",
-    "stop": 0.08,
-    "tcode": "sz003033",
-    "pnl": {
-     "total": 3169.5,
-     "pct": 10.88,
-     "price": 64.58
-    }
-   },
-   {
-    "code": "000636",
-    "name": "风华高科",
-    "account": "csc",
-    "quantity": 1500,
-    "avg_cost": 62.427,
-    "price": 51.91,
-    "chg": -5.05,
-    "bucket": "long",
-    "stop": 0.15,
-    "tcode": "sz000636",
-    "pnl": {
-     "total": -15775.5,
-     "pct": -16.85,
-     "price": 51.91
-    }
-   },
-   {
-    "code": "600598",
-    "name": "北大荒",
-    "account": "csc",
-    "quantity": 1000,
-    "avg_cost": 13.249,
-    "price": 12.77,
-    "chg": 2.0,
-    "bucket": "mid",
-    "stop": 0.1,
-    "tcode": "sh600598",
-    "pnl": {
-     "total": -479.0,
-     "pct": -3.62,
-     "price": 12.77
-    }
-   }
+   {"code": "300223", "name": "君正股份", "account": "csc", "quantity": 700, "avg_cost": 132.354, "price": 135.7, "chg": -3.4, "bucket": "mid", "stop": 0.1, "tcode": "sz300223", "pnl": {"total": 2341.93, "pct": 2.53, "price": 135.7}},
+   {"code": "003033", "name": "征和工业", "account": "csc", "quantity": 500, "avg_cost": 56.274, "price": 68.37, "chg": -0.88, "bucket": "short", "stop": 0.08, "tcode": "sz003033", "pnl": {"total": 6046.08, "pct": 21.5, "price": 68.37}},
+   {"code": "300499", "name": "高澜股份", "account": "csc", "quantity": 300, "avg_cost": 26.467, "price": 30.92, "chg": -1.84, "bucket": "short", "stop": 0.08, "tcode": "sz300499", "pnl": {"total": 1335.83, "pct": 16.82, "price": 30.92}},
+   {"code": "300579", "name": "数字认证", "account": "csc", "quantity": 1000, "avg_cost": 22.612, "price": 23.12, "chg": 0.0, "bucket": "short", "stop": 0.08, "tcode": "sz300579", "pnl": {"total": 508.37, "pct": 2.25, "price": 23.12}},
+   {"code": "600487", "name": "亨通光电", "account": "csc", "quantity": 500, "avg_cost": 62.515, "price": 68.7, "chg": -3.65, "bucket": "mid", "stop": 0.1, "tcode": "sh600487", "pnl": {"total": 3092.46, "pct": 9.89, "price": 68.7}}
   ]
  },
  "summary": {
-  "total_stocks": 7,
-  "total_quantity": 7300,
-  "total_market_value": 542629,
-  "win_count": 2,
-  "lose_count": 5
+  "total_stocks": 6,
+  "total_quantity": 4300,
+  "total_market_value": 364316,
+  "win_count": 5,
+  "lose_count": 1
  }
 }

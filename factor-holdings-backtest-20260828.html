@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="O6bAGPNQR8wHTySypfcCh5">
+<head data-page-node-id="OcZEdGA6ryOXejwGnmZA1q">
+<meta charset="UTF-8" data-page-node-id="GzBKMgaY4pL6y7AA7wTnzA">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="cFcOfVYk2AKarf57U6ppHd">
+<title>持仓因子回测报告 · 2026-08-28</title>
+<script src="./assets/lib/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #f4f6f9;
+    --card: #ffffff;
+    --ink: #1a1d29;
+    --sub: #6b7280;
+    --line: #e5e7eb;
+    --red: #e03131;      /* 强/看多/涨 */
+    --red-soft: #fdeaea;
+    --green: #00a67d;    /* 弱/看空/跌 */
+    --green-soft: #e5f6f0;
+    --orange: #ffa502;   /* 中性/警戒 */
+    --orange-soft: #fff4e0;
+    --blue: #4dabf7;
+    --purple: #9775fa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    line-height: 1.6;
+    padding: 24px 16px 48px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  .head { margin-bottom: 20px; }
+  .head h1 { font-size: 26px; font-weight: 700; letter-spacing: .5px; }
+  .head .sub { color: var(--sub); font-size: 13px; margin-top: 6px; }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .tag-asof { background: var(--ink); color: #fff; margin-right: 6px; }
+  .tag-weak { background: var(--green-soft); color: var(--green); }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .kpi .k { font-size: 12px; color: var(--sub); margin-bottom: 6px; }
+  .kpi .v { font-size: 26px; font-weight: 700; line-height: 1.1; }
+  .kpi .d { font-size: 12px; color: var(--sub); margin-top: 6px; }
+  .v.red { color: var(--red); } .v.green { color: var(--green); } .v.orange { color: var(--orange); }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; margin-bottom: 22px; }
+  .card h2 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .card .desc { font-size: 12.5px; color: var(--sub); margin-bottom: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 9px 10px; text-align: center; border-bottom: 1px solid var(--line); }
+  th { background: #fafbfc; color: var(--sub); font-weight: 600; font-size: 12px; white-space: nowrap; }
+  td.left, th.left { text-align: left; }
+  .code { color: var(--sub); font-size: 12px; }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .pill.q1 { background: var(--red-soft); color: var(--red); }
+  .pill.q3 { background: var(--orange-soft); color: #c77d00; }
+  .pill.q4 { background: #f0edff; color: var(--purple); }
+  .pill.q5 { background: var(--green-soft); color: var(--green); }
+  .bar { height: 6px; background: #eef0f3; border-radius: 999px; overflow: hidden; min-width: 90px; }
+  .bar i { display: block; height: 100%; border-radius: 999px; }
+
+  /* 热力表 */
+  .hm td.cell { padding: 3px 2px; }
+  .hm .cv { display: block; border-radius: 4px; padding: 4px 0; font-variant-numeric: tabular-nums; }
+  .hm th { white-space: nowrap; font-size: 11.5px; }
+  .c-0 { background:#f2f4f7; color:#9aa1ad; }  /* 无数据 */
+  .c-l { background:#d9f3ec; color:#007a5e; }   /* <35 弱 */
+  .c-ml { background:#e8f1f8; color:#3b7db3; }  /* 35-45 偏弱 */
+  .c-md { background:#f1f2f4; color:#6b7280; }  /* 45-55 中性 */
+  .c-mh { background:#fff0e0; color:#c77d00; }  /* 55-65 偏强 */
+  .c-h { background:#fde4e4; color:#c02424; }   /* >=65 强 */
+
+  #rankChart { width: 100%; height: 420px; }
+
+  .cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .sc { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .sc .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .sc .nm { font-size: 15px; font-weight: 700; }
+  .sc .meta { font-size: 12px; color: var(--sub); }
+  .sc ul { list-style: none; margin-top: 6px; }
+  .sc li { font-size: 12.5px; padding: 3px 0; color: #374151; }
+  .sc li b { font-weight: 700; }
+  .up { color: var(--red); } .dn { color: var(--green); } .nt { color: var(--orange); }
+
+  .note { font-size: 12px; color: var(--sub); background: #fafbfc; border-left: 3px solid var(--line); padding: 10px 12px; border-radius: 6px; margin-top: 10px; }
+  .foot { font-size: 12px; color: var(--sub); text-align: center; margin-top: 24px; }
+  .disc { font-size: 12px; color: #6b7280; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-top: 18px; }
+
+  @media (max-width: 720px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .cards-grid { grid-template-columns: 1fr; }
+    #rankChart { height: 320px; }
+    .hm-wrap { overflow-x: auto; }
+  }
+</style>
+</head>
+<body data-page-node-id="dgeDUFFOkDKf8tjcyl2cxC">
+<div class="wrap" data-page-node-id="kNtBvoPoA8h9RF3PkXyJ4x">
+
+  <div class="head" data-page-node-id="AjpScz8GMKZwvSXoMyOBHP">
+    <h1 data-page-node-id="V5zblCnrPaMgK7GPJLar8m">持仓因子回测报告</h1>
+    <div class="sub" data-page-node-id="xKw9SGg0fNXyUBWqHL1Xc7">
+      把 6 只实际持仓股接入 28 因子体系，在全市场 299 只池中做横截面评分与滚动分层回测
+      <span class="tag tag-asof" data-page-node-id="LJm1FS2Vx4UfS3vyJzWVwH">数据截至 2026-08-28 收盘</span>
+      <span class="tag tag-weak" data-page-node-id="5BIfuFZO1Lwd2cVHElR9sf">持仓组合整体偏弱</span>
+    </div>
+  </div>
+
+  <!-- KPI 结论卡 -->
+  <div class="kpi-grid" data-page-node-id="tTEmKSXggd0uAVXOB652YZ">
+    <div class="kpi" data-page-node-id="RQBJbbR2WuCB5NLG3V29SG">
+      <div class="k" data-page-node-id="xbrWHLFHSBTUQ3dNCc59EO">持仓组合平均分位</div>
+      <div class="v green" data-page-node-id="YpIstO69szw6mLDhNNO7n5">37.9%</div>
+      <div class="d" data-page-node-id="D6no0UrHtQ0w7XVaz1sw6X">低于池中位数 50%，整体偏弱</div>
+    </div>
+    <div class="kpi" data-page-node-id="dDOvfDzTbnWNxdxpFv1gxm">
+      <div class="k" data-page-node-id="tUGeep61I4sPxWHnPvMuhy">组合平均综合分</div>
+      <div class="v" data-page-node-id="Q8J5gCzdGwWDAAYv6bO0Ow">45.3</div>
+      <div class="d" data-page-node-id="5dVENHgxlOd96Yp3vLxqHg">满分 100，中性线 50</div>
+    </div>
+    <div class="kpi" data-page-node-id="GHthTmEn7HGJfCOSCbYSWB">
+      <div class="k" data-page-node-id="DECtWdSEQMQGkySSxBr3Pv">强弱分布（6 只）</div>
+      <div class="v orange" data-page-node-id="COAECy1aCXMJBIvlWF5ReK">1 强 · 2 中 · 3 弱</div>
+      <div class="d" data-page-node-id="ossVlS6vzLK8blnVLjDuJC">Q1×1 / Q3×2 / Q4×1 / Q5×2</div>
+    </div>
+    <div class="kpi" data-page-node-id="dihr0GtMd9jkN0yJkyEq2d">
+      <div class="k" data-page-node-id="ccpZCfZJpqjcFSfUgmBW4K">回测池规模</div>
+      <div class="v" data-page-node-id="Sp1yEA3tdBKQXJytQvp1RK">299 只</div>
+      <div class="d" data-page-node-id="XZGPNZOk4r8ikROnWcl6vz">297 只池 + 补齐 2 只新建仓</div>
+    </div>
+  </div>
+
+  <!-- 持仓评分排名表 -->
+  <div class="card" data-page-node-id="jufottvKUCLfGIFJlVLftT">
+    <h2 data-page-node-id="PLVehjqbcSt1y2wKjYhm8n">持仓股 · 因子评分排名</h2>
+    <div class="desc" data-page-node-id="QkplLz4HhfhO8whaOoVJ2P">综合评分 = 28 因子加权（大类内等权→大类间分配，IC 动态权重 + 反向因子翻转）。分位 = 在 299 只池中的相对位置，越高越强。</div>
+    <table data-page-node-id="9Rn7PofRxOj2uHeAcBD1CC">
+      <thead data-page-node-id="1DFAzGHtNdUn45xFtbIZUC">
+        <tr data-page-node-id="TY2kNB7wvXiopAlbCLOcdz">
+          <th class="left" data-page-node-id="4FszFqf6LnmvK4asz9Wnus">持仓</th><th data-page-node-id="dbvQcTFzTCF826bfInaFgH">代码</th><th data-page-node-id="PZMTE7nalXMBsX42x96ktS">综合分</th><th data-page-node-id="9aRSOfjyBkt9f7sO6dUqP4">池内排名</th><th data-page-node-id="FE6hqf6kH4aecZIt2gqg6Y">分位</th><th data-page-node-id="NJoJfMg9p6f7fpPtmGSyL0">分位条</th><th data-page-node-id="pH4RVPUeM4nxnJ88T0QW6G">档位</th>
+        </tr>
+      </thead>
+      <tbody id="rankBody" data-page-node-id="KvCMpnUwpeHwsXGtcNRm5w"></tbody>
+    </table>
+    <div class="note" data-page-node-id="KqzsMjNOfNziT4OYp32mEC">分位条颜色：<span style="color:var(--red)" data-page-node-id="0iDNSYpNMB0DV3D4JtpJSy">■ 强（≥60%）</span> · <span style="color:var(--orange)" data-page-node-id="Z4wmkKnSz3HNMqkkHCH7of">■ 中性（40-60%）</span> · <span style="color:var(--green)" data-page-node-id="MRzu8yfW9GfHrYdKwW54CF">■ 弱（&lt;40%）</span>。排名 / 分位基于 2026-08-28 最新截面。</div>
+  </div>
+
+  <!-- 关键因子热力表 -->
+  <div class="card hm-wrap" data-page-node-id="AkMtYGnnssesCdIQNOZVpD">
+    <h2 data-page-node-id="gApSr8TLFzYGEfgGqGgVKR">关键因子明细（热力表）</h2>
+    <div class="desc" data-page-node-id="DQq7UuHWfDWEitEKEk8iYz">每格为因子 0-100 分（已应用反向翻转，越高越看多）。「—」= 该股资金流/基本面历史数据未覆盖（高澜、数字认证为 8/28 新建仓，仅量价因子参与评分）。</div>
+    <table class="hm" data-page-node-id="1Y4n35HK5ZFeGYeeCQL45j">
+      <thead data-page-node-id="wXKRaOiDuU5GBDnfibb93a">
+        <tr data-page-node-id="Ed1OrYPnkDODZzZDFdre3S"><th class="left" data-page-node-id="PheMGc0eCzyuHP0FkYLRAz">持仓</th><th data-page-node-id="zpeYiw1VE8DIZVa1DupZ5V">120→20日<br data-page-node-id="xDdugHgaAU2tJhAafl652X">动量</th><th data-page-node-id="1wLI6nKGqQpBtXCHdqM4UI">MA60<br data-page-node-id="TWp0BXoDZuemBFpdCQuLu8">斜率</th><th data-page-node-id="6MlHPfqHSLEOUoNHuXXIUH">MACD<br data-page-node-id="gq9jlRzDboP2Cqg8MNfCjq">柱</th><th data-page-node-id="Qu5LDj3iM89364ZBiom8LS">短期<br data-page-node-id="usbH4ZDhbmb7yXGyHwIsRe">反转</th><th data-page-node-id="CYA72Cm14zUBetweD6aIUf">20日涨幅<br data-page-node-id="VmRWNaR7dWvU4RBm7MqNSi">(反转)</th><th data-page-node-id="fSiTpFoYcioNGmV2mbeTml">均线乖离<br data-page-node-id="AdHKw8VEQq553oPyMNin4G">(反转)</th><th data-page-node-id="xUBFsC6Je0Npm0aF6Cw8Zc">主力净流入<br data-page-node-id="WB6lGHI9qY2ZT7uYYGHmRe">占比</th><th data-page-node-id="sNPh0oMJJpo0tQ0SU3TJDZ">净利<br data-page-node-id="72F9gZipHpEL1zFKKjFFwX">同比</th><th data-page-node-id="rUFovsamzLoeQqHbgfde1g">ROE</th></tr>
+      </thead>
+      <tbody id="hmBody" data-page-node-id="WLaLERCoQPS7FZ857HYB2t"></tbody>
+    </table>
+    <div class="note" data-page-node-id="WlQzECgj0MluCD5KA1pfMy">热力色阶：<span class="c-h" style="padding:2px 6px;border-radius:4px" data-page-node-id="6P0kDjiMtCeyf14hgXUwp8">≥65 强</span> <span class="c-mh" style="padding:2px 6px;border-radius:4px" data-page-node-id="PTF4lSCWdisn2lHv8F0n1Z">55-65</span> <span class="c-md" style="padding:2px 6px;border-radius:4px" data-page-node-id="0scTXCV5OV59ekXuRvzlIy">45-55</span> <span class="c-ml" style="padding:2px 6px;border-radius:4px" data-page-node-id="lISAiB2IQueerA7DpViAib">35-45</span> <span class="c-l" style="padding:2px 6px;border-radius:4px" data-page-node-id="8lQ0Vx4wM2r21moMpuEhQT">&lt;35 弱</span>。红=看多，绿=看空。</div>
+  </div>
+
+  <!-- 历史分位走势 -->
+  <div class="card" data-page-node-id="glH67k2u71yHV396XZmhB8">
+    <h2 data-page-node-id="rBJkFdCcqtMkxjRd0OOF7l">历史排名分位走势（滚动无前视）</h2>
+    <div class="desc" data-page-node-id="FzmKBkBPMWrTbKCAKkLQ4h">当前因子体系回看每只持仓过去 19 个截面在池中的分位。虚线 50% = 池中位数；分位剧烈波动说明单一持仓的因子强弱随行情快速切换，不宜静态判断。</div>
+    <div id="rankChart" data-page-node-id="4jy690BLdLiEwGPcy5q9pm"></div>
+  </div>
+
+  <!-- 全池回测对照 -->
+  <div class="card" data-page-node-id="G5EG1PaJjMPUWnNLD63Lr7">
+    <h2 data-page-node-id="jgxRAINgvSMRW0JuHHkPL4">全池滚动分层回测对照（背景参照）</h2>
+    <div class="desc" data-page-node-id="aAng4jFSMR7s8aMY4SMgRx">297 只池 × 前瞻 5 日 × 步长 20，共 16 期。Q1=评分最高组，Q5=最低组。此表回答「因子体系本身在全市场有没有选股能力」——它是持仓体检的参照系。</div>
+    <table data-page-node-id="eNKqPJOUQSwBhCb3tK6RE2">
+      <thead data-page-node-id="OAimAvDnTn7mtlBxsTCTxT"><tr data-page-node-id="Ppt0U33KspaNUCCHlgmhQW"><th class="left" data-page-node-id="fpKV83ViODyP3YRckVazgA">组别</th><th data-page-node-id="AyakJ93lb0msCTtaJsZvRQ">A 新体系(28因子)</th><th data-page-node-id="ISWZ78Dj3mR1IlSMQMbcoo">B 旧体系(5因子)</th></tr></thead>
+      <tbody data-page-node-id="8QxEgghg30j9QE1Sw8De32">
+        <tr data-page-node-id="9CEeZR3XocnZsIPGRZ0pBa"><td class="left" data-page-node-id="6fbkHZvOKCQBWW77KKHoDy">Q1 最高分组</td><td data-page-node-id="V3qk9CQVw26GgmpulF2Ebx">+0.90%</td><td data-page-node-id="uWSaKtBH27Z7YGs7voWct6">+0.66%</td></tr>
+        <tr data-page-node-id="3NrSG5toiX80J3JoRrLUIY"><td class="left" data-page-node-id="Lxt3IjKHzV5vJvpsAIrBHK">Q2</td><td data-page-node-id="9Xn60gnHV1q4FAIR3Yo6qK">+0.46%</td><td data-page-node-id="aJR0wSebk4s4kbZ1lGFVeh">+0.47%</td></tr>
+        <tr data-page-node-id="0IWEO6VcbPZEqwAYx6OH98"><td class="left" data-page-node-id="43Owwh4xWaVZFf4CUXflrB">Q3</td><td data-page-node-id="y5x9aLmLWzhsVLsjesvzVG">+0.28%</td><td data-page-node-id="ddBrdDcMDMm6pf50STUg5v">+0.38%</td></tr>
+        <tr data-page-node-id="2D9RQEXmUwZSvWTGH9wP5e"><td class="left" data-page-node-id="hOxFRUXqwU6n3pyltyQRxZ">Q4</td><td data-page-node-id="vSe6txFsqzqabiCaXPr477">+0.66%</td><td data-page-node-id="vvpzm77K2aFiy4mEBzcKuw">+0.93%</td></tr>
+        <tr data-page-node-id="0dGGhnEFCubqAIQq6vaNAc"><td class="left" data-page-node-id="j4A3l4P5rrasChxIREltwO">Q5 最低分组</td><td data-page-node-id="msJGSEBBTRj9sTyPXKzjrQ">+1.04%</td><td data-page-node-id="4nYFBXsTfc3xqcaaukKcMi">+0.91%</td></tr>
+        <tr data-page-node-id="uZKkZmVB4ix7qWC6dG0mCM"><td class="left" data-page-node-id="rholllck0pEvGPncc1pONI"><b data-page-node-id="ZcKokwJKM5TmqGryx5RwYU">多空 Q1−Q5</b></td><td data-page-node-id="WuA9Fk4aWPWAuwwAqtaVkQ"><b style="color:var(--green)" data-page-node-id="FsEZQePTuzQgZcXectBFcE">−0.15%</b></td><td data-page-node-id="LgoljLT36YouO8kXLsEuO7"><b style="color:var(--green)" data-page-node-id="cVixmG7o7341InLy810xpA">−0.26%</b></td></tr>
+        <tr data-page-node-id="wLEWzRsRWL6AX6PsEYTZMa"><td class="left" data-page-node-id="raBbWxgptcT1AR8zBDLouP">多空 IR / 胜率</td><td data-page-node-id="e0HUaavkWbWsfHBaLXxBvM">−0.05 / 50%</td><td data-page-node-id="uXqCoOE4NleznGUMwjDlt6">−0.07 / 63%</td></tr>
+        <tr data-page-node-id="9myKmksIZs4EiV1cuDL7CA"><td class="left" data-page-node-id="6QsfyL4gA3JCnygXJeBME4">全市场等权（C 基准）</td><td colspan="2" data-page-node-id="nvbuOwXTxu5HnKiZDt1O3Q"><b style="color:var(--red)" data-page-node-id="OWNq26AoyWZ1vbwWDDsUUp">+0.67%</b></td></tr>
+      </tbody>
+    </table>
+    <div class="note" data-page-node-id="zce3dYs6woWxYOFSfN9xQr">⚠️ 全池 28 因子全用时分层多空为负（IR −0.05）——这与既往结论一致：无效因子是稀释信号。有效能力来自「双验证子集」（量价+资金流+基本面三维，IR 0.52），本报告持仓评分采用的就是按 IC 动态收缩后的权重（弱因子已压至近 0）。</div>
+  </div>
+
+  <!-- 逐只诊断 -->
+  <div class="card" data-page-node-id="zjmjf7SanvV5jMYAez6z4J">
+    <h2 data-page-node-id="nrH4fG3mdiM261359cCgd9">逐只诊断</h2>
+    <div class="desc" data-page-node-id="cnGbfFhJozPUZdgEjT3in8">按因子证据提炼每只持仓的核心信号与风险点。</div>
+    <div class="cards-grid" id="diagGrid" data-page-node-id="LwtkDFnJJTEfuCmBIW7hT6"></div>
+  </div>
+
+  <div class="disc" data-page-node-id="eEXg3KF37zuKCBn8cSQOxy">
+    <b data-page-node-id="EwILaeUbU0uXISvjZBAlf8">免责声明</b>：以上内容基于公开数据和量化分析，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况和投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。
+  </div>
+
+  <div class="foot" data-page-node-id="NuZHt3QOG72VaCvvtLYb8P">数据源：腾讯行情前复权日K + cache/holdings.json 三券商实盘 + factor_ic.json 生效权重 · 因子引擎 factor_lib.py v2 · 生成时间 2026-08-30</div>
+</div>
+
+<script>
+/* ===== 数据 ===== */
+var HOLDINGS = [
+  { code:"002156", name:"通富微电", score:55.9, rank:44,  pct:85.6, q:"q1", qlabel:"Q1 强",
+    hm:[49,50,47,61,45,35,57,100,36],
+    diag:[["净利同比","100","up"],["RSI 中性","97","up"],["量能稳定","86","up"],["MACD 动能","47","nt"]],
+    verdict:"组合唯一强势持仓，基本面极强 + 量价健康。中期动量偏中性、20 日涨幅偏高存短期追高隐忧，但整体是 6 只里最健康的一只。", tone:"up" },
+  { code:"300223", name:"君正股份", score:50.7, rank:124, pct:58.9, q:"q3", qlabel:"Q3 中性",
+    hm:[36,51,6,70,56,53,6,100,37],
+    diag:[["净利同比","100","up"],["主力净流入占比","6","dn"],["MACD 柱","6","dn"],["5日资金流","0","dn"]],
+    verdict:"典型矛盾股：基本面极强，但主力资金大幅净流出、MACD 动能枯竭。高位 + 资金撤退的组合，是当前最需要警惕的持仓。", tone:"dn" },
+  { code:"003033", name:"征和工业", score:48.5, rank:166, pct:44.8, q:"q3", qlabel:"Q3 中性",
+    hm:[29,73,84,65,29,22,37,20,37],
+    diag:[["MACD 柱","84","up"],["MA60 斜率","73","up"],["5/20日资金流","84/87","up"],["净利同比","20","dn"]],
+    verdict:"技术趋势与资金流双强，但基本面（净利同比）偏弱、短期乖离过大。属「动能驱动型」，注意基本面跟不上时的回撤。", tone:"nt" },
+  { code:"300579", name:"数字认证", score:45.6, rank:211, pct:29.8, q:"q4", qlabel:"Q4 偏弱",
+    hm:[15,47,77,26,61,28,null,null,null],
+    diag:[["120→20日动量","15","dn"],["短期反转","26","dn"],["量价相关性","4","dn"],["MACD 柱","77","up"]],
+    verdict:"中期动量极弱、量价背离，仅短期 MACD 有脉冲。新建仓股，资金流/基本面数据未覆盖，评分主要靠量价，需谨慎。", tone:"dn" },
+  { code:"300499", name:"高澜股份", score:36.5, rank:284, pct:5.4, q:"q5", qlabel:"Q5 弱",
+    hm:[9,14,61,13,23,12,null,null,null],
+    diag:[["MA60 斜率","14","dn"],["120→20日动量","9","dn"],["短期反转","13","dn"],["均线乖离(反转)","12","dn"]],
+    verdict:"量价全面弱势，新建仓即在池内垫底（299 只中第 284）。资金流/基本面数据未覆盖。建议重点跟踪，警惕继续走弱。", tone:"dn" },
+  { code:"600487", name:"亨通光电", score:34.8, rank:291, pct:3.0, q:"q5", qlabel:"Q5 弱",
+    hm:[34,35,72,8,0,0,10,64,55],
+    diag:[["20日涨幅(反转)","0","dn"],["均线乖离(反转)","0","dn"],["主力净流入占比","10","dn"],["短期反转","8","dn"]],
+    verdict:"组合风险最高的一只：20 日涨幅与均线乖离均触全池极值（严重追高）、主力大幅流出、短期仍在下跌。基本面尚可但量价与资金面全面恶化。", tone:"dn" }
+];
+
+var HIST_DATES = ["2025-02-25","2025-03-25","2025-04-23","2025-05-26","2025-06-24","2025-07-22","2025-08-19","2025-09-16","2025-10-22","2025-11-19","2025-12-17","2026-01-16","2026-02-13","2026-03-23","2026-04-21","2026-05-22","2026-06-22","2026-07-20","2026-08-17"];
+var HIST = {
+  "通富微电": [76.6,97.0,70.2,65.6,17.7,63.2,23.8,51.5,77.6,89.0,65.9,18.4,81.9,63.2,39.8,36.1,85.6,99.0,82.6],
+  "君正股份": [8.7,79.9,17.7,38.8,31.4,84.6,30.8,2.7,33.4,65.2,22.7,22.1,78.6,71.9,47.8,58.9,54.2,95.7,64.6],
+  "征和工业": [68.6,10.0,98.3,91.0,90.3,85.3,17.4,36.5,66.9,94.3,100.0,58.5,72.9,74.6,14.7,16.4,77.6,79.6,40.8],
+  "高澜股份": [66.6,99.3,75.3,63.9,35.5,78.9,0.7,77.6,97.7,99.0,12.0,76.6,52.5,36.8,76.3,75.9,89.0,90.0,2.3],
+  "数字认证": [25.4,97.7,53.8,89.6,21.4,88.3,2.7,67.2,80.6,38.5,91.3,14.7,2.3,65.2,92.0,91.3,78.9,83.6,50.8],
+  "亨通光电": [18.7,23.1,58.5,49.5,56.9,70.6,23.1,55.9,63.6,73.6,11.4,31.1,16.7,93.3,71.2,60.5,53.5,95.0,12.7]
+};
+var LINE_COLORS = { "通富微电":"#e03131", "君正股份":"#ffa502", "征和工业":"#4dabf7", "数字认证":"#9775fa", "高澜股份":"#00d4aa", "亨通光电":"#00a67d" };
+
+/* ===== 渲染排名表 ===== */
+var rankBody = document.getElementById("rankBody");
+HOLDINGS.forEach(function(h){
+  var tr = document.createElement("tr");
+  var barColor = h.pct >= 60 ? "#e03131" : (h.pct >= 40 ? "#ffa502" : "#00a67d");
+  tr.innerHTML =
+    '<td class="left"><b>'+h.name+'</b></td>' +
+    '<td class="code">'+h.code+'</td>' +
+    '<td><b>'+h.score.toFixed(1)+'</b></td>' +
+    '<td>'+h.rank+' / 299</td>' +
+    '<td><b>'+h.pct.toFixed(1)+'%</b></td>' +
+    '<td><div class="bar"><i style="width:'+h.pct+'%;background:'+barColor+'"></i></div></td>' +
+    '<td><span class="pill '+h.q+'">'+h.qlabel+'</span></td>';
+  rankBody.appendChild(tr);
+});
+
+/* ===== 渲染热力表 ===== */
+function cls(v){
+  if (v === null || v === undefined) return "c-0";
+  if (v >= 65) return "c-h";
+  if (v >= 55) return "c-mh";
+  if (v >= 45) return "c-md";
+  if (v >= 35) return "c-ml";
+  return "c-l";
+}
+var hmBody = document.getElementById("hmBody");
+HOLDINGS.forEach(function(h){
+  var tr = document.createElement("tr");
+  var html = '<td class="left"><b>'+h.name+'</b></td>';
+  h.hm.forEach(function(v){
+    var txt = (v === null || v === undefined) ? "—" : v;
+    html += '<td class="cell"><span class="cv '+cls(v)+'">'+txt+'</span></td>';
+  });
+  tr.innerHTML = html;
+  hmBody.appendChild(tr);
+});
+
+/* ===== 渲染逐只诊断 ===== */
+var diagGrid = document.getElementById("diagGrid");
+HOLDINGS.forEach(function(h){
+  var sc = document.createElement("div");
+  sc.className = "sc";
+  var lis = "";
+  h.diag.forEach(function(d){
+    var cls2 = d[2] === "up" ? "up" : (d[2] === "dn" ? "dn" : "nt");
+    lis += '<li>'+d[0]+'：<b class="'+cls2+'">'+d[1]+'</b></li>';
+  });
+  var toneCls = h.tone === "up" ? "up" : (h.tone === "dn" ? "dn" : "nt");
+  sc.innerHTML =
+    '<div class="top"><span class="nm">'+h.name+'</span><span class="pill '+h.q+'">'+h.qlabel+' · 分位 '+h.pct.toFixed(1)+'%</span></div>' +
+    '<div class="meta">综合分 '+h.score.toFixed(1)+' · 池内第 '+h.rank+' / 299</div>' +
+    '<ul>'+lis+'</ul>' +
+    '<div class="note" style="margin-top:8px;color:'+(h.tone==="dn"?"#00a67d":(h.tone==="up"?"#e03131":"#c77d00"))+'">'+h.verdict+'</div>';
+  diagGrid.appendChild(sc);
+});
+
+/* ===== ECharts 历史分位走势 ===== */
+var chart = echarts.init(document.getElementById("rankChart"));
+var series = Object.keys(HIST).map(function(name){
+  return {
+    name: name, type: "line", smooth: true, symbol: "circle", symbolSize: 5,
+    lineStyle: { width: 2, color: LINE_COLORS[name] },
+    itemStyle: { color: LINE_COLORS[name] },
+    data: HIST[name]
+  };
+});
+chart.setOption({
+  grid: { left: 46, right: 20, top: 40, bottom: 44 },
+  tooltip: { trigger: "axis", valueFormatter: function(v){ return v + "%"; } },
+  legend: { top: 4, textStyle: { fontSize: 12 } },
+  xAxis: {
+    type: "category",
+    data: HIST_DATES.map(function(d){ return d.slice(5); }),
+    axisLabel: { fontSize: 10, interval: 2 }
+  },
+  yAxis: {
+    type: "value", min: 0, max: 100,
+    axisLabel: { formatter: "{value}%" },
+    splitLine: { lineStyle: { color: "#eef0f3" } }
+  },
+  series: series.concat([{
+    name: "池中位数", type: "line", data: [], markLine: {
+      silent: true, symbol: "none",
+      lineStyle: { type: "dashed", color: "#9aa1ad" },
+      label: { formatter: "池中位数 50%", position: "insideEndTop", color: "#6b7280" },
+      data: [{ yAxis: 50 }]
+    }
+  }])
+});
+window.addEventListener("resize", function(){ chart.resize(); });
+</script>
+</body>
+</html>
