@@ -1,0 +1,266 @@
+{
+  "updated_at": "2026-08-30 11:50:05",
+  "asof": "20260828",
+  "min_days": 3,
+  "current_events": [
+    {
+      "code": "300860",
+      "name": "锋尚文化",
+      "days": 7,
+      "level": "🟠 持续建仓",
+      "cum_ratio": 13.32,
+      "cum_net": 890.8
+    },
+    {
+      "code": "301073",
+      "name": "君亭酒店",
+      "days": 6,
+      "level": "🟠 持续建仓",
+      "cum_ratio": 13.34,
+      "cum_net": 5055.7
+    },
+    {
+      "code": "301536",
+      "name": "星宸科技",
+      "days": 6,
+      "level": "🟠 持续建仓",
+      "cum_ratio": 10.92,
+      "cum_net": 24526.7
+    },
+    {
+      "code": "603056",
+      "name": "德邦股份",
+      "days": 5,
+      "level": "🟠 持续建仓",
+      "cum_ratio": 98.94,
+      "cum_net": 69322.9
+    },
+    {
+      "code": "601163",
+      "name": "三角轮胎",
+      "days": 5,
+      "level": "🟠 持续建仓",
+      "cum_ratio": 12.26,
+      "cum_net": 995.2
+    },
+    {
+      "code": "600009",
+      "name": "上海机场",
+      "days": 5,
+      "level": "🟠 持续建仓",
+      "cum_ratio": 6.99,
+      "cum_net": 2717.0
+    },
+    {
+      "code": "002493",
+      "name": "荣盛石化",
+      "days": 4,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 19.85,
+      "cum_net": 29745.0
+    },
+    {
+      "code": "002768",
+      "name": "国恩股份",
+      "days": 4,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 13.96,
+      "cum_net": 15360.5
+    },
+    {
+      "code": "603612",
+      "name": "索通发展",
+      "days": 4,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 13.95,
+      "cum_net": 6663.7
+    },
+    {
+      "code": "600893",
+      "name": "航发动力",
+      "days": 4,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 13.79,
+      "cum_net": 28552.9
+    },
+    {
+      "code": "600309",
+      "name": "万华化学",
+      "days": 4,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 12.79,
+      "cum_net": 75424.0
+    },
+    {
+      "code": "688111",
+      "name": "金山办公",
+      "days": 4,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 10.86,
+      "cum_net": 31751.8
+    },
+    {
+      "code": "688041",
+      "name": "海光信息",
+      "days": 4,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 10.21,
+      "cum_net": 132651.1
+    },
+    {
+      "code": "300662",
+      "name": "科锐国际",
+      "days": 4,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 9.66,
+      "cum_net": 989.8
+    },
+    {
+      "code": "600150",
+      "name": "中国船舶",
+      "days": 4,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 8.55,
+      "cum_net": 34165.2
+    },
+    {
+      "code": "300894",
+      "name": "火星人",
+      "days": 4,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 7.69,
+      "cum_net": 2074.3
+    },
+    {
+      "code": "002612",
+      "name": "朗姿股份",
+      "days": 4,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 6.94,
+      "cum_net": 1001.8
+    },
+    {
+      "code": "600585",
+      "name": "海螺水泥",
+      "days": 4,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 6.41,
+      "cum_net": 6472.4
+    },
+    {
+      "code": "600346",
+      "name": "恒力石化",
+      "days": 4,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 6.23,
+      "cum_net": 7067.8
+    },
+    {
+      "code": "002032",
+      "name": "苏泊尔",
+      "days": 4,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 4.27,
+      "cum_net": 509.2
+    },
+    {
+      "code": "603200",
+      "name": "上海洗霸",
+      "days": 3,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 13.0,
+      "cum_net": 19966.9
+    },
+    {
+      "code": "600760",
+      "name": "中航沈飞",
+      "days": 3,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 12.87,
+      "cum_net": 24813.5
+    },
+    {
+      "code": "000786",
+      "name": "北新建材",
+      "days": 3,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 12.07,
+      "cum_net": 7951.1
+    },
+    {
+      "code": "300085",
+      "name": "银之杰",
+      "days": 3,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 10.99,
+      "cum_net": 48460.4
+    },
+    {
+      "code": "000878",
+      "name": "云南铜业",
+      "days": 3,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 8.04,
+      "cum_net": 26320.8
+    },
+    {
+      "code": "002271",
+      "name": "东方雨虹",
+      "days": 3,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 7.35,
+      "cum_net": 9080.7
+    },
+    {
+      "code": "300792",
+      "name": "壹网壹创",
+      "days": 3,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 6.94,
+      "cum_net": 1380.1
+    },
+    {
+      "code": "002156",
+      "name": "通富微电",
+      "days": 3,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 6.8,
+      "cum_net": 69654.6
+    },
+    {
+      "code": "300567",
+      "name": "精测电子",
+      "days": 3,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 6.76,
+      "cum_net": 21784.8
+    },
+    {
+      "code": "000025",
+      "name": "特力A",
+      "days": 3,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 5.92,
+      "cum_net": 4401.6
+    },
+    {
+      "code": "002242",
+      "name": "九阳股份",
+      "days": 3,
+      "level": "🟡 温和建仓",
+      "cum_ratio": 3.27,
+      "cum_net": 230.2
+    }
+  ],
+  "history_stats": {
+    "event_5d_ret": -0.07,
+    "event_10d_ret": 0.228,
+    "event_5d_win": 0.457,
+    "event_10d_win": 0.472,
+    "event_n": 6362,
+    "baseline_5d_ret": 0.433,
+    "baseline_10d_ret": 0.983,
+    "baseline_5d_win": 0.483,
+    "baseline_n": 87087
+  }
+}
