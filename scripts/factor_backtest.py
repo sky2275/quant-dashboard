@@ -135,7 +135,7 @@ def build_panel(codes_klines: dict[str, list], forward: int, step: int) -> dict:
                 continue
             window = kl[max(0, t + 1 - flib.MAX_LOOKBACK): t + 1]
             ctx = flib.slice_market_ctx(mkt_ctx, [str(k[0]) for k in window])
-            raw = flib.compute_raw(window, ctx, names=names)
+            raw = flib.compute_raw(window, ctx, names=names, code=code)
             if sum(1 for v in raw.values() if v is not None) < len(names) * 0.6:
                 continue
             rows[code] = {
@@ -307,8 +307,14 @@ def run_ablation(forward: int = FORWARD, step: int = STEP) -> dict:
     validated = [n for n, d in diag.items()
                  if d["long_short"] > 0 and d.get("win_rate", 0) >= 0.55]
 
+    # 资金流因子 = 大类为「资金流向」的因子；其余为纯量价因子。
+    flow = [n for n in names if flib.FACTORS[n].get("category") == "资金流向"]
+    price_only = [n for n in names if n not in flow]
     subsets = {
-        "全部20因子": names,
+        "全部因子": names,
+        "纯量价(无资金流)": price_only,
+        "资金流因子": flow or ["mf_main_ratio"],
+        "量价+资金流双验证": [n for n in validated if n in names],
         "分层多空为正": positive or names,
         "双验证(多空>0且胜率≥55%)": validated or names,
         "趋势动量组": [n for n in ("ma_slope60", "mom_120_20", "macd_hist",

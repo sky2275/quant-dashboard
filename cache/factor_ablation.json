@@ -1,8 +1,41 @@
 {
-  "updated_at": "2026-08-30T00:33:30",
+  "updated_at": "2026-08-30T10:50:03",
   "forward": 5,
   "subsets": {
-    "全部20因子": {
+    "全部因子": {
+      "factors": [
+        "mom_20d",
+        "rev_5d",
+        "mom_120_20",
+        "dist_high",
+        "vol_atr",
+        "idio_vol",
+        "downside_vol",
+        "max_dd",
+        "amihud",
+        "vol_trend",
+        "vol_stab",
+        "vol_price",
+        "vp_corr",
+        "trend_ma20",
+        "ma_slope60",
+        "rsi_mid",
+        "bb_pos",
+        "macd_hist",
+        "skew",
+        "beta_low",
+        "mf_main_ratio",
+        "mf_ratio_5d",
+        "mf_ratio_20d",
+        "mf_accel"
+      ],
+      "n": 24,
+      "q1": 0.004091850706353368,
+      "long_short": 0.0008242518942880826,
+      "ir": 0.028541094164535073,
+      "win_rate": 0.47368421052631576
+    },
+    "纯量价(无资金流)": {
       "factors": [
         "mom_20d",
         "rev_5d",
@@ -31,6 +64,36 @@
       "ir": 0.02589568073154441,
       "win_rate": 0.47368421052631576
     },
+    "资金流因子": {
+      "factors": [
+        "mf_main_ratio",
+        "mf_ratio_5d",
+        "mf_ratio_20d",
+        "mf_accel"
+      ],
+      "n": 4,
+      "q1": 0.007222402563754812,
+      "long_short": 0.00552523835135383,
+      "ir": 0.47876424064547757,
+      "win_rate": 0.631578947368421
+    },
+    "量价+资金流双验证": {
+      "factors": [
+        "mom_20d",
+        "mom_120_20",
+        "max_dd",
+        "vol_stab",
+        "ma_slope60",
+        "macd_hist",
+        "mf_main_ratio",
+        "mf_accel"
+      ],
+      "n": 8,
+      "q1": 0.011372113156660991,
+      "long_short": 0.011265542851889956,
+      "ir": 0.3750664357967798,
+      "win_rate": 0.5789473684210527
+    },
     "分层多空为正": {
       "factors": [
         "mom_20d",
@@ -41,13 +104,16 @@
         "vol_stab",
         "ma_slope60",
         "macd_hist",
-        "skew"
+        "skew",
+        "mf_main_ratio",
+        "mf_ratio_5d",
+        "mf_accel"
       ],
-      "n": 9,
-      "q1": 0.015496270993551697,
-      "long_short": 0.016736582567856095,
-      "ir": 0.5072099493411378,
-      "win_rate": 0.6842105263157895
+      "n": 12,
+      "q1": 0.012371784680915971,
+      "long_short": 0.012467931251684519,
+      "ir": 0.45958012134327897,
+      "win_rate": 0.631578947368421
     },
     "双验证(多空>0且胜率≥55%)": {
       "factors": [
@@ -56,13 +122,15 @@
         "max_dd",
         "vol_stab",
         "ma_slope60",
-        "macd_hist"
+        "macd_hist",
+        "mf_main_ratio",
+        "mf_accel"
       ],
-      "n": 6,
-      "q1": 0.01427232381679149,
-      "long_short": 0.014220927603283353,
-      "ir": 0.41800041172877256,
-      "win_rate": 0.631578947368421
+      "n": 8,
+      "q1": 0.011372113156660991,
+      "long_short": 0.011265542851889956,
+      "ir": 0.3750664357967798,
+      "win_rate": 0.5789473684210527
     },
     "趋势动量组": {
       "factors": [

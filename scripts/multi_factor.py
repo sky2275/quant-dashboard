@@ -178,7 +178,8 @@ def _build_signals(scores: dict[str, float], flips: dict[str, bool],
     return out
 
 
-def score_stock(klines: list, ctx: dict | None = None) -> dict:
+def score_stock(klines: list, ctx: dict | None = None,
+                code: str | None = None) -> dict:
     """
     对单只股票计算全部因子评分。
     klines: [[date, open, close, high, low, volume], ...] 旧->新
@@ -194,7 +195,7 @@ def score_stock(klines: list, ctx: dict | None = None) -> dict:
     weights = get_weights()
     flips = get_flips()
 
-    raws = flib.compute_raw(klines, ctx)
+    raws = flib.compute_raw(klines, ctx, code=code)
     res = flib.score_stock_raw(raws, weights, flips)
 
     # 关键指标（下游展示用，独立于因子体系）
@@ -252,7 +253,7 @@ def rank_stocks(codes: list[str] | None = None, top_n: int = 20) -> list[dict]:
             continue
         dates = [str(k[0]) for k in klines[-flib.MAX_LOOKBACK:]]
         ctx = flib.slice_market_ctx(mkt_ctx, dates)
-        result = score_stock(klines, ctx)
+        result = score_stock(klines, ctx, code=code)
         result["code"] = code
         result["name"] = stock.get("name", code)
         results.append(result)

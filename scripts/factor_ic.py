@@ -164,7 +164,7 @@ def compute_ic_series(codes_klines: dict[str, list],
             end = t + 1
             window = kl[max(0, end - flib.MAX_LOOKBACK): end]
             ctx = flib.slice_market_ctx(mkt_ctx, [str(k[0]) for k in window])
-            raw = flib.compute_raw(window, ctx, names=factor_names)
+            raw = flib.compute_raw(window, ctx, names=factor_names, code=code)
 
             # 至少要有 60% 的因子算得出来，否则这只股票不进截面
             got = [v for v in raw.values() if v is not None]

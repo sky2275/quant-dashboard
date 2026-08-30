@@ -58,11 +58,12 @@ MAX_LOOKBACK = 260
 # ----------------------------------------------------------------- 大类权重
 # 按「因子大类」分配权重，而不是按单个因子。总和 = 1.0
 CATEGORY_WEIGHTS = {
-    "动量反转": 0.26,
-    "波动风险": 0.26,
-    "量能量价": 0.20,
-    "技术形态": 0.18,
-    "统计特征": 0.10,
+    "动量反转": 0.24,
+    "波动风险": 0.24,
+    "量能量价": 0.18,
+    "技术形态": 0.16,
+    "统计特征": 0.06,
+    "资金流向": 0.12,
 }
 
 # IC 状态 → 权重调整系数
@@ -638,6 +639,58 @@ def f_beta_low(v: KLineView, ctx: dict) -> float | None:
     return -_beta(r, m[-len(r):])
 
 
+# ------------------------------ 资金流向 ------------------------------
+# 数据来自 cache/moneyflow_history.json（fetch_moneyflow.py 抓取 Tushare moneyflow）。
+# ctx["flow"] = {"main_ratio": [...], "main_net": [...], "total_amt": [...]}
+# 数组按 v.dates 对齐（长度 = v.n），缺失处为 None。
+def _mf_series(v: KLineView, ctx: dict, field: str) -> list[float] | None:
+    """从 ctx 取资金流字段（按 v.dates 对齐）。无资金流数据返回 None。"""
+    flow = (ctx or {}).get("flow") or {}
+    arr = flow.get(field)
+    if not arr:
+        return None
+    return arr
+
+
+def _mf_valid(arr: list[float] | None, n: int) -> list[float]:
+    """取最近 n 个非 None 值。"""
+    return [x for x in (arr or [])[-n:] if x is not None]
+
+
+def f_mf_ratio(v: KLineView, ctx: dict) -> float | None:
+    """当日主力净流入占成交额比(%)。值越大主力越主动买入。"""
+    vals = _mf_valid(_mf_series(v, ctx, "main_ratio"), 1)
+    return vals[-1] if vals else None
+
+
+def f_mf_ratio_5d(v: KLineView, ctx: dict) -> float | None:
+    """过去 5 日主力净流入占比之和(%)。短期资金持续流入。"""
+    vals = _mf_valid(_mf_series(v, ctx, "main_ratio"), 5)
+    if len(vals) < 3:
+        return None
+    return sum(vals)
+
+
+def f_mf_ratio_20d(v: KLineView, ctx: dict) -> float | None:
+    """过去 20 日主力净流入占比之和(%)。中期资金持续流入。"""
+    vals = _mf_valid(_mf_series(v, ctx, "main_ratio"), 20)
+    if len(vals) < 10:
+        return None
+    return sum(vals)
+
+
+def f_mf_accel(v: KLineView, ctx: dict) -> float | None:
+    """资金流入加速度：近 5 日占比均值 − 近 20 日占比均值。加速流入越看好。"""
+    arr = _mf_series(v, ctx, "main_ratio")
+    if arr is None:
+        return None
+    recent = _mf_valid(arr[-5:], 5)
+    base = _mf_valid(arr[-20:-5], 15)
+    if len(recent) < 3 or len(base) < 8:
+        return None
+    return _mean(recent) - _mean(base)
+
+
 # ===========================================================================
 # 因子注册表 —— 补因子只需在这里加一条
 # ===========================================================================
@@ -733,6 +786,23 @@ FACTORS: dict[str, dict[str, Any]] = {
         "label": "-Beta（低beta）", "category": "统计特征",
         "raw": f_beta_low, "lo": -2.7, "hi": 0.1, "min_bars": 61,
     },
+    # ---------------- 资金流向 ----------------
+    "mf_main_ratio": {
+        "label": "主力净流入占比(%)", "category": "资金流向",
+        "raw": f_mf_ratio, "lo": -5.0, "hi": 5.0, "min_bars": 1,
+    },
+    "mf_ratio_5d": {
+        "label": "5日主力净流入占比累计(%)", "category": "资金流向",
+        "raw": f_mf_ratio_5d, "lo": -15.0, "hi": 15.0, "min_bars": 5,
+    },
+    "mf_ratio_20d": {
+        "label": "20日主力净流入占比累计(%)", "category": "资金流向",
+        "raw": f_mf_ratio_20d, "lo": -60.0, "hi": 60.0, "min_bars": 20,
+    },
+    "mf_accel": {
+        "label": "资金流入加速度(5日-20日)", "category": "资金流向",
+        "raw": f_mf_accel, "lo": -2.0, "hi": 2.0, "min_bars": 20,
+    },
 }
 
 FACTOR_NAMES: list[str] = list(FACTORS.keys())
@@ -799,9 +869,11 @@ def raw_to_score(name: str, raw: float | None) -> float | None:
 
 
 def compute_raw(kl: list, ctx: dict | None = None,
-                names: list[str] | None = None) -> dict[str, float | None]:
+                names: list[str] | None = None,
+                code: str | None = None) -> dict[str, float | None]:
     """对一只股票的K线切片计算全部因子的原始值。
-    内部只回溯 MAX_LOOKBACK 根，避免长序列无谓复制。"""
+    内部只回溯 MAX_LOOKBACK 根，避免长序列无谓复制。
+    code：6 位股票代码，用于资金流因子按日期取数（可选，向后兼容）。"""
     if not kl:
         return {}
     spec_names = names or FACTOR_NAMES
@@ -811,6 +883,9 @@ def compute_raw(kl: list, ctx: dict | None = None,
     v = KLineView(view_kl)
     v._build()
 
+    # 资金流因子需要按日期对齐的资金流序列；无 code 或资金流缺失时退化为纯量价
+    eff_ctx = inject_flow(ctx, code, v.dates) if code else (ctx or {})
+
     out: dict[str, float | None] = {}
     for n in spec_names:
         spec = FACTORS[n]
@@ -818,7 +893,7 @@ def compute_raw(kl: list, ctx: dict | None = None,
             out[n] = None
             continue
         try:
-            out[n] = spec["raw"](v, ctx or {})
+            out[n] = spec["raw"](v, eff_ctx)
         except Exception:
             out[n] = None  # 单因子异常不影响整批
     return out
@@ -883,6 +958,68 @@ def slice_market_ctx(ctx: dict, dates: list[str]) -> dict:
 
 
 # ===========================================================================
+# 资金流历史（cache/moneyflow_history.json，fetch_moneyflow.py 抓取）
+# ===========================================================================
+_MF_CACHE: dict | None = None
+
+
+def _load_moneyflow(force_reload: bool = False) -> dict[str, dict]:
+    """读资金流历史，转成 {code: {field: {date: value}}} 便于按日期 O(1) 查询。
+    文件缺失时返回空 dict（资金流因子将返回 None，不污染统计）。"""
+    global _MF_CACHE
+    if _MF_CACHE is not None and not force_reload:
+        return _MF_CACHE
+    path = os.path.join(CACHE_DIR, "moneyflow_history.json")
+    if not os.path.exists(path):
+        _MF_CACHE = {}
+        return _MF_CACHE
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        _MF_CACHE = {}
+        return _MF_CACHE
+
+    fields = ("main_ratio", "main_net", "total_amt")
+    out: dict[str, dict] = {}
+    for code, rec in data.get("stocks", {}).items():
+        dates = rec.get("dates") or []
+        entry: dict[str, dict] = {fld: {} for fld in fields}
+        for fld in fields:
+            arr = rec.get(fld) or []
+            entry[fld] = {d: v for d, v in zip(dates, arr)}
+        out[code] = entry
+    _MF_CACHE = out
+    return out
+
+
+def slice_moneyflow(code: str, dates: list[str]) -> dict | None:
+    """把某只股票的资金流按日期序列对齐，返回 {field: [值或None]}。
+    无该股票资金流数据时返回 None。"""
+    rec = _load_moneyflow().get(code)
+    if not rec:
+        return None
+    out: dict[str, list] = {}
+    for fld in ("main_ratio", "main_net", "total_amt"):
+        by_date = rec.get(fld, {})
+        out[fld] = [
+            by_date.get((d.replace("-", "") if isinstance(d, str) else str(d)))
+            for d in dates
+        ]
+    return out
+
+
+def inject_flow(ctx: dict | None, code: str, dates: list[str]) -> dict:
+    """把资金流序列注入 ctx（按日期对齐）。无资金流数据时原样返回。"""
+    flow = slice_moneyflow(code, dates) if code else None
+    if not flow:
+        return ctx or {}
+    merged = dict(ctx or {})
+    merged["flow"] = flow
+    return merged
+
+
+# ===========================================================================
 # 自检 / 分布校准
 # ===========================================================================
 def _load_klines() -> dict[str, list]:
@@ -912,7 +1049,7 @@ def calibrate(sample: int = 80, percentiles: tuple[float, float] = (2, 98)) -> d
         kl = kl_all[code]
         v = KLineView(kl[-MAX_LOOKBACK:])
         v._build()
-        c = slice_market_ctx(ctx, v.dates)
+        c = inject_flow(slice_market_ctx(ctx, v.dates), code, v.dates)
         for n in FACTOR_NAMES:
             spec = FACTORS[n]
             if v.n < spec["min_bars"]:

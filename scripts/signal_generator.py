@@ -213,8 +213,8 @@ def generate_signal(code: str, klines: list | None = None) -> dict:
     # 1. 技术信号
     tech = generate_technical_signals(klines)
 
-    # 2. 因子信号
-    factor_result = mf.score_stock(klines)
+    # 2. 因子信号（传 code 让资金流因子按日期取数生效）
+    factor_result = mf.score_stock(klines, code=code)
     factor = {
         "score": factor_result["total_score"],
         "factor_scores": factor_result["factor_scores"],
