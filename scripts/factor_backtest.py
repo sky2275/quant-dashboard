@@ -307,17 +307,21 @@ def run_ablation(forward: int = FORWARD, step: int = STEP) -> dict:
     validated = [n for n, d in diag.items()
                  if d["long_short"] > 0 and d.get("win_rate", 0) >= 0.55]
 
-    # 资金流因子 = 大类为「资金流向」的因子；基本面 = 「基本面」；其余为纯量价因子。
+    # 资金流因子 = 大类为「资金流向」的因子；基本面 = 「基本面」；估值 = 「估值」。
     flow = [n for n in names if flib.FACTORS[n].get("category") == "资金流向"]
     fund = [n for n in names if flib.FACTORS[n].get("category") == "基本面"]
-    new_dim = flow + fund  # 新维度 = 资金流 + 基本面
-    price_only = [n for n in names if n not in new_dim]
+    val = [n for n in names if flib.FACTORS[n].get("category") == "估值"]
+    new_dim = flow + fund  # 有效新维度 = 资金流 + 基本面
+    all_new = flow + fund + val  # 含估值的三新维度
+    price_only = [n for n in names if n not in all_new]
     subsets = {
         "全部因子": names,
         "纯量价(无新维度)": price_only,
         "资金流因子": flow or ["mf_main_ratio"],
         "基本面因子": fund or ["profit_yoy"],
         "新维度(资金流+基本面)": new_dim,
+        "估值因子(低估值偏好)": val or ["pe_pct", "pb_pct"],
+        "三维(量价+资金流+基本面)": price_only + new_dim,
         "分层多空为正": positive or names,
         "双验证(多空>0且胜率≥55%)": validated or names,
         "趋势动量组": [n for n in ("ma_slope60", "mom_120_20", "macd_hist",

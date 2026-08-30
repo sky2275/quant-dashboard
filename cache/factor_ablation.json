@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-30T11:12:36",
+  "updated_at": "2026-08-30T11:36:05",
   "forward": 5,
   "subsets": {
     "全部因子": {
@@ -29,12 +29,14 @@
         "mf_ratio_20d",
         "mf_accel",
         "roe",
-        "profit_yoy"
+        "profit_yoy",
+        "pe_pct",
+        "pb_pct"
       ],
-      "n": 26,
-      "q1": 0.003820228567937036,
-      "long_short": 0.0010390913831783775,
-      "ir": 0.040005279109468876,
+      "n": 28,
+      "q1": -0.0002459608363234313,
+      "long_short": -0.0019960123809274147,
+      "ir": -0.07376534590461067,
       "win_rate": 0.47368421052631576
     },
     "纯量价(无新维度)": {
@@ -104,6 +106,52 @@
       "long_short": 0.006460201533258605,
       "ir": 0.5189526971731563,
       "win_rate": 0.631578947368421
+    },
+    "估值因子(低估值偏好)": {
+      "factors": [
+        "pe_pct",
+        "pb_pct"
+      ],
+      "n": 2,
+      "q1": 0.001992334578291042,
+      "long_short": -0.008463297978585367,
+      "ir": -0.2684838263259938,
+      "win_rate": 0.5263157894736842
+    },
+    "三维(量价+资金流+基本面)": {
+      "factors": [
+        "mom_20d",
+        "rev_5d",
+        "mom_120_20",
+        "dist_high",
+        "vol_atr",
+        "idio_vol",
+        "downside_vol",
+        "max_dd",
+        "amihud",
+        "vol_trend",
+        "vol_stab",
+        "vol_price",
+        "vp_corr",
+        "trend_ma20",
+        "ma_slope60",
+        "rsi_mid",
+        "bb_pos",
+        "macd_hist",
+        "skew",
+        "beta_low",
+        "mf_main_ratio",
+        "mf_ratio_5d",
+        "mf_ratio_20d",
+        "mf_accel",
+        "roe",
+        "profit_yoy"
+      ],
+      "n": 26,
+      "q1": 0.003820228567937036,
+      "long_short": 0.0010390913831783775,
+      "ir": 0.040005279109468876,
+      "win_rate": 0.47368421052631576
     },
     "分层多空为正": {
       "factors": [

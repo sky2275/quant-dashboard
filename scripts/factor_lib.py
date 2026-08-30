@@ -59,13 +59,14 @@ MAX_LOOKBACK = 260
 # ----------------------------------------------------------------- 大类权重
 # 按「因子大类」分配权重，而不是按单个因子。总和 = 1.0
 CATEGORY_WEIGHTS = {
-    "动量反转": 0.22,
-    "波动风险": 0.22,
-    "量能量价": 0.17,
-    "技术形态": 0.15,
-    "统计特征": 0.06,
-    "资金流向": 0.10,
+    "动量反转": 0.20,
+    "波动风险": 0.20,
+    "量能量价": 0.16,
+    "技术形态": 0.14,
+    "统计特征": 0.05,
+    "资金流向": 0.09,
     "基本面": 0.08,
+    "估值": 0.08,
 }
 
 # IC 状态 → 权重调整系数
@@ -726,6 +727,38 @@ def f_profit_yoy(v: KLineView, ctx: dict) -> float | None:
     return max(-100.0, min(200.0, val))
 
 
+# ------------------------------ 估值 ------------------------------
+# 数据来自 cache/valuation_history.json（fetch_valuation.py 抓 Tushare daily_basic）。
+# ctx["valuation"] = {"pe_pct": [...], "pb_pct": [...]}
+# 分位已在抓取脚本里按「滚动 250 日、截至当日」预计算（无前视），0=最便宜，1=最贵。
+# 低估值偏好 → 分位越低越看好 → raw = 1 - pct（值越大越看好）。
+def _val_series(v: KLineView, ctx: dict, field: str) -> list[float] | None:
+    """从 ctx 取估值分位字段（按 v.dates 对齐）。无估值数据返回 None。"""
+    val = (ctx or {}).get("valuation") or {}
+    arr = val.get(field)
+    if not arr:
+        return None
+    return arr
+
+
+def f_pe_pct(v: KLineView, ctx: dict) -> float | None:
+    """1 - PE_TTM滚动250日分位（低估值偏好）。分位越低(便宜) raw 越高。"""
+    arr = _val_series(v, ctx, "pe_pct")
+    if not arr:
+        return None
+    pct = arr[-1]
+    return (1.0 - pct) if pct is not None else None
+
+
+def f_pb_pct(v: KLineView, ctx: dict) -> float | None:
+    """1 - PB滚动250日分位（低估值偏好）。分位越低(便宜) raw 越高。"""
+    arr = _val_series(v, ctx, "pb_pct")
+    if not arr:
+        return None
+    pct = arr[-1]
+    return (1.0 - pct) if pct is not None else None
+
+
 # ===========================================================================
 # 因子注册表 —— 补因子只需在这里加一条
 # ===========================================================================
@@ -847,6 +880,15 @@ FACTORS: dict[str, dict[str, Any]] = {
         "label": "净利润同比增速(%)", "category": "基本面",
         "raw": f_profit_yoy, "lo": -100.0, "hi": 200.0, "min_bars": 1,
     },
+    # ---------------- 估值 ----------------
+    "pe_pct": {
+        "label": "1-PE_TTM滚动250日分位(低估值)", "category": "估值",
+        "raw": f_pe_pct, "lo": 0.0, "hi": 1.0, "min_bars": 1,
+    },
+    "pb_pct": {
+        "label": "1-PB滚动250日分位(低估值)", "category": "估值",
+        "raw": f_pb_pct, "lo": 0.0, "hi": 1.0, "min_bars": 1,
+    },
 }
 
 FACTOR_NAMES: list[str] = list(FACTORS.keys())
@@ -927,11 +969,12 @@ def compute_raw(kl: list, ctx: dict | None = None,
     v = KLineView(view_kl)
     v._build()
 
-    # 外部数据因子（资金流/基本面）需要按日期对齐的序列；无 code 或数据缺失时退化为纯量价
+    # 外部数据因子（资金流/基本面/估值）需要按日期对齐的序列；无 code 或数据缺失时退化为纯量价
     eff_ctx = ctx or {}
     if code:
         eff_ctx = inject_flow(eff_ctx, code, v.dates)
         eff_ctx = inject_fundamental(eff_ctx, code, v.dates)
+        eff_ctx = inject_valuation(eff_ctx, code, v.dates)
 
     out: dict[str, float | None] = {}
     for n in spec_names:
@@ -1141,6 +1184,69 @@ def inject_fundamental(ctx: dict | None, code: str, dates: list[str]) -> dict:
 
 
 # ===========================================================================
+# 估值历史（cache/valuation_history.json，fetch_valuation.py 抓取）
+# ===========================================================================
+_VAL_CACHE: dict | None = None
+
+
+def _load_valuation(force_reload: bool = False) -> dict[str, dict]:
+    """读估值历史，转成 {code: {field: {date: value}}} 便于按日期 O(1) 查询。
+    文件缺失时返回空 dict（估值因子将返回 None，不污染统计）。"""
+    global _VAL_CACHE
+    if _VAL_CACHE is not None and not force_reload:
+        return _VAL_CACHE
+    path = os.path.join(CACHE_DIR, "valuation_history.json")
+    if not os.path.exists(path):
+        _VAL_CACHE = {}
+        return _VAL_CACHE
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        _VAL_CACHE = {}
+        return _VAL_CACHE
+
+    fields = ("pe_pct", "pb_pct")
+    out: dict[str, dict] = {}
+    for code, rec in data.get("stocks", {}).items():
+        dates = rec.get("dates") or []
+        entry: dict[str, dict] = {fld: {} for fld in fields}
+        for fld in fields:
+            arr = rec.get(fld) or []
+            entry[fld] = {d: v for d, v in zip(dates, arr)}
+        out[code] = entry
+    _VAL_CACHE = out
+    return out
+
+
+def slice_valuation(code: str, dates: list[str]) -> dict | None:
+    """把某只股票的估值分位按日期序列对齐，返回 {field: [值或None]}。
+    分位已在抓取脚本预计算（滚动250日、截至当日、无前视），这里只查表。
+    无该股票估值数据时返回 None。"""
+    rec = _load_valuation().get(code)
+    if not rec:
+        return None
+    out: dict[str, list] = {}
+    for fld in ("pe_pct", "pb_pct"):
+        by_date = rec.get(fld, {})
+        out[fld] = [
+            by_date.get((d.replace("-", "") if isinstance(d, str) else str(d)))
+            for d in dates
+        ]
+    return out
+
+
+def inject_valuation(ctx: dict | None, code: str, dates: list[str]) -> dict:
+    """把估值分位序列注入 ctx（按日期对齐）。无估值数据时原样返回。"""
+    val = slice_valuation(code, dates) if code else None
+    if not val:
+        return ctx or {}
+    merged = dict(ctx or {})
+    merged["valuation"] = val
+    return merged
+
+
+# ===========================================================================
 # 自检 / 分布校准
 # ===========================================================================
 def _load_klines() -> dict[str, list]:
@@ -1172,6 +1278,7 @@ def calibrate(sample: int = 80, percentiles: tuple[float, float] = (2, 98)) -> d
         v._build()
         c = inject_flow(slice_market_ctx(ctx, v.dates), code, v.dates)
         c = inject_fundamental(c, code, v.dates)
+        c = inject_valuation(c, code, v.dates)
         for n in FACTOR_NAMES:
             spec = FACTORS[n]
             if v.n < spec["min_bars"]:
