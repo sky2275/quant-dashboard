@@ -126,6 +126,23 @@ def load_weights() -> tuple[dict, list, str]:
     return ic["weights"], ic["flips"], ic.get("updated_at", "")
 
 
+def load_buckets() -> tuple[dict, dict, str]:
+    """读取持仓三仓归属配置 → (buckets, stop_loss_map, default)。
+
+    止损价 = avg_cost × (1 - stop_loss_pct)，long 长线 15% / short 阶段票 8%。
+    """
+    path = os.path.join(REPO_ROOT, "config", "holdings_buckets.json")
+    default = "short"
+    stop_loss_map = {"short": 0.08, "mid": 0.12, "long": 0.15}
+    if not os.path.exists(path):
+        return {}, stop_loss_map, default
+    with open(path, encoding="utf-8") as f:
+        cfg = json.load(f)
+    return (cfg.get("buckets", {}),
+            cfg.get("stop_loss", stop_loss_map),
+            cfg.get("default", default))
+
+
 def load_pool(targets: list) -> tuple[dict, dict]:
     """加载 K 线池，补齐缺失的持仓/自选股（幂等写回）。"""
     path = os.path.join(CACHE_DIR, "backtest_klines.json")
@@ -219,6 +236,7 @@ def main() -> None:
     holdings = load_holdings()
     watchlist = load_watchlist()
     weights, flips, wsrc = load_weights()
+    buckets, stop_loss_map, default_bucket = load_buckets()
 
     # 合并目标：持仓 + 自选，去重（北京君正 300223 两者都有）
     target_map: dict[str, dict] = {}
@@ -259,6 +277,18 @@ def main() -> None:
         q = quintile(pr)
         sa, sa_reason = sell_action(pr) if is_holding else (None, None)
         bw, bw_reason = buy_warning(pr)
+        # 三仓止损：bucket + 成本止损价 + 破位标记（仅持仓）
+        bucket = sl_pct = stop_price = breached = last_price = None
+        if is_holding:
+            bucket = buckets.get(code, default_bucket)
+            sl_pct = stop_loss_map.get(bucket, 0.08)
+            avg_cost = t.get("avg_cost")
+            if avg_cost:
+                stop_price = round(avg_cost * (1 - sl_pct), 2)
+            if code in klines and klines[code]:
+                last_price = klines[code][-1][2]
+            breached = (last_price is not None and stop_price is not None
+                        and last_price < stop_price)
         results.append({
             "code": code,
             "name": t.get("name", names.get(code, code)),
@@ -276,6 +306,11 @@ def main() -> None:
             "sell_reason": sa_reason,
             "buy_warning": bw,
             "buy_reason": bw_reason,
+            "bucket": bucket,
+            "stop_loss_pct": round(sl_pct, 4) if sl_pct is not None else None,
+            "stop_loss_price": stop_price,
+            "stop_breached": breached,
+            "last_price": last_price,
         })
 
     # 排序：持仓优先，再按分位降序
@@ -292,6 +327,22 @@ def main() -> None:
             continue
         print(f"{r['code']:<8}{r['name']:<9}{r['pct_rank']*100:>5.1f}%"
               f"{r['quintile']:>8}{r['sell_action']:>10}")
+
+    print("\n" + "=" * 80)
+    print(f"三仓止损线（成本 × (1-止损%)）")
+    print("=" * 80)
+    print(f"{'代码':<8}{'名称':<9}{'仓位':>9}{'成本':>9}{'止损价':>9}{'现价':>9} 状态")
+    print("-" * 80)
+    for r in results:
+        if not r["is_holding"]:
+            continue
+        b = r["bucket"] or "?"
+        tag = "长线15%" if b == "long" else "阶段8%"
+        sl = r["stop_loss_price"]
+        lp = r["last_price"]
+        st = "🔴已破止损" if r["stop_breached"] else "🟢未破"
+        print(f"{r['code']:<8}{r['name']:<9}{tag:>9}"
+              f"{(r['avg_cost'] or 0):>9.2f}{(sl or 0):>9.2f}{(lp or 0):>9.2f} {st}")
 
     print("\n" + "=" * 80)
     print(f"首买/加仓预警（分位 <50% = 弱势股，历史命中率仅 42.7%）")
@@ -334,6 +385,11 @@ def main() -> None:
             "hold_discipline_reduce": [
                 {"code": r["code"], "name": r["name"],
                  "pct_rank": r["pct_rank"]} for r in sell_weak],
+            "stop_breached": [
+                {"code": r["code"], "name": r["name"],
+                 "bucket": r["bucket"], "stop_loss_price": r["stop_loss_price"],
+                 "last_price": r["last_price"]}
+                for r in results if r["is_holding"] and r["stop_breached"]],
         },
     }
     out_path = os.path.join(CACHE_DIR, "factor_discipline.json")
