@@ -7,19 +7,22 @@ trades_factor_backtest.py -- 历史交易记录（逐笔买卖点）接入因子
 给出历史交易个股的分析报告 + 现势因子符合度。
 
 三层分析：
-  ① 选股层：每只近期交易股「首次买入时」在因子体系里的分位（当时该不该买）
-  ② 买卖点层：每一笔买/卖之后 forward=5 日的收益（买卖点择时对不对）
-  ③ 现势层：历史交易股「当前」的因子评分/排名/分位/档位（现在符不符合因子策略）
+  ① 选股层：每只交易股「首次买入时」在因子体系里的分位（当时该不该买）——近期+早期全覆盖
+  ② 买卖点层：每一笔买/卖之后 forward=5 日的收益（买卖点择时对不对）——近期+早期全覆盖
+  ③ 现势层：近期交易股「当前」的因子评分/排名/分位/档位（现在符不符合因子策略）
 
 数据源：
   - cache/trades_history.json   逐笔买卖点（含已清仓股，ingest_statements.py 产出）
-  - cache/backtest_klines.json  364 只 K 线池
+  - cache/backtest_klines.json  K 线池（含早期股，fetch_missing_klines.py 补全）
   - cache/factor_ic.json        生效权重 + 翻转标记
 
 输出：cache/trades_factor_backtest.json
 
 ⚠️ 简化假设：不计交易成本/涨跌停/T+1；forward 收益未剔除市场 beta（受大盘环境影响）。
    结果用于诊断「历史决策 vs 因子信号」的一致性与择时质量，非实盘收益复现。
+
+   早期股选股层限制：因子滚动截面最早 2025-02-25，故首次买入早于该日的早期股
+   无法算分位（buy_pct=None），只参与买卖点层回放。
 """
 from __future__ import annotations
 
@@ -78,10 +81,20 @@ def fwd_return(kl, date, forward=FORWARD):
     return kl[idx + forward][2] / kl[idx][2] - 1.0
 
 
+def stat_block(rets):
+    """对收益列表算 n/胜率/平均收益。"""
+    if not rets:
+        return {"n": 0, "win_rate": None, "avg_ret": None}
+    n = len(rets)
+    win = sum(1 for x in rets if x["ret"] > 0) / n
+    avg = sum(x["ret"] for x in rets) / n
+    return {"n": n, "win_rate": round(win, 4), "avg_ret": round(avg, 4)}
+
+
 def main():
     t0 = datetime.datetime.now()
     print("=" * 88)
-    print("历史交易记录 → 因子回测（选股 / 买卖点 / 现势 三层）")
+    print("历史交易记录 → 因子回测（选股 / 买卖点 / 现势 三层 · 近期+早期全覆盖）")
     print("=" * 88)
 
     trades, klines, names, weights, flips = load_data()
@@ -140,53 +153,68 @@ def main():
                 return None
         return None
 
-    # ---------- ① 选股层 ----------
+    def sel_stats(sel):
+        scored = [s for s in sel if s["buy_pct"] is not None]
+        hit = sum(1 for s in scored if s["buy_pct"] >= 0.5)
+        return {"scored": len(scored), "hit_count": hit,
+                "hit_rate": round(hit / len(scored), 4) if scored else None}
+
+    # ---------- ① 选股层（近期 + 早期全覆盖）----------
     print("[4/5] ① 选股层：首次买入时的因子分位 ...")
     selection = []
-    for c, b in recent.items():
+    for c, b in by_code.items():
         if not b["first_buy"]:
             continue
+        grp = "recent" if c in recent else "early"
         p = pct_at(b["first_buy"], c)
         selection.append({
             "code": c, "name": b["name"], "first_buy": b["first_buy"],
-            "buy_pct": round(p, 4) if p is not None else None,
+            "group": grp, "buy_pct": round(p, 4) if p is not None else None,
         })
-    scored_sel = [s for s in selection if s["buy_pct"] is not None]
-    hit = sum(1 for s in scored_sel if s["buy_pct"] >= 0.5)
-    print(f"    近期股可评分 {len(scored_sel)} 只，买入时分位≥50% 的 {hit} 只"
-          f"（命中率 {hit/len(scored_sel)*100:.1f}%）")
+    sel_recent = [s for s in selection if s["group"] == "recent"]
+    sel_early = [s for s in selection if s["group"] == "early"]
+    st_all = sel_stats(selection)
+    st_recent = sel_stats(sel_recent)
+    st_early = sel_stats(sel_early)
+    print(f"    选股层：全部可评分 {st_all['scored']} 只（命中率 {st_all['hit_rate']*100:.1f}%）"
+          f"｜近期 {st_recent['scored']} 只（{st_recent['hit_rate']*100:.1f}%）"
+          f"｜早期 {st_early['scored']} 只（{st_early['hit_rate']*100:.1f}%）")
 
-    # ---------- ② 买卖点层 ----------
+    # ---------- ② 买卖点层（近期 + 早期全覆盖）----------
     print("[5/5] ② 买卖点层：每笔买卖 forward=5 收益 ...")
     buy_rets, sell_rets = [], []
-    for c, b in recent.items():
+    for c, b in by_code.items():
         kl = klines[c]
+        grp = "recent" if c in recent else "early"
         for d in b["buys"]:
             r = fwd_return(kl, d)
             if r is not None:
-                buy_rets.append({"code": c, "name": b["name"], "date": d, "ret": round(r, 4)})
+                buy_rets.append({"code": c, "name": b["name"], "date": d,
+                                 "group": grp, "ret": round(r, 4)})
         for d in b["sells"]:
             r = fwd_return(kl, d)
             if r is not None:
-                sell_rets.append({"code": c, "name": b["name"], "date": d, "ret": round(r, 4)})
+                sell_rets.append({"code": c, "name": b["name"], "date": d,
+                                  "group": grp, "ret": round(r, 4)})
 
-    def stats(rets):
-        if not rets:
-            return {"n": 0, "win": None, "avg": None}
-        n = len(rets)
-        win = sum(1 for x in rets if x["ret"] > 0) / n
-        avg = sum(x["ret"] for x in rets) / n
-        return {"n": n, "win_rate": round(win, 4), "avg_ret": round(avg, 4)}
+    buy_stat = stat_block(buy_rets)
+    sell_stat = stat_block(sell_rets)
+    buy_recent = stat_block([x for x in buy_rets if x["group"] == "recent"])
+    buy_early = stat_block([x for x in buy_rets if x["group"] == "early"])
+    sell_recent = stat_block([x for x in sell_rets if x["group"] == "recent"])
+    sell_early = stat_block([x for x in sell_rets if x["group"] == "early"])
 
-    buy_stat = stats(buy_rets)
-    sell_stat = stats(sell_rets)
     print(f"    买入 {buy_stat['n']} 笔：胜率 {buy_stat['win_rate']*100:.1f}%"
-          f"，平均 {buy_stat['avg_ret']*100:+.2f}%")
+          f"，平均 {buy_stat['avg_ret']*100:+.2f}%"
+          f"｜近期 {buy_recent['n']}笔({buy_recent['win_rate']*100:.1f}%)"
+          f"｜早期 {buy_early['n']}笔({buy_early['win_rate']*100:.1f}%)")
     print(f"    卖出 {sell_stat['n']} 笔：胜率 {sell_stat['win_rate']*100:.1f}%"
           f"，平均 {sell_stat['avg_ret']*100:+.2f}%"
+          f"｜近期 {sell_recent['n']}笔({sell_recent['win_rate']*100:.1f}%)"
+          f"｜早期 {sell_early['n']}笔({sell_early['win_rate']*100:.1f}%)"
           f"（卖后涨=卖早，卖后跌=卖对）")
 
-    # ---------- ③ 现势层 ----------
+    # ---------- ③ 现势层（仅近期股，早期已清仓无当前状态）----------
     latest_sec = section_ranks[-1]
     current = []
     for c, b in sorted(recent.items(), key=lambda x: -(
@@ -216,13 +244,17 @@ def main():
         },
         "layer1_selection": {
             "first_buys": selection,
-            "scored": len(scored_sel),
-            "hit_count": hit,
-            "hit_rate": round(hit / len(scored_sel), 4) if scored_sel else None,
+            "scored": st_all["scored"],
+            "hit_count": st_all["hit_count"],
+            "hit_rate": st_all["hit_rate"],
+            "recent": st_recent,
+            "early": st_early,
         },
         "layer2_timing": {
-            "buy": {"stats": buy_stat, "trades": buy_rets},
-            "sell": {"stats": sell_stat, "trades": sell_rets},
+            "buy": {"stats": buy_stat, "recent": buy_recent, "early": buy_early,
+                    "trades": buy_rets},
+            "sell": {"stats": sell_stat, "recent": sell_recent, "early": sell_early,
+                     "trades": sell_rets},
         },
         "layer3_current": current,
     }
@@ -241,7 +273,6 @@ def main():
               f"{h['rank']:>6}/{h['pool_n']}{h['pct_rank']*100:>7.1f}%"
               f"{h['quintile']:>9}{h['buy_cnt']}买{h['sell_cnt']}卖")
 
-    # 现势分位分布
     strong = sum(1 for h in current if h["pct_rank"] >= 0.6)
     weak = sum(1 for h in current if h["pct_rank"] < 0.4)
     mid = len(current) - strong - weak

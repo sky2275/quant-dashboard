@@ -87,10 +87,16 @@ def build(d):
         "n_recent": univ.get("recent", 0),
         "n_early": univ.get("early", 0),
         "l1": l1,
+        "l1_recent": l1.get("recent", {}),
+        "l1_early": l1.get("early", {}),
         "l1_hist": l1_hist,
         "l1_labels": l1_labels,
         "buy_stats": buy_stats,
         "sell_stats": sell_stats,
+        "buy_recent": l2["buy"].get("recent", {}),
+        "buy_early": l2["buy"].get("early", {}),
+        "sell_recent": l2["sell"].get("recent", {}),
+        "sell_early": l2["sell"].get("early", {}),
         "ret_labels": ret_labels,
         "buy_hist": buy_hist,
         "sell_hist": sell_hist,
@@ -239,6 +245,22 @@ def render_html(r):
   </div>
 
   <div class="card">
+    <h2>近期 vs 早期 · 决策质量对比</h2>
+    <div class="desc">按「最后交易日」把 184 只有 K 线可回测的股分为近期（2025-08 后仍活跃，$n_recent 只）与早期（2025-08 前已清仓，$n_early 只），对比两组选股与买卖点质量。</div>
+    <table>
+      <thead><tr><th class="left">维度</th><th>全部</th><th>近期（$n_recent 只）</th><th>早期（$n_early 只）</th></tr></thead>
+      <tbody>
+        <tr><td class="left">选股命中率（首买分位≥50%）</td><td>$hit%</td><td>$l1r_hit</td><td>$l1e_hit</td></tr>
+        <tr><td class="left">买点胜率（forward 5日）</td><td>$bw%（$bn 笔）</td><td>$br_win（$br_n 笔）</td><td>$be_win（$be_n 笔）</td></tr>
+        <tr><td class="left">买点平均收益</td><td>$ba%</td><td>$br_avg</td><td>$be_avg</td></tr>
+        <tr><td class="left">卖点胜率（卖后跌=卖对）</td><td>$sw%（$sn 笔）</td><td>$sr_win（$sr_n 笔）</td><td>$se_win（$se_n 笔）</td></tr>
+        <tr><td class="left">卖点平均收益</td><td>$sa%</td><td>$sr_avg</td><td>$se_avg</td></tr>
+      </tbody>
+    </table>
+    <div class="note">关键发现：早期卖点胜率 <b>$se_win</b>（卖对的多），近期卖点胜率仅 <b>$sr_win</b>（约 $sr_early% 卖早）——你近期比早期更爱卖早。选股命中率两组都在 44-45%、均低于 50%，说明「追高/抄底左侧」是长期稳定的行为特征，而非某阶段偶然。</div>
+  </div>
+
+  <div class="card">
     <h2>③ 现势层 · 历史交易股当前因子状态（$n3 只近期股）</h2>
     <div class="desc">综合分 = 28 因子加权（IC 动态权重 + 反向翻转），满分 100、中性线 50；分位 = 在 $pool_n 只池中的相对位置。这是对「历史交易个股现阶段是否符合因子策略」的直接回答。</div>
     <div class="legend" style="margin-bottom:10px">
@@ -260,15 +282,15 @@ def render_html(r):
   </div>
 
   <div class="card">
-    <h2>① 选股层 · 首次买入时分位分布</h2>
-    <div class="desc">近期 $n_scored 只可评分股「首次买入当日」在因子截面里的分位。≥50% 表示买入时已是池内上半区（强者）；&lt;50% 表示当时买入的是相对弱势股（追高/抄底左侧）。</div>
+    <h2>① 选股层 · 首次买入时分位分布（近期+早期全覆盖）</h2>
+    <div class="desc">全部 $n_scored 只可评分股「首次买入当日」在因子截面里的分位（近期 $l1r_scored 只 + 早期 $l1e_scored 只）。≥50% 表示买入时已是池内上半区（强者）；&lt;50% 表示当时买入的是相对弱势股（追高/抄底左侧）。</div>
     <div id="l1Hist" class="chart-sm"></div>
     <div class="note">⚠️ 命中率 $hit%，仅 $hc/$sc 只首买时位于池内上半区——说明历史选股时点整体偏弱，买入的股票多数当时并非因子体系里的强者。</div>
   </div>
 
   <div class="card">
-    <h2>② 买卖点层 · forward=5 收益分布</h2>
-    <div class="desc">每一笔真实买/卖后 5 个交易日的收益分布。买入组右偏（正收益）越多越好；卖出组左偏（负收益）越多越好。</div>
+    <h2>② 买卖点层 · forward=5 收益分布（近期+早期全覆盖）</h2>
+    <div class="desc">每一笔真实买/卖后 5 个交易日的收益分布（买入 $bn 笔 + 卖出 $sn 笔）。买入组右偏（正收益）越多越好；卖出组左偏（负收益）越多越好。</div>
     <div id="timingHist" class="chart"></div>
     <div class="note">买入 $bn 笔：胜率 $bw%、平均 $ba%；卖出 $sn 笔：胜率 $sw%、平均 $sa%。卖出组均值 $sa% 且胜率仅 $sw%，意味着约 $sw_early% 的卖出之后股价继续上涨——「卖早了」是主要问题。</div>
   </div>
@@ -337,6 +359,20 @@ window.addEventListener("resize", function() { c1.resize(); c2.resize(); c3.resi
     def signed(x):
         return "{:+.2f}".format(x * 100)
 
+    def wr(x):
+        """win_rate 或 None → 文本。"""
+        return "—" if x is None else "{:.1f}%".format(x * 100)
+
+    def avg(x):
+        return "—" if x is None else "{:+.2f}%".format(x * 100)
+
+    l1r = r["l1_recent"]
+    l1e = r["l1_early"]
+    br = r["buy_recent"]
+    be = r["buy_early"]
+    sr = r["sell_recent"]
+    se = r["sell_early"]
+
     mapping = {
         "css": CSS,
         "asof": r["asof"],
@@ -360,6 +396,24 @@ window.addEventListener("resize", function() { c1.resize(); c2.resize(); c3.resi
         "bn": buy_stats["n"],
         "sn": sell_stats["n"],
         "sw_early": "{:.0f}".format((1 - sell_stats["win_rate"]) * 100),
+        # 近期 vs 早期对比
+        "l1r_hit": wr(l1r.get("hit_rate")),
+        "l1e_hit": wr(l1e.get("hit_rate")),
+        "l1r_scored": l1r.get("scored", 0),
+        "l1e_scored": l1e.get("scored", 0),
+        "br_win": wr(br.get("win_rate")),
+        "br_n": br.get("n", 0),
+        "br_avg": avg(br.get("avg_ret")),
+        "be_win": wr(be.get("win_rate")),
+        "be_n": be.get("n", 0),
+        "be_avg": avg(be.get("avg_ret")),
+        "sr_win": wr(sr.get("win_rate")),
+        "sr_n": sr.get("n", 0),
+        "sr_avg": avg(sr.get("avg_ret")),
+        "se_win": wr(se.get("win_rate")),
+        "se_n": se.get("n", 0),
+        "se_avg": avg(se.get("avg_ret")),
+        "sr_early": "—" if sr.get("win_rate") is None else "{:.0f}".format((1 - sr["win_rate"]) * 100),
         "tbl_rows": tbl_rows,
         "l1_labels_json": json.dumps(r["l1_labels"], ensure_ascii=False),
         "l1_hist_json": json.dumps(r["l1_hist"]),
