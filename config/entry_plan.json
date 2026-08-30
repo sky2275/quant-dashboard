@@ -1,0 +1,122 @@
+{
+  "asof": "2026-08-28",
+  "generated_at": "2026-08-31T00:09:35",
+  "universe": "factor pool 452 stocks",
+  "rules": {
+    "batch_method": "三批建仓 1/3 + 1/3 + 1/3（试仓/确认/突破）",
+    "stop_loss_short": 0.08,
+    "stop_loss_long": 0.15,
+    "discipline": [
+      "只碰因子分位>=60%的强股（历史选股命中率仅42.7%）",
+      "跌破EMA20且缩量回调中：等右侧企稳、勿左侧接刀",
+      "买了拿住别卖早（卖点胜率仅41%），跌破止损线才走"
+    ]
+  },
+  "entries": [
+    {
+      "code": "300567",
+      "name": "精测电子",
+      "account": "中信建投",
+      "role": "短线·首选",
+      "pct_rank": 0.956,
+      "price": 215.60,
+      "entry_low": 210,
+      "entry_high": 215,
+      "confirm": "放量破220",
+      "stop_loss": 197,
+      "target": 243,
+      "status": "等回踩企稳",
+      "note": "唯一站上EMA60，多头结构最健康"
+    },
+    {
+      "code": "002371",
+      "name": "北方华创",
+      "account": "中信建投",
+      "role": "短线",
+      "pct_rank": 0.881,
+      "price": 697.51,
+      "entry_low": 650,
+      "entry_high": 660,
+      "confirm": "站上708",
+      "stop_loss": 642,
+      "target": 785,
+      "status": "回调中·等回踩",
+      "note": "半导体设备龙头，RSI37偏弱勿追"
+    },
+    {
+      "code": "300236",
+      "name": "上海新阳",
+      "account": "中信建投",
+      "role": "短线",
+      "pct_rank": 0.801,
+      "price": 87.78,
+      "entry_low": 80,
+      "entry_high": 82,
+      "confirm": "站上91.6",
+      "stop_loss": 80.8,
+      "target": 104,
+      "status": "回调中·等回踩",
+      "note": "半导体材料，回踩20日低上方企稳"
+    },
+    {
+      "code": "300596",
+      "name": "利安隆",
+      "account": "中信建投",
+      "role": "短线·备选",
+      "pct_rank": 0.657,
+      "price": 41.90,
+      "entry_low": 42.5,
+      "entry_high": 43.0,
+      "confirm": "放量站稳42.5",
+      "stop_loss": 38.5,
+      "target": 46,
+      "status": "站上42.5再买",
+      "note": "4只短线里分位最低，仓位给最小"
+    },
+    {
+      "code": "300223",
+      "name": "北京君正",
+      "account": "中信建投",
+      "role": "长期底仓",
+      "pct_rank": 0.637,
+      "price": 135.70,
+      "entry_low": 125,
+      "entry_high": 130,
+      "confirm": "站上141.3",
+      "stop_loss": 117.47,
+      "target": "长线",
+      "status": "持有不动·等回踩补",
+      "note": "已有700股@138.21底仓，止损117.47未破"
+    },
+    {
+      "code": "688037",
+      "name": "芯源微",
+      "account": "银河证券",
+      "role": "科创·首选",
+      "pct_rank": 0.883,
+      "price": 367.74,
+      "entry_low": 348,
+      "entry_high": 355,
+      "confirm": "破379前高",
+      "stop_loss": 337,
+      "target": "新高",
+      "status": "站上EMA20·勿追高",
+      "note": "乖离+5.4%距20日低+46%，等回踩EMA20"
+    },
+    {
+      "code": "688041",
+      "name": "海光信息",
+      "account": "银河证券",
+      "role": "科创",
+      "pct_rank": 0.923,
+      "price": 245.49,
+      "entry_low": 225,
+      "entry_high": 230,
+      "confirm": "站上264",
+      "stop_loss": 226,
+      "target": 298,
+      "status": "深回调·等企稳",
+      "note": "跌破EMA20-7.2%，等20日低225附近企稳"
+    }
+  ]
+}
