@@ -11,8 +11,8 @@ sentiment.py -- 新闻情绪打分引擎（NLP 情绪因子）
 三层产出：
   1. 大盘情绪：读 cache/a_news_summary.json + cache/global_news_summary.json，
      对每条 headline.title 打分，聚合出 A股/全球 情绪分与多空条数。
-  2. 个股情绪：从 cache/holdings.json 读取持仓名，在所有标题里做子串匹配，
-     命中该股名的标题取其情绪均值，得到个股情绪分（无命中则为 None）。
+  2. 个股情绪（v2）：优先读 cache/stock_news.json（mx-ds-mcp 拉取的个股新闻）
+     做词典打分；未覆盖的股票回退到旧标题子串匹配。覆盖率从 ~0% 提到 100%。
   3. 输出 cache/sentiment.json，供 scoring.py 与看板消费。
 
 用法：
@@ -32,6 +32,7 @@ CACHE_DIR = os.path.join(REPO_ROOT, "cache")
 A_NEWS_PATH = os.path.join(CACHE_DIR, "a_news_summary.json")
 GLOBAL_NEWS_PATH = os.path.join(CACHE_DIR, "global_news_summary.json")
 HOLDINGS_PATH = os.path.join(CACHE_DIR, "holdings.json")
+STOCK_NEWS_PATH = os.path.join(CACHE_DIR, "stock_news.json")  # mx-ds-mcp 拉取的个股新闻
 OUT_PATH = os.path.join(CACHE_DIR, "sentiment.json")
 
 # ------------------------------------------------------------------ 情绪词典
@@ -171,6 +172,38 @@ def stock_sentiments(all_headlines: list, names: list[str]) -> dict[str, dict]:
     return out
 
 
+def _load_stock_news() -> dict:
+    """读 mx-ds-mcp 拉取的个股新闻缓存 stock_news.json。
+    返回 {"stocks": {name: {"code":.., "items":[{title,time,source},..]}}}。"""
+    d = _load_json(STOCK_NEWS_PATH)
+    return d or {}
+
+
+def stock_sentiments_from_mx(names: list[str]) -> dict[str, dict]:
+    """优先数据源：对 mx-ds-mcp 拉取的个股新闻做词典情绪打分。
+    返回 {name: {score, label, hits, titles, source}}，只包含有新闻的股票；
+    无新闻的股票由调用方回退到旧标题子串匹配。"""
+    news = _load_stock_news()
+    stocks = news.get("stocks", {}) or {}
+    out: dict[str, dict] = {}
+    for name in names:
+        entry = stocks.get(name)
+        items = (entry or {}).get("items", []) or []
+        if not items:
+            continue
+        titles = [str(it.get("title", "")) for it in items]
+        scores = [sentiment_score(t) for t in titles]
+        mean = round(sum(scores) / len(scores), 3) if scores else 0.0
+        out[name] = {
+            "score": mean,
+            "label": _label(mean),
+            "hits": len(items),
+            "titles": titles,
+            "source": "mx-ds-mcp",
+        }
+    return out
+
+
 def analyze_news_files() -> dict:
     """主入口：读两个新闻缓存 + 持仓，产出完整情绪报告。"""
     a_news = _load_json(A_NEWS_PATH)
@@ -184,7 +217,11 @@ def analyze_news_files() -> dict:
 
     all_headlines = a_headlines + g_headlines
     names = _load_holding_names()
-    stocks = stock_sentiments(all_headlines, names)
+    stocks_mx = stock_sentiments_from_mx(names)
+    # 未覆盖的股票回退到旧标题子串匹配（向后兼容，覆盖 mx 未拉到的标的）
+    fallback_names = [n for n in names if n not in stocks_mx]
+    stocks_fallback = stock_sentiments(all_headlines, fallback_names)
+    stocks = {**stocks_fallback, **stocks_mx}  # mx 数据优先
 
     # 综合大盘情绪 = A股情绪 ×0.6 + 全球情绪 ×0.4（A股权重略高，更贴近持仓）
     a_s = a_result["score"]
@@ -219,12 +256,13 @@ def print_report(out: dict) -> None:
         r = out.get(key, {})
         print(f"  {label:<4} 情绪 {r.get('score')} ({r.get('label')})  多 {r.get('positive')} / 空 {r.get('negative')} / 中性 {r.get('neutral')}")
     print("-" * 66)
-    print("个股情绪（标题匹配持仓名）:")
+    print("个股情绪（mx-ds-mcp 拉取 + 词典打分）:")
     for name, s in out.get("stocks", {}).items():
         if s.get("score") is None:
             print(f"  {name:<6}  — 无相关新闻")
         else:
-            print(f"  {name:<6}  {s.get('score'):+.3f}  {s.get('label')}  (命中 {s.get('hits')} 条)")
+            src = s.get("source", "")
+            print(f"  {name:<6}  {s.get('score'):+.3f}  {s.get('label')}  (命中 {s.get('hits')} 条{(' · ' + src) if src else ''})")
     print("-" * 66)
 
 
