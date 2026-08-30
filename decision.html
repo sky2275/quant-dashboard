@@ -53,6 +53,15 @@ h1{font-size:18px;font-weight:600;}
 .empty{color:var(--sub);text-align:center;padding:20px 0;}
 .back{display:inline-block;margin-top:16px;color:var(--blue);text-decoration:none;font-size:12px;}
 .fresh{font-size:11px;color:var(--sub);text-align:right;margin-top:8px;}
+.t1-sum{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px;}
+.t1-card{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:10px 12px;text-align:center;}
+.t1-card .v{font-size:20px;font-weight:700;}
+.t1-card .l{font-size:11px;color:var(--sub);margin-top:2px;}
+.t1-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px;}
+.t1-tbl th,.t1-tbl td{border:1px solid var(--line);padding:5px 8px;text-align:center;}
+.t1-tbl th{background:rgba(255,255,255,.03);color:var(--sub);font-weight:600;}
+.t1-pend{font-size:11px;color:var(--amber);background:rgba(245,158,11,.12);padding:1px 7px;border-radius:8px;margin-left:6px;}
+.t1-cap{grid-column:1/-1;color:var(--sub);font-size:12px;padding-top:4px;}
 </style>
 </head>
 <body>
@@ -80,6 +89,13 @@ h1{font-size:18px;font-weight:600;}
 </div>
 
 <div class="panel" style="margin-top:16px;">
+  <h2>📊 T+1 回测验证 <span class="badge" id="t1Sub">次日真实表现</span></h2>
+  <div class="t1-sum" id="t1Sum"><div class="empty">加载中…</div></div>
+  <div id="t1Hist"></div>
+  <div class="mon" id="t1Latest"></div>
+</div>
+
+<div class="panel" style="margin-top:16px;">
   <h2>监控清单状态 <span class="badge" id="monSub">持仓 + 自选</span></h2>
   <div class="mon" id="monBox"><div class="empty">加载中…</div></div>
 </div>
@@ -93,13 +109,14 @@ function cls(v){return v>0?"up":(v<0?"down":"flat");}
 
 async function boot(){
   try{
-    const [e,s,h,m]=await Promise.all([
+    const [e,s,h,m,t1]=await Promise.all([
       fetch("./cache/live_events.json").then(r=>r.json()).catch(()=>null),
       fetch("./cache/signals.json").then(r=>r.json()).catch(()=>null),
       fetch("./cache/holdings.json").then(r=>r.json()).catch(()=>null),
       fetch("./cache/market_snapshot.json").then(r=>r.json()).catch(()=>null),
+      fetch("./cache/factor_top_t1.json").then(r=>r.json()).catch(()=>null),
     ]);
-    renderSnap(m); renderEvents(e); renderSignals(s); renderTop(s); renderMonitor(h,e);
+    renderSnap(m); renderEvents(e); renderSignals(s); renderTop(s); renderMonitor(h,e); renderT1(t1);
   }catch(err){ document.getElementById("evtBox").innerHTML='<div class="empty">加载失败：'+err.message+'</div>'; }
   document.getElementById("freshTxt").textContent="最近刷新："+new Date().toLocaleTimeString("zh-CN");
 }
@@ -159,6 +176,52 @@ function renderTop(s){
       <div class="n">${i+1}. ${x.name}</div>
       <div class="p">${sc}</div>
       <div class="m">${mf} · ${py}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderT1(t1){
+  const s=(t1&&t1.summary)||{};
+  const hist=(t1&&t1.history)||[];
+  const latest=(t1&&t1.latest)||{};
+  const sumEl=document.getElementById("t1Sum");
+  const wr=(s.win_rate_c2c===null||s.win_rate_c2c===undefined)?"—":(s.win_rate_c2c*100).toFixed(1)+"%";
+  const fm=(v)=>v===null||v===undefined||isNaN(v)?"—":((v>0?"+":"")+Number(v).toFixed(2)+"%");
+  sumEl.innerHTML=
+    `<div class="t1-card"><div class="v">${wr}</div><div class="l">T+1命中率（${s.days||0}天×${t1&&t1.params?t1.params.top_n:10}只）</div></div>`+
+    `<div class="t1-card"><div class="v ${cls(s.avg_c2c)}">${fm(s.avg_c2c)}</div><div class="l">平均收益 c2c</div></div>`+
+    `<div class="t1-card"><div class="v ${cls(s.avg_excess_c2c)}">${fm(s.avg_excess_c2c)}</div><div class="l">平均超额（vs全池等权）</div></div>`+
+    `<div class="t1-card"><div class="v">${(s.beat_market_days===null||s.beat_market_days===undefined)?"—":(s.beat_market_days+"/"+s.beat_market_total)}</div><div class="l">跑赢市场天数</div></div>`;
+
+  const histEl=document.getElementById("t1Hist");
+  document.getElementById("t1Sub").textContent="次日真实表现 · 无前视回溯"+(t1&&t1.asof?(" · 截至 "+t1.asof):"");
+  if(!hist.length){ histEl.innerHTML='<div class="empty">暂无 T+1 回测数据</div>'; }
+  else{
+    const rows=hist.map(h=>{
+      const c2c=(h.avg_c2c===null||h.avg_c2c===undefined)?"—":((h.avg_c2c>0?"+":"")+h.avg_c2c+"%");
+      const ex=(h.excess_c2c===null||h.excess_c2c===undefined)?"—":((h.excess_c2c>0?"+":"")+h.excess_c2c+"%");
+      return `<tr>
+        <td>${h.signal_date} → ${h.t1_date}</td>
+        <td>${h.win}/${h.n}</td>
+        <td class="${cls(h.avg_c2c)}">${c2c}</td>
+        <td class="${cls(h.excess_c2c)}">${ex}</td>
+      </tr>`;
+    }).join("");
+    histEl.innerHTML=`<table class="t1-tbl"><thead><tr><th>信号日 → T+1</th><th>命中</th><th>平均收益</th><th>超额收益</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  const latEl=document.getElementById("t1Latest");
+  const top=(latest.top)||[];
+  if(!top.length){ latEl.innerHTML='<div class="empty">暂无最新进攻池快照</div>'; return; }
+  const pend=(latest.status==="pending")?("<span class='t1-pend'>待结算 → "+(latest.t1_date||"下一交易日")+"</span>"):"";
+  const cap=`<div class="t1-cap">最新进攻池 ${latest.signal_date||""}${pend} · 入场价 = 信号日收盘</div>`;
+  latEl.innerHTML=cap+top.map((x,i)=>{
+    const sc=(x.score===null||x.score===undefined)?"—":Number(x.score).toFixed(1);
+    const ec=(x.entry_close===null||x.entry_close===undefined)?"—":Number(x.entry_close).toFixed(2);
+    return `<div class="cell">
+      <div class="n">${i+1}. ${x.name}</div>
+      <div class="p">${sc}</div>
+      <div class="m">入场 ${ec}</div>
     </div>`;
   }).join("");
 }

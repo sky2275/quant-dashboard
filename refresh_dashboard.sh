@@ -72,6 +72,7 @@ if [ "${1:-}" = "run" ]; then
     "$PY" scripts/daily_review.py >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN daily_review failed" >> "$LOG"
   fi
   "$PY" scripts/fetch_backtest_klines.py >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN fetch klines failed" >> "$LOG"
+  "$PY" scripts/factor_top_t1.py >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN factor_top_t1 failed" >> "$LOG"
   "$PY" scripts/build_dashboard.py >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN build failed" >> "$LOG"
   deploy
   echo "$(date '+%F %T') [run] DONE" >> "$LOG"
