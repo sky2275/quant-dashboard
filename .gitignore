@@ -25,3 +25,7 @@ data/statements/**/*.csv
 data/statements/**/*.XLS
 data/statements/**/*.XLSX
 data/statements/**/*.CSV
+
+# 历史逐笔买卖点聚合（同等级隐私：真实成交日期/价格/数量，仅留本机，绝不提交公开仓库）
+cache/trades_history.json
+cache/trades_factor_backtest.json

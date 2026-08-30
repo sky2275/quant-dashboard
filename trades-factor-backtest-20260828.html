@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>历史交易因子回测报告 · 2026-08-17</title>
+<script src="./assets/lib/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #f4f6f9; --card: #ffffff; --ink: #1a1d29; --sub: #6b7280; --line: #e5e7eb;
+    --red: #e03131; --red-soft: #fdeaea; --green: #00a67d; --green-soft: #e5f6f0;
+    --orange: #ffa502; --orange-soft: #fff4e0; --blue: #4dabf7; --purple: #9775fa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink);
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    line-height: 1.6; padding: 24px 16px 48px; }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  .head { margin-bottom: 20px; }
+  .head h1 { font-size: 26px; font-weight: 700; letter-spacing: .5px; }
+  .head .sub { color: var(--sub); font-size: 13px; margin-top: 6px; }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .tag-asof { background: var(--ink); color: #fff; margin-right: 6px; }
+  .tag-warn { background: var(--orange-soft); color: #c77d00; margin-right: 6px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .kpi .k { font-size: 12px; color: var(--sub); margin-bottom: 6px; }
+  .kpi .v { font-size: 26px; font-weight: 700; line-height: 1.1; }
+  .kpi .d { font-size: 12px; color: var(--sub); margin-top: 6px; }
+  .v.red { color: var(--red); } .v.green { color: var(--green); } .v.orange { color: var(--orange); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; margin-bottom: 22px; }
+  .card h2 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .card .desc { font-size: 12.5px; color: var(--sub); margin-bottom: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 8px 9px; text-align: center; border-bottom: 1px solid var(--line); }
+  th { background: #fafbfc; color: var(--sub); font-weight: 600; font-size: 12px; white-space: nowrap; position: sticky; top: 0; }
+  td.left, th.left { text-align: left; }
+  .code { color: var(--sub); font-size: 12px; }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .pill.q1 { background: var(--red-soft); color: var(--red); }
+  .pill.q2 { background: #fff0e0; color: #c77d00; }
+  .pill.q3 { background: var(--orange-soft); color: #c77d00; }
+  .pill.q4 { background: #f0edff; color: var(--purple); }
+  .pill.q5 { background: var(--green-soft); color: var(--green); }
+  .bar { height: 6px; background: #eef0f3; border-radius: 999px; overflow: hidden; min-width: 80px; }
+  .bar i { display: block; height: 100%; border-radius: 999px; }
+  .chart { width: 100%; height: 380px; }
+  .chart-sm { width: 100%; height: 300px; }
+  .note { font-size: 12px; color: var(--sub); background: #fafbfc; border-left: 3px solid var(--line); padding: 10px 12px; border-radius: 6px; margin-top: 12px; }
+  .tbl-scroll { max-height: 560px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; }
+  .tbl-scroll thead th { position: sticky; top: 0; z-index: 1; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--sub); }
+  .legend b { color: var(--ink); }
+  .foot { font-size: 12px; color: var(--sub); text-align: center; margin-top: 24px; }
+  .disc { font-size: 12px; color: #6b7280; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-top: 18px; }
+  @media (max-width: 720px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart, .chart-sm { height: 280px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <h1>历史交易记录 · 因子回测报告</h1>
+    <div class="sub">
+      把 2196 笔真实买卖点接入 28 因子体系，从「选股 / 买卖点 / 现势」三层回测，回答：历史交易股在当前行情下符不符合因子策略
+      <span class="tag tag-asof">因子截面截至 2026-08-17</span>
+      <span class="tag tag-warn">选股命中率 &lt; 50% · 择时偏弱</span>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="k">历史交易规模</div>
+      <div class="v">100 只 / 2196 笔</div>
+      <div class="d">近期 89 只 + 早期 11 只，364 只 K 线池</div>
+    </div>
+    <div class="kpi">
+      <div class="k">① 选股命中率</div>
+      <div class="v orange">45.3%</div>
+      <div class="d">首次买入时分位≥50% 的 34/75 只</div>
+    </div>
+    <div class="kpi">
+      <div class="k">② 买点胜率（forward 5日）</div>
+      <div class="v orange">44.5%</div>
+      <div class="d">买后 5 日上涨占比 · 平均 -0.65%</div>
+    </div>
+    <div class="kpi">
+      <div class="k">② 卖点胜率（forward 5日）</div>
+      <div class="v green">40.9%</div>
+      <div class="d">卖后 5 日下跌占比 · 平均 -1.38%（卖后涨=卖早）</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>三层回测框架</h2>
+    <div class="desc">以真实交割单逐笔买卖点为基础，接入因子滚动截面（无前视），回答三个独立问题。</div>
+    <table>
+      <thead><tr><th class="left" style="width:120px">层</th><th class="left">回答的问题</th><th class="left">判定口径</th><th>结论</th></tr></thead>
+      <tbody>
+        <tr><td class="left"><b>① 选股层</b></td><td class="left">首次买入这只股时，它在全市场里是不是强者？</td><td class="left">首买日因子横截面分位，≥50% 记为「买对」</td><td><b style="color:#c77d00">命中率 45.3%（偏弱）</b></td></tr>
+        <tr><td class="left"><b>② 买卖点层</b></td><td class="left">每一笔买/卖之后 5 日，方向对不对？</td><td class="left">买后 5 日涨=买对；卖后 5 日跌=卖对（卖后涨=卖早）</td><td><b style="color:#c77d00">买 44.5% / 卖 40.9%（均低于 50%）</b></td></tr>
+        <tr><td class="left"><b>③ 现势层</b></td><td class="left">这些历史交易股「现在」符不符合因子策略？</td><td class="left">最新截面综合分 / 池内排名 / 分位 / Q1-Q5 档</td><td><b>偏强 19 · 中性 17 · 偏弱 50</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>③ 现势层 · 历史交易股当前因子状态（86 只近期股）</h2>
+    <div class="desc">综合分 = 28 因子加权（IC 动态权重 + 反向翻转），满分 100、中性线 50；分位 = 在 364 只池中的相对位置。这是对「历史交易个股现阶段是否符合因子策略」的直接回答。</div>
+    <div class="legend" style="margin-bottom:10px">
+      <span><b>现势分布：</b>偏强(≥60%) 19 只 · 中性(40-60%) 17 只 · 偏弱(<40%) 50 只</span>
+      <span>■ <b style="color:#e03131">强(≥60%)</b> 可继续持有/关注 · ■ <b style="color:#ffa502">中性(40-60%)</b> 观望 · ■ <b style="color:#00a67d">弱(&lt;40%)</b> 不符合因子策略</span>
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th class="left">股票</th><th>代码</th><th>综合分</th><th>池内排名</th><th>分位</th><th>分位条</th><th>档位</th><th>买/卖(笔)</th></tr></thead>
+        <tbody><tr><td class="left"><b>埃斯顿</b></td><td class="code">002747</td><td><b>61.1</b></td><td>5/361</td><td><b>98.9%</b></td><td><div class="bar"><i style="width:98.9%;background:#e03131"></i></div></td><td><span class="pill q1">Q1 强</span></td><td>3/4</td></tr>
+<tr><td class="left"><b>华电辽能</b></td><td class="code">600396</td><td><b>58.4</b></td><td>17/361</td><td><b>95.6%</b></td><td><div class="bar"><i style="width:95.6%;background:#e03131"></i></div></td><td><span class="pill q1">Q1 强</span></td><td>12/11</td></tr>
+<tr><td class="left"><b>上海建工</b></td><td class="code">600170</td><td><b>56.6</b></td><td>32/361</td><td><b>91.4%</b></td><td><div class="bar"><i style="width:91.4%;background:#e03131"></i></div></td><td><span class="pill q1">Q1 强</span></td><td>2/4</td></tr>
+<tr><td class="left"><b>长江电力</b></td><td class="code">600900</td><td><b>55.7</b></td><td>43/361</td><td><b>88.4%</b></td><td><div class="bar"><i style="width:88.4%;background:#e03131"></i></div></td><td><span class="pill q1">Q1 强</span></td><td>5/3</td></tr>
+<tr><td class="left"><b>宝丰能源</b></td><td class="code">600989</td><td><b>54.7</b></td><td>58/361</td><td><b>84.2%</b></td><td><div class="bar"><i style="width:84.2%;background:#e03131"></i></div></td><td><span class="pill q1">Q1 强</span></td><td>7/13</td></tr>
+<tr><td class="left"><b>通富微电</b></td><td class="code">002156</td><td><b>54.7</b></td><td>55/361</td><td><b>85.0%</b></td><td><div class="bar"><i style="width:85.0%;background:#e03131"></i></div></td><td><span class="pill q1">Q1 强</span></td><td>23/12</td></tr>
+<tr><td class="left"><b>比亚迪</b></td><td class="code">002594</td><td><b>53.5</b></td><td>75/361</td><td><b>79.5%</b></td><td><div class="bar"><i style="width:79.5%;background:#e03131"></i></div></td><td><span class="pill q2">Q2 偏强</span></td><td>51/53</td></tr>
+<tr><td class="left"><b>国瓷材料</b></td><td class="code">300285</td><td><b>53.4</b></td><td>78/361</td><td><b>78.7%</b></td><td><div class="bar"><i style="width:78.7%;background:#e03131"></i></div></td><td><span class="pill q2">Q2 偏强</span></td><td>15/10</td></tr>
+<tr><td class="left"><b>赤峰黄金</b></td><td class="code">600988</td><td><b>53.2</b></td><td>80/361</td><td><b>78.1%</b></td><td><div class="bar"><i style="width:78.1%;background:#e03131"></i></div></td><td><span class="pill q2">Q2 偏强</span></td><td>2/1</td></tr>
+<tr><td class="left"><b>灵康药业</b></td><td class="code">603669</td><td><b>52.5</b></td><td>97/361</td><td><b>73.4%</b></td><td><div class="bar"><i style="width:73.4%;background:#e03131"></i></div></td><td><span class="pill q2">Q2 偏强</span></td><td>1/1</td></tr>
+<tr><td class="left"><b>航天电器</b></td><td class="code">002025</td><td><b>51.9</b></td><td>102/361</td><td><b>72.0%</b></td><td><div class="bar"><i style="width:72.0%;background:#e03131"></i></div></td><td><span class="pill q2">Q2 偏强</span></td><td>3/1</td></tr>
+<tr><td class="left"><b>中国电信</b></td><td class="code">601728</td><td><b>51.9</b></td><td>103/361</td><td><b>71.8%</b></td><td><div class="bar"><i style="width:71.8%;background:#e03131"></i></div></td><td><span class="pill q2">Q2 偏强</span></td><td>5/3</td></tr>
+<tr><td class="left"><b>立讯精密</b></td><td class="code">002475</td><td><b>51.5</b></td><td>109/361</td><td><b>70.1%</b></td><td><div class="bar"><i style="width:70.1%;background:#e03131"></i></div></td><td><span class="pill q2">Q2 偏强</span></td><td>52/53</td></tr>
+<tr><td class="left"><b>风华高科</b></td><td class="code">000636</td><td><b>51.5</b></td><td>108/361</td><td><b>70.4%</b></td><td><div class="bar"><i style="width:70.4%;background:#e03131"></i></div></td><td><span class="pill q2">Q2 偏强</span></td><td>9/9</td></tr>
+<tr><td class="left"><b>北京君正</b></td><td class="code">300223</td><td><b>51.3</b></td><td>113/361</td><td><b>69.0%</b></td><td><div class="bar"><i style="width:69.0%;background:#e03131"></i></div></td><td><span class="pill q2">Q2 偏强</span></td><td>40/27</td></tr>
+<tr><td class="left"><b>汤姆猫</b></td><td class="code">300459</td><td><b>51.1</b></td><td>118/361</td><td><b>67.6%</b></td><td><div class="bar"><i style="width:67.6%;background:#e03131"></i></div></td><td><span class="pill q2">Q2 偏强</span></td><td>5/6</td></tr>
+<tr><td class="left"><b>京能电力</b></td><td class="code">600578</td><td><b>51.0</b></td><td>119/361</td><td><b>67.3%</b></td><td><div class="bar"><i style="width:67.3%;background:#e03131"></i></div></td><td><span class="pill q2">Q2 偏强</span></td><td>2/3</td></tr>
+<tr><td class="left"><b>长电科技</b></td><td class="code">600584</td><td><b>50.1</b></td><td>137/361</td><td><b>62.3%</b></td><td><div class="bar"><i style="width:62.3%;background:#e03131"></i></div></td><td><span class="pill q2">Q2 偏强</span></td><td>16/13</td></tr>
+<tr><td class="left"><b>北方国际</b></td><td class="code">000065</td><td><b>50.0</b></td><td>140/361</td><td><b>61.5%</b></td><td><div class="bar"><i style="width:61.5%;background:#e03131"></i></div></td><td><span class="pill q2">Q2 偏强</span></td><td>7/5</td></tr>
+<tr><td class="left"><b>柏诚股份</b></td><td class="code">601133</td><td><b>49.3</b></td><td>156/361</td><td><b>57.1%</b></td><td><div class="bar"><i style="width:57.1%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>3/1</td></tr>
+<tr><td class="left"><b>数字认证</b></td><td class="code">300579</td><td><b>49.1</b></td><td>158/361</td><td><b>56.5%</b></td><td><div class="bar"><i style="width:56.5%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>5/3</td></tr>
+<tr><td class="left"><b>中直股份</b></td><td class="code">600038</td><td><b>48.9</b></td><td>159/361</td><td><b>56.2%</b></td><td><div class="bar"><i style="width:56.2%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>4/1</td></tr>
+<tr><td class="left"><b>招金黄金</b></td><td class="code">000506</td><td><b>48.5</b></td><td>162/361</td><td><b>55.4%</b></td><td><div class="bar"><i style="width:55.4%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>3/2</td></tr>
+<tr><td class="left"><b>太极实业</b></td><td class="code">600667</td><td><b>48.4</b></td><td>167/361</td><td><b>54.0%</b></td><td><div class="bar"><i style="width:54.0%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>5/4</td></tr>
+<tr><td class="left"><b>东百集团</b></td><td class="code">600693</td><td><b>47.7</b></td><td>180/361</td><td><b>50.4%</b></td><td><div class="bar"><i style="width:50.4%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>6/12</td></tr>
+<tr><td class="left"><b>盐湖股份</b></td><td class="code">000792</td><td><b>47.2</b></td><td>188/361</td><td><b>48.2%</b></td><td><div class="bar"><i style="width:48.2%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>1/1</td></tr>
+<tr><td class="left"><b>征和工业</b></td><td class="code">003033</td><td><b>46.9</b></td><td>193/361</td><td><b>46.8%</b></td><td><div class="bar"><i style="width:46.8%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>22/26</td></tr>
+<tr><td class="left"><b>科大讯飞</b></td><td class="code">002230</td><td><b>46.9</b></td><td>194/361</td><td><b>46.5%</b></td><td><div class="bar"><i style="width:46.5%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>3/2</td></tr>
+<tr><td class="left"><b>中科信息</b></td><td class="code">300678</td><td><b>46.2</b></td><td>202/361</td><td><b>44.3%</b></td><td><div class="bar"><i style="width:44.3%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>1/1</td></tr>
+<tr><td class="left"><b>永安行</b></td><td class="code">603776</td><td><b>46.0</b></td><td>207/361</td><td><b>42.9%</b></td><td><div class="bar"><i style="width:42.9%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>46/40</td></tr>
+<tr><td class="left"><b>山河智能</b></td><td class="code">002097</td><td><b>46.0</b></td><td>205/361</td><td><b>43.5%</b></td><td><div class="bar"><i style="width:43.5%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>2/2</td></tr>
+<tr><td class="left"><b>浙大网新</b></td><td class="code">600797</td><td><b>46.0</b></td><td>206/361</td><td><b>43.2%</b></td><td><div class="bar"><i style="width:43.2%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>2/1</td></tr>
+<tr><td class="left"><b>水井坊</b></td><td class="code">600779</td><td><b>45.8</b></td><td>208/361</td><td><b>42.7%</b></td><td><div class="bar"><i style="width:42.7%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>1/1</td></tr>
+<tr><td class="left"><b>海南矿业</b></td><td class="code">601969</td><td><b>45.8</b></td><td>209/361</td><td><b>42.4%</b></td><td><div class="bar"><i style="width:42.4%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>1/1</td></tr>
+<tr><td class="left"><b>北大荒</b></td><td class="code">600598</td><td><b>45.7</b></td><td>210/361</td><td><b>42.1%</b></td><td><div class="bar"><i style="width:42.1%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>4/2</td></tr>
+<tr><td class="left"><b>东方雨虹</b></td><td class="code">002271</td><td><b>45.4</b></td><td>215/361</td><td><b>40.7%</b></td><td><div class="bar"><i style="width:40.7%;background:#ffa502"></i></div></td><td><span class="pill q3">Q3 中性</span></td><td>4/3</td></tr>
+<tr><td class="left"><b>软通动力</b></td><td class="code">301236</td><td><b>44.8</b></td><td>226/361</td><td><b>37.7%</b></td><td><div class="bar"><i style="width:37.7%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>12/5</td></tr>
+<tr><td class="left"><b>山东黄金</b></td><td class="code">600547</td><td><b>44.8</b></td><td>223/361</td><td><b>38.5%</b></td><td><div class="bar"><i style="width:38.5%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>7/4</td></tr>
+<tr><td class="left"><b>中国东航</b></td><td class="code">600115</td><td><b>44.6</b></td><td>227/361</td><td><b>37.4%</b></td><td><div class="bar"><i style="width:37.4%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>6/4</td></tr>
+<tr><td class="left"><b>佰维存储</b></td><td class="code">688525</td><td><b>44.3</b></td><td>231/361</td><td><b>36.3%</b></td><td><div class="bar"><i style="width:36.3%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>3/3</td></tr>
+<tr><td class="left"><b>富瑞特装</b></td><td class="code">300228</td><td><b>44.2</b></td><td>234/361</td><td><b>35.5%</b></td><td><div class="bar"><i style="width:35.5%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>5/7</td></tr>
+<tr><td class="left"><b>传智教育</b></td><td class="code">003032</td><td><b>44.0</b></td><td>236/361</td><td><b>34.9%</b></td><td><div class="bar"><i style="width:34.9%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>2/3</td></tr>
+<tr><td class="left"><b>诺德股份</b></td><td class="code">600110</td><td><b>43.7</b></td><td>240/361</td><td><b>33.8%</b></td><td><div class="bar"><i style="width:33.8%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>1/1</td></tr>
+<tr><td class="left"><b>永辉超市</b></td><td class="code">601933</td><td><b>43.7</b></td><td>239/361</td><td><b>34.1%</b></td><td><div class="bar"><i style="width:34.1%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>8/8</td></tr>
+<tr><td class="left"><b>东方财富</b></td><td class="code">300059</td><td><b>43.4</b></td><td>243/361</td><td><b>33.0%</b></td><td><div class="bar"><i style="width:33.0%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>3/5</td></tr>
+<tr><td class="left"><b>工业富联</b></td><td class="code">601138</td><td><b>43.2</b></td><td>249/361</td><td><b>31.3%</b></td><td><div class="bar"><i style="width:31.3%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>2/2</td></tr>
+<tr><td class="left"><b>国机精工</b></td><td class="code">002046</td><td><b>43.2</b></td><td>248/361</td><td><b>31.6%</b></td><td><div class="bar"><i style="width:31.6%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>1/2</td></tr>
+<tr><td class="left"><b>天海防务</b></td><td class="code">300008</td><td><b>42.4</b></td><td>252/361</td><td><b>30.5%</b></td><td><div class="bar"><i style="width:30.5%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>3/2</td></tr>
+<tr><td class="left"><b>岩山科技</b></td><td class="code">002195</td><td><b>42.0</b></td><td>259/361</td><td><b>28.5%</b></td><td><div class="bar"><i style="width:28.5%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>2/1</td></tr>
+<tr><td class="left"><b>绿的谐波</b></td><td class="code">688017</td><td><b>41.9</b></td><td>260/361</td><td><b>28.2%</b></td><td><div class="bar"><i style="width:28.2%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>2/2</td></tr>
+<tr><td class="left"><b>哈药股份</b></td><td class="code">600664</td><td><b>41.6</b></td><td>264/361</td><td><b>27.2%</b></td><td><div class="bar"><i style="width:27.2%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>6/5</td></tr>
+<tr><td class="left"><b>建设工业</b></td><td class="code">002265</td><td><b>41.4</b></td><td>265/361</td><td><b>26.9%</b></td><td><div class="bar"><i style="width:26.9%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>5/3</td></tr>
+<tr><td class="left"><b>西藏矿业</b></td><td class="code">000762</td><td><b>41.2</b></td><td>267/361</td><td><b>26.3%</b></td><td><div class="bar"><i style="width:26.3%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>2/2</td></tr>
+<tr><td class="left"><b>常山北明</b></td><td class="code">000158</td><td><b>40.7</b></td><td>272/361</td><td><b>24.9%</b></td><td><div class="bar"><i style="width:24.9%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>36/28</td></tr>
+<tr><td class="left"><b>南方精工</b></td><td class="code">002553</td><td><b>40.6</b></td><td>275/361</td><td><b>24.1%</b></td><td><div class="bar"><i style="width:24.1%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>12/10</td></tr>
+<tr><td class="left"><b>金发科技</b></td><td class="code">600143</td><td><b>40.5</b></td><td>277/361</td><td><b>23.5%</b></td><td><div class="bar"><i style="width:23.5%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>2/1</td></tr>
+<tr><td class="left"><b>长城军工</b></td><td class="code">601606</td><td><b>40.4</b></td><td>280/361</td><td><b>22.7%</b></td><td><div class="bar"><i style="width:22.7%;background:#00a67d"></i></div></td><td><span class="pill q4">Q4 偏弱</span></td><td>42/34</td></tr>
+<tr><td class="left"><b>沃尔核材</b></td><td class="code">002130</td><td><b>39.7</b></td><td>291/361</td><td><b>19.7%</b></td><td><div class="bar"><i style="width:19.7%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>31/23</td></tr>
+<tr><td class="left"><b>*ST春兴</b></td><td class="code">002547</td><td><b>38.8</b></td><td>298/361</td><td><b>17.7%</b></td><td><div class="bar"><i style="width:17.7%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>8/7</td></tr>
+<tr><td class="left"><b>视觉中国</b></td><td class="code">000681</td><td><b>38.8</b></td><td>297/361</td><td><b>18.0%</b></td><td><div class="bar"><i style="width:18.0%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>12/8</td></tr>
+<tr><td class="left"><b>金辰股份</b></td><td class="code">603396</td><td><b>38.8</b></td><td>299/361</td><td><b>17.4%</b></td><td><div class="bar"><i style="width:17.4%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>8/8</td></tr>
+<tr><td class="left"><b>亨通光电</b></td><td class="code">600487</td><td><b>38.4</b></td><td>303/361</td><td><b>16.3%</b></td><td><div class="bar"><i style="width:16.3%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>4/3</td></tr>
+<tr><td class="left"><b>电科芯片</b></td><td class="code">600877</td><td><b>38.3</b></td><td>308/361</td><td><b>15.0%</b></td><td><div class="bar"><i style="width:15.0%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>2/4</td></tr>
+<tr><td class="left"><b>顺络电子</b></td><td class="code">002138</td><td><b>38.2</b></td><td>310/361</td><td><b>14.4%</b></td><td><div class="bar"><i style="width:14.4%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>2/2</td></tr>
+<tr><td class="left"><b>海南发展</b></td><td class="code">002163</td><td><b>38.2</b></td><td>311/361</td><td><b>14.1%</b></td><td><div class="bar"><i style="width:14.1%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>4/3</td></tr>
+<tr><td class="left"><b>可川科技</b></td><td class="code">603052</td><td><b>37.5</b></td><td>315/361</td><td><b>13.0%</b></td><td><div class="bar"><i style="width:13.0%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>1/1</td></tr>
+<tr><td class="left"><b>航天电子</b></td><td class="code">600879</td><td><b>37.3</b></td><td>316/361</td><td><b>12.7%</b></td><td><div class="bar"><i style="width:12.7%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>2/2</td></tr>
+<tr><td class="left"><b>银河电子</b></td><td class="code">002519</td><td><b>37.1</b></td><td>318/361</td><td><b>12.2%</b></td><td><div class="bar"><i style="width:12.2%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>2/1</td></tr>
+<tr><td class="left"><b>亿纬锂能</b></td><td class="code">300014</td><td><b>36.9</b></td><td>319/361</td><td><b>11.9%</b></td><td><div class="bar"><i style="width:11.9%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>6/6</td></tr>
+<tr><td class="left"><b>平潭发展</b></td><td class="code">000592</td><td><b>36.8</b></td><td>320/361</td><td><b>11.6%</b></td><td><div class="bar"><i style="width:11.6%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>5/5</td></tr>
+<tr><td class="left"><b>祥明智能</b></td><td class="code">301226</td><td><b>36.8</b></td><td>322/361</td><td><b>11.1%</b></td><td><div class="bar"><i style="width:11.1%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>2/1</td></tr>
+<tr><td class="left"><b>楚江新材</b></td><td class="code">002171</td><td><b>36.8</b></td><td>321/361</td><td><b>11.4%</b></td><td><div class="bar"><i style="width:11.4%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>2/1</td></tr>
+<tr><td class="left"><b>中科金财</b></td><td class="code">002657</td><td><b>36.1</b></td><td>327/361</td><td><b>9.7%</b></td><td><div class="bar"><i style="width:9.7%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>1/1</td></tr>
+<tr><td class="left"><b>露笑科技</b></td><td class="code">002617</td><td><b>35.6</b></td><td>331/361</td><td><b>8.6%</b></td><td><div class="bar"><i style="width:8.6%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>8/7</td></tr>
+<tr><td class="left"><b>航天发展</b></td><td class="code">000547</td><td><b>35.5</b></td><td>332/361</td><td><b>8.3%</b></td><td><div class="bar"><i style="width:8.3%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>13/14</td></tr>
+<tr><td class="left"><b>华胜天成</b></td><td class="code">600410</td><td><b>35.2</b></td><td>333/361</td><td><b>8.0%</b></td><td><div class="bar"><i style="width:8.0%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>1/1</td></tr>
+<tr><td class="left"><b>赣锋锂业</b></td><td class="code">002460</td><td><b>35.1</b></td><td>334/361</td><td><b>7.8%</b></td><td><div class="bar"><i style="width:7.8%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>21/18</td></tr>
+<tr><td class="left"><b>首开股份</b></td><td class="code">600376</td><td><b>34.7</b></td><td>341/361</td><td><b>5.8%</b></td><td><div class="bar"><i style="width:5.8%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>5/4</td></tr>
+<tr><td class="left"><b>高澜股份</b></td><td class="code">300499</td><td><b>33.1</b></td><td>349/361</td><td><b>3.6%</b></td><td><div class="bar"><i style="width:3.6%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>4/3</td></tr>
+<tr><td class="left"><b>成飞集成</b></td><td class="code">002190</td><td><b>32.6</b></td><td>350/361</td><td><b>3.3%</b></td><td><div class="bar"><i style="width:3.3%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>5/5</td></tr>
+<tr><td class="left"><b>禾盛新材</b></td><td class="code">002290</td><td><b>32.1</b></td><td>351/361</td><td><b>3.0%</b></td><td><div class="bar"><i style="width:3.0%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>3/2</td></tr>
+<tr><td class="left"><b>三安光电</b></td><td class="code">600703</td><td><b>31.9</b></td><td>352/361</td><td><b>2.8%</b></td><td><div class="bar"><i style="width:2.8%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>50/34</td></tr>
+<tr><td class="left"><b>神剑股份</b></td><td class="code">002361</td><td><b>31.6</b></td><td>354/361</td><td><b>2.2%</b></td><td><div class="bar"><i style="width:2.2%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>1/2</td></tr>
+<tr><td class="left"><b>蒙娜丽莎</b></td><td class="code">002918</td><td><b>30.6</b></td><td>355/361</td><td><b>1.9%</b></td><td><div class="bar"><i style="width:1.9%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>1/2</td></tr>
+<tr><td class="left"><b>百花医药</b></td><td class="code">600721</td><td><b>28.9</b></td><td>357/361</td><td><b>1.4%</b></td><td><div class="bar"><i style="width:1.4%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>1/2</td></tr>
+<tr><td class="left"><b>通宇通讯</b></td><td class="code">002792</td><td><b>27.8</b></td><td>359/361</td><td><b>0.8%</b></td><td><div class="bar"><i style="width:0.8%;background:#00a67d"></i></div></td><td><span class="pill q5">Q5 弱</span></td><td>9/8</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>现势层 · 分位分布</h2>
+    <div class="desc">86 只近期交易股的分位直方图。左低右高：越靠右越符合当前因子策略。</div>
+    <div id="curHist" class="chart-sm"></div>
+  </div>
+
+  <div class="card">
+    <h2>① 选股层 · 首次买入时分位分布</h2>
+    <div class="desc">近期 75 只可评分股「首次买入当日」在因子截面里的分位。≥50% 表示买入时已是池内上半区（强者）；&lt;50% 表示当时买入的是相对弱势股（追高/抄底左侧）。</div>
+    <div id="l1Hist" class="chart-sm"></div>
+    <div class="note">⚠️ 命中率 45.3%，仅 34/75 只首买时位于池内上半区——说明历史选股时点整体偏弱，买入的股票多数当时并非因子体系里的强者。</div>
+  </div>
+
+  <div class="card">
+    <h2>② 买卖点层 · forward=5 收益分布</h2>
+    <div class="desc">每一笔真实买/卖后 5 个交易日的收益分布。买入组右偏（正收益）越多越好；卖出组左偏（负收益）越多越好。</div>
+    <div id="timingHist" class="chart"></div>
+    <div class="note">买入 674 笔：胜率 44.5%、平均 -0.65%；卖出 579 笔：胜率 40.9%、平均 -1.38%。卖出组均值 -1.38% 且胜率仅 40.9%，意味着约 59% 的卖出之后股价继续上涨——「卖早了」是主要问题。</div>
+  </div>
+
+  <div class="disc">
+    <b>方法论与免责声明</b>：本报告以三券商真实交割单（银河/东财/中信建投，共 2196 笔、185 只）为回测基础，接入因子库 v2（量价+资金流+基本面三维、IC 动态权重）的滚动横截面（前瞻 5 日、步长 20、无前视）。forward 收益未剔除大盘 beta，未计交易成本/涨跌停/T+1 约束，故「胜率」「平均收益」为择时方向的相对参考，非实际盈亏。以上内容仅供参考，不构成投资建议；市场有风险，投资需谨慎。
+  </div>
+
+  <div class="foot">数据源：cache/trades_history.json（三券商逐笔交割单）+ cache/backtest_klines.json（364 只前复权日K）+ factor_ic.json 生效权重 · 因子引擎 factor_lib.py v2 · 生成时间 2026-08-30</div>
+</div>
+
+<script>
+var L1_LABELS = ["<20%", "20-40%", "40-60%", "60-80%", "≥80%"];
+var L1_HIST = [22, 13, 13, 8, 19];
+var CUR_HIST = [29, 21, 17, 13, 6];
+var RET_LABELS = ["≤-6%", "-6~-3%", "-3~0%", "0~3%", "3~6%", ">6%"];
+var BUY_HIST = [197, 84, 92, 112, 51, 138];
+var SELL_HIST = [168, 83, 88, 81, 49, 110];
+
+function barOpt(cats, vals, color, name, isCount) {
+  return {
+    grid: { left: 40, right: 16, top: 16, bottom: 30 },
+    tooltip: { trigger: "axis", axisPointer: { type: "shadow" },
+      valueFormatter: function(v) { return v + (isCount ? " 只" : " 笔"); } },
+    xAxis: { type: "category", data: cats, axisLabel: { fontSize: 11 } },
+    yAxis: { type: "value", minInterval: 1, splitLine: { lineStyle: { color: "#eef0f3" } } },
+    series: [{
+      name: name, type: "bar", data: vals,
+      itemStyle: { color: color, borderRadius: [4,4,0,0] },
+      barMaxWidth: 36,
+      label: { show: true, position: "top", fontSize: 11, color: "#6b7280" }
+    }]
+  };
+}
+
+var c1 = echarts.init(document.getElementById("curHist"));
+c1.setOption(barOpt(L1_LABELS, CUR_HIST, "#4dabf7", "近期交易股数", true));
+
+var c2 = echarts.init(document.getElementById("l1Hist"));
+c2.setOption(barOpt(L1_LABELS, L1_HIST, "#ffa502", "首次买入股数", true));
+
+var c3 = echarts.init(document.getElementById("timingHist"));
+c3.setOption({
+  grid: { left: 40, right: 16, top: 40, bottom: 30 },
+  tooltip: { trigger: "axis", axisPointer: { type: "shadow" },
+    valueFormatter: function(v) { return v + " 笔"; } },
+  legend: { top: 4, textStyle: { fontSize: 12 } },
+  xAxis: { type: "category", data: RET_LABELS, axisLabel: { fontSize: 11 } },
+  yAxis: { type: "value", minInterval: 1, splitLine: { lineStyle: { color: "#eef0f3" } } },
+  series: [
+    { name: "买入", type: "bar", data: BUY_HIST, itemStyle: { color: "#e03131", borderRadius: [4,4,0,0] }, barMaxWidth: 28 },
+    { name: "卖出", type: "bar", data: SELL_HIST, itemStyle: { color: "#00a67d", borderRadius: [4,4,0,0] }, barMaxWidth: 28 }
+  ]
+});
+
+window.addEventListener("resize", function() { c1.resize(); c2.resize(); c3.resize(); });
+</script>
+</body>
+</html>
