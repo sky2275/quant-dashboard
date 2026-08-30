@@ -75,6 +75,11 @@ h1{font-size:18px;font-weight:600;}
 </div>
 
 <div class="panel" style="margin-top:16px;">
+  <h2>🧭 量化雷达进攻池 <span class="badge" id="topSub">28因子新体系</span></h2>
+  <div class="mon" id="topBox"><div class="empty">加载中…</div></div>
+</div>
+
+<div class="panel" style="margin-top:16px;">
   <h2>监控清单状态 <span class="badge" id="monSub">持仓 + 自选</span></h2>
   <div class="mon" id="monBox"><div class="empty">加载中…</div></div>
 </div>
@@ -94,7 +99,7 @@ async function boot(){
       fetch("./cache/holdings.json").then(r=>r.json()).catch(()=>null),
       fetch("./cache/market_snapshot.json").then(r=>r.json()).catch(()=>null),
     ]);
-    renderSnap(m); renderEvents(e); renderSignals(s); renderMonitor(h,e);
+    renderSnap(m); renderEvents(e); renderSignals(s); renderTop(s); renderMonitor(h,e);
   }catch(err){ document.getElementById("evtBox").innerHTML='<div class="empty">加载失败：'+err.message+'</div>'; }
   document.getElementById("freshTxt").textContent="最近刷新："+new Date().toLocaleTimeString("zh-CN");
 }
@@ -137,6 +142,23 @@ function renderSignals(s){
         <div class="meta">理由：${x.reason}（触发：${x.trigger}）</div>
       </div>
       <div class="conf"><div class="num" style="color:${cc}">${x.confidence}</div><div class="lab">置信度</div></div>
+    </div>`;
+  }).join("");
+}
+
+function renderTop(s){
+  const box=document.getElementById("topBox");
+  const top=(s&&s.factor_top)||[];
+  document.getElementById("topSub").textContent=top.length?("Top "+top.length+" · 量价+资金流+基本面"):"无数据";
+  if(!top.length){ box.innerHTML='<div class="empty">暂无量化雷达进攻池数据</div>'; return; }
+  box.innerHTML=top.map((x,i)=>{
+    const mf=(x.mf_main_ratio===null||x.mf_main_ratio===undefined)?"资金—":("资金 "+Number(x.mf_main_ratio).toFixed(0));
+    const py=(x.profit_yoy===null||x.profit_yoy===undefined)?"成长—":("成长 "+Number(x.profit_yoy).toFixed(0));
+    const sc=(x.total_score===null||x.total_score===undefined)?"—":Number(x.total_score).toFixed(1);
+    return `<div class="cell">
+      <div class="n">${i+1}. ${x.name}</div>
+      <div class="p">${sc}</div>
+      <div class="m">${mf} · ${py}</div>
     </div>`;
   }).join("");
 }

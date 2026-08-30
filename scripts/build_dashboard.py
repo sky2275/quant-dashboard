@@ -6050,18 +6050,24 @@ def build() -> str:
                       f"{_pos_cnt} 只持仓" if _pos_cnt else "无持仓")
          + _section_holdings(positions, a_quotes, indicators, account_pnl, daily_review_cache,
                              updated_at=holdings_cache.get("updated_at"))),
-        ("nav-radar", "量化雷达", "fa-satellite-dish",
-         _screen_head("量化雷达", "多策略选股池 · 明日备选 · 回测引擎 · 持仓对比回测", "STRATEGY")
+        ("nav-radar", "选股雷达", "fa-satellite-dish",
+         _screen_head("选股雷达", "量化信号总览 · 备选股票池 · 主力资金池 · 明日进攻标的", "STRATEGY")
          + "".join([
-            _radar_signal_overview(snap),       # ⑥ 信号总览（纯派生，纯加法）
+            _radar_signal_overview(snap),       # 信号总览（纯派生，纯加法）
             _section_pool(cfg, a_quotes, indicators),
-            _mainforce_pool_card(snap),       # 8/3 主力资金备选池（重点）
-            _paper_trade_card(),              # 本地模拟交易账户（PAPER）
+            _mainforce_pool_card(snap),       # 主力资金备选池（重点）
             _middle_daily_picks(),            # 明日进攻标的（明日备选池）
-             _holding_backtest_compare(),      # 持仓 vs 备选池 回测对比
-             _right_backtest_engine(),         # 回测引擎
-             _section_judge(overnight, snap, cfg, a_quotes, account_pnl, positions),
          ])),
+        ("nav-backtest", "回测", "fa-flask",
+         _screen_head("回测", "本地模拟交易 · 持仓 vs 备选池回测对比 · 策略回测引擎", "BACKTEST")
+         + "".join([
+            _paper_trade_card(),              # 本地模拟交易账户（PAPER）
+            _holding_backtest_compare(),      # 持仓 vs 备选池 回测对比
+            _right_backtest_engine(),         # 回测引擎
+         ])),
+        ("nav-judge", "研判", "fa-gavel",
+         _screen_head("研判", "完整策略研判 · 作战逻辑与操作步骤", "JUDGE")
+         + _section_judge(overnight, snap, cfg, a_quotes, account_pnl, positions)),
     ]
 
     SUBMENU_HTML = (
@@ -6078,7 +6084,7 @@ def build() -> str:
             f'<span class="nav-icon"><i class="fas {icon}"></i></span>'
             f'<span class="nav-label">{label}</span>'
             f'<span class="nav-status"></span></div>'
-            + (SUBMENU_HTML if nid == "nav-radar" else "")
+            + (SUBMENU_HTML if nid == "nav-decision" else "")
             for i, (nid, label, icon, _) in enumerate(nav_items)
         ) \
         + '</nav>' \

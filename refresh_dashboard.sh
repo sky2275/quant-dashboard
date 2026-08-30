@@ -63,6 +63,8 @@ if [ "${1:-}" = "run" ]; then
     "$PY" scripts/us_overnight.py >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN us_overnight failed" >> "$LOG"
   fi
   "$PY" scripts/feed.py >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN feed failed" >> "$LOG"
+  "$PY" scripts/monitor.py >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN monitor failed" >> "$LOG"
+  "$PY" scripts/signal.py >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN signal failed" >> "$LOG"
   if [ -n "${DO_SCAN:-}" ]; then
     "$PY" scripts/scan_a_shares.py --mode "$DO_SCAN" >> "$LOG" 2>&1 || echo "$(date '+%F %T') [run] WARN scan $DO_SCAN failed" >> "$LOG"
   fi

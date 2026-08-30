@@ -30,6 +30,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = os.path.join(REPO, "cache")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import feed  # noqa: E402  复用 _tushare_pro() 读取 token
+import multi_factor as mf_model  # noqa: E402  消费 28 因子新体系（量价+资金流+基本面+估值）
 
 # 三仓止损映射
 BUCKET_STOP = {"short": 0.08, "mid": 0.10, "long": 0.15}
@@ -182,6 +183,48 @@ def _norm_code(code: str):
     return c
 
 
+def _factor_evidence(code_6digit: str):
+    """
+    用 28 因子新体系（量价 20 + 资金流 4 + 基本面 2 + 估值 2）对单只股票评分，
+    返回关键因子证据，供信号归因消费。
+
+    - 优先用 cache/backtest_klines.json（297 池，含资金流/基本面按日期注入）
+    - 不在池的标的（部分自选股）用腾讯日K兜底，退化为纯量价（资金流/基本面因子缺失）
+    """
+    klines = None
+    try:
+        path = os.path.join(CACHE, "backtest_klines.json")
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+            stock = (data.get("stocks") or {}).get(code_6digit)
+            if stock:
+                klines = stock.get("kline")
+    except Exception:
+        klines = None
+    if not klines:
+        try:
+            full = ("sh" if str(code_6digit).startswith(("6", "9")) else "sz") + str(code_6digit)
+            klines = feed._fetch_tencent_daily(full, count=250)
+        except Exception:
+            klines = None
+    if not klines or len(klines) < 20:
+        return None
+    try:
+        res = mf_model.score_stock(klines, code=code_6digit)
+    except Exception:
+        return None
+    fs = res.get("factor_scores") or {}
+    return {
+        "total_score": res.get("total_score"),
+        "mf_main_ratio": fs.get("mf_main_ratio"),   # 主力净流入占比（资金流，全表第一）
+        "profit_yoy": fs.get("profit_yoy"),         # 净利润同比（基本面成长）
+        "ma_slope60": fs.get("ma_slope60"),         # MA60 斜率（趋势动量）
+        "mom_120_20": fs.get("mom_120_20"),         # 120/20 日动量
+        "macd_hist": fs.get("macd_hist"),           # MACD 柱
+    }
+
+
 def build_signals():
     events = (_load("live_events.json") or {}).get("events") or []
     holdings = _holding_map()
@@ -192,6 +235,11 @@ def build_signals():
     ev_codes = list({e["code"] for e in events})
     mf_map = _tushare_moneyflow_map(ev_codes)
     lhb_map = _tushare_lhb_map()
+
+    # 28 因子新体系归因（量价+资金流+基本面+估值），对异动股逐只评分
+    factor_ev = {}
+    for c in {_norm_code(c) for c in ev_codes}:
+        factor_ev[c] = _factor_evidence(c)
 
     signals = []
     seen = set()  # 去重（同一 code+type 只留一条）
@@ -230,6 +278,16 @@ def build_signals():
             bucket = h["bucket"] if h else "mid"
             reasons = [f"跌幅 {chg:+.2f}%"]
             conf = 75
+            # 28 因子新体系归因（量价+资金流+基本面）
+            fe = factor_ev.get(code_norm)
+            if fe:
+                sc = fe.get("total_score")
+                if sc is not None and sc <= 40:
+                    reasons.append(f"量化评分{sc:.0f}分(弱)")
+                    conf += 5
+                if fe.get("mf_main_ratio") is not None and fe["mf_main_ratio"] <= 40:
+                    reasons.append("主力净流入占比低")
+                    conf += 5
             # Tushare 主力资金流归因
             mf = mf_map.get(code)
             if mf is not None and mf < 0:
@@ -269,6 +327,21 @@ def build_signals():
                 reasons.append("突破20日高点")
             if name in transmit:
                 reasons.append("美股传导映射标的")
+            # 28 因子新体系归因（量价+资金流+基本面）
+            fe = factor_ev.get(code_norm)
+            if fe:
+                sc = fe.get("total_score")
+                if sc is not None:
+                    if sc >= 60:
+                        reasons.append(f"量化评分{sc:.0f}分(强)")
+                        conf += 5
+                    elif sc <= 40:
+                        reasons.append(f"量化评分{sc:.0f}分(弱)")
+                        conf -= 5
+                if fe.get("mf_main_ratio") is not None and fe["mf_main_ratio"] >= 60:
+                    reasons.append("主力净流入占比高")
+                if fe.get("profit_yoy") is not None and fe["profit_yoy"] >= 70:
+                    reasons.append("业绩高增长")
             # Tushare 主力资金流归因
             mf = mf_map.get(code)
             if mf is not None:
@@ -319,12 +392,27 @@ def build_signals():
     order = {"防守": 0, "进攻": 1, "观察": 2}
     signals.sort(key=lambda s: (order.get(s["type"], 3), s.get("severity") == "critical" and -1 or 0))
 
+    # 量化雷达 Top 进攻池（28 因子新体系全池排名，供「实时决策」首页展示）
+    factor_top = []
+    try:
+        for r in mf_model.rank_stocks(top_n=10):
+            fs = r.get("factor_scores") or {}
+            factor_top.append({
+                "code": r.get("code"), "name": r.get("name"),
+                "total_score": round(r["total_score"], 1) if r.get("total_score") is not None else None,
+                "mf_main_ratio": fs.get("mf_main_ratio"),
+                "profit_yoy": fs.get("profit_yoy"),
+            })
+    except Exception as e:
+        print(f"[signal] rank_stocks 失败（不影响信号主流程）: {e}")
+
     out = {
         "updated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "signal_count": len(signals),
         "attack_count": sum(1 for s in signals if s["type"] == "进攻"),
         "defend_count": sum(1 for s in signals if s["type"] == "防守"),
         "signals": signals,
+        "factor_top": factor_top,
     }
     with open(os.path.join(CACHE, "signals.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
