@@ -44,6 +44,7 @@ factor_ic 的 trend 只是 (close-MA20)/MA20）。补一个因子要改两处，
 """
 from __future__ import annotations
 
+import bisect
 import json
 import math
 import os
@@ -58,12 +59,13 @@ MAX_LOOKBACK = 260
 # ----------------------------------------------------------------- 大类权重
 # 按「因子大类」分配权重，而不是按单个因子。总和 = 1.0
 CATEGORY_WEIGHTS = {
-    "动量反转": 0.24,
-    "波动风险": 0.24,
-    "量能量价": 0.18,
-    "技术形态": 0.16,
+    "动量反转": 0.22,
+    "波动风险": 0.22,
+    "量能量价": 0.17,
+    "技术形态": 0.15,
     "统计特征": 0.06,
-    "资金流向": 0.12,
+    "资金流向": 0.10,
+    "基本面": 0.08,
 }
 
 # IC 状态 → 权重调整系数
@@ -691,6 +693,39 @@ def f_mf_accel(v: KLineView, ctx: dict) -> float | None:
     return _mean(recent) - _mean(base)
 
 
+# ------------------------------ 基本面 ------------------------------
+# 数据来自 cache/fundamental_history.json（fetch_fundamental.py 抓 Tushare fina_indicator）。
+# ctx["fundamental"] = {"roe": [...], "netprofit_yoy": [...]}
+# 数组按 v.dates 对齐（长度 = v.n），已做「按公告日前向填充」，缺失处为 None。
+def _fund_series(v: KLineView, ctx: dict, field: str) -> list[float] | None:
+    """从 ctx 取基本面字段（按 v.dates 对齐）。无基本面数据返回 None。"""
+    fund = (ctx or {}).get("fundamental") or {}
+    arr = fund.get(field)
+    if not arr:
+        return None
+    return arr
+
+
+def f_roe(v: KLineView, ctx: dict) -> float | None:
+    """最近已披露 ROE 净资产收益率(%)。盈利能力越强越看好。"""
+    arr = _fund_series(v, ctx, "roe")
+    if not arr:
+        return None
+    val = arr[-1]
+    return val if val is not None else None
+
+
+def f_profit_yoy(v: KLineView, ctx: dict) -> float | None:
+    """最近已披露归母净利润同比增速(%)，截尾到 [-100, 200]。成长越强越看好。"""
+    arr = _fund_series(v, ctx, "netprofit_yoy")
+    if not arr:
+        return None
+    val = arr[-1]
+    if val is None:
+        return None
+    return max(-100.0, min(200.0, val))
+
+
 # ===========================================================================
 # 因子注册表 —— 补因子只需在这里加一条
 # ===========================================================================
@@ -803,6 +838,15 @@ FACTORS: dict[str, dict[str, Any]] = {
         "label": "资金流入加速度(5日-20日)", "category": "资金流向",
         "raw": f_mf_accel, "lo": -2.0, "hi": 2.0, "min_bars": 20,
     },
+    # ---------------- 基本面 ----------------
+    "roe": {
+        "label": "ROE净资产收益率(%)", "category": "基本面",
+        "raw": f_roe, "lo": -12.0, "hi": 27.0, "min_bars": 1,
+    },
+    "profit_yoy": {
+        "label": "净利润同比增速(%)", "category": "基本面",
+        "raw": f_profit_yoy, "lo": -100.0, "hi": 200.0, "min_bars": 1,
+    },
 }
 
 FACTOR_NAMES: list[str] = list(FACTORS.keys())
@@ -883,8 +927,11 @@ def compute_raw(kl: list, ctx: dict | None = None,
     v = KLineView(view_kl)
     v._build()
 
-    # 资金流因子需要按日期对齐的资金流序列；无 code 或资金流缺失时退化为纯量价
-    eff_ctx = inject_flow(ctx, code, v.dates) if code else (ctx or {})
+    # 外部数据因子（资金流/基本面）需要按日期对齐的序列；无 code 或数据缺失时退化为纯量价
+    eff_ctx = ctx or {}
+    if code:
+        eff_ctx = inject_flow(eff_ctx, code, v.dates)
+        eff_ctx = inject_fundamental(eff_ctx, code, v.dates)
 
     out: dict[str, float | None] = {}
     for n in spec_names:
@@ -1020,6 +1067,80 @@ def inject_flow(ctx: dict | None, code: str, dates: list[str]) -> dict:
 
 
 # ===========================================================================
+# 基本面历史（cache/fundamental_history.json，fetch_fundamental.py 抓取）
+# ===========================================================================
+_FUND_CACHE: dict | None = None
+
+
+def _load_fundamental(force_reload: bool = False) -> dict[str, dict]:
+    """读基本面历史，转成 {code: {ann_dates:[...], roe:{ann_date:val}, ...}}。
+    文件缺失时返回空 dict（基本面因子将返回 None，不污染统计）。"""
+    global _FUND_CACHE
+    if _FUND_CACHE is not None and not force_reload:
+        return _FUND_CACHE
+    path = os.path.join(CACHE_DIR, "fundamental_history.json")
+    if not os.path.exists(path):
+        _FUND_CACHE = {}
+        return _FUND_CACHE
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        _FUND_CACHE = {}
+        return _FUND_CACHE
+
+    out: dict[str, dict] = {}
+    for code, rec in data.get("stocks", {}).items():
+        ad = rec.get("ann_dates") or []
+        roe = rec.get("roe") or []
+        g = rec.get("netprofit_yoy") or []
+        out[code] = {
+            "ann_dates": ad,  # 升序 YYYYMMDD
+            "roe": {a: v for a, v in zip(ad, roe)},
+            "netprofit_yoy": {a: v for a, v in zip(ad, g)},
+        }
+    _FUND_CACHE = out
+    return out
+
+
+def slice_fundamental(code: str, dates: list[str]) -> dict | None:
+    """把某只股票的基本面按日期前向填充，返回 {field: [值或None]}。
+    无前视：用公告日严格小于 K 线日期（盘后公告，次日才生效）的最近一条财报。"""
+    rec = _load_fundamental().get(code)
+    if not rec:
+        return None
+    ann_dates = rec.get("ann_dates") or []
+    if not ann_dates:
+        return None
+    roe_map = rec.get("roe", {})
+    g_map = rec.get("netprofit_yoy", {})
+
+    out_roe: list[float | None] = []
+    out_g: list[float | None] = []
+    for d in dates:
+        key = d.replace("-", "") if isinstance(d, str) else str(d)
+        idx = bisect.bisect_left(ann_dates, key) - 1  # 最后一个 ann_date < key
+        if idx < 0:
+            out_roe.append(None)
+            out_g.append(None)
+        else:
+            ad = ann_dates[idx]
+            out_roe.append(roe_map.get(ad))
+            out_g.append(g_map.get(ad))
+    return {"roe": out_roe, "netprofit_yoy": out_g}
+
+
+def inject_fundamental(ctx: dict | None, code: str, dates: list[str]) -> dict:
+    """把基本面序列注入 ctx（按日期前向填充）。无数据时原样返回。"""
+    fund = slice_fundamental(code, dates) if code else None
+    if not fund:
+        return ctx or {}
+    merged = dict(ctx or {})
+    merged["fundamental"] = fund
+    return merged
+
+
+# ===========================================================================
 # 自检 / 分布校准
 # ===========================================================================
 def _load_klines() -> dict[str, list]:
@@ -1050,6 +1171,7 @@ def calibrate(sample: int = 80, percentiles: tuple[float, float] = (2, 98)) -> d
         v = KLineView(kl[-MAX_LOOKBACK:])
         v._build()
         c = inject_flow(slice_market_ctx(ctx, v.dates), code, v.dates)
+        c = inject_fundamental(c, code, v.dates)
         for n in FACTOR_NAMES:
             spec = FACTORS[n]
             if v.n < spec["min_bars"]:

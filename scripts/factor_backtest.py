@@ -307,14 +307,17 @@ def run_ablation(forward: int = FORWARD, step: int = STEP) -> dict:
     validated = [n for n, d in diag.items()
                  if d["long_short"] > 0 and d.get("win_rate", 0) >= 0.55]
 
-    # 资金流因子 = 大类为「资金流向」的因子；其余为纯量价因子。
+    # 资金流因子 = 大类为「资金流向」的因子；基本面 = 「基本面」；其余为纯量价因子。
     flow = [n for n in names if flib.FACTORS[n].get("category") == "资金流向"]
-    price_only = [n for n in names if n not in flow]
+    fund = [n for n in names if flib.FACTORS[n].get("category") == "基本面"]
+    new_dim = flow + fund  # 新维度 = 资金流 + 基本面
+    price_only = [n for n in names if n not in new_dim]
     subsets = {
         "全部因子": names,
-        "纯量价(无资金流)": price_only,
+        "纯量价(无新维度)": price_only,
         "资金流因子": flow or ["mf_main_ratio"],
-        "量价+资金流双验证": [n for n in validated if n in names],
+        "基本面因子": fund or ["profit_yoy"],
+        "新维度(资金流+基本面)": new_dim,
         "分层多空为正": positive or names,
         "双验证(多空>0且胜率≥55%)": validated or names,
         "趋势动量组": [n for n in ("ma_slope60", "mom_120_20", "macd_hist",
