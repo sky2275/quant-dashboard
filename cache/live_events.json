@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-08-31 11:37:13",
+ "updated_at": "2026-08-31 11:48:21",
  "scanned": 14,
  "quote_count": 13,
  "events": [
@@ -11,10 +11,10 @@
    "change_pct": 0.44,
    "vol_ratio": 1.16,
    "turnover": 3.15,
-   "msg": "跌破止损线 163.87（-10%）",
+   "msg": "跌破止损线 154.77（-15%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "08-31 11:37"
+   "time": "08-31 11:48"
   },
   {
    "code": "sz300579",
@@ -24,10 +24,10 @@
    "change_pct": -0.09,
    "vol_ratio": 0.91,
    "turnover": 1.56,
-   "msg": "跌破止损线 25.56（-10%）",
+   "msg": "跌破止损线 26.13（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "08-31 11:37"
+   "time": "08-31 11:48"
   }
  ]
 }

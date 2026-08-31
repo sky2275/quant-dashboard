@@ -34,7 +34,28 @@ import feed  # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = os.path.join(REPO, "cache")
+CONFIG = os.path.join(REPO, "config")
 UA = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"}
+
+
+def _bucket_cfg():
+    """三仓归属 + 止损档位唯一权威源：config/holdings_buckets.json。
+
+    历史 bug：本模块与 signal.py 各自硬编码 bucket 默认值 "mid" / stop 0.10，
+    与 config 定稿（北京君正=long 15%，其余=short 8%，mid=12%）不一致，
+    导致止损线算错（北京君正误用 -10% 而非 -15%）。现在统一从这里读。
+    返回 (buckets: {code: bucket}, stop_loss: {bucket: pct}, default: bucket)
+    """
+    try:
+        with open(os.path.join(CONFIG, "holdings_buckets.json"), encoding="utf-8") as f:
+            c = json.load(f)
+        buckets = c.get("buckets") or {}
+        stop = c.get("stop_loss") or {}
+        default = c.get("default") or "short"
+        return buckets, (stop or {"short": 0.08, "mid": 0.12, "long": 0.15}), default
+    except Exception as e:
+        print(f"[monitor] 读 config/holdings_buckets.json 失败，回退内置档位: {e}")
+        return {}, {"short": 0.08, "mid": 0.12, "long": 0.15}, "short"
 
 # ── 监控清单 ──────────────────────────────────────────────
 # 持仓（含止损线，用于触止损检测）
@@ -84,22 +105,26 @@ def _load_holdings_from_json():
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
         positions = data.get("positions") or []
+        buckets, stop_loss, default_bucket = _bucket_cfg()
         out = []
         for p in positions:
             if not isinstance(p, dict):
                 continue
             tcode = p.get("tcode")
+            code = str(p.get("code") or "")
             if not tcode:
-                code = str(p.get("code") or "")
                 if not code:
                     continue
                 tcode = ("sh" if code.startswith(("6", "9")) else "sz") + code
+            # 优先级：持仓内联 stop > 持仓内联 bucket 对应档位 > config 归属档位 > 0.10 兜底
+            bucket = p.get("bucket") or buckets.get(code) or default_bucket
+            stop_pct = p.get("stop") or stop_loss.get(bucket, 0.10)
             out.append({
                 "code": tcode,
                 "name": p.get("name") or tcode,
                 "avg_cost": p.get("avg_cost"),
-                "stop_pct": p.get("stop", 0.10),
-                "bucket": p.get("bucket", "mid"),
+                "stop_pct": stop_pct,
+                "bucket": bucket,
             })
         return out if out else HOLDINGS
     except Exception as e:

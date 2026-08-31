@@ -28,13 +28,37 @@ import datetime
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = os.path.join(REPO, "cache")
+CONFIG = os.path.join(REPO, "config")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import feed  # noqa: E402  复用 _tushare_pro() 读取 token
 import multi_factor as mf_model  # noqa: E402  消费 28 因子新体系（量价+资金流+基本面+估值）
 
-# 三仓止损映射
-BUCKET_STOP = {"short": 0.08, "mid": 0.10, "long": 0.15}
+# 三仓止损映射（默认值；实际以 config/holdings_buckets.json 为准，见 _bucket_cfg()）
+BUCKET_STOP = {"short": 0.08, "mid": 0.12, "long": 0.15}
 BUCKET_POS = {"short": "短线仓", "mid": "中线仓", "long": "长线仓"}
+_BUCKETS, _DEFAULT_BUCKET = {}, "short"
+
+
+def _bucket_cfg():
+    """三仓归属 + 止损档位唯一权威源：config/holdings_buckets.json。
+
+    历史 bug：本模块硬编码 bucket 默认 "mid" / stop 0.10，与 config 定稿
+    （北京君正=long 15%，其余=short 8%，mid=12%）不一致，止损线会算错。
+    现在统一从这里读，读不到才用上方默认值。
+    """
+    global BUCKET_STOP, _BUCKETS, _DEFAULT_BUCKET
+    try:
+        with open(os.path.join(CONFIG, "holdings_buckets.json"), encoding="utf-8") as f:
+            c = json.load(f)
+        _BUCKETS = c.get("buckets") or {}
+        BUCKET_STOP = (c.get("stop_loss") or BUCKET_STOP)
+        _DEFAULT_BUCKET = c.get("default") or "short"
+    except Exception as e:
+        print(f"[signal] 读 config/holdings_buckets.json 失败，回退内置档位: {e}")
+    return _BUCKETS, BUCKET_STOP, _DEFAULT_BUCKET
+
+
+_bucket_cfg()
 
 
 def _load(name):
@@ -55,11 +79,13 @@ def _holding_map():
             continue
         cur = m.get(code)
         cost = p.get("avg_cost")
+        # 优先级：持仓内联 bucket > config 归属 > default；stop 同理
+        bucket = p.get("bucket") or _BUCKETS.get(code) or _DEFAULT_BUCKET
+        stop_pct = p.get("stop") or BUCKET_STOP.get(bucket, 0.10)
         if cur is None or (cost and cost < cur["avg_cost"]):
             m[code] = {
                 "name": p.get("name"), "avg_cost": cost,
-                "bucket": p.get("bucket", "mid"),
-                "stop_pct": p.get("stop", BUCKET_STOP.get(p.get("bucket", "mid"), 0.10)),
+                "bucket": bucket, "stop_pct": stop_pct,
             }
     return m
 

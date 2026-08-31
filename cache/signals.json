@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-08-31 11:37:21",
+ "updated_at": "2026-08-31 11:48:23",
  "signal_count": 2,
  "attack_count": 0,
  "defend_count": 2,
@@ -11,10 +11,10 @@
    "name": "北京君正",
    "severity": "critical",
    "price": 136.3,
-   "ref_price": "跌破 124.39",
+   "ref_price": "跌破 117.47",
    "position": "清仓 / 减至观察仓",
    "stop": null,
-   "reason": "跌破mid仓止损线（-10%），纪律止损",
+   "reason": "跌破long仓止损线（-15%），纪律止损",
    "confidence": 95,
    "trigger": "触止损"
   },
@@ -25,10 +25,10 @@
    "name": "数字认证",
    "severity": "critical",
    "price": 23.1,
-   "ref_price": "跌破 25.56",
+   "ref_price": "跌破 26.13",
    "position": "清仓 / 减至观察仓",
    "stop": null,
-   "reason": "跌破mid仓止损线（-10%），纪律止损",
+   "reason": "跌破short仓止损线（-8%），纪律止损",
    "confidence": 95,
    "trigger": "触止损"
   }
