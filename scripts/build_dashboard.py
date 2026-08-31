@@ -5943,6 +5943,18 @@ def build() -> str:
     except Exception:
         pass
 
+    # 环球指数缓存兜底：cache/global_quotes.json（优先于下方硬编码的 _KR_FALLBACK / _JP_FALLBACK，
+    # 避免腾讯接口不返回韩国指数时回落到过期常量）
+    try:
+        _gq = _load_cache("global_quotes") or {}
+        for _grp, _d in (("kr", kr_quotes), ("jp", jp_quotes), ("hk", hk_quotes)):
+            for _k, _v in (_gq.get(_grp) or {}).items():
+                if _v and _v.get("price"):
+                    _d.setdefault(_k, _v)
+        print(f"[info] global_quotes 兜底: kr={len(kr_quotes)} jp={len(jp_quotes)} hk={len(hk_quotes)}")
+    except Exception:
+        pass
+
     # 批量技术指标（RSI/MACD/量比/换手）：收集全部标的 ts_code，调用 feed.get_indicators 一次
     items = []
     seen = set()

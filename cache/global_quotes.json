@@ -1,0 +1,161 @@
+{
+  "asof": "2026-08-28",
+  "updated_at": "2026-08-31 08:47",
+  "source": "东方财富财经早餐/证券时报/华尔街见闻 交叉核对 · 脚本自动刷新 | 腾讯 qt.gtimg.cn 实时行情（韩股为 8/31 盘中）",
+  "kr": {
+    "005930": {
+      "symbol": "005930",
+      "name": "Samsung Electronics Co., Ltd.",
+      "price": 250750.0,
+      "change_pct": -2.43191
+    },
+    "000660": {
+      "symbol": "000660",
+      "name": "SK hynix Inc.",
+      "price": 1616000.0,
+      "change_pct": -2.23835
+    },
+    "373220": {
+      "symbol": "373220",
+      "name": "LG Energy Solution, Ltd.",
+      "price": 377000.0,
+      "change_pct": 1.89189
+    },
+    "006400": {
+      "symbol": "006400",
+      "name": "Samsung SDI Co., Ltd.",
+      "price": 585000.0,
+      "change_pct": 2.45184
+    },
+    "051910": {
+      "symbol": "051910",
+      "name": "LG Chem, Ltd.",
+      "price": 279000.0,
+      "change_pct": 0.72202
+    },
+    "034220": {
+      "symbol": "034220",
+      "name": "LG Display Co., Ltd.",
+      "price": 9590.0,
+      "change_pct": -0.31185
+    },
+    "005380": {
+      "symbol": "005380",
+      "name": "Hyundai Motor Company",
+      "price": 396500.0,
+      "change_pct": -0.75094
+    },
+    "000270": {
+      "symbol": "000270",
+      "name": "Kia Corporation",
+      "price": 127900.0,
+      "change_pct": -0.078125
+    },
+    "005490": {
+      "symbol": "005490",
+      "name": "POSCO Holdings Inc.",
+      "price": 337000.0,
+      "change_pct": -0.14815
+    },
+    "KS11": {
+      "symbol": "KS11",
+      "name": "韩国综合指数",
+      "price": 7423.99,
+      "change_pct": -3.03,
+      "note": "2026-08-31 09:03 KST 开盘快照（三星/SK海力士跌约4%）"
+    }
+  },
+  "jp": {
+    "N225": {
+      "symbol": "N225",
+      "name": "日经225",
+      "price": 67641.93,
+      "change_pct": -0.9,
+      "note": "2026-08-31 开盘快照"
+    }
+  },
+  "hk": {
+    "HSI": {
+      "symbol": "HSI",
+      "name": "恒生指数",
+      "price": 25584.79,
+      "change_pct": 0.07
+    },
+    "HSTECH": {
+      "symbol": "HSTECH",
+      "name": "恒生科技指数",
+      "price": 4605.15,
+      "change_pct": -0.33
+    }
+  },
+  "us": {
+    "IXIC": {
+      "symbol": "IXIC",
+      "name": "纳斯达克",
+      "price": 26402.42,
+      "change_pct": -0.52
+    },
+    "DJI": {
+      "symbol": "DJI",
+      "name": "道琼斯",
+      "price": 53559.99,
+      "change_pct": -0.02
+    },
+    "INX": {
+      "symbol": "INX",
+      "name": "标普500",
+      "price": 7711.76,
+      "change_pct": -0.25
+    },
+    "SOXX": {
+      "symbol": "SOXX",
+      "name": "费城半导体ETF-iShares",
+      "price": 508.62,
+      "change_pct": -3.2
+    },
+    "SMH": {
+      "symbol": "SMH",
+      "name": "半导体指数ETF-VanEck",
+      "price": 553.11,
+      "change_pct": -3.47
+    },
+    "QQQ": {
+      "symbol": "QQQ",
+      "name": "纳指100ETF-Invesco",
+      "price": 716.43,
+      "change_pct": -0.65
+    },
+    "XLK": {
+      "symbol": "XLK",
+      "name": "科技行业精选ETF-SPDR",
+      "price": 185.69,
+      "change_pct": -1.55
+    },
+    "BOTZ": {
+      "symbol": "BOTZ",
+      "name": "机器人与人工智能ETF-Global X",
+      "price": 35.75,
+      "change_pct": -1.08
+    },
+    "ARKQ": {
+      "symbol": "ARKQ",
+      "name": "自主科技与机器人主动ETF-ARK",
+      "price": 122.32,
+      "change_pct": -1.48
+    }
+  },
+  "korea_watch": {
+    "三星电子": {
+      "code": "kr005930",
+      "change_pct": -2.43191
+    },
+    "SK海力士": {
+      "code": "kr000660",
+      "change_pct": -2.23835
+    },
+    "LG新能源": {
+      "code": "kr373220",
+      "change_pct": 1.89189
+    }
+  }
+}

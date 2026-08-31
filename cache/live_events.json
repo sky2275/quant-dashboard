@@ -1,6 +1,33 @@
 {
- "updated_at": "2026-08-30 13:15:42",
+ "updated_at": "2026-08-31 08:43:31",
  "scanned": 14,
  "quote_count": 13,
- "events": []
+ "events": [
+  {
+   "code": "sz300223",
+   "name": "北京君正",
+   "type": "触止损",
+   "price": 135.7,
+   "change_pct": -3.4,
+   "vol_ratio": 0.91,
+   "turnover": 5.08,
+   "msg": "跌破止损线 163.87（-10%）",
+   "severity": "critical",
+   "is_holding": true,
+   "time": "08-31 08:43"
+  },
+  {
+   "code": "sz300579",
+   "name": "数字认证",
+   "type": "触止损",
+   "price": 23.12,
+   "change_pct": 0.0,
+   "vol_ratio": 0.89,
+   "turnover": 2.91,
+   "msg": "跌破止损线 25.56（-10%）",
+   "severity": "critical",
+   "is_holding": true,
+   "time": "08-31 08:43"
+  }
+ ]
 }
