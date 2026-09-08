@@ -1,16 +1,30 @@
 {
- "updated_at": "2026-08-31 11:48:23",
- "signal_count": 2,
+ "updated_at": "2026-09-08 22:28:27",
+ "signal_count": 4,
  "attack_count": 0,
- "defend_count": 2,
+ "defend_count": 4,
  "signals": [
+  {
+   "type": "防守",
+   "action": "止损",
+   "code": "sz002156",
+   "name": "通富微电",
+   "severity": "critical",
+   "price": 58.32,
+   "ref_price": "跌破 58.58",
+   "position": "清仓 / 减至观察仓",
+   "stop": null,
+   "reason": "跌破short仓止损线（-8%），纪律止损",
+   "confidence": 95,
+   "trigger": "触止损"
+  },
   {
    "type": "防守",
    "action": "止损",
    "code": "sz300223",
    "name": "北京君正",
    "severity": "critical",
-   "price": 136.3,
+   "price": 133.79,
    "ref_price": "跌破 117.47",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -24,13 +38,27 @@
    "code": "sz300579",
    "name": "数字认证",
    "severity": "critical",
-   "price": 23.1,
+   "price": 23.88,
    "ref_price": "跌破 26.13",
    "position": "清仓 / 减至观察仓",
    "stop": null,
    "reason": "跌破short仓止损线（-8%），纪律止损",
    "confidence": 95,
    "trigger": "触止损"
+  },
+  {
+   "type": "防守",
+   "action": "减仓/回避",
+   "code": "sz300499",
+   "name": "高澜股份",
+   "severity": "high",
+   "price": 33.96,
+   "ref_price": "不追跌",
+   "position": "减仓",
+   "stop": 24.2604,
+   "reason": "跌幅 -5.43%、量化评分36分(弱)、主力净流出-3.60亿确认，警惕资金出逃",
+   "confidence": 95,
+   "trigger": "急跌"
   }
  ],
  "factor_top": [

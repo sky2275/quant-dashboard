@@ -1,33 +1,72 @@
 {
- "updated_at": "2026-08-31 11:48:21",
+ "updated_at": "2026-09-08 22:28:16",
  "scanned": 14,
  "quote_count": 13,
  "events": [
   {
+   "code": "sz002156",
+   "name": "通富微电",
+   "type": "触止损",
+   "price": 58.32,
+   "change_pct": -1.4,
+   "vol_ratio": 0.93,
+   "turnover": 4.03,
+   "msg": "跌破止损线 58.58（-8%）",
+   "severity": "critical",
+   "is_holding": true,
+   "time": "09-08 22:28"
+  },
+  {
    "code": "sz300223",
    "name": "北京君正",
    "type": "触止损",
-   "price": 136.3,
-   "change_pct": 0.44,
-   "vol_ratio": 1.16,
-   "turnover": 3.15,
+   "price": 133.79,
+   "change_pct": -0.01,
+   "vol_ratio": 1.12,
+   "turnover": 5.34,
    "msg": "跌破止损线 154.77（-15%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "08-31 11:48"
+   "time": "09-08 22:28"
   },
   {
    "code": "sz300579",
    "name": "数字认证",
    "type": "触止损",
-   "price": 23.1,
-   "change_pct": -0.09,
-   "vol_ratio": 0.91,
-   "turnover": 1.56,
+   "price": 23.88,
+   "change_pct": 1.66,
+   "vol_ratio": 0.72,
+   "turnover": 1.66,
    "msg": "跌破止损线 26.13（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "08-31 11:48"
+   "time": "09-08 22:28"
+  },
+  {
+   "code": "sz300499",
+   "name": "高澜股份",
+   "type": "急跌",
+   "price": 33.96,
+   "change_pct": -5.43,
+   "vol_ratio": 1.08,
+   "turnover": 16.47,
+   "msg": "跌幅 -5.43%，快速跳水",
+   "severity": "critical",
+   "is_holding": true,
+   "time": "09-08 22:28"
+  },
+  {
+   "code": "sz300499",
+   "name": "高澜股份",
+   "type": "高换手",
+   "price": 33.96,
+   "change_pct": -5.43,
+   "vol_ratio": 1.08,
+   "turnover": 16.47,
+   "msg": "换手率 16.5%，筹码剧烈交换",
+   "severity": "warn",
+   "is_holding": true,
+   "time": "09-08 22:28"
   }
  ]
 }
