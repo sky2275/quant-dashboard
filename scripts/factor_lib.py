@@ -615,6 +615,30 @@ def _ema_series(vals: list[float], period: int) -> float | None:
     return e
 
 
+def f_rel_sw_20d(v: KLineView, ctx: dict) -> float | None:
+    """20 日 vs 申万一级行业超额收益(%)。
+    raw = 20日个股涨幅 - 20日所属申万一级行业涨幅。
+    行业 alpha + 个股 alpha 双层叠加，抓行业里的龙头股。
+    数据来源：cache/sector_index_history.json（fetch_sector_daily.py 抓取）。"""
+    sec = (ctx or {}).get("sector")
+    if not sec:
+        return None
+    sec_closes = sec.get("closes") or []
+    if len(sec_closes) < 21:
+        return None
+    sec_now = sec_closes[-1]
+    sec_base = sec_closes[-21]
+    if not sec_now or not sec_base or sec_base <= 0:
+        return None
+    v._build()
+    c = v.closes
+    if len(c) < 21 or c[-21] <= 0:
+        return None
+    stock_ret = (c[-1] / c[-21] - 1.0) * 100
+    sec_ret = (sec_now / sec_base - 1.0) * 100
+    return stock_ret - sec_ret
+
+
 # ------------------------------ 统计特征 ------------------------------
 def f_skew(v: KLineView, ctx: dict) -> float | None:
     """收益偏度（取负）：-(60日日收益偏度)。
@@ -692,6 +716,41 @@ def f_mf_accel(v: KLineView, ctx: dict) -> float | None:
     if len(recent) < 3 or len(base) < 8:
         return None
     return _mean(recent) - _mean(base)
+
+
+def f_hsgt_chg_20d(v: KLineView, ctx: dict) -> float | None:
+    """北向持股 20 日变化率(%)。
+    A股实证：北向资金调仓常领先内资，20日累计变化率对 5/20日收益
+    有独立预测力（不与主力资金流高度共线——外资与内资偏好不同）。"""
+    arr = (ctx or {}).get("hsgt_hold_amount")
+    if not arr or len(arr) < 21:
+        return None
+    cur = arr[-1]
+    base = arr[-21]
+    if base is None or cur is None or base <= 0:
+        return None
+    return (cur / base - 1.0) * 100
+
+
+def f_holder_chg_q(v: KLineView, ctx: dict) -> float | None:
+    """股东户数季报环比变化(%)，取负号。
+    户数减少 = 筹码集中 = 大资金吸纳 = 看多。
+    低频（季频），按公告日前向填充（无前视）。"""
+    h = (ctx or {}).get("holder")
+    if not h:
+        return None
+    arr = h.get("holder_num") or []
+    if len(arr) < 2:
+        return None
+    cur = arr[-1]
+    prev = None
+    for x in reversed(arr[:-1]):
+        if x is not None and x != cur:
+            prev = x
+            break
+    if prev is None or prev <= 0 or cur is None or cur <= 0:
+        return None
+    return -((cur / prev - 1.0) * 100)
 
 
 # ------------------------------ 基本面 ------------------------------
@@ -845,6 +904,10 @@ FACTORS: dict[str, dict[str, Any]] = {
         "label": "MACD柱/收盘(%)", "category": "技术形态",
         "raw": f_macd_hist, "lo": -5.0, "hi": 3.0, "min_bars": 35,
     },
+    "rel_sw_20d": {
+        "label": "20日超额申万一级(%)", "category": "技术形态",
+        "raw": f_rel_sw_20d, "lo": -15.0, "hi": 15.0, "min_bars": 21,
+    },
     # ---------------- 统计特征 ----------------
     "skew": {
         "label": "-60日收益偏度", "category": "统计特征",
@@ -870,6 +933,14 @@ FACTORS: dict[str, dict[str, Any]] = {
     "mf_accel": {
         "label": "资金流入加速度(5日-20日)", "category": "资金流向",
         "raw": f_mf_accel, "lo": -2.0, "hi": 2.0, "min_bars": 20,
+    },
+    "hsgt_chg_20d": {
+        "label": "北向持股20日变化率(%)", "category": "资金流向",
+        "raw": f_hsgt_chg_20d, "lo": -25.0, "hi": 25.0, "min_bars": 21,
+    },
+    "holder_chg_q": {
+        "label": "-季报股东户数环比(%)（筹码集中）", "category": "资金流向",
+        "raw": f_holder_chg_q, "lo": -50.0, "hi": 20.0, "min_bars": 1,
     },
     # ---------------- 基本面 ----------------
     "roe": {
@@ -969,12 +1040,16 @@ def compute_raw(kl: list, ctx: dict | None = None,
     v = KLineView(view_kl)
     v._build()
 
-    # 外部数据因子（资金流/基本面/估值）需要按日期对齐的序列；无 code 或数据缺失时退化为纯量价
+    # 外部数据因子（资金流/基本面/估值/沪深通/股东户数/行业指数）需要按日期对齐的序列；
+    # 无 code 或数据缺失时退化为纯量价
     eff_ctx = ctx or {}
     if code:
         eff_ctx = inject_flow(eff_ctx, code, v.dates)
         eff_ctx = inject_fundamental(eff_ctx, code, v.dates)
         eff_ctx = inject_valuation(eff_ctx, code, v.dates)
+        eff_ctx = inject_sector_index(eff_ctx, code, v.dates)
+        eff_ctx = inject_hsgt(eff_ctx, code, v.dates)
+        eff_ctx = inject_holder(eff_ctx, code, v.dates)
 
     out: dict[str, float | None] = {}
     for n in spec_names:
@@ -1243,6 +1318,154 @@ def inject_valuation(ctx: dict | None, code: str, dates: list[str]) -> dict:
         return ctx or {}
     merged = dict(ctx or {})
     merged["valuation"] = val
+    return merged
+
+
+# ===========================================================================
+# 沪深通持股（cache/hsgt_history.json，fetch_hsgt_holding.py 抓取，15200 积分档）
+# 数据按日期对齐（每个交易日都有，无前向填充）。
+# ===========================================================================
+_HSGT_CACHE: dict | None = None
+
+
+def _load_hsgt(force_reload: bool = False) -> dict[str, dict]:
+    global _HSGT_CACHE
+    if _HSGT_CACHE is not None and not force_reload:
+        return _HSGT_CACHE
+    path = os.path.join(CACHE_DIR, "hsgt_history.json")
+    if not os.path.exists(path):
+        _HSGT_CACHE = {}
+        return _HSGT_CACHE
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        _HSGT_CACHE = {}
+        return _HSGT_CACHE
+    out: dict[str, dict] = {}
+    for code, rec in data.get("stocks", {}).items():
+        dates = rec.get("dates") or []
+        amts = rec.get("hold_amount") or []
+        out[code] = {d: a for d, a in zip(dates, amts) if a is not None}
+    _HSGT_CACHE = out
+    return _HSGT_CACHE
+
+
+def inject_hsgt(ctx: dict | None, code: str, dates: list[str]) -> dict:
+    """注入北向持股序列。缺失日返回 None，raw 函数会跳过。"""
+    merged = dict(ctx or {})
+    if not code:
+        return merged
+    rec = _load_hsgt().get(code)
+    if not rec:
+        return merged
+    amts = [rec.get((d.replace("-", "") if isinstance(d, str) else str(d)))
+            for d in dates]
+    merged["hsgt_hold_amount"] = amts
+    return merged
+
+
+# ===========================================================================
+# 股东户数（cache/holder_history.json，fetch_holder_number.py 抓取，15200 积分档）
+# 季频数据，按公告日前向填充（无前视）。
+# ===========================================================================
+_HOLDER_CACHE: dict | None = None
+
+
+def _load_holder(force_reload: bool = False) -> dict[str, dict]:
+    global _HOLDER_CACHE
+    if _HOLDER_CACHE is not None and not force_reload:
+        return _HOLDER_CACHE
+    path = os.path.join(CACHE_DIR, "holder_history.json")
+    if not os.path.exists(path):
+        _HOLDER_CACHE = {}
+        return _HOLDER_CACHE
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        _HOLDER_CACHE = {}
+        return _HOLDER_CACHE
+    out: dict[str, dict] = {}
+    for code, rec in data.get("stocks", {}).items():
+        ad = rec.get("ann_dates") or []
+        hn = rec.get("holder_num") or []
+        out[code] = {"ann_dates": ad,
+                     "by_ann": {a: h for a, h in zip(ad, hn) if h is not None}}
+    _HOLDER_CACHE = out
+    return _HOLDER_CACHE
+
+
+def slice_holder(code: str, dates: list[str]) -> dict | None:
+    """按公告日前向填充股东户数 → {holder_num: [值或None]}。"""
+    rec = _load_holder().get(code)
+    if not rec:
+        return None
+    ann = rec.get("ann_dates") or []
+    by = rec.get("by_ann") or {}
+    if not ann:
+        return None
+    out = []
+    for d in dates:
+        key = d.replace("-", "") if isinstance(d, str) else str(d)
+        idx = bisect.bisect_left(ann, key) - 1
+        out.append(by.get(ann[idx]) if idx >= 0 else None)
+    return {"holder_num": out}
+
+
+def inject_holder(ctx: dict | None, code: str, dates: list[str]) -> dict:
+    merged = dict(ctx or {})
+    h = slice_holder(code, dates) if code else None
+    if h:
+        merged["holder"] = h
+    return merged
+
+
+# ===========================================================================
+# 申万行业指数（cache/sector_index_history.json，fetch_sector_daily.py 抓取，15200 积分档）
+# 注入个股所属申万一级行业的日线 close 序列（按个股日期对齐）。
+# ===========================================================================
+_SECTOR_CACHE: dict | None = None
+
+
+def _load_sector(force_reload: bool = False) -> dict:
+    global _SECTOR_CACHE
+    if _SECTOR_CACHE is not None and not force_reload:
+        return _SECTOR_CACHE
+    path = os.path.join(CACHE_DIR, "sector_index_history.json")
+    if not os.path.exists(path):
+        _SECTOR_CACHE = {"indices": {}, "mapping": {}}
+        return _SECTOR_CACHE
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        _SECTOR_CACHE = {"indices": {}, "mapping": {}}
+        return _SECTOR_CACHE
+    indices = {}
+    for ts, rec in (data.get("indices") or {}).items():
+        indices[ts] = {d: c for d, c in zip(rec.get("dates", []),
+                                             rec.get("closes", []))}
+    _SECTOR_CACHE = {"indices": indices, "mapping": data.get("mapping", {})}
+    return _SECTOR_CACHE
+
+
+def inject_sector_index(ctx: dict | None, code: str, dates: list[str]) -> dict:
+    """注入：ctx["sector"] = {ts_code, closes: [按个股日期对齐]}。
+    无行业映射或行业指数无数据时，sector 字段不出现在 ctx 里。"""
+    merged = dict(ctx or {})
+    if not code:
+        return merged
+    sec = _load_sector()
+    ts = sec.get("mapping", {}).get(code)
+    if not ts:
+        return merged
+    by = sec.get("indices", {}).get(ts, {})
+    if not by:
+        return merged
+    closes = [by.get((d.replace("-", "") if isinstance(d, str) else str(d)))
+              for d in dates]
+    merged["sector"] = {"ts_code": ts, "closes": closes}
     return merged
 
 
