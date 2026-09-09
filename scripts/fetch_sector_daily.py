@@ -82,7 +82,8 @@ def _ts_to_code6(ts_code: str) -> str:
 
 def fetch_sw_index_list(pro) -> list[dict]:
     """拉申万一级行业列表。返回 [{ts_code, name}, ...]。"""
-    df = pro.index_classify(level="L1", src="SW")
+    # src 必须是 SW2021（申万2021版）；src="SW" 会返回空表
+    df = pro.index_classify(level="L1", src="SW2021")
     if df is None or df.empty:
         return []
     out = []
@@ -90,7 +91,8 @@ def fetch_sw_index_list(pro) -> list[dict]:
         code = r.get("index_code")
         if not code:
             continue
-        out.append({"ts_code": str(code) + ".SI",
+        # index_code 已经是 "801010.SI" 带后缀，无需再拼 .SI
+        out.append({"ts_code": str(code),
                     "name": str(r.get("industry_name", code))})
     return out
 
@@ -115,14 +117,15 @@ def fetch_sw_daily(pro, ts_code: str, start: str, end: str) -> dict | None:
 
 
 def fetch_sw_members(pro, ts_code: str) -> list[dict]:
-    """拉一个申万指数的成分股（in_date, out_date, con_code）。"""
-    df = pro.index_member_all(ts_code=ts_code)
+    """拉一个申万指数的成分股（in_date, out_date, ts_code）。"""
+    # 参数名是 index_code（不是 ts_code）；成分股代码字段是 ts_code（不是 con_code）
+    df = pro.index_member_all(index_code=ts_code)
     if df is None or df.empty:
         return []
     out = []
     for _, r in df.iterrows():
         out.append({
-            "con_code": str(r.get("con_code", "")),
+            "con_code": str(r.get("ts_code", "")),
             "in_date": str(r.get("in_date", "")) if r.get("in_date") else "",
             "out_date": str(r.get("out_date", "")) if r.get("out_date") else "",
         })

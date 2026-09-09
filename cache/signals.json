@@ -1,23 +1,9 @@
 {
- "updated_at": "2026-09-09 15:09:53",
- "signal_count": 6,
+ "updated_at": "2026-09-09 23:30:33",
+ "signal_count": 5,
  "attack_count": 3,
- "defend_count": 3,
+ "defend_count": 2,
  "signals": [
-  {
-   "type": "防守",
-   "action": "止损",
-   "code": "sz002156",
-   "name": "通富微电",
-   "severity": "critical",
-   "price": 58.35,
-   "ref_price": "跌破 58.58",
-   "position": "清仓 / 减至观察仓",
-   "stop": null,
-   "reason": "跌破short仓止损线（-8%），纪律止损",
-   "confidence": 95,
-   "trigger": "触止损"
-  },
   {
    "type": "防守",
    "action": "止损",
@@ -25,7 +11,7 @@
    "name": "北京君正",
    "severity": "critical",
    "price": 131.98,
-   "ref_price": "跌破 117.47",
+   "ref_price": "跌破 109.97",
    "position": "清仓 / 减至观察仓",
    "stop": null,
    "reason": "跌破long仓止损线（-15%），纪律止损",
@@ -39,7 +25,7 @@
    "name": "数字认证",
    "severity": "critical",
    "price": 23.38,
-   "ref_price": "跌破 26.13",
+   "ref_price": "跌破 21.05",
    "position": "清仓 / 减至观察仓",
    "stop": null,
    "reason": "跌破short仓止损线（-8%），纪律止损",
@@ -48,16 +34,16 @@
   },
   {
    "type": "进攻",
-   "action": "加仓/持有",
+   "action": "买入",
    "code": "sh600487",
    "name": "亨通光电",
    "severity": "high",
    "price": 66.62,
    "ref_price": "65.29-67.95",
    "position": "10%（短线仓）",
-   "stop": 57.664772,
-   "reason": "量化评分35分(弱)，趋势+量能共振",
-   "confidence": 65,
+   "stop": 61.29,
+   "reason": "量化评分33分(弱)、主力净流入+15.21亿，趋势+量能共振",
+   "confidence": 80,
    "trigger": "急拉"
   },
   {
@@ -69,9 +55,9 @@
    "price": 75.92,
    "ref_price": "74.40-77.44",
    "position": "10%（短线仓）",
-   "stop": 54.594916000000005,
-   "reason": "量比 3.4 倍放量，趋势+量能共振",
-   "confidence": 70,
+   "stop": 52.392160000000004,
+   "reason": "量比 3.4 倍放量、主力净流入+0.80亿，趋势+量能共振",
+   "confidence": 85,
    "trigger": "急拉"
   },
   {
@@ -83,9 +69,9 @@
    "price": 36.82,
    "ref_price": "36.08-37.56",
    "position": "10%（短线仓）",
-   "stop": 24.2604,
-   "reason": "量化评分36分(弱)、主力净流出-3.60亿（警惕拉高出货），趋势+量能共振",
-   "confidence": 55,
+   "stop": 29.596400000000003,
+   "reason": "量化评分34分(弱)、主力净流入+2.85亿，趋势+量能共振",
+   "confidence": 80,
    "trigger": "急拉"
   }
  ],
@@ -93,70 +79,70 @@
   {
    "code": "300308",
    "name": "中际旭创",
-   "total_score": 70.5,
+   "total_score": 70.4,
    "mf_main_ratio": 52.9,
    "profit_yoy": 100.0
   },
   {
+   "code": "301526",
+   "name": "国际复材",
+   "total_score": 66.6,
+   "mf_main_ratio": 23.2,
+   "profit_yoy": 92.2
+  },
+  {
+   "code": "301536",
+   "name": "星宸科技",
+   "total_score": 65.9,
+   "mf_main_ratio": 52.1,
+   "profit_yoy": 100.0
+  },
+  {
+   "code": "603288",
+   "name": "海天味业",
+   "total_score": 65.8,
+   "mf_main_ratio": 0.1,
+   "profit_yoy": 35.7
+  },
+  {
    "code": "603156",
    "name": "养元饮品",
-   "total_score": 68.7,
+   "total_score": 65.8,
    "mf_main_ratio": 37.0,
    "profit_yoy": 38.3
   },
   {
    "code": "000779",
    "name": "甘咨询",
-   "total_score": 68.2,
+   "total_score": 64.8,
    "mf_main_ratio": null,
    "profit_yoy": null
   },
   {
-   "code": "301536",
-   "name": "星宸科技",
-   "total_score": 67.9,
-   "mf_main_ratio": 52.1,
-   "profit_yoy": 100.0
+   "code": "002557",
+   "name": "洽洽食品",
+   "total_score": 64.3,
+   "mf_main_ratio": 100.0,
+   "profit_yoy": 92.5
   },
   {
-   "code": "301526",
-   "name": "国际复材",
-   "total_score": 66.8,
-   "mf_main_ratio": 23.2,
-   "profit_yoy": 92.2
+   "code": "300750",
+   "name": "宁德时代",
+   "total_score": 63.9,
+   "mf_main_ratio": 36.9,
+   "profit_yoy": 47.3
   },
   {
-   "code": "003032",
-   "name": "传智教育",
-   "total_score": 65.3,
-   "mf_main_ratio": null,
-   "profit_yoy": null
+   "code": "600233",
+   "name": "圆通速递",
+   "total_score": 63.9,
+   "mf_main_ratio": 100.0,
+   "profit_yoy": 57.8
   },
   {
-   "code": "603669",
-   "name": "灵康药业",
-   "total_score": 65.2,
-   "mf_main_ratio": null,
-   "profit_yoy": null
-  },
-  {
-   "code": "001229",
-   "name": "魅视科技",
-   "total_score": 65.0,
-   "mf_main_ratio": null,
-   "profit_yoy": null
-  },
-  {
-   "code": "600667",
-   "name": "太极实业",
-   "total_score": 64.4,
-   "mf_main_ratio": null,
-   "profit_yoy": null
-  },
-  {
-   "code": "001359",
-   "name": "平安电工",
-   "total_score": 64.0,
+   "code": "601728",
+   "name": "中国电信",
+   "total_score": 63.8,
    "mf_main_ratio": null,
    "profit_yoy": null
   }

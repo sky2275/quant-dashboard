@@ -718,18 +718,18 @@ def f_mf_accel(v: KLineView, ctx: dict) -> float | None:
     return _mean(recent) - _mean(base)
 
 
-def f_hsgt_chg_20d(v: KLineView, ctx: dict) -> float | None:
-    """北向持股 20 日变化率(%)。
-    A股实证：北向资金调仓常领先内资，20日累计变化率对 5/20日收益
-    有独立预测力（不与主力资金流高度共线——外资与内资偏好不同）。"""
-    arr = (ctx or {}).get("hsgt_hold_amount")
-    if not arr or len(arr) < 21:
+def f_cyq_conc(v: KLineView, ctx: dict) -> float | None:
+    """筹码集中度（负成本带宽度，越接近 0 越集中）。
+    (cost_95pct - cost_5pct)/cost_50pct 越小 → 筹码越集中 → 主力控盘
+    度越高 → 拉升概率越大，A股实证有效的筹码维度异象。
+    替代已停更的北向资金因子（pro.hsgt_hold 接口不存在）。"""
+    arr = (ctx or {}).get("cyq_cost_width")
+    if not arr or len(arr) < 1:
         return None
     cur = arr[-1]
-    base = arr[-21]
-    if base is None or cur is None or base <= 0:
+    if cur is None:
         return None
-    return (cur / base - 1.0) * 100
+    return cur
 
 
 def f_holder_chg_q(v: KLineView, ctx: dict) -> float | None:
@@ -934,9 +934,9 @@ FACTORS: dict[str, dict[str, Any]] = {
         "label": "资金流入加速度(5日-20日)", "category": "资金流向",
         "raw": f_mf_accel, "lo": -2.0, "hi": 2.0, "min_bars": 20,
     },
-    "hsgt_chg_20d": {
-        "label": "北向持股20日变化率(%)", "category": "资金流向",
-        "raw": f_hsgt_chg_20d, "lo": -25.0, "hi": 25.0, "min_bars": 21,
+    "cyq_conc": {
+        "label": "筹码集中度(-成本带宽度%)", "category": "资金流向",
+        "raw": f_cyq_conc, "lo": -80.0, "hi": -5.0, "min_bars": 1,
     },
     "holder_chg_q": {
         "label": "-季报股东户数环比(%)（筹码集中）", "category": "资金流向",
@@ -1048,7 +1048,7 @@ def compute_raw(kl: list, ctx: dict | None = None,
         eff_ctx = inject_fundamental(eff_ctx, code, v.dates)
         eff_ctx = inject_valuation(eff_ctx, code, v.dates)
         eff_ctx = inject_sector_index(eff_ctx, code, v.dates)
-        eff_ctx = inject_hsgt(eff_ctx, code, v.dates)
+        eff_ctx = inject_cyq(eff_ctx, code, v.dates)
         eff_ctx = inject_holder(eff_ctx, code, v.dates)
 
     out: dict[str, float | None] = {}
@@ -1322,46 +1322,55 @@ def inject_valuation(ctx: dict | None, code: str, dates: list[str]) -> dict:
 
 
 # ===========================================================================
-# 沪深通持股（cache/hsgt_history.json，fetch_hsgt_holding.py 抓取，15200 积分档）
+# 筹码分布（cache/cyq_perf_history.json，fetch_cyq_perf.py 抓取，15200 积分档）
 # 数据按日期对齐（每个交易日都有，无前向填充）。
+# ⚠️ 原「北向资金」方案已弃用：Tushare pro.hsgt_hold 接口不存在，且北向
+#    个股持股明细自 2024-08-16 起全球停更，数据已死 → 改用 cyq_perf 筹码
+#    分布作「主力/聪明钱」维度替代。
 # ===========================================================================
-_HSGT_CACHE: dict | None = None
+_CYQ_CACHE: dict | None = None
 
 
-def _load_hsgt(force_reload: bool = False) -> dict[str, dict]:
-    global _HSGT_CACHE
-    if _HSGT_CACHE is not None and not force_reload:
-        return _HSGT_CACHE
-    path = os.path.join(CACHE_DIR, "hsgt_history.json")
+def _load_cyq(force_reload: bool = False) -> dict[str, dict]:
+    global _CYQ_CACHE
+    if _CYQ_CACHE is not None and not force_reload:
+        return _CYQ_CACHE
+    path = os.path.join(CACHE_DIR, "cyq_perf_history.json")
     if not os.path.exists(path):
-        _HSGT_CACHE = {}
-        return _HSGT_CACHE
+        _CYQ_CACHE = {}
+        return _CYQ_CACHE
     try:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
     except Exception:
-        _HSGT_CACHE = {}
-        return _HSGT_CACHE
+        _CYQ_CACHE = {}
+        return _CYQ_CACHE
     out: dict[str, dict] = {}
     for code, rec in data.get("stocks", {}).items():
         dates = rec.get("dates") or []
-        amts = rec.get("hold_amount") or []
-        out[code] = {d: a for d, a in zip(dates, amts) if a is not None}
-    _HSGT_CACHE = out
-    return _HSGT_CACHE
+        c5 = rec.get("cost_5pct") or []
+        c50 = rec.get("cost_50pct") or []
+        c95 = rec.get("cost_95pct") or []
+        by: dict[str, float] = {}
+        for d, a, b, c in zip(dates, c5, c50, c95):
+            if b and b > 0:
+                by[d] = -100.0 * (c - a) / b  # 负成本带宽度，越接近 0 越集中
+        out[code] = by
+    _CYQ_CACHE = out
+    return _CYQ_CACHE
 
 
-def inject_hsgt(ctx: dict | None, code: str, dates: list[str]) -> dict:
-    """注入北向持股序列。缺失日返回 None，raw 函数会跳过。"""
+def inject_cyq(ctx: dict | None, code: str, dates: list[str]) -> dict:
+    """注入筹码集中度序列（负成本带宽度）。缺失日返回 None，raw 函数跳过。"""
     merged = dict(ctx or {})
     if not code:
         return merged
-    rec = _load_hsgt().get(code)
+    rec = _load_cyq().get(code)
     if not rec:
         return merged
-    amts = [rec.get((d.replace("-", "") if isinstance(d, str) else str(d)))
-            for d in dates]
-    merged["hsgt_hold_amount"] = amts
+    widths = [rec.get((d.replace("-", "") if isinstance(d, str) else str(d)))
+              for d in dates]
+    merged["cyq_cost_width"] = widths
     return merged
 
 
