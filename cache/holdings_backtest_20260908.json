@@ -1,0 +1,1855 @@
+{
+  "asof": "2026-09-08",
+  "summary": {
+    "actual_total_pnl": 4340.5,
+    "discipline_total_pnl": -4740.8,
+    "stop_triggered_count": 9,
+    "long_count": 2,
+    "short_count": 8,
+    "discipline_save": -9081.3
+  },
+  "positions": [
+    {
+      "code": "601606",
+      "name": "长城军工",
+      "account": "galaxy",
+      "bucket": "short",
+      "stop_pct": 0.08,
+      "cost": 34.634,
+      "qty": 1000,
+      "cur_price": 35.2,
+      "market_value": 35200.0,
+      "max_high": 42.08,
+      "max_drawdown_pct": -38.33,
+      "max_drawdown_date": "2026-07-17",
+      "stop_price": 31.863,
+      "would_have_stopped": true,
+      "stop_date": "2026-06-04",
+      "stop_exit_price": 48.896,
+      "actual_pnl": 566.0,
+      "actual_pnl_pct": 1.63,
+      "discipline_pnl": 14262.0,
+      "discipline_diff": 13696.0,
+      "factor_score_now": 46.8,
+      "factor_score_history_sample": [
+        {
+          "date": "2026-04-14",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 82.3,
+              "rev_5d": 48.9,
+              "dist_high": 40.1,
+              "vol_atr": 56.3,
+              "downside_vol": 74.8,
+              "max_dd": 64.0,
+              "amihud": 48.2,
+              "vol_trend": 41.8,
+              "vol_stab": 38.5,
+              "vol_price": 30.5,
+              "vp_corr": 23.2,
+              "trend_ma20": 48.1,
+              "ma_slope60": 30.3,
+              "rsi_mid": 70.8,
+              "bb_pos": 95.4,
+              "macd_hist": 29.7,
+              "skew": 14.6
+            },
+            "total_score": 45.4,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-05-15",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 80.1,
+              "rev_5d": 71.9,
+              "dist_high": 46.5,
+              "vol_atr": 72.6,
+              "downside_vol": 75.7,
+              "max_dd": 64.0,
+              "amihud": 50.6,
+              "vol_trend": 74.9,
+              "vol_stab": 41.5,
+              "vol_price": 78.7,
+              "vp_corr": 18.1,
+              "trend_ma20": 54.5,
+              "ma_slope60": 36.6,
+              "rsi_mid": 66.5,
+              "bb_pos": 70.2,
+              "macd_hist": 44.5,
+              "skew": 22.8
+            },
+            "total_score": 54.6,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-06-12",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 100.0,
+              "rev_5d": 59.5,
+              "dist_high": 65.8,
+              "vol_atr": 63.8,
+              "downside_vol": 73.4,
+              "max_dd": 45.8,
+              "amihud": 54.1,
+              "vol_trend": 59.9,
+              "vol_stab": 37.8,
+              "vol_price": 65.0,
+              "vp_corr": 18.8,
+              "trend_ma20": 76.7,
+              "ma_slope60": 15.0,
+              "rsi_mid": 13.0,
+              "bb_pos": 51.9,
+              "macd_hist": 0.0,
+              "skew": 19.8
+            },
+            "total_score": 50.3,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-07-13",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 100.0,
+              "rev_5d": 100.0,
+              "mom_120_20": 5.1,
+              "dist_high": 84.4,
+              "vol_atr": 48.8,
+              "downside_vol": 76.6,
+              "max_dd": 24.2,
+              "amihud": 56.3,
+              "vol_trend": 75.2,
+              "vol_stab": 65.9,
+              "vol_price": 51.5,
+              "vp_corr": 8.7,
+              "trend_ma20": 87.6,
+              "ma_slope60": 11.1,
+              "rsi_mid": 0.0,
+              "bb_pos": 31.9,
+              "macd_hist": 0.0,
+              "skew": 65.7
+            },
+            "total_score": 52.1,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-08-10",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 0.0,
+              "rev_5d": 8.6,
+              "mom_120_20": 3.2,
+              "dist_high": 52.6,
+              "vol_atr": 19.8,
+              "downside_vol": 72.1,
+              "max_dd": 24.3,
+              "amihud": 57.1,
+              "vol_trend": 78.4,
+              "vol_stab": 0.0,
+              "vol_price": 59.1,
+              "vp_corr": 58.3,
+              "trend_ma20": 0.0,
+              "ma_slope60": 37.6,
+              "rsi_mid": 15.6,
+              "bb_pos": 38.4,
+              "macd_hist": 100.0,
+              "skew": 18.7
+            },
+            "total_score": 25.8,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 82.5,
+              "rev_5d": 28.0,
+              "mom_120_20": 22.7,
+              "dist_high": 59.8,
+              "vol_atr": 45.8,
+              "downside_vol": 63.8,
+              "max_dd": 40.6,
+              "amihud": 53.4,
+              "vol_trend": 71.4,
+              "vol_stab": 31.8,
+              "vol_price": 91.8,
+              "vp_corr": 52.3,
+              "trend_ma20": 33.6,
+              "ma_slope60": 60.9,
+              "rsi_mid": 76.3,
+              "bb_pos": 82.7,
+              "macd_hist": 85.4,
+              "skew": 36.2
+            },
+            "total_score": 48.8,
+            "coverage": 0.581
+          }
+        }
+      ]
+    },
+    {
+      "code": "300579",
+      "name": "数字认证",
+      "account": "csc",
+      "bucket": "short",
+      "stop_pct": 0.08,
+      "cost": 22.877,
+      "qty": 1000,
+      "cur_price": 23.88,
+      "market_value": 23880.0,
+      "max_high": 28.44,
+      "max_drawdown_pct": -29.56,
+      "max_drawdown_date": "2026-07-07",
+      "stop_price": 21.047,
+      "would_have_stopped": true,
+      "stop_date": "2026-06-11",
+      "stop_exit_price": 31.86,
+      "actual_pnl": 1003.0,
+      "actual_pnl_pct": 4.38,
+      "discipline_pnl": 8983.0,
+      "discipline_diff": 7980.0,
+      "factor_score_now": 50.9,
+      "factor_score_history_sample": [
+        {
+          "date": "2026-04-14",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 89.5,
+              "rev_5d": 46.6,
+              "dist_high": 42.3,
+              "vol_atr": 71.1,
+              "downside_vol": 67.8,
+              "max_dd": 75.6,
+              "amihud": 83.0,
+              "vol_trend": 30.7,
+              "vol_stab": 43.5,
+              "vol_price": 37.1,
+              "vp_corr": 64.8,
+              "trend_ma20": 57.9,
+              "ma_slope60": 34.2,
+              "rsi_mid": 62.6,
+              "bb_pos": 74.4,
+              "macd_hist": 20.5,
+              "skew": 94.4
+            },
+            "total_score": 61.0,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-05-15",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 79.3,
+              "rev_5d": 97.5,
+              "dist_high": 48.1,
+              "vol_atr": 75.8,
+              "downside_vol": 68.0,
+              "max_dd": 74.1,
+              "amihud": 84.3,
+              "vol_trend": 49.2,
+              "vol_stab": 73.7,
+              "vol_price": 49.4,
+              "vp_corr": 50.9,
+              "trend_ma20": 65.9,
+              "ma_slope60": 39.0,
+              "rsi_mid": 31.7,
+              "bb_pos": 2.1,
+              "macd_hist": 48.1,
+              "skew": 100.0
+            },
+            "total_score": 71.6,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-06-12",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 100.0,
+              "rev_5d": 82.6,
+              "dist_high": 67.3,
+              "vol_atr": 60.5,
+              "downside_vol": 71.3,
+              "max_dd": 43.6,
+              "amihud": 87.1,
+              "vol_trend": 58.2,
+              "vol_stab": 82.8,
+              "vol_price": 45.8,
+              "vp_corr": 56.3,
+              "trend_ma20": 86.6,
+              "ma_slope60": 20.6,
+              "rsi_mid": 0.0,
+              "bb_pos": 45.4,
+              "macd_hist": 0.0,
+              "skew": 94.9
+            },
+            "total_score": 69.4,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-07-13",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 77.7,
+              "rev_5d": 44.0,
+              "mom_120_20": 7.6,
+              "dist_high": 71.1,
+              "vol_atr": 53.9,
+              "downside_vol": 77.1,
+              "max_dd": 35.8,
+              "amihud": 84.2,
+              "vol_trend": 88.6,
+              "vol_stab": 89.7,
+              "vol_price": 54.4,
+              "vp_corr": 41.3,
+              "trend_ma20": 57.2,
+              "ma_slope60": 23.9,
+              "rsi_mid": 55.7,
+              "bb_pos": 77.2,
+              "macd_hist": 15.2,
+              "skew": 83.6
+            },
+            "total_score": 52.4,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-08-10",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 52.8,
+              "rev_5d": 61.1,
+              "mom_120_20": 9.5,
+              "dist_high": 62.9,
+              "vol_atr": 69.2,
+              "downside_vol": 76.9,
+              "max_dd": 41.4,
+              "amihud": 84.2,
+              "vol_trend": 70.0,
+              "vol_stab": 91.0,
+              "vol_price": 45.1,
+              "vp_corr": 18.7,
+              "trend_ma20": 24.7,
+              "ma_slope60": 30.0,
+              "rsi_mid": 60.8,
+              "bb_pos": 54.0,
+              "macd_hist": 81.6,
+              "skew": 85.6
+            },
+            "total_score": 50.3,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 60.7,
+              "rev_5d": 55.7,
+              "mom_120_20": 15.6,
+              "dist_high": 58.1,
+              "vol_atr": 56.5,
+              "downside_vol": 82.1,
+              "max_dd": 52.1,
+              "amihud": 79.5,
+              "vol_trend": 83.7,
+              "vol_stab": 69.2,
+              "vol_price": 56.9,
+              "vp_corr": 0.0,
+              "trend_ma20": 26.0,
+              "ma_slope60": 65.1,
+              "rsi_mid": 52.0,
+              "bb_pos": 54.8,
+              "macd_hist": 89.7,
+              "skew": 77.9
+            },
+            "total_score": 52.1,
+            "coverage": 0.581
+          }
+        }
+      ]
+    },
+    {
+      "code": "002779",
+      "name": "中坚科技",
+      "account": "galaxy",
+      "bucket": "short",
+      "stop_pct": 0.08,
+      "cost": 81.65,
+      "qty": 100,
+      "cur_price": 82.76,
+      "market_value": 8276.0,
+      "max_high": 87.57,
+      "max_drawdown_pct": -34.55,
+      "max_drawdown_date": "2026-07-30",
+      "stop_price": 75.118,
+      "would_have_stopped": true,
+      "stop_date": "2026-04-30",
+      "stop_exit_price": 136.717,
+      "actual_pnl": 111.0,
+      "actual_pnl_pct": 1.36,
+      "discipline_pnl": 5506.7,
+      "discipline_diff": 5395.7,
+      "factor_score_now": 51.8,
+      "factor_score_history_sample": [
+        {
+          "date": "2026-04-14",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 52.8,
+              "rev_5d": 0.7,
+              "dist_high": 53.1,
+              "vol_atr": 69.0,
+              "downside_vol": 82.6,
+              "max_dd": 42.4,
+              "amihud": 90.9,
+              "vol_trend": 78.3,
+              "vol_stab": 68.8,
+              "vol_price": 74.5,
+              "vp_corr": 0.0,
+              "trend_ma20": 1.1,
+              "ma_slope60": 26.3,
+              "rsi_mid": 34.5,
+              "bb_pos": 0.0,
+              "macd_hist": 63.9,
+              "skew": 54.1
+            },
+            "total_score": 42.8,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-05-15",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 100.0,
+              "rev_5d": 65.9,
+              "dist_high": 80.1,
+              "vol_atr": 35.0,
+              "downside_vol": 62.4,
+              "max_dd": 26.4,
+              "amihud": 100.0,
+              "vol_trend": 100.0,
+              "vol_stab": 52.4,
+              "vol_price": 57.4,
+              "vp_corr": 14.1,
+              "trend_ma20": 98.6,
+              "ma_slope60": 22.1,
+              "rsi_mid": 20.6,
+              "bb_pos": 53.0,
+              "macd_hist": 0.0,
+              "skew": 100.0
+            },
+            "total_score": 64.6,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-06-12",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 49.5,
+              "rev_5d": 0.0,
+              "dist_high": 71.2,
+              "vol_atr": 50.9,
+              "downside_vol": 58.5,
+              "max_dd": 16.0,
+              "amihud": 100.0,
+              "vol_trend": 95.2,
+              "vol_stab": 58.4,
+              "vol_price": 79.8,
+              "vp_corr": 0.0,
+              "trend_ma20": 0.0,
+              "ma_slope60": 31.3,
+              "rsi_mid": 49.1,
+              "bb_pos": 23.5,
+              "macd_hist": 57.7,
+              "skew": 94.8
+            },
+            "total_score": 44.6,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-07-13",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 100.0,
+              "rev_5d": 100.0,
+              "mom_120_20": 14.5,
+              "dist_high": 86.1,
+              "vol_atr": 27.5,
+              "downside_vol": 49.5,
+              "max_dd": 39.9,
+              "amihud": 100.0,
+              "vol_trend": 42.3,
+              "vol_stab": 68.9,
+              "vol_price": 25.7,
+              "vp_corr": 38.5,
+              "trend_ma20": 91.4,
+              "ma_slope60": 36.3,
+              "rsi_mid": 42.5,
+              "bb_pos": 27.8,
+              "macd_hist": 47.9,
+              "skew": 82.1
+            },
+            "total_score": 62.1,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-08-10",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 55.9,
+              "rev_5d": 0.0,
+              "mom_120_20": 12.0,
+              "dist_high": 80.4,
+              "vol_atr": 51.9,
+              "downside_vol": 56.1,
+              "max_dd": 33.4,
+              "amihud": 97.8,
+              "vol_trend": 61.0,
+              "vol_stab": 84.1,
+              "vol_price": 62.2,
+              "vp_corr": 48.0,
+              "trend_ma20": 0.0,
+              "ma_slope60": 36.1,
+              "rsi_mid": 33.9,
+              "bb_pos": 19.4,
+              "macd_hist": 56.5,
+              "skew": 67.8
+            },
+            "total_score": 43.2,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 50.9,
+              "rev_5d": 36.2,
+              "mom_120_20": 21.1,
+              "dist_high": 72.2,
+              "vol_atr": 44.6,
+              "downside_vol": 46.9,
+              "max_dd": 36.0,
+              "amihud": 99.9,
+              "vol_trend": 68.3,
+              "vol_stab": 87.9,
+              "vol_price": 53.5,
+              "vp_corr": 35.9,
+              "trend_ma20": 16.3,
+              "ma_slope60": 63.5,
+              "rsi_mid": 34.5,
+              "bb_pos": 14.4,
+              "macd_hist": 99.9,
+              "skew": 84.0
+            },
+            "total_score": 52.9,
+            "coverage": 0.581
+          }
+        }
+      ]
+    },
+    {
+      "code": "300499",
+      "name": "高澜股份",
+      "account": "csc",
+      "bucket": "short",
+      "stop_pct": 0.08,
+      "cost": 32.17,
+      "qty": 500,
+      "cur_price": 33.96,
+      "market_value": 16980.0,
+      "max_high": 47.97,
+      "max_drawdown_pct": -49.86,
+      "max_drawdown_date": "2026-07-30",
+      "stop_price": 29.596,
+      "would_have_stopped": true,
+      "stop_date": "2026-07-17",
+      "stop_exit_price": 38.434,
+      "actual_pnl": 895.0,
+      "actual_pnl_pct": 5.56,
+      "discipline_pnl": 3132.0,
+      "discipline_diff": 2237.0,
+      "factor_score_now": 46.4,
+      "factor_score_history_sample": [
+        {
+          "date": "2026-04-14",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 59.9,
+              "rev_5d": 0.0,
+              "dist_high": 6.1,
+              "vol_atr": 46.3,
+              "downside_vol": 47.7,
+              "max_dd": 88.4,
+              "amihud": 48.3,
+              "vol_trend": 73.1,
+              "vol_stab": 64.9,
+              "vol_price": 50.1,
+              "vp_corr": 12.4,
+              "trend_ma20": 0.0,
+              "ma_slope60": 81.0,
+              "rsi_mid": 27.7,
+              "bb_pos": 16.3,
+              "macd_hist": 86.9,
+              "skew": 21.6
+            },
+            "total_score": 44.6,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-05-15",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 64.1,
+              "rev_5d": 67.3,
+              "dist_high": 14.3,
+              "vol_atr": 45.1,
+              "downside_vol": 52.0,
+              "max_dd": 88.4,
+              "amihud": 48.0,
+              "vol_trend": 67.4,
+              "vol_stab": 76.9,
+              "vol_price": 54.5,
+              "vp_corr": 24.0,
+              "trend_ma20": 37.3,
+              "ma_slope60": 100.0,
+              "rsi_mid": 75.2,
+              "bb_pos": 85.5,
+              "macd_hist": 100.0,
+              "skew": 24.5
+            },
+            "total_score": 61.2,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-06-12",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 100.0,
+              "rev_5d": 95.0,
+              "dist_high": 48.0,
+              "vol_atr": 20.3,
+              "downside_vol": 37.9,
+              "max_dd": 70.3,
+              "amihud": 51.2,
+              "vol_trend": 24.1,
+              "vol_stab": 86.2,
+              "vol_price": 19.6,
+              "vp_corr": 63.7,
+              "trend_ma20": 100.0,
+              "ma_slope60": 47.8,
+              "rsi_mid": 33.7,
+              "bb_pos": 44.7,
+              "macd_hist": 0.0,
+              "skew": 64.3
+            },
+            "total_score": 67.8,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-07-13",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 66.4,
+              "rev_5d": 100.0,
+              "mom_120_20": 38.5,
+              "dist_high": 45.8,
+              "vol_atr": 0.0,
+              "downside_vol": 35.5,
+              "max_dd": 70.3,
+              "amihud": 51.5,
+              "vol_trend": 62.5,
+              "vol_stab": 87.3,
+              "vol_price": 54.1,
+              "vp_corr": 26.7,
+              "trend_ma20": 91.4,
+              "ma_slope60": 61.6,
+              "rsi_mid": 51.6,
+              "bb_pos": 10.3,
+              "macd_hist": 43.8,
+              "skew": 79.2
+            },
+            "total_score": 63.7,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-08-10",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 100.0,
+              "rev_5d": 0.0,
+              "mom_120_20": 54.6,
+              "dist_high": 68.2,
+              "vol_atr": 36.6,
+              "downside_vol": 15.2,
+              "max_dd": 22.5,
+              "amihud": 58.0,
+              "vol_trend": 36.2,
+              "vol_stab": 77.1,
+              "vol_price": 38.1,
+              "vp_corr": 56.7,
+              "trend_ma20": 41.0,
+              "ma_slope60": 0.0,
+              "rsi_mid": 69.7,
+              "bb_pos": 97.4,
+              "macd_hist": 0.0,
+              "skew": 96.5
+            },
+            "total_score": 48.6,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 16.7,
+              "rev_5d": 6.2,
+              "mom_120_20": 12.5,
+              "dist_high": 41.9,
+              "vol_atr": 28.2,
+              "downside_vol": 26.3,
+              "max_dd": 22.5,
+              "amihud": 57.7,
+              "vol_trend": 100.0,
+              "vol_stab": 73.6,
+              "vol_price": 92.1,
+              "vp_corr": 13.3,
+              "trend_ma20": 0.0,
+              "ma_slope60": 43.3,
+              "rsi_mid": 6.9,
+              "bb_pos": 0.0,
+              "macd_hist": 100.0,
+              "skew": 100.0
+            },
+            "total_score": 39.0,
+            "coverage": 0.581
+          }
+        }
+      ]
+    },
+    {
+      "code": "300223",
+      "name": "君正股份",
+      "account": "csc",
+      "bucket": "long",
+      "stop_pct": 0.15,
+      "cost": 129.382,
+      "qty": 700,
+      "cur_price": 133.79,
+      "market_value": 93653.0,
+      "max_high": 279.44,
+      "max_drawdown_pct": -54.15,
+      "max_drawdown_date": "2026-08-03",
+      "stop_price": 109.975,
+      "would_have_stopped": false,
+      "stop_date": "",
+      "stop_exit_price": null,
+      "actual_pnl": 3085.6,
+      "actual_pnl_pct": 3.41,
+      "discipline_pnl": 3085.6,
+      "discipline_diff": 0.0,
+      "factor_score_now": 51.8,
+      "factor_score_history_sample": [
+        {
+          "date": "2026-04-14",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 90.9,
+              "rev_5d": 3.6,
+              "dist_high": 39.1,
+              "vol_atr": 58.3,
+              "downside_vol": 46.6,
+              "max_dd": 68.2,
+              "amihud": 53.5,
+              "vol_trend": 47.1,
+              "vol_stab": 85.1,
+              "vol_price": 43.0,
+              "vp_corr": 68.3,
+              "trend_ma20": 31.0,
+              "ma_slope60": 50.6,
+              "rsi_mid": 89.1,
+              "bb_pos": 77.8,
+              "macd_hist": 33.1,
+              "skew": 77.8
+            },
+            "total_score": 55.8,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-05-15",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 35.5,
+              "rev_5d": 50.6,
+              "dist_high": 17.1,
+              "vol_atr": 43.0,
+              "downside_vol": 57.2,
+              "max_dd": 68.2,
+              "amihud": 52.4,
+              "vol_trend": 100.0,
+              "vol_stab": 84.7,
+              "vol_price": 71.0,
+              "vp_corr": 1.6,
+              "trend_ma20": 18.1,
+              "ma_slope60": 62.1,
+              "rsi_mid": 57.7,
+              "bb_pos": 70.0,
+              "macd_hist": 100.0,
+              "skew": 50.0
+            },
+            "total_score": 53.0,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-06-12",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 56.3,
+              "rev_5d": 37.6,
+              "dist_high": 28.8,
+              "vol_atr": 0.0,
+              "downside_vol": 42.8,
+              "max_dd": 68.2,
+              "amihud": 50.8,
+              "vol_trend": 97.8,
+              "vol_stab": 73.3,
+              "vol_price": 51.7,
+              "vp_corr": 20.8,
+              "trend_ma20": 47.7,
+              "ma_slope60": 86.3,
+              "rsi_mid": 90.7,
+              "bb_pos": 97.9,
+              "macd_hist": 97.5,
+              "skew": 82.2
+            },
+            "total_score": 59.7,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-07-13",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 8.8,
+              "rev_5d": 100.0,
+              "mom_120_20": 52.9,
+              "dist_high": 53.2,
+              "vol_atr": 0.0,
+              "downside_vol": 16.1,
+              "max_dd": 68.2,
+              "amihud": 51.2,
+              "vol_trend": 67.9,
+              "vol_stab": 87.4,
+              "vol_price": 38.3,
+              "vp_corr": 16.4,
+              "trend_ma20": 100.0,
+              "ma_slope60": 100.0,
+              "rsi_mid": 77.9,
+              "bb_pos": 63.5,
+              "macd_hist": 100.0,
+              "skew": 68.1
+            },
+            "total_score": 61.9,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-08-10",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 100.0,
+              "rev_5d": 0.0,
+              "mom_120_20": 76.2,
+              "dist_high": 84.1,
+              "vol_atr": 1.8,
+              "downside_vol": 0.0,
+              "max_dd": 13.0,
+              "amihud": 54.4,
+              "vol_trend": 61.4,
+              "vol_stab": 100.0,
+              "vol_price": 46.5,
+              "vp_corr": 16.9,
+              "trend_ma20": 71.8,
+              "ma_slope60": 52.4,
+              "rsi_mid": 61.7,
+              "bb_pos": 85.0,
+              "macd_hist": 0.0,
+              "skew": 67.1
+            },
+            "total_score": 53.8,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 76.8,
+              "rev_5d": 82.0,
+              "mom_120_20": 39.8,
+              "dist_high": 86.9,
+              "vol_atr": 51.8,
+              "downside_vol": 5.5,
+              "max_dd": 13.0,
+              "amihud": 54.9,
+              "vol_trend": 17.1,
+              "vol_stab": 89.8,
+              "vol_price": 22.9,
+              "vp_corr": 53.6,
+              "trend_ma20": 58.9,
+              "ma_slope60": 47.9,
+              "rsi_mid": 73.6,
+              "bb_pos": 73.7,
+              "macd_hist": 11.9,
+              "skew": 60.7
+            },
+            "total_score": 53.6,
+            "coverage": 0.581
+          }
+        }
+      ]
+    },
+    {
+      "code": "003033",
+      "name": "征和工业",
+      "account": "csc",
+      "bucket": "short",
+      "stop_pct": 0.08,
+      "cost": 56.948,
+      "qty": 500,
+      "cur_price": 71.33,
+      "market_value": 35665.0,
+      "max_high": 72.5,
+      "max_drawdown_pct": -27.36,
+      "max_drawdown_date": "2026-06-12",
+      "stop_price": 52.392,
+      "would_have_stopped": true,
+      "stop_date": "2026-05-15",
+      "stop_exit_price": 66.48,
+      "actual_pnl": 7191.0,
+      "actual_pnl_pct": 25.25,
+      "discipline_pnl": 4766.0,
+      "discipline_diff": -2425.0,
+      "factor_score_now": 53.7,
+      "factor_score_history_sample": [
+        {
+          "date": "2026-04-14",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 73.1,
+              "rev_5d": 79.3,
+              "dist_high": 45.0,
+              "vol_atr": 49.2,
+              "downside_vol": 72.1,
+              "max_dd": 60.1,
+              "amihud": 100.0,
+              "vol_trend": 94.6,
+              "vol_stab": 34.9,
+              "vol_price": 66.2,
+              "vp_corr": 9.9,
+              "trend_ma20": 38.5,
+              "ma_slope60": 30.4,
+              "rsi_mid": 85.4,
+              "bb_pos": 89.8,
+              "macd_hist": 55.4,
+              "skew": 42.4
+            },
+            "total_score": 58.2,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-05-15",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 81.4,
+              "rev_5d": 85.7,
+              "dist_high": 52.0,
+              "vol_atr": 69.5,
+              "downside_vol": 74.2,
+              "max_dd": 60.1,
+              "amihud": 100.0,
+              "vol_trend": 54.7,
+              "vol_stab": 35.7,
+              "vol_price": 38.3,
+              "vp_corr": 40.4,
+              "trend_ma20": 58.2,
+              "ma_slope60": 31.8,
+              "rsi_mid": 73.8,
+              "bb_pos": 71.3,
+              "macd_hist": 35.1,
+              "skew": 49.6
+            },
+            "total_score": 60.7,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-06-12",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 92.6,
+              "rev_5d": 100.0,
+              "dist_high": 64.9,
+              "vol_atr": 18.7,
+              "downside_vol": 56.9,
+              "max_dd": 50.2,
+              "amihud": 100.0,
+              "vol_trend": 65.8,
+              "vol_stab": 53.5,
+              "vol_price": 41.7,
+              "vp_corr": 50.3,
+              "trend_ma20": 100.0,
+              "ma_slope60": 54.9,
+              "rsi_mid": 10.9,
+              "bb_pos": 5.2,
+              "macd_hist": 31.9,
+              "skew": 93.1
+            },
+            "total_score": 73.6,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-07-13",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 0.0,
+              "rev_5d": 40.1,
+              "mom_120_20": 9.8,
+              "dist_high": 28.1,
+              "vol_atr": 37.4,
+              "downside_vol": 53.6,
+              "max_dd": 56.3,
+              "amihud": 100.0,
+              "vol_trend": 99.6,
+              "vol_stab": 74.6,
+              "vol_price": 80.2,
+              "vp_corr": 18.2,
+              "trend_ma20": 0.0,
+              "ma_slope60": 66.7,
+              "rsi_mid": 30.2,
+              "bb_pos": 46.3,
+              "macd_hist": 100.0,
+              "skew": 95.2
+            },
+            "total_score": 47.5,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-08-10",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 79.2,
+              "rev_5d": 10.0,
+              "mom_120_20": 35.0,
+              "dist_high": 34.5,
+              "vol_atr": 40.8,
+              "downside_vol": 37.6,
+              "max_dd": 68.9,
+              "amihud": 100.0,
+              "vol_trend": 35.1,
+              "vol_stab": 84.9,
+              "vol_price": 24.9,
+              "vp_corr": 37.6,
+              "trend_ma20": 46.9,
+              "ma_slope60": 69.5,
+              "rsi_mid": 86.8,
+              "bb_pos": 100.0,
+              "macd_hist": 61.1,
+              "skew": 97.4
+            },
+            "total_score": 56.4,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 50.8,
+              "rev_5d": 49.5,
+              "mom_120_20": 40.0,
+              "dist_high": 21.8,
+              "vol_atr": 51.7,
+              "downside_vol": 47.4,
+              "max_dd": 72.5,
+              "amihud": 100.0,
+              "vol_trend": 17.4,
+              "vol_stab": 62.5,
+              "vol_price": 19.5,
+              "vp_corr": 28.8,
+              "trend_ma20": 27.7,
+              "ma_slope60": 78.7,
+              "rsi_mid": 57.9,
+              "bb_pos": 47.7,
+              "macd_hist": 83.5,
+              "skew": 84.6
+            },
+            "total_score": 54.6,
+            "coverage": 0.581
+          }
+        }
+      ]
+    },
+    {
+      "code": "301217",
+      "name": "铜冠铜箔",
+      "account": "galaxy",
+      "bucket": "short",
+      "stop_pct": 0.08,
+      "cost": 107.45,
+      "qty": 100,
+      "cur_price": 105.5,
+      "market_value": 10550.0,
+      "max_high": 202.15,
+      "max_drawdown_pct": -61.17,
+      "max_drawdown_date": "2026-08-03",
+      "stop_price": 98.854,
+      "would_have_stopped": true,
+      "stop_date": "2026-04-30",
+      "stop_exit_price": 31.67,
+      "actual_pnl": -195.0,
+      "actual_pnl_pct": -1.81,
+      "discipline_pnl": -7578.0,
+      "discipline_diff": -7383.0,
+      "factor_score_now": 67.2,
+      "factor_score_history_sample": [
+        {
+          "date": "2026-04-14",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 54.7,
+              "rev_5d": 0.3,
+              "dist_high": 18.8,
+              "vol_atr": 37.7,
+              "downside_vol": 56.9,
+              "max_dd": 66.6,
+              "amihud": 51.6,
+              "vol_trend": 86.7,
+              "vol_stab": 54.5,
+              "vol_price": 94.4,
+              "vp_corr": 6.2,
+              "trend_ma20": 0.0,
+              "ma_slope60": 78.0,
+              "rsi_mid": 24.0,
+              "bb_pos": 6.7,
+              "macd_hist": 94.8,
+              "skew": 24.0
+            },
+            "total_score": 44.3,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-05-15",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 0.0,
+              "rev_5d": 90.2,
+              "dist_high": 33.3,
+              "vol_atr": 0.0,
+              "downside_vol": 39.2,
+              "max_dd": 66.6,
+              "amihud": 52.2,
+              "vol_trend": 78.5,
+              "vol_stab": 74.1,
+              "vol_price": 42.9,
+              "vp_corr": 0.0,
+              "trend_ma20": 0.0,
+              "ma_slope60": 100.0,
+              "rsi_mid": 18.8,
+              "bb_pos": 66.0,
+              "macd_hist": 100.0,
+              "skew": 50.4
+            },
+            "total_score": 51.2,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-06-12",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 0.0,
+              "rev_5d": 0.0,
+              "dist_high": 7.0,
+              "vol_atr": 0.0,
+              "downside_vol": 32.9,
+              "max_dd": 66.6,
+              "amihud": 52.4,
+              "vol_trend": 48.0,
+              "vol_stab": 86.7,
+              "vol_price": 39.8,
+              "vp_corr": 20.0,
+              "trend_ma20": 0.0,
+              "ma_slope60": 100.0,
+              "rsi_mid": 0.0,
+              "bb_pos": 0.0,
+              "macd_hist": 100.0,
+              "skew": 58.8
+            },
+            "total_score": 40.4,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-07-13",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 100.0,
+              "rev_5d": 100.0,
+              "mom_120_20": 100.0,
+              "dist_high": 67.9,
+              "vol_atr": 0.0,
+              "downside_vol": 15.3,
+              "max_dd": 44.2,
+              "amihud": 54.3,
+              "vol_trend": 43.7,
+              "vol_stab": 96.4,
+              "vol_price": 34.6,
+              "vp_corr": 55.3,
+              "trend_ma20": 100.0,
+              "ma_slope60": 100.0,
+              "rsi_mid": 36.9,
+              "bb_pos": 11.4,
+              "macd_hist": 74.8,
+              "skew": 61.3
+            },
+            "total_score": 78.6,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-08-10",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 67.9,
+              "rev_5d": 0.0,
+              "mom_120_20": 100.0,
+              "dist_high": 66.9,
+              "vol_atr": 8.3,
+              "downside_vol": 0.0,
+              "max_dd": 0.0,
+              "amihud": 58.0,
+              "vol_trend": 100.0,
+              "vol_stab": 92.4,
+              "vol_price": 77.9,
+              "vp_corr": 15.1,
+              "trend_ma20": 0.0,
+              "ma_slope60": 66.1,
+              "rsi_mid": 65.9,
+              "bb_pos": 52.4,
+              "macd_hist": 0.0,
+              "skew": 79.2
+            },
+            "total_score": 53.1,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 93.1,
+              "rev_5d": 100.0,
+              "mom_120_20": 100.0,
+              "dist_high": 78.5,
+              "vol_atr": 16.9,
+              "downside_vol": 1.6,
+              "max_dd": 0.0,
+              "amihud": 57.1,
+              "vol_trend": 36.0,
+              "vol_stab": 90.0,
+              "vol_price": 26.2,
+              "vp_corr": 29.6,
+              "trend_ma20": 77.2,
+              "ma_slope60": 52.0,
+              "rsi_mid": 80.0,
+              "bb_pos": 53.2,
+              "macd_hist": 42.6,
+              "skew": 69.2
+            },
+            "total_score": 67.3,
+            "coverage": 0.581
+          }
+        }
+      ]
+    },
+    {
+      "code": "300223",
+      "name": "君正股份",
+      "account": "eastmoney",
+      "bucket": "long",
+      "stop_pct": 0.15,
+      "cost": 141.321,
+      "qty": 1300,
+      "cur_price": 133.79,
+      "market_value": 173927.0,
+      "max_high": 279.44,
+      "max_drawdown_pct": -54.15,
+      "max_drawdown_date": "2026-08-03",
+      "stop_price": 120.123,
+      "would_have_stopped": true,
+      "stop_date": "2026-07-29",
+      "stop_exit_price": 127.95,
+      "actual_pnl": -9790.3,
+      "actual_pnl_pct": -5.33,
+      "discipline_pnl": -17382.3,
+      "discipline_diff": -7592.0,
+      "factor_score_now": 51.8,
+      "factor_score_history_sample": [
+        {
+          "date": "2026-04-14",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 90.9,
+              "rev_5d": 3.6,
+              "dist_high": 39.1,
+              "vol_atr": 58.3,
+              "downside_vol": 46.6,
+              "max_dd": 68.2,
+              "amihud": 53.5,
+              "vol_trend": 47.1,
+              "vol_stab": 85.1,
+              "vol_price": 43.0,
+              "vp_corr": 68.3,
+              "trend_ma20": 31.0,
+              "ma_slope60": 50.6,
+              "rsi_mid": 89.1,
+              "bb_pos": 77.8,
+              "macd_hist": 33.1,
+              "skew": 77.8
+            },
+            "total_score": 55.8,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-05-15",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 35.5,
+              "rev_5d": 50.6,
+              "dist_high": 17.1,
+              "vol_atr": 43.0,
+              "downside_vol": 57.2,
+              "max_dd": 68.2,
+              "amihud": 52.4,
+              "vol_trend": 100.0,
+              "vol_stab": 84.7,
+              "vol_price": 71.0,
+              "vp_corr": 1.6,
+              "trend_ma20": 18.1,
+              "ma_slope60": 62.1,
+              "rsi_mid": 57.7,
+              "bb_pos": 70.0,
+              "macd_hist": 100.0,
+              "skew": 50.0
+            },
+            "total_score": 53.0,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-06-12",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 56.3,
+              "rev_5d": 37.6,
+              "dist_high": 28.8,
+              "vol_atr": 0.0,
+              "downside_vol": 42.8,
+              "max_dd": 68.2,
+              "amihud": 50.8,
+              "vol_trend": 97.8,
+              "vol_stab": 73.3,
+              "vol_price": 51.7,
+              "vp_corr": 20.8,
+              "trend_ma20": 47.7,
+              "ma_slope60": 86.3,
+              "rsi_mid": 90.7,
+              "bb_pos": 97.9,
+              "macd_hist": 97.5,
+              "skew": 82.2
+            },
+            "total_score": 59.7,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-07-13",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 8.8,
+              "rev_5d": 100.0,
+              "mom_120_20": 52.9,
+              "dist_high": 53.2,
+              "vol_atr": 0.0,
+              "downside_vol": 16.1,
+              "max_dd": 68.2,
+              "amihud": 51.2,
+              "vol_trend": 67.9,
+              "vol_stab": 87.4,
+              "vol_price": 38.3,
+              "vp_corr": 16.4,
+              "trend_ma20": 100.0,
+              "ma_slope60": 100.0,
+              "rsi_mid": 77.9,
+              "bb_pos": 63.5,
+              "macd_hist": 100.0,
+              "skew": 68.1
+            },
+            "total_score": 61.9,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-08-10",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 100.0,
+              "rev_5d": 0.0,
+              "mom_120_20": 76.2,
+              "dist_high": 84.1,
+              "vol_atr": 1.8,
+              "downside_vol": 0.0,
+              "max_dd": 13.0,
+              "amihud": 54.4,
+              "vol_trend": 61.4,
+              "vol_stab": 100.0,
+              "vol_price": 46.5,
+              "vp_corr": 16.9,
+              "trend_ma20": 71.8,
+              "ma_slope60": 52.4,
+              "rsi_mid": 61.7,
+              "bb_pos": 85.0,
+              "macd_hist": 0.0,
+              "skew": 67.1
+            },
+            "total_score": 53.8,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 76.8,
+              "rev_5d": 82.0,
+              "mom_120_20": 39.8,
+              "dist_high": 86.9,
+              "vol_atr": 51.8,
+              "downside_vol": 5.5,
+              "max_dd": 13.0,
+              "amihud": 54.9,
+              "vol_trend": 17.1,
+              "vol_stab": 89.8,
+              "vol_price": 22.9,
+              "vp_corr": 53.6,
+              "trend_ma20": 58.9,
+              "ma_slope60": 47.9,
+              "rsi_mid": 73.6,
+              "bb_pos": 73.7,
+              "macd_hist": 11.9,
+              "skew": 60.7
+            },
+            "total_score": 53.6,
+            "coverage": 0.581
+          }
+        }
+      ]
+    },
+    {
+      "code": "601138",
+      "name": "工业富联",
+      "account": "csc",
+      "bucket": "short",
+      "stop_pct": 0.08,
+      "cost": 62.851,
+      "qty": 800,
+      "cur_price": 64.75,
+      "market_value": 51800.0,
+      "max_high": 84.3,
+      "max_drawdown_pct": -33.89,
+      "max_drawdown_date": "2026-07-30",
+      "stop_price": 57.823,
+      "would_have_stopped": true,
+      "stop_date": "2026-07-17",
+      "stop_exit_price": 54.15,
+      "actual_pnl": 1519.2,
+      "actual_pnl_pct": 3.02,
+      "discipline_pnl": -6960.8,
+      "discipline_diff": -8480.0,
+      "factor_score_now": 53.0,
+      "factor_score_history_sample": [
+        {
+          "date": "2026-04-14",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 46.1,
+              "rev_5d": 0.0,
+              "dist_high": 22.1,
+              "vol_atr": 67.9,
+              "downside_vol": 76.5,
+              "max_dd": 69.8,
+              "amihud": 14.8,
+              "vol_trend": 90.9,
+              "vol_stab": 85.4,
+              "vol_price": 79.5,
+              "vp_corr": 0.0,
+              "trend_ma20": 0.0,
+              "ma_slope60": 36.5,
+              "rsi_mid": 20.3,
+              "bb_pos": 0.0,
+              "macd_hist": 79.4,
+              "skew": 66.8
+            },
+            "total_score": 41.9,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-05-15",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 40.1,
+              "rev_5d": 25.4,
+              "dist_high": 14.5,
+              "vol_atr": 51.3,
+              "downside_vol": 78.6,
+              "max_dd": 69.8,
+              "amihud": 14.6,
+              "vol_trend": 75.9,
+              "vol_stab": 68.4,
+              "vol_price": 74.8,
+              "vp_corr": 40.9,
+              "trend_ma20": 24.5,
+              "ma_slope60": 80.4,
+              "rsi_mid": 46.3,
+              "bb_pos": 61.5,
+              "macd_hist": 100.0,
+              "skew": 42.3
+            },
+            "total_score": 49.3,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-06-12",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 62.5,
+              "rev_5d": 86.8,
+              "dist_high": 29.3,
+              "vol_atr": 27.1,
+              "downside_vol": 69.0,
+              "max_dd": 69.8,
+              "amihud": 14.7,
+              "vol_trend": 43.0,
+              "vol_stab": 79.1,
+              "vol_price": 22.4,
+              "vp_corr": 18.1,
+              "trend_ma20": 57.5,
+              "ma_slope60": 100.0,
+              "rsi_mid": 98.0,
+              "bb_pos": 81.1,
+              "macd_hist": 95.4,
+              "skew": 54.4
+            },
+            "total_score": 59.7,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-07-13",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 90.3,
+              "rev_5d": 64.1,
+              "mom_120_20": 46.0,
+              "dist_high": 43.2,
+              "vol_atr": 29.1,
+              "downside_vol": 51.8,
+              "max_dd": 78.4,
+              "amihud": 14.9,
+              "vol_trend": 33.9,
+              "vol_stab": 87.1,
+              "vol_price": 34.9,
+              "vp_corr": 43.7,
+              "trend_ma20": 92.8,
+              "ma_slope60": 83.2,
+              "rsi_mid": 48.7,
+              "bb_pos": 36.8,
+              "macd_hist": 27.3,
+              "skew": 72.5
+            },
+            "total_score": 61.2,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-08-10",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 48.4,
+              "rev_5d": 0.0,
+              "mom_120_20": 47.0,
+              "dist_high": 29.9,
+              "vol_atr": 50.8,
+              "downside_vol": 45.6,
+              "max_dd": 58.0,
+              "amihud": 19.0,
+              "vol_trend": 67.0,
+              "vol_stab": 77.7,
+              "vol_price": 76.1,
+              "vp_corr": 7.1,
+              "trend_ma20": 0.0,
+              "ma_slope60": 50.3,
+              "rsi_mid": 45.3,
+              "bb_pos": 18.5,
+              "macd_hist": 63.8,
+              "skew": 81.2
+            },
+            "total_score": 42.5,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 77.5,
+              "rev_5d": 46.7,
+              "mom_120_20": 59.9,
+              "dist_high": 35.1,
+              "vol_atr": 68.7,
+              "downside_vol": 45.4,
+              "max_dd": 58.0,
+              "amihud": 20.7,
+              "vol_trend": 35.9,
+              "vol_stab": 75.3,
+              "vol_price": 33.0,
+              "vp_corr": 38.3,
+              "trend_ma20": 25.8,
+              "ma_slope60": 36.4,
+              "rsi_mid": 60.8,
+              "bb_pos": 45.7,
+              "macd_hist": 65.3,
+              "skew": 87.0
+            },
+            "total_score": 53.2,
+            "coverage": 0.581
+          }
+        }
+      ]
+    },
+    {
+      "code": "600664",
+      "name": "哈药股份",
+      "account": "csc",
+      "bucket": "short",
+      "stop_pct": 0.08,
+      "cost": 7.765,
+      "qty": 3000,
+      "cur_price": 7.75,
+      "market_value": 23250.0,
+      "max_high": 9.51,
+      "max_drawdown_pct": -26.93,
+      "max_drawdown_date": "2026-06-26",
+      "stop_price": 7.144,
+      "would_have_stopped": true,
+      "stop_date": "2026-04-30",
+      "stop_exit_price": 3.58,
+      "actual_pnl": -45.0,
+      "actual_pnl_pct": -0.19,
+      "discipline_pnl": -12555.0,
+      "discipline_diff": -12510.0,
+      "factor_score_now": 76.6,
+      "factor_score_history_sample": [
+        {
+          "date": "2026-04-14",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 44.3,
+              "rev_5d": 38.0,
+              "dist_high": 2.0,
+              "vol_atr": 55.6,
+              "downside_vol": 91.1,
+              "max_dd": 100.0,
+              "amihud": 25.8,
+              "vol_trend": 0.0,
+              "vol_stab": 0.0,
+              "vol_price": 0.0,
+              "vp_corr": 16.9,
+              "trend_ma20": 0.0,
+              "ma_slope60": 66.0,
+              "rsi_mid": 0.0,
+              "bb_pos": 0.0,
+              "macd_hist": 89.8,
+              "skew": 0.0
+            },
+            "total_score": 32.4,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-05-15",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 89.8,
+              "rev_5d": 76.0,
+              "dist_high": 42.3,
+              "vol_atr": 67.7,
+              "downside_vol": 75.6,
+              "max_dd": 90.3,
+              "amihud": 24.7,
+              "vol_trend": 100.0,
+              "vol_stab": 0.0,
+              "vol_price": 31.1,
+              "vp_corr": 38.6,
+              "trend_ma20": 73.9,
+              "ma_slope60": 66.5,
+              "rsi_mid": 72.4,
+              "bb_pos": 59.9,
+              "macd_hist": 62.8,
+              "skew": 17.6
+            },
+            "total_score": 57.1,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-06-12",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 96.4,
+              "rev_5d": 63.1,
+              "dist_high": 58.7,
+              "vol_atr": 79.3,
+              "downside_vol": 72.7,
+              "max_dd": 65.8,
+              "amihud": 25.7,
+              "vol_trend": 2.1,
+              "vol_stab": 0.0,
+              "vol_price": 15.9,
+              "vp_corr": 100.0,
+              "trend_ma20": 63.6,
+              "ma_slope60": 44.8,
+              "rsi_mid": 27.8,
+              "bb_pos": 58.7,
+              "macd_hist": 6.2,
+              "skew": 15.8
+            },
+            "total_score": 49.2,
+            "coverage": 0.548
+          }
+        },
+        {
+          "date": "2026-07-13",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 35.2,
+              "rev_5d": 0.0,
+              "mom_120_20": 26.4,
+              "dist_high": 40.0,
+              "vol_atr": 60.2,
+              "downside_vol": 74.4,
+              "max_dd": 57.8,
+              "amihud": 25.8,
+              "vol_trend": 47.2,
+              "vol_stab": 0.0,
+              "vol_price": 96.5,
+              "vp_corr": 0.0,
+              "trend_ma20": 0.0,
+              "ma_slope60": 37.6,
+              "rsi_mid": 0.0,
+              "bb_pos": 0.0,
+              "macd_hist": 67.5,
+              "skew": 12.5
+            },
+            "total_score": 26.7,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-08-10",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 0.0,
+              "rev_5d": 0.0,
+              "mom_120_20": 38.8,
+              "dist_high": 0.0,
+              "vol_atr": 15.3,
+              "downside_vol": 55.6,
+              "max_dd": 57.8,
+              "amihud": 26.8,
+              "vol_trend": 66.5,
+              "vol_stab": 0.0,
+              "vol_price": 44.2,
+              "vp_corr": 85.7,
+              "trend_ma20": 0.0,
+              "ma_slope60": 100.0,
+              "rsi_mid": 0.0,
+              "bb_pos": 0.0,
+              "macd_hist": 100.0,
+              "skew": 63.2
+            },
+            "total_score": 37.6,
+            "coverage": 0.581
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "score": {
+            "factor_scores": {
+              "mom_20d": 57.2,
+              "rev_5d": 100.0,
+              "mom_120_20": 100.0,
+              "dist_high": 26.5,
+              "vol_atr": 18.0,
+              "downside_vol": 27.8,
+              "max_dd": 57.8,
+              "amihud": 22.4,
+              "vol_trend": 82.7,
+              "vol_stab": 28.3,
+              "vol_price": 43.5,
+              "vp_corr": 34.3,
+              "trend_ma20": 81.6,
+              "ma_slope60": 100.0,
+              "rsi_mid": 94.0,
+              "bb_pos": 35.2,
+              "macd_hist": 100.0,
+              "skew": 92.0
+            },
+            "total_score": 70.0,
+            "coverage": 0.581
+          }
+        }
+      ]
+    }
+  ],
+  "method": "三仓策略对比回测：每只股检查 K 线最低价是否触及止损线，模拟次日开盘价止损卖出；与持有到 9/8 的实际盈亏对比。",
+  "factor_score_note": "factor_score_now 用 factor_lib 31 因子 IC 加权综合分（0-100）；factor_score_history_sample 取近 6 次月度采样。"
+}

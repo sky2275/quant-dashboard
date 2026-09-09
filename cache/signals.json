@@ -1,30 +1,16 @@
 {
- "updated_at": "2026-09-08 22:28:27",
+ "updated_at": "2026-09-09 10:04:37",
  "signal_count": 4,
- "attack_count": 0,
- "defend_count": 4,
+ "attack_count": 2,
+ "defend_count": 2,
  "signals": [
-  {
-   "type": "防守",
-   "action": "止损",
-   "code": "sz002156",
-   "name": "通富微电",
-   "severity": "critical",
-   "price": 58.32,
-   "ref_price": "跌破 58.58",
-   "position": "清仓 / 减至观察仓",
-   "stop": null,
-   "reason": "跌破short仓止损线（-8%），纪律止损",
-   "confidence": 95,
-   "trigger": "触止损"
-  },
   {
    "type": "防守",
    "action": "止损",
    "code": "sz300223",
    "name": "北京君正",
    "severity": "critical",
-   "price": 133.79,
+   "price": 134.46,
    "ref_price": "跌破 117.47",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -38,7 +24,7 @@
    "code": "sz300579",
    "name": "数字认证",
    "severity": "critical",
-   "price": 23.88,
+   "price": 23.33,
    "ref_price": "跌破 26.13",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -47,18 +33,32 @@
    "trigger": "触止损"
   },
   {
-   "type": "防守",
-   "action": "减仓/回避",
-   "code": "sz300499",
-   "name": "高澜股份",
+   "type": "进攻",
+   "action": "加仓/持有",
+   "code": "sh600487",
+   "name": "亨通光电",
    "severity": "high",
-   "price": 33.96,
-   "ref_price": "不追跌",
-   "position": "减仓",
-   "stop": 24.2604,
-   "reason": "跌幅 -5.43%、量化评分36分(弱)、主力净流出-3.60亿确认，警惕资金出逃",
-   "confidence": 95,
-   "trigger": "急跌"
+   "price": 66.55,
+   "ref_price": "65.22-67.88",
+   "position": "10%（短线仓）",
+   "stop": 57.664772,
+   "reason": "量比 5.6 倍放量、量化评分35分(弱)，趋势+量能共振",
+   "confidence": 65,
+   "trigger": "急拉"
+  },
+  {
+   "type": "进攻",
+   "action": "加仓/持有",
+   "code": "sz003033",
+   "name": "征和工业",
+   "severity": "high",
+   "price": 75.17,
+   "ref_price": "73.67-76.67",
+   "position": "10%（短线仓）",
+   "stop": 54.594916000000005,
+   "reason": "量比 9.0 倍放量，趋势+量能共振",
+   "confidence": 70,
+   "trigger": "急拉"
   }
  ],
  "factor_top": [
@@ -86,7 +86,7 @@
   {
    "code": "301536",
    "name": "星宸科技",
-   "total_score": 67.8,
+   "total_score": 67.9,
    "mf_main_ratio": 52.1,
    "profit_yoy": 100.0
   },
