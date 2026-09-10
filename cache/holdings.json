@@ -1,117 +1,220 @@
 {
-  "source": "broker_statements",
-  "updated_at": "2026-09-10 14:33:17",
-  "account_labels": {
-    "galaxy": "银河证券",
-    "eastmoney": "东方财富",
-    "csc": "中信建投"
-  },
-  "accounts": {
-    "galaxy": [
-      {
-        "code": "002156",
-        "name": "通富微电",
-        "account": "galaxy",
-        "quantity": 300,
-        "avg_cost": 63.6743
-      }
-    ],
-    "eastmoney": [
-      {
-        "code": "300223",
-        "name": "北京君正",
-        "account": "eastmoney",
-        "quantity": 1100,
-        "avg_cost": 182.0803
-      }
-    ],
-    "csc": [
-      {
-        "code": "600487",
-        "name": "亨通光电",
-        "account": "csc",
-        "quantity": 500,
-        "avg_cost": 62.6791
-      },
-      {
-        "code": "300223",
-        "name": "北京君正",
-        "account": "csc",
-        "quantity": 700,
-        "avg_cost": 138.2057
-      },
-      {
-        "code": "003033",
-        "name": "征和工业",
-        "account": "csc",
-        "quantity": 500,
-        "avg_cost": 59.3423
-      },
-      {
-        "code": "300579",
-        "name": "数字认证",
-        "account": "csc",
-        "quantity": 1000,
-        "avg_cost": 28.4
-      },
-      {
-        "code": "300499",
-        "name": "高澜股份",
-        "account": "csc",
-        "quantity": 300,
-        "avg_cost": 26.37
-      }
-    ]
-  },
+  "asof_date": "2026-09-10",
+  "updated_at": "2026-09-10 23:50:40",
+  "accounts": [
+    "银河证券",
+    "东方财富",
+    "中信建投"
+  ],
   "positions": [
     {
-      "code": "002156",
-      "name": "通富微电",
-      "account": "galaxy",
-      "quantity": 300,
-      "avg_cost": 63.6743
+      "account": "银河证券",
+      "code": "002779",
+      "name": "中坚科技",
+      "quantity": 200,
+      "avg_cost": 81.82,
+      "current_price": 81.65,
+      "bucket": "short",
+      "stop_loss_pct": 0.08,
+      "market_value": 16330.0,
+      "cost_value": 16364.0,
+      "pnl": -34.0,
+      "pnl_pct": -0.21,
+      "tier": "short"
     },
     {
+      "account": "银河证券",
+      "code": "301217",
+      "name": "铜冠铜箔",
+      "quantity": 100,
+      "avg_cost": 107.45,
+      "current_price": 108.45,
+      "bucket": "short",
+      "stop_loss_pct": 0.08,
+      "market_value": 10845.0,
+      "cost_value": 10745.0,
+      "pnl": 100.0,
+      "pnl_pct": 0.93,
+      "tier": "short"
+    },
+    {
+      "account": "银河证券",
+      "code": "601606",
+      "name": "长城军工",
+      "quantity": 1000,
+      "avg_cost": 34.305,
+      "current_price": 34.49,
+      "bucket": "short",
+      "stop_loss_pct": 0.08,
+      "market_value": 34490.0,
+      "cost_value": 34305.0,
+      "pnl": 185.0,
+      "pnl_pct": 0.54,
+      "tier": "short"
+    },
+    {
+      "account": "东方财富",
       "code": "300223",
-      "name": "北京君正",
-      "account": "eastmoney",
-      "quantity": 1100,
-      "avg_cost": 182.0803
+      "name": "君正集团",
+      "quantity": 1300,
+      "avg_cost": 141.321,
+      "current_price": 132.45,
+      "bucket": "short",
+      "stop_loss_pct": 0.08,
+      "market_value": 172185.0,
+      "cost_value": 183717.3,
+      "pnl": -11532.3,
+      "pnl_pct": -6.28,
+      "tier": "short"
     },
     {
-      "code": "600487",
-      "name": "亨通光电",
-      "account": "csc",
-      "quantity": 500,
-      "avg_cost": 62.6791
-    },
-    {
-      "code": "300223",
-      "name": "北京君正",
-      "account": "csc",
-      "quantity": 700,
-      "avg_cost": 138.2057
-    },
-    {
+      "account": "中信建投",
       "code": "003033",
       "name": "征和工业",
-      "account": "csc",
       "quantity": 500,
-      "avg_cost": 59.3423
+      "avg_cost": 55.968,
+      "current_price": 74.46,
+      "bucket": "short",
+      "stop_loss_pct": 0.08,
+      "market_value": 37230.0,
+      "cost_value": 27984.0,
+      "pnl": 9246.0,
+      "pnl_pct": 33.04,
+      "tier": "short"
     },
     {
-      "code": "300579",
-      "name": "数字认证",
-      "account": "csc",
-      "quantity": 1000,
-      "avg_cost": 28.4
+      "account": "中信建投",
+      "code": "300223",
+      "name": "君正股份",
+      "quantity": 700,
+      "avg_cost": 129.382,
+      "current_price": 132.45,
+      "bucket": "short",
+      "stop_loss_pct": 0.08,
+      "market_value": 92715.0,
+      "cost_value": 90567.4,
+      "pnl": 2147.6,
+      "pnl_pct": 2.37,
+      "tier": "short"
     },
     {
+      "account": "中信建投",
       "code": "300499",
       "name": "高澜股份",
-      "account": "csc",
-      "quantity": 300,
-      "avg_cost": 26.37
+      "quantity": 200,
+      "avg_cost": 24.528,
+      "current_price": 36.53,
+      "bucket": "short",
+      "stop_loss_pct": 0.08,
+      "market_value": 7306.0,
+      "cost_value": 4905.6,
+      "pnl": 2400.4,
+      "pnl_pct": 48.93,
+      "tier": "short"
+    },
+    {
+      "account": "中信建投",
+      "code": "300579",
+      "name": "数字认证",
+      "quantity": 1000,
+      "avg_cost": 22.877,
+      "current_price": 23.03,
+      "bucket": "short",
+      "stop_loss_pct": 0.08,
+      "market_value": 23030.0,
+      "cost_value": 22877.0,
+      "pnl": 153.0,
+      "pnl_pct": 0.67,
+      "tier": "short"
+    },
+    {
+      "account": "中信建投",
+      "code": "600256",
+      "name": "广汇能源",
+      "quantity": 2000,
+      "avg_cost": 7.473,
+      "current_price": 7.19,
+      "bucket": "short",
+      "stop_loss_pct": 0.08,
+      "market_value": 14380.0,
+      "cost_value": 14946.0,
+      "pnl": -566.0,
+      "pnl_pct": -3.79,
+      "tier": "short"
+    },
+    {
+      "account": "中信建投",
+      "code": "600596",
+      "name": "新安股份",
+      "quantity": 1000,
+      "avg_cost": 12.105,
+      "current_price": 12.02,
+      "bucket": "short",
+      "stop_loss_pct": 0.08,
+      "market_value": 12020.0,
+      "cost_value": 12105.0,
+      "pnl": -85.0,
+      "pnl_pct": -0.7,
+      "tier": "short"
+    },
+    {
+      "account": "中信建投",
+      "code": "600664",
+      "name": "哈药股份",
+      "quantity": 4000,
+      "avg_cost": 7.571,
+      "current_price": 7.13,
+      "bucket": "short",
+      "stop_loss_pct": 0.08,
+      "market_value": 28520.0,
+      "cost_value": 30284.0,
+      "pnl": -1764.0,
+      "pnl_pct": -5.82,
+      "tier": "short"
+    },
+    {
+      "account": "中信建投",
+      "code": "601138",
+      "name": "工业富联",
+      "quantity": 1000,
+      "avg_cost": 63.186,
+      "current_price": 63.91,
+      "bucket": "short",
+      "stop_loss_pct": 0.08,
+      "market_value": 63910.0,
+      "cost_value": 63186.0,
+      "pnl": 724.0,
+      "pnl_pct": 1.15,
+      "tier": "short"
     }
-  ]
+  ],
+  "summary": {
+    "total_market_value": 512961.0,
+    "total_cost": 511986.3,
+    "total_pnl": 974.7,
+    "total_pnl_pct": 0.19,
+    "today_pnl": -4053.15,
+    "today_pnl_galaxy": -676,
+    "today_pnl_dfzq": 611,
+    "today_pnl_zhongxin": -3988.15,
+    "stock_count": 12,
+    "long_count": 0,
+    "short_count": 12
+  },
+  "intraday_pnl": {
+    "002779": -34.0,
+    "301217": 100.0,
+    "601606": 184.76,
+    "300223_dfzq": 611.0,
+    "003033": -166.0,
+    "300223": 329.0,
+    "300499": 86.0,
+    "300579": -350.0,
+    "600256": -565.15,
+    "600596": -85.12,
+    "600664": -1540.0,
+    "601138": -1182.0
+  },
+  "backup_file": "holdings.json.bak.20260910_2350",
+  "notes": "9/10 实盘持仓同步；备份前 holdings.json 仅含 9/8 旧持仓，已被本次覆盖写入新版本"
 }
