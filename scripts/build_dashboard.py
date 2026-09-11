@@ -3169,6 +3169,9 @@ def _position_rows(positions, a_quotes, indicators):
         price = (live or {}).get("price") if live else None
         qty = h.get("quantity")
         pnl_snap = h.get("pnl")   # 权威盈亏快照（券商后台口径）
+        # 兼容 pnl 为标量（合计盈亏金额）而非 dict 的写法
+        if not isinstance(pnl_snap, dict):
+            pnl_snap = {"total": pnl_snap} if pnl_snap is not None else {}
         pnl_rate = None
         if cost is not None and price is not None and float(cost or 0) != 0:
             try:
@@ -3188,9 +3191,9 @@ def _position_rows(positions, a_quotes, indicators):
                 pnl_today = None
         # 权威快照覆盖：直接用券商后台数字，保证看板与账户一致（含分红/已平仓盈亏）
         if pnl_snap:
-            pnl_abs = pnl_snap.get("total")
-            pnl_rate = pnl_snap.get("pct")
-            pnl_today = pnl_snap.get("today")
+            pnl_abs = pnl_snap.get("total", pnl_abs)
+            pnl_rate = pnl_snap.get("pct", pnl_rate)
+            pnl_today = pnl_snap.get("today", pnl_today)
             if pnl_snap.get("price") is not None:
                 price = pnl_snap.get("price")
         signal = "持有" if (pnl_rate is not None and pnl_rate > 0) else "观察"
@@ -3455,7 +3458,8 @@ def _build_judgment(overnight, snap, cfg, a_quotes, account_pnl=None, positions=
     for h in positions:
         name = h.get("name") or h.get("code")
         q = a_quotes.get(name)
-        price = (q or {}).get("price") if q else (h.get("pnl") or {}).get("price")
+        _pnl_d = h.get("pnl") if isinstance(h.get("pnl"), dict) else {}
+        price = (q or {}).get("price") if q else _pnl_d.get("price")
         cost = h.get("cost")
         if cost and price:
             try:
@@ -3512,7 +3516,8 @@ def _build_judgment(overnight, snap, cfg, a_quotes, account_pnl=None, positions=
     for h in (positions or []):
         name = h.get("name") or h.get("code")
         q = a_quotes.get(name)
-        price = (q or {}).get("price") if q else (h.get("pnl") or {}).get("price")
+        _pnl_d = h.get("pnl") if isinstance(h.get("pnl"), dict) else {}
+        price = (q or {}).get("price") if q else _pnl_d.get("price")
         cost = h.get("cost")
         if cost and price:
             try:
@@ -4017,10 +4022,10 @@ def _modal_positions(positions, a_quotes, indicators, account_pnl=None):
             if not valued:
                 continue
             a = acc_pnl.setdefault(lab, [0.0, 0.0, 0.0, 0.0])
-            a[0] += d['pnlAbs']
-            a[1] += d['pnlToday']
-            a[2] += c * q
-            a[3] += p * q
+            a[0] += d['pnlAbs'] or 0
+            a[1] += d['pnlToday'] or 0
+            a[2] += (c or 0) * q
+            a[3] += (p or 0) * q
         acc_order = [ACCOUNT_LABELS.get(k, k) for k in acc_order_keys if ACCOUNT_LABELS.get(k)]
         acc_parts = []
         for lab in acc_order:
@@ -5018,7 +5023,8 @@ def _holding_backtest_compare():
             "c20": c20,
             "qty": p.get("quantity", 0),
             "cost": p.get("avg_cost", 0),
-            "price": (p.get("pnl") or {}).get("price", 0),
+            # 兼容 pnl 为标量（合计盈亏）而非 dict 的写法
+            "price": (p.get("pnl") if isinstance(p.get("pnl"), dict) else {}).get("price", 0),
         })
 
     pool_rows = []

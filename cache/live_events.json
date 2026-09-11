@@ -1,59 +1,46 @@
 {
- "updated_at": "2026-09-10 14:32:51",
- "scanned": 14,
- "quote_count": 13,
+ "updated_at": "2026-09-11 08:57:58",
+ "scanned": 19,
+ "quote_count": 17,
  "events": [
   {
-   "code": "sz002156",
-   "name": "通富微电",
-   "type": "触止损",
-   "price": 58.36,
-   "change_pct": 0.02,
-   "vol_ratio": 0.68,
-   "turnover": 2.42,
-   "msg": "跌破止损线 58.58（-8%）",
+   "code": "sh600664",
+   "name": "哈药股份",
+   "type": "急跌",
+   "price": 7.13,
+   "change_pct": -6.55,
+   "vol_ratio": 0.92,
+   "turnover": 15.98,
+   "msg": "跌幅 -6.55%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-10 14:32"
-  },
-  {
-   "code": "sz300223",
-   "name": "北京君正",
-   "type": "触止损",
-   "price": 132.5,
-   "change_pct": 0.39,
-   "vol_ratio": 0.74,
-   "turnover": 3.03,
-   "msg": "跌破止损线 154.77（-15%）",
-   "severity": "critical",
-   "is_holding": true,
-   "time": "09-10 14:32"
-  },
-  {
-   "code": "sz300579",
-   "name": "数字认证",
-   "type": "触止损",
-   "price": 22.99,
-   "change_pct": -1.67,
-   "vol_ratio": 0.41,
-   "turnover": 0.71,
-   "msg": "跌破止损线 26.13（-8%）",
-   "severity": "critical",
-   "is_holding": true,
-   "time": "09-10 14:32"
+   "time": "09-11 08:57"
   },
   {
    "code": "sz300499",
    "name": "高澜股份",
    "type": "高换手",
-   "price": 37.17,
-   "change_pct": 0.95,
+   "price": 36.53,
+   "change_pct": -0.79,
    "vol_ratio": 1.08,
-   "turnover": 17.64,
-   "msg": "换手率 17.6%，筹码剧烈交换",
+   "turnover": 19.75,
+   "msg": "换手率 19.8%，筹码剧烈交换",
    "severity": "warn",
    "is_holding": true,
-   "time": "09-10 14:32"
+   "time": "09-11 08:57"
+  },
+  {
+   "code": "sh600664",
+   "name": "哈药股份",
+   "type": "高换手",
+   "price": 7.13,
+   "change_pct": -6.55,
+   "vol_ratio": 0.92,
+   "turnover": 15.98,
+   "msg": "换手率 16.0%，筹码剧烈交换",
+   "severity": "warn",
+   "is_holding": true,
+   "time": "09-11 08:57"
   }
  ]
 }

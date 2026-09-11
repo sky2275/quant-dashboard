@@ -298,6 +298,9 @@ def _build_rows(positions, a_quotes, indicators, klines):
         ind = indicators.get(ts, {}) if ts else {}
 
         pnl = p.get("pnl", {}) or {}
+        # 兼容 holdings.json 里 pnl 为标量（合计盈亏）而非 dict 的写法
+        if not isinstance(pnl, dict):
+            pnl = {"total": pnl}
         qty = p.get("quantity") or 0
         cost = p.get("avg_cost") or 0
         price = pnl.get("price") or q.get("price") or cost

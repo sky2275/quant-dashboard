@@ -281,6 +281,31 @@ def build():
         if os.path.exists(existing):
             print("[ingest] 未检测到交割单文件，保留现有 holdings.json（不覆盖）")
             return json.load(open(existing, encoding="utf-8"))
+
+    # 交割单比现有手动同步的 holdings.json 更旧时，保留手动同步结果，避免被过期交割单回退
+    existing = os.path.join(CACHE_DIR, "holdings.json")
+    if os.path.exists(existing):
+        try:
+            _old = json.load(open(existing, encoding="utf-8"))
+        except Exception:
+            _old = {}
+        _asof = _old.get("asof_date") or ""
+        if _asof:
+            _newest = 0.0
+            for acc in (maps.get("brokers") or {}):
+                d = os.path.join(STATEMENT_DIR, acc)
+                if not os.path.isdir(d):
+                    continue
+                for fn in os.listdir(d):
+                    try:
+                        _newest = max(_newest, os.path.getmtime(os.path.join(d, fn)))
+                    except OSError:
+                        pass
+            if _newest and _asof >= datetime.datetime.fromtimestamp(_newest).strftime("%Y-%m-%d"):
+                print(f"[ingest] 交割单最新为 "
+                      f"{datetime.datetime.fromtimestamp(_newest).strftime('%Y-%m-%d')}，"
+                      f"现有 holdings.json asof={_asof} 更新 → 保留手动同步，不覆盖")
+                return _old
     result = {
         "source": "broker_statements",
         "updated_at": _bj_now().strftime("%Y-%m-%d %H:%M:%S"),
