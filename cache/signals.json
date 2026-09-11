@@ -1,22 +1,22 @@
 {
- "updated_at": "2026-09-11 08:58:00",
+ "updated_at": "2026-09-11 09:31:33",
  "signal_count": 1,
  "attack_count": 0,
  "defend_count": 1,
  "signals": [
   {
    "type": "防守",
-   "action": "减仓/回避",
-   "code": "sh600664",
-   "name": "哈药股份",
-   "severity": "high",
-   "price": 7.13,
-   "ref_price": "不追跌",
-   "position": "减仓",
-   "stop": 6.96532,
-   "reason": "跌幅 -6.55%、主力净流出-1.68亿确认，警惕资金出逃",
-   "confidence": 90,
-   "trigger": "急跌"
+   "action": "止损",
+   "code": "sz300223",
+   "name": "君正集团",
+   "severity": "critical",
+   "price": 129.15,
+   "ref_price": "跌破 119.03",
+   "position": "清仓 / 减至观察仓",
+   "stop": null,
+   "reason": "跌破short仓止损线（-8%），纪律止损",
+   "confidence": 95,
+   "trigger": "触止损"
   }
  ],
  "factor_top": [

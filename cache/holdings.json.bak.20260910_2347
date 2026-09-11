@@ -1,0 +1,117 @@
+{
+  "source": "broker_statements",
+  "updated_at": "2026-09-10 14:33:17",
+  "account_labels": {
+    "galaxy": "银河证券",
+    "eastmoney": "东方财富",
+    "csc": "中信建投"
+  },
+  "accounts": {
+    "galaxy": [
+      {
+        "code": "002156",
+        "name": "通富微电",
+        "account": "galaxy",
+        "quantity": 300,
+        "avg_cost": 63.6743
+      }
+    ],
+    "eastmoney": [
+      {
+        "code": "300223",
+        "name": "北京君正",
+        "account": "eastmoney",
+        "quantity": 1100,
+        "avg_cost": 182.0803
+      }
+    ],
+    "csc": [
+      {
+        "code": "600487",
+        "name": "亨通光电",
+        "account": "csc",
+        "quantity": 500,
+        "avg_cost": 62.6791
+      },
+      {
+        "code": "300223",
+        "name": "北京君正",
+        "account": "csc",
+        "quantity": 700,
+        "avg_cost": 138.2057
+      },
+      {
+        "code": "003033",
+        "name": "征和工业",
+        "account": "csc",
+        "quantity": 500,
+        "avg_cost": 59.3423
+      },
+      {
+        "code": "300579",
+        "name": "数字认证",
+        "account": "csc",
+        "quantity": 1000,
+        "avg_cost": 28.4
+      },
+      {
+        "code": "300499",
+        "name": "高澜股份",
+        "account": "csc",
+        "quantity": 300,
+        "avg_cost": 26.37
+      }
+    ]
+  },
+  "positions": [
+    {
+      "code": "002156",
+      "name": "通富微电",
+      "account": "galaxy",
+      "quantity": 300,
+      "avg_cost": 63.6743
+    },
+    {
+      "code": "300223",
+      "name": "北京君正",
+      "account": "eastmoney",
+      "quantity": 1100,
+      "avg_cost": 182.0803
+    },
+    {
+      "code": "600487",
+      "name": "亨通光电",
+      "account": "csc",
+      "quantity": 500,
+      "avg_cost": 62.6791
+    },
+    {
+      "code": "300223",
+      "name": "北京君正",
+      "account": "csc",
+      "quantity": 700,
+      "avg_cost": 138.2057
+    },
+    {
+      "code": "003033",
+      "name": "征和工业",
+      "account": "csc",
+      "quantity": 500,
+      "avg_cost": 59.3423
+    },
+    {
+      "code": "300579",
+      "name": "数字认证",
+      "account": "csc",
+      "quantity": 1000,
+      "avg_cost": 28.4
+    },
+    {
+      "code": "300499",
+      "name": "高澜股份",
+      "account": "csc",
+      "quantity": 300,
+      "avg_cost": 26.37
+    }
+  ]
+}
