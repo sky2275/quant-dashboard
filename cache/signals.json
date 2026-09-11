@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-09-11 09:31:33",
- "signal_count": 1,
+ "updated_at": "2026-09-11 11:39:01",
+ "signal_count": 5,
  "attack_count": 0,
- "defend_count": 1,
+ "defend_count": 5,
  "signals": [
   {
    "type": "防守",
@@ -10,13 +10,69 @@
    "code": "sz300223",
    "name": "君正集团",
    "severity": "critical",
-   "price": 129.15,
+   "price": 125.63,
    "ref_price": "跌破 119.03",
    "position": "清仓 / 减至观察仓",
    "stop": null,
    "reason": "跌破short仓止损线（-8%），纪律止损",
    "confidence": 95,
    "trigger": "触止损"
+  },
+  {
+   "type": "防守",
+   "action": "减仓/回避",
+   "code": "sz301217",
+   "name": "铜冠铜箔",
+   "severity": "high",
+   "price": 102.4,
+   "ref_price": "不追跌",
+   "position": "减仓",
+   "stop": 98.85400000000001,
+   "reason": "跌幅 -5.58%、主力净流出-0.50亿确认，警惕资金出逃",
+   "confidence": 90,
+   "trigger": "急跌"
+  },
+  {
+   "type": "防守",
+   "action": "减仓/回避",
+   "code": "sz300223",
+   "name": "君正集团",
+   "severity": "high",
+   "price": 125.63,
+   "ref_price": "不追跌",
+   "position": "减仓",
+   "stop": 119.03144,
+   "reason": "跌幅 -5.15%、主力净流入占比低、主力净流入+0.64亿（或为洗盘），警惕资金出逃",
+   "confidence": 70,
+   "trigger": "急跌"
+  },
+  {
+   "type": "防守",
+   "action": "减仓/回避",
+   "code": "sz300499",
+   "name": "高澜股份",
+   "severity": "high",
+   "price": 33.72,
+   "ref_price": "不追跌",
+   "position": "减仓",
+   "stop": 22.56576,
+   "reason": "跌幅 -7.69%、量化评分34分(弱)、主力净流入+0.94亿（或为洗盘），警惕资金出逃",
+   "confidence": 70,
+   "trigger": "急跌"
+  },
+  {
+   "type": "防守",
+   "action": "减仓/回避",
+   "code": "sh688037",
+   "name": "芯源微",
+   "severity": "high",
+   "price": 303.91,
+   "ref_price": "不追跌",
+   "position": "回避",
+   "stop": null,
+   "reason": "跌幅 -5.90%、主力净流出-1.03亿确认，警惕资金出逃",
+   "confidence": 90,
+   "trigger": "急跌"
   }
  ],
  "factor_top": [
