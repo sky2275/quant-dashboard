@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-11 14:32:14",
+ "updated_at": "2026-09-14 08:33:19",
  "scanned": 19,
  "quote_count": 17,
  "events": [
@@ -7,27 +7,27 @@
    "code": "sz300223",
    "name": "君正集团",
    "type": "触止损",
-   "price": 128.81,
-   "change_pct": -2.75,
-   "vol_ratio": 1.05,
-   "turnover": 4.2,
+   "price": 128.78,
+   "change_pct": -2.77,
+   "vol_ratio": 1.02,
+   "turnover": 4.62,
    "msg": "跌破止损线 130.02（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-11 14:32"
+   "time": "09-14 08:33"
   },
   {
    "code": "sz300499",
    "name": "高澜股份",
    "type": "高换手",
-   "price": 34.95,
-   "change_pct": -4.33,
-   "vol_ratio": 0.91,
-   "turnover": 15.36,
-   "msg": "换手率 15.4%，筹码剧烈交换",
+   "price": 34.9,
+   "change_pct": -4.46,
+   "vol_ratio": 0.87,
+   "turnover": 16.62,
+   "msg": "换手率 16.6%，筹码剧烈交换",
    "severity": "warn",
    "is_holding": true,
-   "time": "09-11 14:32"
+   "time": "09-14 08:33"
   }
  ]
 }
