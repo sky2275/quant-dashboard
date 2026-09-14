@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-14 11:39:38",
+ "updated_at": "2026-09-14 14:32:29",
  "scanned": 19,
  "quote_count": 17,
  "events": [
@@ -7,79 +7,53 @@
    "code": "sh601606",
    "name": "长城军工",
    "type": "急跌",
-   "price": 34.08,
-   "change_pct": -5.65,
-   "vol_ratio": 1.49,
-   "turnover": 5.75,
-   "msg": "跌幅 -5.65%，快速跳水",
+   "price": 34.29,
+   "change_pct": -5.07,
+   "vol_ratio": 0.98,
+   "turnover": 6.71,
+   "msg": "跌幅 -5.07%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-14 11:39"
+   "time": "09-14 14:32"
   },
   {
    "code": "sz300223",
    "name": "君正集团",
    "type": "触止损",
-   "price": 127.43,
-   "change_pct": -1.05,
-   "vol_ratio": 0.96,
-   "turnover": 2.15,
+   "price": 126.65,
+   "change_pct": -1.65,
+   "vol_ratio": 0.75,
+   "turnover": 2.98,
    "msg": "跌破止损线 130.02（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-14 11:39"
+   "time": "09-14 14:32"
   },
   {
    "code": "sz003033",
    "name": "征和工业",
    "type": "急拉",
-   "price": 78.24,
-   "change_pct": 7.44,
-   "vol_ratio": 1.09,
-   "turnover": 1.46,
-   "msg": "涨幅 +7.44%，快速拉升",
+   "price": 79.01,
+   "change_pct": 8.5,
+   "vol_ratio": 1.74,
+   "turnover": 4.12,
+   "msg": "涨幅 +8.50%，快速拉升",
    "severity": "high",
    "is_holding": true,
-   "time": "09-14 11:39"
+   "time": "09-14 14:32"
   },
   {
-   "code": "sz003033",
-   "name": "征和工业",
-   "type": "突破",
-   "price": 78.24,
-   "change_pct": 7.44,
-   "vol_ratio": 1.09,
-   "turnover": 1.46,
-   "msg": "站上20日高点 78.32，趋势转强",
+   "code": "sh600664",
+   "name": "哈药股份",
+   "type": "急拉",
+   "price": 7.39,
+   "change_pct": 5.72,
+   "vol_ratio": 0.91,
+   "turnover": 12.58,
+   "msg": "涨幅 +5.72%，快速拉升",
    "severity": "high",
    "is_holding": true,
-   "time": "09-14 11:39"
-  },
-  {
-   "code": "sz300579",
-   "name": "数字认证",
-   "type": "放量异动",
-   "price": 23.14,
-   "change_pct": 3.4,
-   "vol_ratio": 2.75,
-   "turnover": 1.91,
-   "msg": "量比 2.8 倍，成交量突然放大",
-   "severity": "high",
-   "is_holding": true,
-   "time": "09-14 11:39"
-  },
-  {
-   "code": "sz301183",
-   "name": "东田微",
-   "type": "放量异动",
-   "price": 258.26,
-   "change_pct": 4.56,
-   "vol_ratio": 2.06,
-   "turnover": 8.31,
-   "msg": "量比 2.1 倍，成交量突然放大",
-   "severity": "high",
-   "is_holding": false,
-   "time": "09-14 11:39"
+   "time": "09-14 14:32"
   }
  ]
 }
