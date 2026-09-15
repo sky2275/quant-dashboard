@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-09-15 08:40:03",
- "signal_count": 5,
- "attack_count": 2,
- "defend_count": 2,
+ "updated_at": "2026-09-15 09:38:27",
+ "signal_count": 2,
+ "attack_count": 1,
+ "defend_count": 1,
  "signals": [
   {
    "type": "防守",
@@ -10,7 +10,7 @@
    "code": "sz300223",
    "name": "君正集团",
    "severity": "critical",
-   "price": 126.32,
+   "price": 127.13,
    "ref_price": "跌破 119.03",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -19,60 +19,18 @@
    "trigger": "触止损"
   },
   {
-   "type": "防守",
-   "action": "减仓/回避",
-   "code": "sh601606",
-   "name": "长城军工",
-   "severity": "high",
-   "price": 34.26,
-   "ref_price": "不追跌",
-   "position": "减仓",
-   "stop": 31.5606,
-   "reason": "跌幅 -5.15%、主力净流出-2.19亿确认，警惕资金出逃",
-   "confidence": 90,
-   "trigger": "急跌"
-  },
-  {
    "type": "进攻",
    "action": "加仓/持有",
-   "code": "sz003033",
-   "name": "征和工业",
+   "code": "sz300579",
+   "name": "数字认证",
    "severity": "high",
-   "price": 78.2,
-   "ref_price": "76.64-79.76",
+   "price": 24.25,
+   "ref_price": "23.77-24.73",
    "position": "10%（短线仓）",
-   "stop": 51.49056,
-   "reason": "涨幅 +7.39% 拉升，趋势+量能共振",
+   "stop": 21.04684,
+   "reason": "量比 21.7 倍放量，趋势+量能共振",
    "confidence": 70,
    "trigger": "急拉"
-  },
-  {
-   "type": "进攻",
-   "action": "加仓/持有",
-   "code": "sz300499",
-   "name": "高澜股份",
-   "severity": "high",
-   "price": 36.7,
-   "ref_price": "35.97-37.43",
-   "position": "10%（短线仓）",
-   "stop": 22.56576,
-   "reason": "量化评分34分(弱)、主力净流入+1.68亿，趋势+量能共振",
-   "confidence": 80,
-   "trigger": "急拉"
-  },
-  {
-   "type": "观察",
-   "action": "谨慎观察",
-   "code": "sh600664",
-   "name": "哈药股份",
-   "severity": "warn",
-   "price": 7.3,
-   "ref_price": "不追高，等回踩",
-   "position": "—",
-   "stop": null,
-   "reason": "换手率 15.3% 偏高，主升或出货待确认",
-   "confidence": 55,
-   "trigger": "高换手"
   }
  ],
  "factor_top": [
