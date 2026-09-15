@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-14 14:32:29",
+ "updated_at": "2026-09-15 08:39:15",
  "scanned": 19,
  "quote_count": 17,
  "events": [
@@ -7,53 +7,66 @@
    "code": "sh601606",
    "name": "长城军工",
    "type": "急跌",
-   "price": 34.29,
-   "change_pct": -5.07,
-   "vol_ratio": 0.98,
-   "turnover": 6.71,
-   "msg": "跌幅 -5.07%，快速跳水",
+   "price": 34.26,
+   "change_pct": -5.15,
+   "vol_ratio": 0.95,
+   "turnover": 7.33,
+   "msg": "跌幅 -5.15%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-14 14:32"
+   "time": "09-15 08:39"
   },
   {
    "code": "sz300223",
    "name": "君正集团",
    "type": "触止损",
-   "price": 126.65,
-   "change_pct": -1.65,
-   "vol_ratio": 0.75,
-   "turnover": 2.98,
+   "price": 126.32,
+   "change_pct": -1.91,
+   "vol_ratio": 0.78,
+   "turnover": 3.46,
    "msg": "跌破止损线 130.02（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-14 14:32"
+   "time": "09-15 08:39"
   },
   {
    "code": "sz003033",
    "name": "征和工业",
    "type": "急拉",
-   "price": 79.01,
-   "change_pct": 8.5,
-   "vol_ratio": 1.74,
-   "turnover": 4.12,
-   "msg": "涨幅 +8.50%，快速拉升",
+   "price": 78.2,
+   "change_pct": 7.39,
+   "vol_ratio": 1.69,
+   "turnover": 4.51,
+   "msg": "涨幅 +7.39%，快速拉升",
    "severity": "high",
    "is_holding": true,
-   "time": "09-14 14:32"
+   "time": "09-15 08:39"
+  },
+  {
+   "code": "sz300499",
+   "name": "高澜股份",
+   "type": "急拉",
+   "price": 36.7,
+   "change_pct": 5.16,
+   "vol_ratio": 0.78,
+   "turnover": 14.58,
+   "msg": "涨幅 +5.16%，快速拉升",
+   "severity": "high",
+   "is_holding": true,
+   "time": "09-15 08:39"
   },
   {
    "code": "sh600664",
    "name": "哈药股份",
-   "type": "急拉",
-   "price": 7.39,
-   "change_pct": 5.72,
-   "vol_ratio": 0.91,
-   "turnover": 12.58,
-   "msg": "涨幅 +5.72%，快速拉升",
-   "severity": "high",
+   "type": "高换手",
+   "price": 7.3,
+   "change_pct": 4.43,
+   "vol_ratio": 0.98,
+   "turnover": 15.33,
+   "msg": "换手率 15.3%，筹码剧烈交换",
+   "severity": "warn",
    "is_holding": true,
-   "time": "09-14 14:32"
+   "time": "09-15 08:39"
   }
  ]
 }
