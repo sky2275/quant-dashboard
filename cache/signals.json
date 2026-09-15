@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-09-15 11:39:39",
- "signal_count": 2,
+ "updated_at": "2026-09-15 14:35:23",
+ "signal_count": 3,
  "attack_count": 0,
- "defend_count": 2,
+ "defend_count": 3,
  "signals": [
   {
    "type": "防守",
@@ -10,7 +10,7 @@
    "code": "sz300223",
    "name": "君正集团",
    "severity": "critical",
-   "price": 128.35,
+   "price": 127.42,
    "ref_price": "跌破 119.03",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -31,6 +31,20 @@
    "reason": "跌破short仓止损线（-8%），纪律止损",
    "confidence": 95,
    "trigger": "触止损"
+  },
+  {
+   "type": "防守",
+   "action": "减仓/回避",
+   "code": "sh601606",
+   "name": "长城军工",
+   "severity": "high",
+   "price": 32.51,
+   "ref_price": "不追跌",
+   "position": "减仓",
+   "stop": 31.5606,
+   "reason": "跌幅 -5.11%、主力净流出-2.19亿确认，警惕资金出逃",
+   "confidence": 90,
+   "trigger": "急跌"
   }
  ],
  "factor_top": [
