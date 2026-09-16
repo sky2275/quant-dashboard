@@ -1,6 +1,6 @@
 {
- "updated_at": "2026-09-15 14:35:23",
- "signal_count": 3,
+ "updated_at": "2026-09-16 08:39:57",
+ "signal_count": 4,
  "attack_count": 0,
  "defend_count": 3,
  "signals": [
@@ -10,7 +10,7 @@
    "code": "sz300223",
    "name": "君正集团",
    "severity": "critical",
-   "price": 127.42,
+   "price": 127.58,
    "ref_price": "跌破 119.03",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -24,7 +24,7 @@
    "code": "sh600256",
    "name": "广汇能源",
    "severity": "critical",
-   "price": 6.87,
+   "price": 6.85,
    "ref_price": "跌破 6.88",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -42,9 +42,23 @@
    "ref_price": "不追跌",
    "position": "减仓",
    "stop": 31.5606,
-   "reason": "跌幅 -5.11%、主力净流出-2.19亿确认，警惕资金出逃",
+   "reason": "跌幅 -5.11%、主力净流出-0.90亿确认，警惕资金出逃",
    "confidence": 90,
    "trigger": "急跌"
+  },
+  {
+   "type": "观察",
+   "action": "谨慎观察",
+   "code": "sz300499",
+   "name": "高澜股份",
+   "severity": "warn",
+   "price": 37.86,
+   "ref_price": "不追高，等回踩",
+   "position": "—",
+   "stop": null,
+   "reason": "换手率 15.1% 偏高，主升或出货待确认",
+   "confidence": 55,
+   "trigger": "高换手"
   }
  ],
  "factor_top": [
