@@ -1,85 +1,33 @@
 {
- "updated_at": "2026-09-17 08:41:52",
+ "updated_at": "2026-09-17 09:29:18",
  "scanned": 19,
  "quote_count": 17,
  "events": [
   {
-   "code": "sz300223",
-   "name": "君正集团",
-   "type": "急拉",
-   "price": 134.06,
-   "change_pct": 5.08,
-   "vol_ratio": 1.24,
-   "turnover": 4.53,
-   "msg": "涨幅 +5.08%，快速拉升",
+   "code": "sh600256",
+   "name": "广汇能源",
+   "type": "触止损",
+   "price": 6.85,
+   "change_pct": -0.58,
+   "vol_ratio": 0.0,
+   "turnover": 0.01,
+   "msg": "跌破止损线 6.88（-8%）",
+   "severity": "critical",
+   "is_holding": true,
+   "time": "09-17 09:29"
+  },
+  {
+   "code": "sz300499",
+   "name": "高澜股份",
+   "type": "突破",
+   "price": 38.6,
+   "change_pct": 1.1,
+   "vol_ratio": 0.0,
+   "turnover": 0.09,
+   "msg": "站上20日高点 38.62，趋势转强",
    "severity": "high",
    "is_holding": true,
-   "time": "09-17 08:41"
-  },
-  {
-   "code": "sz003033",
-   "name": "征和工业",
-   "type": "急拉",
-   "price": 81.18,
-   "change_pct": 5.84,
-   "vol_ratio": 0.9,
-   "turnover": 3.03,
-   "msg": "涨幅 +5.84%，快速拉升",
-   "severity": "high",
-   "is_holding": true,
-   "time": "09-17 08:41"
-  },
-  {
-   "code": "sz300223",
-   "name": "君正股份",
-   "type": "急拉",
-   "price": 134.06,
-   "change_pct": 5.08,
-   "vol_ratio": 1.24,
-   "turnover": 4.53,
-   "msg": "涨幅 +5.08%，快速拉升",
-   "severity": "high",
-   "is_holding": true,
-   "time": "09-17 08:41"
-  },
-  {
-   "code": "sz301183",
-   "name": "东田微",
-   "type": "急拉",
-   "price": 302.41,
-   "change_pct": 14.25,
-   "vol_ratio": 1.61,
-   "turnover": 13.3,
-   "msg": "涨幅 +14.25%，快速拉升",
-   "severity": "high",
-   "is_holding": false,
-   "time": "09-17 08:41"
-  },
-  {
-   "code": "sh688037",
-   "name": "芯源微",
-   "type": "急拉",
-   "price": 338.53,
-   "change_pct": 5.46,
-   "vol_ratio": 1.71,
-   "turnover": 2.83,
-   "msg": "涨幅 +5.46%，快速拉升",
-   "severity": "high",
-   "is_holding": false,
-   "time": "09-17 08:41"
-  },
-  {
-   "code": "sh600664",
-   "name": "哈药股份",
-   "type": "高换手",
-   "price": 7.36,
-   "change_pct": 3.37,
-   "vol_ratio": 1.22,
-   "turnover": 17.08,
-   "msg": "换手率 17.1%，筹码剧烈交换",
-   "severity": "warn",
-   "is_holding": true,
-   "time": "09-17 08:41"
+   "time": "09-17 09:29"
   }
  ]
 }
