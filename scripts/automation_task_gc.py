@@ -138,9 +138,9 @@ def main() -> int:
             json.dumps(
                 {
                     "ok": True,
-                    "dry_run": True,
+                    "dry_run": bool(args.dry_run),
                     "kept": sum(len(v) for v in kept.values()),
-                    "deleted": 0 if args.dry_run else 0,
+                    "deleted": 0,
                     "would_delete": len(to_delete),
                     "nodes": kept,
                 },
