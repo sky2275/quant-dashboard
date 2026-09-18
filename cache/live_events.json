@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-17 14:33:18",
+ "updated_at": "2026-09-18 08:45:46",
  "scanned": 19,
  "quote_count": 17,
  "events": [
@@ -9,38 +9,25 @@
    "type": "触止损",
    "price": 6.85,
    "change_pct": -0.58,
-   "vol_ratio": 0.79,
-   "turnover": 1.51,
+   "vol_ratio": 0.77,
+   "turnover": 1.65,
    "msg": "跌破止损线 6.88（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-17 14:33"
-  },
-  {
-   "code": "sz003033",
-   "name": "征和工业",
-   "type": "突破",
-   "price": 84.0,
-   "change_pct": 3.47,
-   "vol_ratio": 1.03,
-   "turnover": 2.71,
-   "msg": "站上20日高点 84.27，趋势转强",
-   "severity": "high",
-   "is_holding": true,
-   "time": "09-17 14:33"
+   "time": "09-18 08:45"
   },
   {
    "code": "sh600664",
    "name": "哈药股份",
    "type": "高换手",
-   "price": 7.41,
-   "change_pct": 0.68,
-   "vol_ratio": 1.32,
-   "turnover": 16.69,
-   "msg": "换手率 16.7%，筹码剧烈交换",
+   "price": 7.42,
+   "change_pct": 0.82,
+   "vol_ratio": 1.29,
+   "turnover": 18.26,
+   "msg": "换手率 18.3%，筹码剧烈交换",
    "severity": "warn",
    "is_holding": true,
-   "time": "09-17 14:33"
+   "time": "09-18 08:45"
   }
  ]
 }

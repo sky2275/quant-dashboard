@@ -1,0 +1,234 @@
+{
+ "asof": "20260917",
+ "picks": {
+  "二连板": [
+   {
+    "code": "002655",
+    "name": "共达电声",
+    "industry": "元器件",
+    "close": 40.77,
+    "pct_chg": 10.01,
+    "amount_yi": 14.51,
+    "date": "20260917"
+   },
+   {
+    "code": "600371",
+    "name": "万向德农",
+    "industry": "种植业",
+    "close": 15.64,
+    "pct_chg": 9.99,
+    "amount_yi": 11.48,
+    "date": "20260917"
+   },
+   {
+    "code": "605058",
+    "name": "澳弘电子",
+    "industry": "元器件",
+    "close": 48.76,
+    "pct_chg": 9.99,
+    "amount_yi": 10.81,
+    "date": "20260917"
+   },
+   {
+    "code": "003001",
+    "name": "中岩大地",
+    "industry": "建筑工程",
+    "close": 20.32,
+    "pct_chg": 10.02,
+    "amount_yi": 7.15,
+    "date": "20260917"
+   },
+   {
+    "code": "003026",
+    "name": "中晶科技",
+    "industry": "半导体",
+    "close": 37.0,
+    "pct_chg": 9.99,
+    "amount_yi": 5.61,
+    "date": "20260917"
+   },
+   {
+    "code": "001216",
+    "name": "华瓷股份",
+    "industry": "家居用品",
+    "close": 19.88,
+    "pct_chg": 10.02,
+    "amount_yi": 5.53,
+    "date": "20260917"
+   },
+   {
+    "code": "603248",
+    "name": "锡华科技",
+    "industry": "机械基件",
+    "close": 22.34,
+    "pct_chg": 10.0,
+    "amount_yi": 4.92,
+    "date": "20260917"
+   },
+   {
+    "code": "002285",
+    "name": "世联行",
+    "industry": "房产服务",
+    "close": 2.63,
+    "pct_chg": 10.04,
+    "amount_yi": 3.37,
+    "date": "20260917"
+   }
+  ],
+  "首板放量": [
+   {
+    "code": "002640",
+    "name": "跨境通",
+    "industry": "互联网",
+    "close": 3.77,
+    "pct_chg": 9.91,
+    "amount_yi": 10.79,
+    "date": "20260917"
+   },
+   {
+    "code": "600699",
+    "name": "均胜电子",
+    "industry": "汽车配件",
+    "close": 19.87,
+    "pct_chg": 10.02,
+    "amount_yi": 10.51,
+    "date": "20260917"
+   },
+   {
+    "code": "300741",
+    "name": "华宝股份",
+    "industry": "食品",
+    "close": 27.17,
+    "pct_chg": 20.01,
+    "amount_yi": 8.2,
+    "date": "20260917"
+   },
+   {
+    "code": "002796",
+    "name": "世嘉科技",
+    "industry": "通信设备",
+    "close": 32.54,
+    "pct_chg": 10.01,
+    "amount_yi": 7.56,
+    "date": "20260917"
+   },
+   {
+    "code": "300434",
+    "name": "金石亚药",
+    "industry": "化学制药",
+    "close": 12.49,
+    "pct_chg": 19.98,
+    "amount_yi": 5.52,
+    "date": "20260917"
+   },
+   {
+    "code": "002339",
+    "name": "积成电子",
+    "industry": "电气设备",
+    "close": 8.23,
+    "pct_chg": 10.03,
+    "amount_yi": 4.51,
+    "date": "20260917"
+   },
+   {
+    "code": "600593",
+    "name": "大连圣亚",
+    "industry": "旅游景点",
+    "close": 43.31,
+    "pct_chg": 10.01,
+    "amount_yi": 4.26,
+    "date": "20260917"
+   },
+   {
+    "code": "600630",
+    "name": "龙头股份",
+    "industry": "服饰",
+    "close": 7.54,
+    "pct_chg": 10.07,
+    "amount_yi": 3.28,
+    "date": "20260917"
+   },
+   {
+    "code": "001365",
+    "name": "天海电子",
+    "industry": "汽车配件",
+    "close": 37.51,
+    "pct_chg": 10.0,
+    "amount_yi": 3.15,
+    "date": "20260917"
+   },
+   {
+    "code": "603960",
+    "name": "克来机电",
+    "industry": "汽车配件",
+    "close": 17.0,
+    "pct_chg": 10.03,
+    "amount_yi": 2.92,
+    "date": "20260917"
+   },
+   {
+    "code": "600356",
+    "name": "恒丰纸业",
+    "industry": "造纸",
+    "close": 10.19,
+    "pct_chg": 10.04,
+    "amount_yi": 2.28,
+    "date": "20260917"
+   },
+   {
+    "code": "600448",
+    "name": "华纺股份",
+    "industry": "纺织",
+    "close": 3.22,
+    "pct_chg": 9.9,
+    "amount_yi": 2.28,
+    "date": "20260917"
+   },
+   {
+    "code": "000920",
+    "name": "沃顿科技",
+    "industry": "塑料",
+    "close": 12.63,
+    "pct_chg": 10.02,
+    "amount_yi": 2.07,
+    "date": "20260917"
+   },
+   {
+    "code": "600822",
+    "name": "上海物贸",
+    "industry": "汽车服务",
+    "close": 9.38,
+    "pct_chg": 9.96,
+    "amount_yi": 1.51,
+    "date": "20260917"
+   },
+   {
+    "code": "000504",
+    "name": "南华生物",
+    "industry": "医疗保健",
+    "close": 9.1,
+    "pct_chg": 10.04,
+    "amount_yi": 1.12,
+    "date": "20260917"
+   },
+   {
+    "code": "002836",
+    "name": "新宏泽",
+    "industry": "广告包装",
+    "close": 10.84,
+    "pct_chg": 10.05,
+    "amount_yi": 0.79,
+    "date": "20260917"
+   },
+   {
+    "code": "002453",
+    "name": "华软科技",
+    "industry": "化工原料",
+    "close": 4.85,
+    "pct_chg": 9.98,
+    "amount_yi": 0.75,
+    "date": "20260917"
+   }
+  ]
+ }
+}

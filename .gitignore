@@ -39,3 +39,4 @@ config/notify.json
 # 建仓触达检测结果 + 去重状态（含现价/触达信号，仅留本机）
 cache/entry_plan_alert.json
 cache/entry_plan_alert_state.json
+cache/*.parquet
