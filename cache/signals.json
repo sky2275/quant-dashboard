@@ -1,6 +1,6 @@
 {
- "updated_at": "2026-09-18 08:45:48",
- "signal_count": 2,
+ "updated_at": "2026-09-18 09:36:32",
+ "signal_count": 1,
  "attack_count": 0,
  "defend_count": 1,
  "signals": [
@@ -10,27 +10,13 @@
    "code": "sh600256",
    "name": "广汇能源",
    "severity": "critical",
-   "price": 6.85,
+   "price": 6.72,
    "ref_price": "跌破 6.88",
    "position": "清仓 / 减至观察仓",
    "stop": null,
    "reason": "跌破short仓止损线（-8%），纪律止损",
    "confidence": 95,
    "trigger": "触止损"
-  },
-  {
-   "type": "观察",
-   "action": "谨慎观察",
-   "code": "sh600664",
-   "name": "哈药股份",
-   "severity": "warn",
-   "price": 7.42,
-   "ref_price": "不追高，等回踩",
-   "position": "—",
-   "stop": null,
-   "reason": "换手率 18.3% 偏高，主升或出货待确认",
-   "confidence": 55,
-   "trigger": "高换手"
   }
  ],
  "factor_top": [
