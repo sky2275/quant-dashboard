@@ -1,0 +1,110 @@
+{
+  "asof": "2026-09-21",
+  "note": "盘中减仓监控清单（三线保护法执行器读取）。修改本文件即可增删监控标的/调整硬止损，无需改代码。",
+  "generated_note": "已按 2026-09-21 三账户实盘持仓预填；每日复盘后可更新 hard_stop（建议取 MA10 / MA20 中较低者）。",
+
+  "rules": {
+    "_doc": {
+      "gap_open_pct": "开盘涨幅≥此值触发 P1 高开减半提示",
+      "gap_window_min": "P1 仅在开盘后 N 分钟内有效（窗口外不再提示）",
+      "below_open_gap_pct": "P5 跌破开盘价规则仅对涨幅≥此值的高开票生效（0.5=过滤低开票误伤）",
+      "avg_line_confirm_min": "跌破均价线后连续 N 分钟未站回才算有效信号",
+      "drawdown_from_high_pct": "自当日最高回撤≥此百分比触发减仓",
+      "no_hold_after": "该时点后仍未站回均价线→提示不留隔夜",
+      "trail_tier1_pnl_pct": "峰值浮盈≥此值→止盈线上移至成本价",
+      "trail_tier2_pnl_pct": "峰值浮盈≥此值→止盈线上移至 +trail_tier2_keep_pct"
+    },
+    "gap_open_pct": 3.0,
+    "gap_window_min": 10,
+    "below_open_gap_pct": 0.5,
+    "avg_line_confirm_min": 5,
+    "drawdown_from_high_pct": 2.0,
+    "no_hold_after": "1430",
+    "trail_tier1_pnl_pct": 5.0,
+    "trail_tier2_pnl_pct": 10.0,
+    "trail_tier2_keep_pct": 5.0
+  },
+
+  "positions": [
+    {
+      "account": "中信建投",
+      "code": "300223",
+      "name": "君正股份",
+      "quantity": 600,
+      "avg_cost": 121.334,
+      "hard_stop": 133.91,
+      "enabled": true,
+      "note": "RSI6=77.9 超买；9/21 主力净流出 -2.08 亿（拉高派发）"
+    },
+    {
+      "account": "东方财富",
+      "code": "300223",
+      "name": "君正股份",
+      "quantity": 500,
+      "avg_cost": 135.221,
+      "hard_stop": 133.91,
+      "enabled": true,
+      "note": "同上，双账户合计 1100 股"
+    },
+    {
+      "account": "中信建投",
+      "code": "000636",
+      "name": "风华高科",
+      "quantity": 1000,
+      "avg_cost": 58.045,
+      "hard_stop": 55.55,
+      "enabled": true,
+      "note": "RSI6=68.0；9/21 主力净流出 -5.27 亿（拉高派发，流出最大）"
+    },
+    {
+      "account": "银河证券",
+      "code": "688525",
+      "name": "佰维存储",
+      "quantity": 200,
+      "avg_cost": 217.066,
+      "hard_stop": 213.75,
+      "enabled": true,
+      "note": "科创板；9/21 高开+1.89% 见顶后回吐 3.33%，浮盈从 +783 缩到 +103"
+    },
+    {
+      "account": "银河证券",
+      "code": "688271",
+      "name": "联影医疗",
+      "quantity": 200,
+      "avg_cost": 102.631,
+      "hard_stop": 100.15,
+      "enabled": true,
+      "note": "新建仓；MA20=104.15 上方压制"
+    },
+    {
+      "account": "中信建投",
+      "code": "600176",
+      "name": "中国巨石",
+      "quantity": 1000,
+      "avg_cost": 45.561,
+      "hard_stop": 43.54,
+      "enabled": true,
+      "note": "低量能整理，量比 0.85"
+    },
+    {
+      "account": "中信建投",
+      "code": "003033",
+      "name": "征和工业",
+      "quantity": 100,
+      "avg_cost": -57.913,
+      "hard_stop": 78.43,
+      "enabled": true,
+      "note": "负成本（多次高抛累减）；RSI6=82.6 严重超买"
+    },
+    {
+      "account": "东方财富",
+      "code": "920157",
+      "name": "宇特光电",
+      "quantity": 5000,
+      "avg_cost": 13.750,
+      "hard_stop": null,
+      "enabled": false,
+      "note": "北交所新股待上市，腾讯/新浪/Tushare 均无行情 → 跳过监控；上市后自行 enabled=true"
+    }
+  ]
+}
