@@ -24,10 +24,21 @@ WorkBuddy 每次定时任务执行，都会在左侧「空间」任务列表里�
   python3 scripts/automation_task_gc.py --prefix 量化工作台   # 自定义标题前缀
   python3 scripts/automation_task_gc.py --restore-hours 2     # 撤销最近 2 小时内的软删除
 
+  python3 scripts/automation_task_gc.py --purge     # ⭐ 推荐：软删除 + 物理清除
+  python3 scripts/automation_task_gc.py --purge --dry-run     # 预览物理清除范围
+
+⚠️ 为什么需要 --purge（2026-09-21 实测）
+----------------------------------------
+软删除（deleted_at）只对**桌面端**生效；**手机端任务列表不认这个标记**，
+会把历史软删除记录一并渲染出来 —— 表现为「同一时间节点重复出现 N 条同名任务」。
+因此需要 --purge：把已软删除的记录行从 sessions 表物理 DELETE 掉，
+使任何客户端都无法再渲染它们。活动记录（保留项）完全不受影响。
+--purge 仍会先做一致性备份，但物理删除**不可逆**（软删除可用 --restore-hours 撤销）。
+
 输出
 ----
 stdout 打印一行 JSON 汇总，便于自动化任务如实汇报：
-  {"ok": true, "kept": 5, "deleted": 11, "backup": "...", "nodes": {...}}
+  {"ok": true, "kept": 5, "deleted": 11, "purged": 48, "backup": "...", "nodes": {...}}
 """
 
 import argparse
@@ -92,6 +103,11 @@ def main() -> int:
     ap.add_argument("--prefix", default="量化工作台", help="任务标题前缀，默认「量化工作台」")
     ap.add_argument("--no-backup", action="store_true", help="跳过备份")
     ap.add_argument("--restore-hours", type=float, default=None, help="撤销最近 N 小时内的软删除后退出")
+    ap.add_argument(
+        "--purge",
+        action="store_true",
+        help="软删除后再物理 DELETE 已软删除的同前缀记录（手机端不识别 soft-delete，必须 purge 才会消失）",
+    )
     args = ap.parse_args()
 
     if args.restore_hours is not None:
@@ -132,7 +148,25 @@ def main() -> int:
         kept[title] = [it["id"][:8] for it in items[: args.keep]]
         to_delete.extend(it["id"] for it in items[args.keep :])
 
-    if args.dry_run or not to_delete:
+    # --purge：物理清除范围 = 现存已软删除记录 + 本轮新软删除记录
+    existing_soft = 0
+    if args.purge:
+        try:
+            existing_soft = con.execute(
+                """
+                SELECT COUNT(*) FROM sessions
+                 WHERE is_background_automation = 1
+                   AND deleted_at IS NOT NULL
+                   AND title LIKE ?
+                """,
+                (f"{args.prefix}%",),
+            ).fetchone()[0]
+        except sqlite3.Error as e:
+            con.close()
+            print(json.dumps({"ok": False, "reason": f"purge count failed: {e}"}, ensure_ascii=False))
+            return 0
+
+    if args.dry_run or (not to_delete and not existing_soft):
         con.close()
         print(
             json.dumps(
@@ -142,6 +176,7 @@ def main() -> int:
                     "kept": sum(len(v) for v in kept.values()),
                     "deleted": 0,
                     "would_delete": len(to_delete),
+                    "would_purge": (existing_soft + len(to_delete)) if args.purge else 0,
                     "nodes": kept,
                 },
                 ensure_ascii=False,
@@ -150,12 +185,26 @@ def main() -> int:
         return 0
 
     backup = "" if args.no_backup else _backup_db()
+    purged = 0
     try:
         with con:
-            con.executemany(
-                "UPDATE sessions SET deleted_at = ? WHERE id = ? AND deleted_at IS NULL",
-                [(now_ms, sid) for sid in to_delete],
-            )
+            if to_delete:
+                con.executemany(
+                    "UPDATE sessions SET deleted_at = ? WHERE id = ? AND deleted_at IS NULL",
+                    [(now_ms, sid) for sid in to_delete],
+                )
+            if args.purge:
+                # 此刻表内所有「已软删除」的同前缀记录 = 历史遗留 + 本轮新软删，一并物理清除
+                cur = con.execute(
+                    """
+                    DELETE FROM sessions
+                     WHERE is_background_automation = 1
+                       AND deleted_at IS NOT NULL
+                       AND title LIKE ?
+                    """,
+                    (f"{args.prefix}%",),
+                )
+                purged = cur.rowcount
     except sqlite3.Error as e:
         con.close()
         print(json.dumps({"ok": False, "reason": f"write failed: {e}", "backup": backup}, ensure_ascii=False))
@@ -168,6 +217,7 @@ def main() -> int:
                 "ok": True,
                 "kept": sum(len(v) for v in kept.values()),
                 "deleted": len(to_delete),
+                "purged": purged,
                 "backup": backup,
                 "nodes": kept,
             },
