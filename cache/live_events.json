@@ -1,20 +1,46 @@
 {
- "updated_at": "2026-09-21 09:13:06",
+ "updated_at": "2026-09-21 14:32:46",
  "scanned": 19,
  "quote_count": 17,
  "events": [
   {
    "code": "sh600256",
    "name": "广汇能源",
-   "type": "触止损",
-   "price": 6.72,
-   "change_pct": 0.0,
-   "vol_ratio": 0.0,
-   "turnover": 0.0,
-   "msg": "跌破止损线 6.88（-8%）",
-   "severity": "critical",
+   "type": "急拉",
+   "price": 7.06,
+   "change_pct": 5.06,
+   "vol_ratio": 1.52,
+   "turnover": 2.41,
+   "msg": "涨幅 +5.06%，快速拉升",
+   "severity": "high",
    "is_holding": true,
-   "time": "09-21 09:13"
+   "time": "09-21 14:32"
+  },
+  {
+   "code": "sh600664",
+   "name": "哈药股份",
+   "type": "急拉",
+   "price": 8.25,
+   "change_pct": 10.0,
+   "vol_ratio": 0.52,
+   "turnover": 7.62,
+   "msg": "涨幅 +10.00%，快速拉升",
+   "severity": "high",
+   "is_holding": true,
+   "time": "09-21 14:32"
+  },
+  {
+   "code": "sz000063",
+   "name": "中兴通讯",
+   "type": "放量异动",
+   "price": 33.13,
+   "change_pct": 2.13,
+   "vol_ratio": 2.12,
+   "turnover": 2.18,
+   "msg": "量比 2.1 倍，成交量突然放大",
+   "severity": "high",
+   "is_holding": false,
+   "time": "09-21 14:32"
   }
  ]
 }
