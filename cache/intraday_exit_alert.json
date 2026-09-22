@@ -1,0 +1,257 @@
+{
+  "updated_at": "2026-09-22T00:09:27",
+  "asof": "2026-09-22",
+  "in_session": false,
+  "checked_at_hm": "0009",
+  "n_positions": 6,
+  "n_triggered": 0,
+  "pushed_count": 0,
+  "results": [
+    {
+      "code": "300223",
+      "name": "君正股份",
+      "accounts": [
+        {
+          "account": "中信建投",
+          "quantity": 600,
+          "avg_cost": 121.334
+        },
+        {
+          "account": "东方财富",
+          "quantity": 500,
+          "avg_cost": 135.221
+        }
+      ],
+      "quantity": 1100,
+      "avg_cost": 127.646,
+      "hard_stop": 133.91,
+      "available": true,
+      "price": 146.1,
+      "vwap": 146.81,
+      "open": 146.0,
+      "preclose": 142.97,
+      "high": 148.99,
+      "low": 145.09,
+      "gap_pct": 2.12,
+      "pnl": 20299.0,
+      "pnl_pct": 14.46,
+      "negative_cost": false,
+      "above_vwap": false,
+      "minutes": 267,
+      "signals": [
+        {
+          "level": "P3",
+          "sig": "below_avg",
+          "label": "跌破均价线",
+          "action": "再减剩余一半",
+          "msg": "君正股份 跌破均价线 146.81 已 147 分钟未站回（现价 146.10）"
+        }
+      ],
+      "top_signal": null
+    },
+    {
+      "code": "000636",
+      "name": "风华高科",
+      "accounts": [
+        {
+          "account": "中信建投",
+          "quantity": 1000,
+          "avg_cost": 58.045
+        }
+      ],
+      "quantity": 1000,
+      "avg_cost": 58.045,
+      "hard_stop": 55.55,
+      "available": true,
+      "price": 59.25,
+      "vwap": 59.92,
+      "open": 60.77,
+      "preclose": 58.2,
+      "high": 61.43,
+      "low": 58.45,
+      "gap_pct": 4.42,
+      "pnl": 1205.0,
+      "pnl_pct": 2.08,
+      "negative_cost": false,
+      "above_vwap": false,
+      "minutes": 267,
+      "signals": [
+        {
+          "level": "P3",
+          "sig": "below_avg",
+          "label": "跌破均价线",
+          "action": "再减剩余一半",
+          "msg": "风华高科 跌破均价线 59.92 已 255 分钟未站回（现价 59.25）"
+        },
+        {
+          "level": "P4",
+          "sig": "drawdown",
+          "label": "高点回撤",
+          "action": "无条件减半",
+          "msg": "风华高科 自当日最高 61.43 回撤 3.55%（现价 59.25）"
+        },
+        {
+          "level": "P5",
+          "sig": "below_open",
+          "label": "跌破开盘价",
+          "action": "清仓剩余，不留隔夜",
+          "msg": "风华高科 跌破开盘价 60.77（现价 59.25，当日高开 +4.42%）"
+        }
+      ],
+      "top_signal": null
+    },
+    {
+      "code": "688525",
+      "name": "佰维存储",
+      "accounts": [
+        {
+          "account": "银河证券",
+          "quantity": 200,
+          "avg_cost": 217.066
+        }
+      ],
+      "quantity": 200,
+      "avg_cost": 217.066,
+      "hard_stop": 213.75,
+      "available": true,
+      "price": 217.58,
+      "vwap": 219.2,
+      "open": 220.98,
+      "preclose": 216.88,
+      "high": 223.25,
+      "low": 215.82,
+      "gap_pct": 1.89,
+      "pnl": 103.0,
+      "pnl_pct": 0.24,
+      "negative_cost": false,
+      "above_vwap": false,
+      "minutes": 267,
+      "signals": [
+        {
+          "level": "P3",
+          "sig": "below_avg",
+          "label": "跌破均价线",
+          "action": "再减剩余一半",
+          "msg": "佰维存储 跌破均价线 219.20 已 256 分钟未站回（现价 217.58）"
+        },
+        {
+          "level": "P4",
+          "sig": "drawdown",
+          "label": "高点回撤",
+          "action": "无条件减半",
+          "msg": "佰维存储 自当日最高 223.25 回撤 2.54%（现价 217.58）"
+        },
+        {
+          "level": "P5",
+          "sig": "below_open",
+          "label": "跌破开盘价",
+          "action": "清仓剩余，不留隔夜",
+          "msg": "佰维存储 跌破开盘价 220.98（现价 217.58，当日高开 +1.89%）"
+        }
+      ],
+      "top_signal": null
+    },
+    {
+      "code": "688271",
+      "name": "联影医疗",
+      "accounts": [
+        {
+          "account": "银河证券",
+          "quantity": 200,
+          "avg_cost": 102.631
+        }
+      ],
+      "quantity": 200,
+      "avg_cost": 102.631,
+      "hard_stop": 100.15,
+      "available": true,
+      "price": 102.58,
+      "vwap": 102.38,
+      "open": 101.76,
+      "preclose": 101.0,
+      "high": 103.21,
+      "low": 101.6,
+      "gap_pct": 0.75,
+      "pnl": -10.0,
+      "pnl_pct": -0.05,
+      "negative_cost": false,
+      "above_vwap": true,
+      "minutes": 267,
+      "signals": [],
+      "top_signal": null
+    },
+    {
+      "code": "600176",
+      "name": "中国巨石",
+      "accounts": [
+        {
+          "account": "中信建投",
+          "quantity": 1000,
+          "avg_cost": 45.561
+        }
+      ],
+      "quantity": 1000,
+      "avg_cost": 45.561,
+      "hard_stop": 43.54,
+      "available": true,
+      "price": 45.87,
+      "vwap": 45.8,
+      "open": 44.99,
+      "preclose": 45.02,
+      "high": 46.61,
+      "low": 44.86,
+      "gap_pct": -0.07,
+      "pnl": 309.0,
+      "pnl_pct": 0.68,
+      "negative_cost": false,
+      "above_vwap": true,
+      "minutes": 267,
+      "signals": [],
+      "top_signal": null
+    },
+    {
+      "code": "003033",
+      "name": "征和工业",
+      "accounts": [
+        {
+          "account": "中信建投",
+          "quantity": 100,
+          "avg_cost": -57.913
+        }
+      ],
+      "quantity": 100,
+      "avg_cost": -57.913,
+      "hard_stop": 78.43,
+      "available": true,
+      "price": 85.26,
+      "vwap": 87.06,
+      "open": 84.02,
+      "preclose": 84.87,
+      "high": 89.51,
+      "low": 84.02,
+      "gap_pct": -1.0,
+      "pnl": 14317.0,
+      "pnl_pct": null,
+      "negative_cost": true,
+      "above_vwap": false,
+      "minutes": 267,
+      "signals": [
+        {
+          "level": "P3",
+          "sig": "below_avg",
+          "label": "跌破均价线",
+          "action": "再减剩余一半",
+          "msg": "征和工业 跌破均价线 87.06 已 168 分钟未站回（现价 85.26）"
+        },
+        {
+          "level": "P4",
+          "sig": "drawdown",
+          "label": "高点回撤",
+          "action": "无条件减半",
+          "msg": "征和工业 自当日最高 89.51 回撤 4.75%（现价 85.26）"
+        }
+      ],
+      "top_signal": null
+    }
+  ]
+}

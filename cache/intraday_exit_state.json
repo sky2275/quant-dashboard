@@ -1,0 +1,49 @@
+{
+  "300223": {
+    "date": "2026-09-22",
+    "fired": [
+      "below_avg"
+    ],
+    "closed": false,
+    "level": "P3"
+  },
+  "000636": {
+    "date": "2026-09-22",
+    "fired": [
+      "below_avg",
+      "drawdown",
+      "below_open"
+    ],
+    "closed": false,
+    "level": "P3"
+  },
+  "688525": {
+    "date": "2026-09-22",
+    "fired": [
+      "below_avg",
+      "drawdown",
+      "below_open"
+    ],
+    "closed": false,
+    "level": "P3"
+  },
+  "688271": {
+    "date": "2026-09-22",
+    "fired": [],
+    "closed": false
+  },
+  "600176": {
+    "date": "2026-09-22",
+    "fired": [],
+    "closed": false
+  },
+  "003033": {
+    "date": "2026-09-22",
+    "fired": [
+      "below_avg",
+      "drawdown"
+    ],
+    "closed": false,
+    "level": "P3"
+  }
+}
