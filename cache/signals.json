@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-22 09:31:17",
+ "updated_at": "2026-09-22 11:37:18",
  "signal_count": 2,
  "attack_count": 2,
  "defend_count": 0,
@@ -7,16 +7,16 @@
   {
    "type": "进攻",
    "action": "加仓/持有",
-   "code": "sz300223",
-   "name": "君正集团",
+   "code": "sz003033",
+   "name": "征和工业",
    "severity": "high",
-   "price": 150.46,
-   "ref_price": "147.45-153.47",
+   "price": 89.76,
+   "ref_price": "87.96-91.56",
    "position": "10%（短线仓）",
-   "stop": 119.03144,
-   "reason": "量比 15.8 倍放量、突破20日高点、业绩高增长，趋势+量能共振",
-   "confidence": 82,
-   "trigger": "突破"
+   "stop": 51.49056,
+   "reason": "涨幅 +5.28% 拉升，趋势+量能共振",
+   "confidence": 70,
+   "trigger": "急拉"
   },
   {
    "type": "进攻",
@@ -24,11 +24,11 @@
    "code": "sh600664",
    "name": "哈药股份",
    "severity": "high",
-   "price": 8.72,
-   "ref_price": "8.55-8.89",
+   "price": 9.08,
+   "ref_price": "8.90-9.26",
    "position": "10%（短线仓）",
    "stop": 6.96532,
-   "reason": "量比 52.9 倍放量、主力净流出-3.33亿（警惕拉高出货），趋势+量能共振",
+   "reason": "主力净流出-3.33亿（警惕拉高出货），趋势+量能共振",
    "confidence": 60,
    "trigger": "急拉"
   }

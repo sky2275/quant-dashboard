@@ -1,86 +1,86 @@
 {
   "asof": "2026-09-22",
-  "updated_at": "2026-09-22 09:31",
-  "source": "腾讯行情(qt.gtimg.cn) 实时涨跌幅 2026-09-22 09:31，市值沿用上次缓存｜mx-ds-mcp 不可用（16/16 只刷新）",
+  "updated_at": "2026-09-22 11:37",
+  "source": "腾讯行情(qt.gtimg.cn) 实时涨跌幅 2026-09-22 11:37，市值沿用上次缓存｜mx-ds-mcp 不可用（16/16 只刷新）",
   "members": {
     "688111": {
       "name": "金山办公",
-      "change_pct": 1.25,
+      "change_pct": 2.8,
       "mcap_yi": 1105.0
     },
     "002230": {
       "name": "科大讯飞",
-      "change_pct": 0.64,
+      "change_pct": 0.88,
       "mcap_yi": 955.3
     },
     "600570": {
       "name": "恒生电子",
-      "change_pct": 0.64,
+      "change_pct": 0.69,
       "mcap_yi": 418.7
     },
     "600845": {
       "name": "宝信软件",
-      "change_pct": 0.99,
+      "change_pct": 2.15,
       "mcap_yi": 499.3
     },
     "600276": {
       "name": "恒瑞医药",
-      "change_pct": -0.74,
+      "change_pct": -0.54,
       "mcap_yi": 3160.0
     },
     "603259": {
       "name": "药明康德",
-      "change_pct": -1.15,
+      "change_pct": 0.11,
       "mcap_yi": 4772.0
     },
     "600196": {
       "name": "复星医药",
-      "change_pct": 0.26,
+      "change_pct": 0.48,
       "mcap_yi": 611.3
     },
     "002422": {
       "name": "科伦药业",
-      "change_pct": -2.61,
+      "change_pct": -1.41,
       "mcap_yi": 672.6
     },
     "002475": {
       "name": "立讯精密",
-      "change_pct": 1.08,
+      "change_pct": 1.75,
       "mcap_yi": 4424.0
     },
     "002241": {
       "name": "歌尔股份",
-      "change_pct": 3.61,
+      "change_pct": 3.87,
       "mcap_yi": 848.6
     },
     "688036": {
       "name": "传音控股",
-      "change_pct": 0.92,
+      "change_pct": 4.24,
       "mcap_yi": 664.6
     },
     "300433": {
       "name": "蓝思科技",
-      "change_pct": 1.35,
+      "change_pct": -0.72,
       "mcap_yi": 2061.0
     },
     "300750": {
       "name": "宁德时代",
-      "change_pct": 1.7,
+      "change_pct": 3.25,
       "mcap_yi": 17260.0
     },
     "300014": {
       "name": "亿纬锂能",
-      "change_pct": 0.56,
+      "change_pct": 1.92,
       "mcap_yi": 1206.0
     },
     "002594": {
       "name": "比亚迪",
-      "change_pct": 0.65,
+      "change_pct": 1.94,
       "mcap_yi": 8341.0
     },
     "002074": {
       "name": "国轩高科",
-      "change_pct": 1.65,
+      "change_pct": 5.62,
       "mcap_yi": 502.5
     }
   },
