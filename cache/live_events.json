@@ -1,59 +1,20 @@
 {
- "updated_at": "2026-09-22 11:37:11",
+ "updated_at": "2026-09-22 14:32:49",
  "scanned": 19,
  "quote_count": 17,
  "events": [
-  {
-   "code": "sz003033",
-   "name": "征和工业",
-   "type": "急拉",
-   "price": 89.76,
-   "change_pct": 5.28,
-   "vol_ratio": 1.92,
-   "turnover": 3.29,
-   "msg": "涨幅 +5.28%，快速拉升",
-   "severity": "high",
-   "is_holding": true,
-   "time": "09-22 11:37"
-  },
   {
    "code": "sh600664",
    "name": "哈药股份",
    "type": "急拉",
    "price": 9.08,
    "change_pct": 10.06,
-   "vol_ratio": 1.6,
-   "turnover": 11.94,
+   "vol_ratio": 0.92,
+   "turnover": 12.16,
    "msg": "涨幅 +10.06%，快速拉升",
    "severity": "high",
    "is_holding": true,
-   "time": "09-22 11:37"
-  },
-  {
-   "code": "sz300596",
-   "name": "利安隆",
-   "type": "放量异动",
-   "price": 41.36,
-   "change_pct": 1.12,
-   "vol_ratio": 2.56,
-   "turnover": 0.94,
-   "msg": "量比 2.6 倍，成交量突然放大",
-   "severity": "high",
-   "is_holding": false,
-   "time": "09-22 11:37"
-  },
-  {
-   "code": "sz300433",
-   "name": "蓝思科技",
-   "type": "放量异动",
-   "price": 34.58,
-   "change_pct": -0.72,
-   "vol_ratio": 2.7,
-   "turnover": 1.89,
-   "msg": "量比 2.7 倍，成交量突然放大",
-   "severity": "warn",
-   "is_holding": false,
-   "time": "09-22 11:37"
+   "time": "09-22 14:32"
   }
  ]
 }
