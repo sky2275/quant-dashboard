@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-23 11:37:15",
+ "updated_at": "2026-09-23 14:34:50",
  "scanned": 19,
  "quote_count": 17,
  "events": [
@@ -7,66 +7,53 @@
    "code": "sh600256",
    "name": "广汇能源",
    "type": "触止损",
-   "price": 6.86,
-   "change_pct": -2.0,
-   "vol_ratio": 0.74,
-   "turnover": 0.74,
+   "price": 6.87,
+   "change_pct": -1.86,
+   "vol_ratio": 0.57,
+   "turnover": 1.0,
    "msg": "跌破止损线 6.88（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-23 11:37"
+   "time": "09-23 14:34"
   },
   {
    "code": "sz002779",
    "name": "中坚科技",
-   "type": "放量异动",
-   "price": 85.99,
-   "change_pct": 4.36,
-   "vol_ratio": 2.43,
-   "turnover": 1.88,
-   "msg": "量比 2.4 倍，成交量突然放大",
+   "type": "急拉",
+   "price": 86.58,
+   "change_pct": 5.07,
+   "vol_ratio": 1.58,
+   "turnover": 2.19,
+   "msg": "涨幅 +5.07%，快速拉升",
    "severity": "high",
    "is_holding": true,
-   "time": "09-23 11:37"
+   "time": "09-23 14:34"
   },
   {
    "code": "sz003033",
    "name": "征和工业",
    "type": "急拉",
-   "price": 94.67,
-   "change_pct": 6.01,
-   "vol_ratio": 1.92,
-   "turnover": 3.64,
-   "msg": "涨幅 +6.01%，快速拉升",
+   "price": 94.86,
+   "change_pct": 6.23,
+   "vol_ratio": 1.27,
+   "turnover": 4.3,
+   "msg": "涨幅 +6.23%，快速拉升",
    "severity": "high",
    "is_holding": true,
-   "time": "09-23 11:37"
-  },
-  {
-   "code": "sh600664",
-   "name": "哈药股份",
-   "type": "放量异动",
-   "price": 9.38,
-   "change_pct": 3.3,
-   "vol_ratio": 2.67,
-   "turnover": 20.12,
-   "msg": "量比 2.7 倍，成交量突然放大",
-   "severity": "high",
-   "is_holding": true,
-   "time": "09-23 11:37"
+   "time": "09-23 14:34"
   },
   {
    "code": "sh600664",
    "name": "哈药股份",
    "type": "高换手",
-   "price": 9.38,
-   "change_pct": 3.3,
-   "vol_ratio": 2.67,
-   "turnover": 20.12,
-   "msg": "换手率 20.1%，筹码剧烈交换",
+   "price": 9.11,
+   "change_pct": 0.33,
+   "vol_ratio": 1.85,
+   "turnover": 24.98,
+   "msg": "换手率 25.0%，筹码剧烈交换",
    "severity": "warn",
    "is_holding": true,
-   "time": "09-23 11:37"
+   "time": "09-23 14:34"
   }
  ]
 }
