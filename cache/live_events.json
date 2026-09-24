@@ -1,6 +1,59 @@
 {
- "updated_at": "2026-09-24 09:29:19",
+ "updated_at": "2026-09-24 11:38:28",
  "scanned": 19,
  "quote_count": 17,
- "events": []
+ "events": [
+  {
+   "code": "sh600256",
+   "name": "广汇能源",
+   "type": "触止损",
+   "price": 6.81,
+   "change_pct": -0.73,
+   "vol_ratio": 0.86,
+   "turnover": 0.8,
+   "msg": "跌破止损线 6.88（-8%）",
+   "severity": "critical",
+   "is_holding": true,
+   "time": "09-24 11:38"
+  },
+  {
+   "code": "sh600664",
+   "name": "哈药股份",
+   "type": "急跌",
+   "price": 8.14,
+   "change_pct": -9.96,
+   "vol_ratio": 2.13,
+   "turnover": 18.43,
+   "msg": "跌幅 -9.96%，快速跳水",
+   "severity": "critical",
+   "is_holding": true,
+   "time": "09-24 11:38"
+  },
+  {
+   "code": "sh600664",
+   "name": "哈药股份",
+   "type": "放量异动",
+   "price": 8.14,
+   "change_pct": -9.96,
+   "vol_ratio": 2.13,
+   "turnover": 18.43,
+   "msg": "量比 2.1 倍，成交量突然放大",
+   "severity": "warn",
+   "is_holding": true,
+   "time": "09-24 11:38"
+  },
+  {
+   "code": "sh600664",
+   "name": "哈药股份",
+   "type": "高换手",
+   "price": 8.14,
+   "change_pct": -9.96,
+   "vol_ratio": 2.13,
+   "turnover": 18.43,
+   "msg": "换手率 18.4%，筹码剧烈交换",
+   "severity": "warn",
+   "is_holding": true,
+   "time": "09-24 11:38"
+  }
+ ]
 }
