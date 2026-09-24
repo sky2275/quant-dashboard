@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-24 11:38:37",
+ "updated_at": "2026-09-24 14:32:57",
  "signal_count": 2,
  "attack_count": 0,
  "defend_count": 2,
@@ -10,7 +10,7 @@
    "code": "sh600256",
    "name": "广汇能源",
    "severity": "critical",
-   "price": 6.81,
+   "price": 6.85,
    "ref_price": "跌破 6.88",
    "position": "清仓 / 减至观察仓",
    "stop": null,
