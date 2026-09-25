@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-09-24 14:32:57",
- "signal_count": 2,
+ "updated_at": "2026-09-25 08:44:05",
+ "signal_count": 4,
  "attack_count": 0,
- "defend_count": 2,
+ "defend_count": 4,
  "signals": [
   {
    "type": "防守",
@@ -10,13 +10,41 @@
    "code": "sh600256",
    "name": "广汇能源",
    "severity": "critical",
-   "price": 6.85,
+   "price": 6.82,
    "ref_price": "跌破 6.88",
    "position": "清仓 / 减至观察仓",
    "stop": null,
    "reason": "跌破short仓止损线（-8%），纪律止损",
    "confidence": 95,
    "trigger": "触止损"
+  },
+  {
+   "type": "防守",
+   "action": "减仓/回避",
+   "code": "sz301217",
+   "name": "铜冠铜箔",
+   "severity": "high",
+   "price": 112.3,
+   "ref_price": "不追跌",
+   "position": "减仓",
+   "stop": 98.85400000000001,
+   "reason": "跌幅 -5.81%、主力净流出-6.47亿确认，警惕资金出逃",
+   "confidence": 90,
+   "trigger": "急跌"
+  },
+  {
+   "type": "防守",
+   "action": "减仓/回避",
+   "code": "sh600596",
+   "name": "新安股份",
+   "severity": "high",
+   "price": 11.2,
+   "ref_price": "不追跌",
+   "position": "减仓",
+   "stop": 11.136600000000001,
+   "reason": "跌幅 -5.33%、量化评分34分(弱)、主力净流出-0.92亿确认，警惕资金出逃",
+   "confidence": 95,
+   "trigger": "急跌"
   },
   {
    "type": "防守",
@@ -28,7 +56,7 @@
    "ref_price": "不追跌",
    "position": "减仓",
    "stop": 6.96532,
-   "reason": "跌幅 -9.96%、主力净流出-0.77亿确认，警惕资金出逃",
+   "reason": "跌幅 -9.96%、主力净流出-1.66亿确认，警惕资金出逃",
    "confidence": 90,
    "trigger": "急跌"
   }

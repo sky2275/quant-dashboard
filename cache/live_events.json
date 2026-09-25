@@ -1,20 +1,46 @@
 {
- "updated_at": "2026-09-24 14:32:50",
+ "updated_at": "2026-09-25 08:43:57",
  "scanned": 19,
  "quote_count": 17,
  "events": [
   {
+   "code": "sz301217",
+   "name": "铜冠铜箔",
+   "type": "急跌",
+   "price": 112.3,
+   "change_pct": -5.81,
+   "vol_ratio": 0.89,
+   "turnover": 3.49,
+   "msg": "跌幅 -5.81%，快速跳水",
+   "severity": "critical",
+   "is_holding": true,
+   "time": "09-25 08:43"
+  },
+  {
    "code": "sh600256",
    "name": "广汇能源",
    "type": "触止损",
-   "price": 6.85,
-   "change_pct": -0.15,
-   "vol_ratio": 0.69,
-   "turnover": 1.15,
+   "price": 6.82,
+   "change_pct": -0.58,
+   "vol_ratio": 0.68,
+   "turnover": 1.26,
    "msg": "跌破止损线 6.88（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-24 14:32"
+   "time": "09-25 08:43"
+  },
+  {
+   "code": "sh600596",
+   "name": "新安股份",
+   "type": "急跌",
+   "price": 11.2,
+   "change_pct": -5.33,
+   "vol_ratio": 0.85,
+   "turnover": 3.73,
+   "msg": "跌幅 -5.33%，快速跳水",
+   "severity": "critical",
+   "is_holding": true,
+   "time": "09-25 08:43"
   },
   {
    "code": "sh600664",
@@ -22,12 +48,12 @@
    "type": "急跌",
    "price": 8.14,
    "change_pct": -9.96,
-   "vol_ratio": 1.24,
-   "turnover": 19.06,
+   "vol_ratio": 1.11,
+   "turnover": 19.28,
    "msg": "跌幅 -9.96%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-24 14:32"
+   "time": "09-25 08:43"
   },
   {
    "code": "sh600664",
@@ -35,12 +61,12 @@
    "type": "高换手",
    "price": 8.14,
    "change_pct": -9.96,
-   "vol_ratio": 1.24,
-   "turnover": 19.06,
-   "msg": "换手率 19.1%，筹码剧烈交换",
+   "vol_ratio": 1.11,
+   "turnover": 19.28,
+   "msg": "换手率 19.3%，筹码剧烈交换",
    "severity": "warn",
    "is_holding": true,
-   "time": "09-24 14:32"
+   "time": "09-25 08:43"
   }
  ]
 }
