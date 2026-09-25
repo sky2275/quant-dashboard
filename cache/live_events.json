@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-25 08:43:57",
+ "updated_at": "2026-09-25 09:34:44",
  "scanned": 19,
  "quote_count": 17,
  "events": [
@@ -14,7 +14,7 @@
    "msg": "跌幅 -5.81%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-25 08:43"
+   "time": "09-25 09:34"
   },
   {
    "code": "sh600256",
@@ -27,7 +27,7 @@
    "msg": "跌破止损线 6.88（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-25 08:43"
+   "time": "09-25 09:34"
   },
   {
    "code": "sh600596",
@@ -40,7 +40,7 @@
    "msg": "跌幅 -5.33%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-25 08:43"
+   "time": "09-25 09:34"
   },
   {
    "code": "sh600664",
@@ -53,7 +53,7 @@
    "msg": "跌幅 -9.96%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-25 08:43"
+   "time": "09-25 09:34"
   },
   {
    "code": "sh600664",
@@ -66,7 +66,7 @@
    "msg": "换手率 19.3%，筹码剧烈交换",
    "severity": "warn",
    "is_holding": true,
-   "time": "09-25 08:43"
+   "time": "09-25 09:34"
   }
  ]
 }
