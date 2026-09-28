@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-28 11:39:16",
+ "updated_at": "2026-09-28 14:32:20",
  "scanned": 19,
  "quote_count": 17,
  "events": [
@@ -7,92 +7,92 @@
    "code": "sz002779",
    "name": "中坚科技",
    "type": "急跌",
-   "price": 76.61,
-   "change_pct": -7.54,
-   "vol_ratio": 2.04,
-   "turnover": 1.79,
-   "msg": "跌幅 -7.54%，快速跳水",
+   "price": 75.85,
+   "change_pct": -8.46,
+   "vol_ratio": 1.39,
+   "turnover": 2.17,
+   "msg": "跌幅 -8.46%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-28 11:39"
+   "time": "09-28 14:32"
   },
   {
    "code": "sz301217",
    "name": "铜冠铜箔",
    "type": "急跌",
-   "price": 102.58,
-   "change_pct": -8.66,
-   "vol_ratio": 0.98,
-   "turnover": 1.89,
-   "msg": "跌幅 -8.66%，快速跳水",
+   "price": 102.31,
+   "change_pct": -8.9,
+   "vol_ratio": 0.73,
+   "turnover": 2.52,
+   "msg": "跌幅 -8.90%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-28 11:39"
+   "time": "09-28 14:32"
   },
   {
    "code": "sh601606",
    "name": "长城军工",
    "type": "触止损",
-   "price": 31.09,
-   "change_pct": -2.54,
-   "vol_ratio": 0.89,
-   "turnover": 1.33,
+   "price": 31.02,
+   "change_pct": -2.76,
+   "vol_ratio": 0.67,
+   "turnover": 1.79,
    "msg": "跌破止损线 31.56（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-28 11:39"
+   "time": "09-28 14:32"
   },
   {
    "code": "sz300223",
    "name": "君正集团",
    "type": "急跌",
-   "price": 131.66,
-   "change_pct": -6.16,
-   "vol_ratio": 0.91,
-   "turnover": 2.81,
-   "msg": "跌幅 -6.16%，快速跳水",
+   "price": 132.08,
+   "change_pct": -5.87,
+   "vol_ratio": 0.68,
+   "turnover": 3.72,
+   "msg": "跌幅 -5.87%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-28 11:39"
+   "time": "09-28 14:32"
   },
   {
    "code": "sz300223",
    "name": "君正股份",
    "type": "急跌",
-   "price": 131.66,
-   "change_pct": -6.16,
-   "vol_ratio": 0.91,
-   "turnover": 2.81,
-   "msg": "跌幅 -6.16%，快速跳水",
+   "price": 132.08,
+   "change_pct": -5.87,
+   "vol_ratio": 0.68,
+   "turnover": 3.72,
+   "msg": "跌幅 -5.87%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-28 11:39"
+   "time": "09-28 14:32"
   },
   {
    "code": "sz300499",
    "name": "高澜股份",
    "type": "急跌",
-   "price": 33.46,
-   "change_pct": -6.85,
-   "vol_ratio": 1.1,
-   "turnover": 5.46,
-   "msg": "跌幅 -6.85%，快速跳水",
+   "price": 33.55,
+   "change_pct": -6.6,
+   "vol_ratio": 0.76,
+   "turnover": 6.71,
+   "msg": "跌幅 -6.60%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-28 11:39"
+   "time": "09-28 14:32"
   },
   {
    "code": "sh600256",
    "name": "广汇能源",
    "type": "触止损",
-   "price": 6.81,
-   "change_pct": -0.15,
-   "vol_ratio": 1.13,
-   "turnover": 1.01,
+   "price": 6.79,
+   "change_pct": -0.44,
+   "vol_ratio": 0.92,
+   "turnover": 1.45,
    "msg": "跌破止损线 6.88（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-28 11:39"
+   "time": "09-28 14:32"
   },
   {
    "code": "sh600596",
@@ -100,12 +100,12 @@
    "type": "急跌",
    "price": 10.5,
    "change_pct": -6.25,
-   "vol_ratio": 1.33,
-   "turnover": 2.59,
+   "vol_ratio": 0.93,
+   "turnover": 3.2,
    "msg": "跌幅 -6.25%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-28 11:39"
+   "time": "09-28 14:32"
   },
   {
    "code": "sh600596",
@@ -113,12 +113,12 @@
    "type": "触止损",
    "price": 10.5,
    "change_pct": -6.25,
-   "vol_ratio": 1.33,
-   "turnover": 2.59,
+   "vol_ratio": 0.93,
+   "turnover": 3.2,
    "msg": "跌破止损线 11.14（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-28 11:39"
+   "time": "09-28 14:32"
   },
   {
    "code": "sh600664",
@@ -126,38 +126,38 @@
    "type": "急跌",
    "price": 7.33,
    "change_pct": -9.95,
-   "vol_ratio": 1.7,
-   "turnover": 14.92,
+   "vol_ratio": 1.11,
+   "turnover": 17.27,
    "msg": "跌幅 -9.95%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-28 11:39"
+   "time": "09-28 14:32"
   },
   {
    "code": "sz301183",
    "name": "东田微",
    "type": "急跌",
-   "price": 279.65,
-   "change_pct": -8.79,
-   "vol_ratio": 1.75,
-   "turnover": 6.55,
-   "msg": "跌幅 -8.79%，快速跳水",
+   "price": 282.76,
+   "change_pct": -7.78,
+   "vol_ratio": 1.23,
+   "turnover": 8.15,
+   "msg": "跌幅 -7.78%，快速跳水",
    "severity": "critical",
    "is_holding": false,
-   "time": "09-28 11:39"
+   "time": "09-28 14:32"
   },
   {
-   "code": "sz002779",
-   "name": "中坚科技",
-   "type": "放量异动",
-   "price": 76.61,
-   "change_pct": -7.54,
-   "vol_ratio": 2.04,
-   "turnover": 1.79,
-   "msg": "量比 2.0 倍，成交量突然放大",
+   "code": "sh600664",
+   "name": "哈药股份",
+   "type": "高换手",
+   "price": 7.33,
+   "change_pct": -9.95,
+   "vol_ratio": 1.11,
+   "turnover": 17.27,
+   "msg": "换手率 17.3%，筹码剧烈交换",
    "severity": "warn",
    "is_holding": true,
-   "time": "09-28 11:39"
+   "time": "09-28 14:32"
   }
  ]
 }
