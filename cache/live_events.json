@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-09-29 09:29:20",
+ "updated_at": "2026-09-29 11:37:16",
  "scanned": 19,
  "quote_count": 17,
  "events": [
@@ -7,40 +7,40 @@
    "code": "sh601606",
    "name": "长城军工",
    "type": "触止损",
-   "price": 30.97,
-   "change_pct": -0.1,
-   "vol_ratio": 0.0,
-   "turnover": 0.01,
+   "price": 31.02,
+   "change_pct": 0.06,
+   "vol_ratio": 0.55,
+   "turnover": 0.77,
    "msg": "跌破止损线 31.56（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-29 09:29"
+   "time": "09-29 11:37"
   },
   {
    "code": "sh600256",
    "name": "广汇能源",
    "type": "触止损",
-   "price": 6.76,
-   "change_pct": -0.59,
-   "vol_ratio": 0.0,
-   "turnover": 0.0,
+   "price": 6.64,
+   "change_pct": -2.35,
+   "vol_ratio": 1.77,
+   "turnover": 1.52,
    "msg": "跌破止损线 6.88（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-29 09:29"
+   "time": "09-29 11:37"
   },
   {
    "code": "sh600596",
    "name": "新安股份",
    "type": "触止损",
-   "price": 10.42,
-   "change_pct": -0.19,
-   "vol_ratio": 0.0,
-   "turnover": 0.02,
+   "price": 10.51,
+   "change_pct": 0.67,
+   "vol_ratio": 0.48,
+   "turnover": 0.9,
    "msg": "跌破止损线 11.14（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "09-29 09:29"
+   "time": "09-29 11:37"
   }
  ]
 }
