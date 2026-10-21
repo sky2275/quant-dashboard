@@ -1,86 +1,86 @@
 {
-  "asof": "2026-10-20",
-  "updated_at": "2026-10-21 08:45",
-  "source": "华尔街见闻早餐/每经早参/国际金融市场早知道/同花顺财经日日评/证券时报/中国证券网/财联社/格隆汇/新浪财经 交叉核对 · 脚本自动刷新 | 腾讯 qt.gtimg.cn（涨跌幅取 2026-10-20 A股 收盘，脚本实时取到），市值沿用上次缓存",
+  "asof": "2026-10-21",
+  "updated_at": "2026-10-21 09:38",
+  "source": "腾讯行情(qt.gtimg.cn) 实时涨跌幅 2026-10-21 09:38，市值沿用上次缓存｜mx-ds-mcp 不可用（16/16 只刷新）",
   "members": {
     "600660": {
       "name": "福耀玻璃",
-      "change_pct": -0.38,
+      "change_pct": -6.79,
       "mcap_yi": null
     },
     "601689": {
       "name": "拓普集团",
-      "change_pct": 4.12,
+      "change_pct": -0.52,
       "mcap_yi": null
     },
     "002920": {
       "name": "德赛西威",
-      "change_pct": 3.07,
+      "change_pct": -0.18,
       "mcap_yi": null
     },
     "600741": {
       "name": "华域汽车",
-      "change_pct": -1.72,
+      "change_pct": -1.23,
       "mcap_yi": null
     },
     "600030": {
       "name": "中信证券",
-      "change_pct": -2.07,
+      "change_pct": -0.63,
       "mcap_yi": null
     },
     "601398": {
       "name": "工商银行",
-      "change_pct": -0.23,
+      "change_pct": -0.59,
       "mcap_yi": null
     },
     "601288": {
       "name": "农业银行",
-      "change_pct": -1.07,
+      "change_pct": -0.14,
       "mcap_yi": null
     },
     "600036": {
       "name": "招商银行",
-      "change_pct": -1.23,
+      "change_pct": -0.61,
       "mcap_yi": null
     },
     "601088": {
       "name": "中国神华",
-      "change_pct": -0.39,
+      "change_pct": -2.05,
       "mcap_yi": null
     },
     "601857": {
       "name": "中国石油",
-      "change_pct": 1.18,
+      "change_pct": -1.01,
       "mcap_yi": null
     },
     "600028": {
       "name": "中国石化",
-      "change_pct": -0.37,
+      "change_pct": -0.73,
       "mcap_yi": null
     },
     "601728": {
       "name": "中国电信",
-      "change_pct": 1.18,
+      "change_pct": -1.74,
       "mcap_yi": null
     },
     "300750": {
       "name": "宁德时代",
-      "change_pct": -2.97,
+      "change_pct": -8.19,
       "mcap_yi": 17260.0
     },
     "002594": {
       "name": "比亚迪",
-      "change_pct": -1.08,
+      "change_pct": -0.56,
       "mcap_yi": 8341.0
     },
     "300014": {
       "name": "亿纬锂能",
-      "change_pct": -2.22,
+      "change_pct": -3.11,
       "mcap_yi": 1206.0
     },
     "002074": {
       "name": "国轩高科",
-      "change_pct": 1.64,
+      "change_pct": -1.55,
       "mcap_yi": 502.5
     }
   },
