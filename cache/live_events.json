@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-10-26 21:55:38",
+ "updated_at": "2026-10-26 22:02:29",
  "scanned": 19,
  "quote_count": 17,
  "events": [
@@ -14,7 +14,7 @@
    "msg": "跌幅 -6.26%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   },
   {
    "code": "sz301217",
@@ -27,7 +27,7 @@
    "msg": "跌破止损线 98.85（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   },
   {
    "code": "sh601606",
@@ -40,7 +40,7 @@
    "msg": "跌破止损线 31.56（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   },
   {
    "code": "sz300223",
@@ -53,7 +53,7 @@
    "msg": "跌幅 -5.93%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   },
   {
    "code": "sz300223",
@@ -66,7 +66,7 @@
    "msg": "跌破止损线 130.02（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   },
   {
    "code": "sz300223",
@@ -79,7 +79,7 @@
    "msg": "跌幅 -5.93%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   },
   {
    "code": "sz300223",
@@ -92,7 +92,7 @@
    "msg": "跌破止损线 119.03（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   },
   {
    "code": "sh600596",
@@ -105,7 +105,7 @@
    "msg": "跌破止损线 11.14（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   },
   {
    "code": "sh600664",
@@ -118,7 +118,7 @@
    "msg": "跌破止损线 6.97（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   },
   {
    "code": "sh601138",
@@ -131,7 +131,7 @@
    "msg": "跌破止损线 58.13（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   },
   {
    "code": "sz301183",
@@ -144,7 +144,7 @@
    "msg": "跌幅 -5.15%，快速跳水",
    "severity": "critical",
    "is_holding": false,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   },
   {
    "code": "sh688037",
@@ -157,7 +157,7 @@
    "msg": "跌幅 -8.65%，快速跳水",
    "severity": "critical",
    "is_holding": false,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   },
   {
    "code": "sz002779",
@@ -170,7 +170,7 @@
    "msg": "量比 2.5 倍，成交量突然放大",
    "severity": "high",
    "is_holding": true,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   },
   {
    "code": "sz002779",
@@ -183,7 +183,7 @@
    "msg": "涨幅 +7.57%，快速拉升",
    "severity": "high",
    "is_holding": true,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   },
   {
    "code": "sz003033",
@@ -196,7 +196,7 @@
    "msg": "涨幅 +5.26%，快速拉升",
    "severity": "high",
    "is_holding": true,
-   "time": "10-26 21:55"
+   "time": "10-26 22:02"
   }
  ]
 }
