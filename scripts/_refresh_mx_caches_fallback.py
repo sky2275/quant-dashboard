@@ -129,7 +129,12 @@ def refresh_macro():
 # ---------------- 2) sector_contrib_mx.json ----------------
 def refresh_sector_contrib():
     d = load("sector_contrib_mx.json")
-    codes = list(d["members"].keys())
+    # schema 兼容：历史为 {"members": {code: {...}}}，现网为 {"sectors": [{code,name,change_pct}]}
+    if isinstance(d.get("members"), dict):
+        codes = list(d["members"].keys())
+    else:
+        sectors = d.get("sectors") or []
+        codes = [s.get("code") for s in sectors if s.get("code")]
     # 腾讯需要带市场前缀
     prefixed = [("sh" + c) if c[0] in "69" else ("sz" + c) for c in codes]
     q = qt(prefixed)          # qt() 对 A 股已返回纯代码键，直接用
@@ -137,7 +142,13 @@ def refresh_sector_contrib():
     for c in codes:
         r = q.get(c)
         if r:
-            d["members"][c]["change_pct"] = r["pct"]
+            if isinstance(d.get("members"), dict):
+                d["members"][c]["change_pct"] = r["pct"]
+            else:
+                for s in d["sectors"]:
+                    if s.get("code") == c:
+                        s["change_pct"] = r["pct"]
+                        break
             hit += 1
     d["asof"] = TODAY
     d["updated_at"] = NOW
