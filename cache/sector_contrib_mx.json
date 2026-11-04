@@ -1,86 +1,86 @@
 {
-  "asof": "2026-11-03",
-  "updated_at": "2026-11-04 08:43",
-  "source": "华尔街见闻早餐/陆家嘴财经早餐/新华财经早报/金十数据全球财经早餐/财联社/证券时报/21财经/中国基金报/每日经济新闻/同花顺/东方财富/新浪财经/中国新闻网/Yonhap/ChosunBiz 交叉核对 · 脚本自动刷新",
+  "asof": "2026-11-04",
+  "updated_at": "2026-11-04 09:45",
+  "source": "腾讯行情(qt.gtimg.cn) 实时涨跌幅 2026-11-04 09:45，市值沿用上次缓存｜mx-ds-mcp 不可用（16/16 只刷新）",
   "sectors": [
     {
       "name": "福耀玻璃",
-      "change_pct": 3.27,
+      "change_pct": 0.33,
       "code": "600660"
     },
     {
       "name": "拓普集团",
-      "change_pct": -1.76,
+      "change_pct": -1.08,
       "code": "601689"
     },
     {
       "name": "德赛西威",
-      "change_pct": -0.31,
+      "change_pct": -0.6,
       "code": "002920"
     },
     {
       "name": "华域汽车",
-      "change_pct": 2.17,
+      "change_pct": 1.22,
       "code": "600741"
     },
     {
       "name": "中信证券",
-      "change_pct": 1.92,
+      "change_pct": -0.35,
       "code": "600030"
     },
     {
       "name": "工商银行",
-      "change_pct": -1.15,
+      "change_pct": -1.28,
       "code": "601398"
     },
     {
       "name": "农业银行",
-      "change_pct": 0.4,
+      "change_pct": -1.6,
       "code": "601288"
     },
     {
       "name": "招商银行",
-      "change_pct": -1.13,
+      "change_pct": -0.26,
       "code": "600036"
     },
     {
       "name": "中国神华",
-      "change_pct": 0.31,
+      "change_pct": 0.0,
       "code": "601088"
     },
     {
       "name": "中国石油",
-      "change_pct": -0.14,
+      "change_pct": -0.57,
       "code": "601857"
     },
     {
       "name": "中国石化",
-      "change_pct": -1.69,
+      "change_pct": 0.34,
       "code": "600028"
     },
     {
       "name": "中国电信",
-      "change_pct": 3.27,
+      "change_pct": -1.79,
       "code": "601728"
     },
     {
       "name": "宁德时代",
-      "change_pct": 3.8,
+      "change_pct": 0.89,
       "code": "300750"
     },
     {
       "name": "比亚迪",
-      "change_pct": 0.95,
+      "change_pct": 0.04,
       "code": "002594"
     },
     {
       "name": "亿纬锂能",
-      "change_pct": 1.77,
+      "change_pct": -0.84,
       "code": "300014"
     },
     {
       "name": "国轩高科",
-      "change_pct": 2.21,
+      "change_pct": -0.89,
       "code": "002074"
     }
   ]
