@@ -1,46 +1,72 @@
 {
- "updated_at": "2026-11-05 14:40:58",
- "scanned": 10,
- "quote_count": 10,
+ "updated_at": "2026-11-05 15:58:02",
+ "scanned": 11,
+ "quote_count": 11,
  "events": [
   {
    "code": "sz003033",
    "name": "征和工业",
    "type": "放量异动",
-   "price": 84.11,
-   "change_pct": 8.74,
-   "vol_ratio": 2.34,
-   "turnover": 6.87,
-   "msg": "量比 2.3 倍，成交量突然放大",
+   "price": 85.09,
+   "change_pct": 10.01,
+   "vol_ratio": 2.24,
+   "turnover": 7.13,
+   "msg": "量比 2.2 倍，成交量突然放大",
    "severity": "high",
    "is_holding": true,
-   "time": "11-05 14:40"
+   "time": "11-05 15:58"
   },
   {
    "code": "sz003033",
    "name": "征和工业",
    "type": "急拉",
-   "price": 84.11,
-   "change_pct": 8.74,
-   "vol_ratio": 2.34,
-   "turnover": 6.87,
-   "msg": "涨幅 +8.74%，快速拉升",
+   "price": 85.09,
+   "change_pct": 10.01,
+   "vol_ratio": 2.24,
+   "turnover": 7.13,
+   "msg": "涨幅 +10.01%，快速拉升",
    "severity": "high",
    "is_holding": true,
-   "time": "11-05 14:40"
+   "time": "11-05 15:58"
+  },
+  {
+   "code": "sz003033",
+   "name": "征和工业",
+   "type": "突破",
+   "price": 85.09,
+   "change_pct": 10.01,
+   "vol_ratio": 2.24,
+   "turnover": 7.13,
+   "msg": "站上20日高点 85.09，趋势转强",
+   "severity": "high",
+   "is_holding": true,
+   "time": "11-05 15:58"
   },
   {
    "code": "sh688037",
    "name": "芯源微",
    "type": "放量异动",
-   "price": 221.78,
-   "change_pct": 4.93,
-   "vol_ratio": 2.25,
-   "turnover": 6.09,
+   "price": 224.71,
+   "change_pct": 6.31,
+   "vol_ratio": 2.16,
+   "turnover": 6.36,
    "msg": "量比 2.2 倍，成交量突然放大",
    "severity": "high",
    "is_holding": false,
-   "time": "11-05 14:40"
+   "time": "11-05 15:58"
+  },
+  {
+   "code": "sh688037",
+   "name": "芯源微",
+   "type": "急拉",
+   "price": 224.71,
+   "change_pct": 6.31,
+   "vol_ratio": 2.16,
+   "turnover": 6.36,
+   "msg": "涨幅 +6.31%，快速拉升",
+   "severity": "high",
+   "is_holding": false,
+   "time": "11-05 15:58"
   }
  ]
 }
