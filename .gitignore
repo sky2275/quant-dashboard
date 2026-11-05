@@ -40,3 +40,4 @@ config/notify.json
 cache/entry_plan_alert.json
 cache/entry_plan_alert_state.json
 cache/*.parquet
+scripts/_refresh_global_overnight.py.bak.*
