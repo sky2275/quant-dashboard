@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-05 15:58:02",
+ "updated_at": "2026-11-06 08:55:10",
  "scanned": 11,
  "quote_count": 11,
  "events": [
@@ -14,7 +14,7 @@
    "msg": "量比 2.2 倍，成交量突然放大",
    "severity": "high",
    "is_holding": true,
-   "time": "11-05 15:58"
+   "time": "11-06 08:55"
   },
   {
    "code": "sz003033",
@@ -27,20 +27,7 @@
    "msg": "涨幅 +10.01%，快速拉升",
    "severity": "high",
    "is_holding": true,
-   "time": "11-05 15:58"
-  },
-  {
-   "code": "sz003033",
-   "name": "征和工业",
-   "type": "突破",
-   "price": 85.09,
-   "change_pct": 10.01,
-   "vol_ratio": 2.24,
-   "turnover": 7.13,
-   "msg": "站上20日高点 85.09，趋势转强",
-   "severity": "high",
-   "is_holding": true,
-   "time": "11-05 15:58"
+   "time": "11-06 08:55"
   },
   {
    "code": "sh688037",
@@ -53,7 +40,7 @@
    "msg": "量比 2.2 倍，成交量突然放大",
    "severity": "high",
    "is_holding": false,
-   "time": "11-05 15:58"
+   "time": "11-06 08:55"
   },
   {
    "code": "sh688037",
@@ -66,7 +53,7 @@
    "msg": "涨幅 +6.31%，快速拉升",
    "severity": "high",
    "is_holding": false,
-   "time": "11-05 15:58"
+   "time": "11-06 08:55"
   }
  ]
 }
