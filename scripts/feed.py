@@ -547,6 +547,30 @@ def _macd(closes, fast=12, slow=26, signal=9):
     return round(dif[-1], 4), round(dea[-1], 4), round(hist[-1], 4)
 
 
+def _tencent_kline(full: str, count: int, timeout: int = 8) -> list[list]:
+    """腾讯日K统一入口：优先前复权 fqkline，接口异常(501/非JSON)时回退 kline/kline 不复权。
+
+    2026-11-09 起 fqkline 接口间歇性返回 HTTP 501(Not Implemented)，导致板块 RSI/MA 全为空，
+    故加此回退。两接口返回字段顺序一致：[date, open, close, high, low, volume]。
+    """
+    import requests as _req
+    UA = {"User-Agent": "Mozilla/5.0", "Referer": "https://gu.qq.com/"}
+    for url, key in (
+        (f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={full},day,,,{count},qfq", "qfq"),
+        (f"https://web.ifzq.gtimg.cn/appstock/app/kline/kline?param={full},day,,,{count}", "raw"),
+    ):
+        try:
+            r = _req.get(url, timeout=timeout, headers=UA)
+            j = r.json()
+            d = j.get("data", {}).get(full, {}) or {}
+            kl = d.get("qfqday") or d.get("day") or []
+            if kl:
+                return kl
+        except Exception:
+            continue
+    return []
+
+
 def _tencent_kline_indicators(items):
     """腾讯 K线 fallback：计算 RSI14/MACD/MA5-20/量比。换手率/主力净额不在K线中无法计算。"""
     out = {}
@@ -560,12 +584,7 @@ def _tencent_kline_indicators(items):
         prefix = "sh" if mkt == "SH" else ("sz" if mkt == "SZ" else "bj")
         full = f"{prefix}{code}"
         try:
-            import requests as _req
-            url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={full},day,,,60,qfq"
-            r = _req.get(url, timeout=8, headers=UA)
-            j = r.json()
-            kl = (j.get("data", {}).get(full, {}).get("qfqday") or
-                  j.get("data", {}).get(full, {}).get("day") or [])
+            kl = _tencent_kline(full, 60)
             if len(kl) < 20:
                 continue
             closes = [float(k[2]) for k in kl]
@@ -1001,13 +1020,8 @@ def _to_tencent_full(code: str) -> str | None:
 
 def _fetch_tencent_daily(full: str, count: int = 250) -> list[list]:
     """获取腾讯日K线，返回 [date, open, close, high, low, vol] 列表。"""
-    headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://gu.qq.com/"}
-    url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={full},day,,,{count},qfq"
+    kl = _tencent_kline(full, count)
     try:
-        r = requests.get(url, timeout=8, headers=headers)
-        j = r.json()
-        kl = (j.get("data", {}).get(full, {}).get("qfqday") or
-              j.get("data", {}).get(full, {}).get("day") or [])
         return [[str(k[0]), float(k[1]), float(k[2]), float(k[3]), float(k[4]), float(k[5])] for k in kl]
     except Exception as e:
         print(f"[limit_up_klines] daily {full}: {e}")

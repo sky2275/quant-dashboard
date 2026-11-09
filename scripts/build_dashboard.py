@@ -5479,10 +5479,18 @@ def _fetch_us_etf_klines_for_build() -> dict:
             continue
         try:
             full = f"us{code}{suffix}"
-            url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={full},day,,,250,qfq"
-            resp = _req.get(url, timeout=10)
-            j = resp.json()
-            kl = (j.get("data", {}).get(full, {}).get("day", []) or [])
+            kl = []
+            for _u in (f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={full},day,,,250,qfq",
+                       f"https://web.ifzq.gtimg.cn/appstock/app/kline/kline?param={full},day,,,250"):
+                try:
+                    resp = _req.get(_u, timeout=10,
+                                    headers={"User-Agent": "Mozilla/5.0", "Referer": "https://gu.qq.com/"})
+                    _d = (resp.json().get("data", {}) or {}).get(full, {}) or {}
+                    kl = _d.get("qfqday") or _d.get("day") or []
+                    if kl:
+                        break
+                except Exception:
+                    kl = []
             if len(kl) > 2:
                 out[code] = {
                     "daily": kl,  # 保留原始 [date, o, c, h, l, v] 数组
