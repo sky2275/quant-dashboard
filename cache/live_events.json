@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-09 22:36:56",
+ "updated_at": "2026-11-09 22:50:48",
  "scanned": 11,
  "quote_count": 11,
  "events": [
@@ -14,7 +14,7 @@
    "msg": "跌破止损线 40.53（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-09 22:36"
+   "time": "11-09 22:50"
   },
   {
    "code": "sz300223",
@@ -27,7 +27,7 @@
    "msg": "跌破止损线 108.94（-15%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-09 22:36"
+   "time": "11-09 22:50"
   },
   {
    "code": "sz300433",
@@ -40,7 +40,7 @@
    "msg": "涨幅 +6.66%，快速拉升",
    "severity": "high",
    "is_holding": false,
-   "time": "11-09 22:36"
+   "time": "11-09 22:50"
   }
  ]
 }
