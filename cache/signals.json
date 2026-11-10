@@ -1,50 +1,22 @@
 {
- "updated_at": "2026-11-10 08:44:20",
- "signal_count": 3,
- "attack_count": 1,
- "defend_count": 2,
+ "updated_at": "2026-11-10 09:43:26",
+ "signal_count": 1,
+ "attack_count": 0,
+ "defend_count": 1,
  "signals": [
-  {
-   "type": "防守",
-   "action": "止损",
-   "code": "sh688825",
-   "name": "长鑫科技",
-   "severity": "critical",
-   "price": 39.99,
-   "ref_price": "跌破 40.53",
-   "position": "清仓 / 减至观察仓",
-   "stop": null,
-   "reason": "跌破short仓止损线（-8%），纪律止损",
-   "confidence": 95,
-   "trigger": "触止损"
-  },
   {
    "type": "防守",
    "action": "止损",
    "code": "sz300223",
    "name": "君正股份",
    "severity": "critical",
-   "price": 103.23,
+   "price": 106.96,
    "ref_price": "跌破 108.94",
    "position": "清仓 / 减至观察仓",
    "stop": null,
    "reason": "跌破long仓止损线（-15%），纪律止损",
    "confidence": 95,
    "trigger": "触止损"
-  },
-  {
-   "type": "进攻",
-   "action": "买入",
-   "code": "sz300433",
-   "name": "蓝思科技",
-   "severity": "high",
-   "price": 28.81,
-   "ref_price": "28.23-29.39",
-   "position": "10%（短线仓）",
-   "stop": 26.51,
-   "reason": "美股传导映射标的、量化评分40分(弱)、主力净流入+1.21亿，趋势+量能共振",
-   "confidence": 80,
-   "trigger": "急拉"
   }
  ],
  "factor_top": [
