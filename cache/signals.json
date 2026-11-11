@@ -1,36 +1,22 @@
 {
- "updated_at": "2026-11-11 09:43:38",
- "signal_count": 2,
- "attack_count": 0,
- "defend_count": 2,
+ "updated_at": "2026-11-11 11:36:37",
+ "signal_count": 1,
+ "attack_count": 1,
+ "defend_count": 0,
  "signals": [
   {
-   "type": "防守",
-   "action": "止损",
-   "code": "sh688825",
-   "name": "长鑫科技",
-   "severity": "critical",
-   "price": 40.29,
-   "ref_price": "跌破 40.53",
-   "position": "清仓 / 减至观察仓",
-   "stop": null,
-   "reason": "跌破short仓止损线（-8%），纪律止损",
-   "confidence": 95,
-   "trigger": "触止损"
-  },
-  {
-   "type": "防守",
-   "action": "止损",
-   "code": "sz300223",
-   "name": "君正股份",
-   "severity": "critical",
-   "price": 107.61,
-   "ref_price": "跌破 108.94",
-   "position": "清仓 / 减至观察仓",
-   "stop": null,
-   "reason": "跌破long仓止损线（-15%），纪律止损",
-   "confidence": 95,
-   "trigger": "触止损"
+   "type": "进攻",
+   "action": "买入",
+   "code": "sz301183",
+   "name": "东田微",
+   "severity": "high",
+   "price": 155.08,
+   "ref_price": "151.98-158.18",
+   "position": "10%（短线仓）",
+   "stop": 142.67,
+   "reason": "主力净流出-0.54亿（警惕拉高出货），趋势+量能共振",
+   "confidence": 60,
+   "trigger": "急拉"
   }
  ],
  "factor_top": [
