@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-10 14:35:14",
+ "updated_at": "2026-11-11 08:53:31",
  "scanned": 11,
  "quote_count": 11,
  "events": [
@@ -7,27 +7,27 @@
    "code": "sh688825",
    "name": "长鑫科技",
    "type": "触止损",
-   "price": 40.42,
-   "change_pct": 1.08,
-   "vol_ratio": 0.61,
-   "turnover": 4.79,
+   "price": 40.45,
+   "change_pct": 1.15,
+   "vol_ratio": 0.6,
+   "turnover": 5.26,
    "msg": "跌破止损线 40.53（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-10 14:35"
+   "time": "11-11 08:53"
   },
   {
    "code": "sz300223",
    "name": "君正股份",
    "type": "触止损",
-   "price": 107.16,
-   "change_pct": 3.81,
+   "price": 107.2,
+   "change_pct": 3.85,
    "vol_ratio": 0.71,
-   "turnover": 7.99,
+   "turnover": 8.82,
    "msg": "跌破止损线 108.94（-15%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-10 14:35"
+   "time": "11-11 08:53"
   }
  ]
 }
