@@ -1,9 +1,24 @@
 {
- "updated_at": "2026-11-13 08:43:45",
- "signal_count": 0,
+ "updated_at": "2026-11-13 09:44:36",
+ "signal_count": 1,
  "attack_count": 0,
- "defend_count": 0,
- "signals": [],
+ "defend_count": 1,
+ "signals": [
+  {
+   "type": "防守",
+   "action": "减仓/回避",
+   "code": "sz301183",
+   "name": "东田微",
+   "severity": "high",
+   "price": 146.86,
+   "ref_price": "不追跌",
+   "position": "回避",
+   "stop": null,
+   "reason": "跌幅 -7.92%，警惕资金出逃",
+   "confidence": 75,
+   "trigger": "急跌"
+  }
+ ],
  "factor_top": [
   {
    "code": "300308",
