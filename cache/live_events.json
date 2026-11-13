@@ -1,20 +1,6 @@
 {
- "updated_at": "2026-11-12 14:43:16",
+ "updated_at": "2026-11-13 08:43:44",
  "scanned": 11,
  "quote_count": 11,
- "events": [
-  {
-   "code": "sh601138",
-   "name": "工业富联",
-   "type": "急跌",
-   "price": 43.27,
-   "change_pct": -5.03,
-   "vol_ratio": 1.13,
-   "turnover": 0.78,
-   "msg": "跌幅 -5.03%，快速跳水",
-   "severity": "critical",
-   "is_holding": false,
-   "time": "11-12 14:43"
-  }
- ]
+ "events": []
 }

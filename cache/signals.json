@@ -1,24 +1,9 @@
 {
- "updated_at": "2026-11-12 14:43:25",
- "signal_count": 1,
+ "updated_at": "2026-11-13 08:43:45",
+ "signal_count": 0,
  "attack_count": 0,
- "defend_count": 1,
- "signals": [
-  {
-   "type": "防守",
-   "action": "减仓/回避",
-   "code": "sh601138",
-   "name": "工业富联",
-   "severity": "high",
-   "price": 43.27,
-   "ref_price": "不追跌",
-   "position": "回避",
-   "stop": null,
-   "reason": "跌幅 -5.03%、主力净流入+9.40亿（或为洗盘），警惕资金出逃",
-   "confidence": 65,
-   "trigger": "急跌"
-  }
- ],
+ "defend_count": 0,
+ "signals": [],
  "factor_top": [
   {
    "code": "300308",
