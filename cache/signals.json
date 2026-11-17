@@ -1,7 +1,7 @@
 {
- "updated_at": "2026-11-17 09:34:14",
- "signal_count": 4,
- "attack_count": 0,
+ "updated_at": "2026-11-17 11:37:02",
+ "signal_count": 5,
+ "attack_count": 1,
  "defend_count": 4,
  "signals": [
   {
@@ -10,7 +10,7 @@
    "code": "sh688825",
    "name": "长鑫科技",
    "severity": "critical",
-   "price": 36.82,
+   "price": 37.86,
    "ref_price": "跌破 40.53",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -24,7 +24,7 @@
    "code": "sz300223",
    "name": "君正股份",
    "severity": "critical",
-   "price": 96.1,
+   "price": 100.1,
    "ref_price": "跌破 108.94",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -38,7 +38,7 @@
    "code": "sz002747",
    "name": "埃斯顿",
    "severity": "critical",
-   "price": 27.24,
+   "price": 27.43,
    "ref_price": "跌破 27.44",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -52,13 +52,27 @@
    "code": "sz003033",
    "name": "征和工业",
    "severity": "high",
-   "price": 63.59,
+   "price": 64.0,
    "ref_price": "不追跌",
    "position": "减仓",
    "stop": 20.9852,
-   "reason": "跌幅 -7.03%、主力净流入占比低、主力净流出-0.76亿确认，警惕资金出逃",
+   "reason": "跌幅 -6.43%、主力净流入占比低、主力净流出-0.76亿确认，警惕资金出逃",
    "confidence": 95,
    "trigger": "急跌"
+  },
+  {
+   "type": "进攻",
+   "action": "买入",
+   "code": "sh688037",
+   "name": "芯源微",
+   "severity": "high",
+   "price": 235.4,
+   "ref_price": "230.69-240.11",
+   "position": "10%（短线仓）",
+   "stop": 216.57,
+   "reason": "涨幅 +8.37% 拉升，趋势+量能共振",
+   "confidence": 70,
+   "trigger": "急拉"
   }
  ],
  "factor_top": [
