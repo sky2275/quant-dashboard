@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-17 14:50:12",
+ "updated_at": "2026-11-18 08:44:26",
  "scanned": 11,
  "quote_count": 11,
  "events": [
@@ -7,27 +7,27 @@
    "code": "sh688825",
    "name": "长鑫科技",
    "type": "急跌",
-   "price": 36.24,
-   "change_pct": -5.48,
-   "vol_ratio": 1.04,
-   "turnover": 6.84,
-   "msg": "跌幅 -5.48%，快速跳水",
+   "price": 36.19,
+   "change_pct": -5.61,
+   "vol_ratio": 1.08,
+   "turnover": 7.33,
+   "msg": "跌幅 -5.61%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-17 14:50"
+   "time": "11-18 08:44"
   },
   {
    "code": "sh688825",
    "name": "长鑫科技",
    "type": "触止损",
-   "price": 36.24,
-   "change_pct": -5.48,
-   "vol_ratio": 1.04,
-   "turnover": 6.84,
+   "price": 36.19,
+   "change_pct": -5.61,
+   "vol_ratio": 1.08,
+   "turnover": 7.33,
    "msg": "跌破止损线 40.53（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-17 14:50"
+   "time": "11-18 08:44"
   },
   {
    "code": "sz003033",
@@ -35,25 +35,25 @@
    "type": "急跌",
    "price": 61.56,
    "change_pct": -10.0,
-   "vol_ratio": 1.04,
-   "turnover": 4.97,
+   "vol_ratio": 1.0,
+   "turnover": 5.0,
    "msg": "跌幅 -10.00%，快速跳水",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-17 14:50"
+   "time": "11-18 08:44"
   },
   {
    "code": "sz300223",
    "name": "君正股份",
    "type": "触止损",
-   "price": 94.5,
-   "change_pct": -3.72,
+   "price": 95.17,
+   "change_pct": -3.04,
    "vol_ratio": 0.8,
-   "turnover": 8.07,
+   "turnover": 8.46,
    "msg": "跌破止损线 108.94（-15%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-17 14:50"
+   "time": "11-18 08:44"
   },
   {
    "code": "sz002747",
@@ -61,25 +61,25 @@
    "type": "触止损",
    "price": 26.2,
    "change_pct": -4.59,
-   "vol_ratio": 0.58,
-   "turnover": 4.65,
+   "vol_ratio": 0.59,
+   "turnover": 4.92,
    "msg": "跌破止损线 27.44（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-17 14:50"
+   "time": "11-18 08:44"
   },
   {
    "code": "sz301183",
    "name": "东田微",
    "type": "急跌",
-   "price": 121.29,
-   "change_pct": -5.7,
+   "price": 121.67,
+   "change_pct": -5.4,
    "vol_ratio": 0.84,
-   "turnover": 7.72,
-   "msg": "跌幅 -5.70%，快速跳水",
+   "turnover": 7.99,
+   "msg": "跌幅 -5.40%，快速跳水",
    "severity": "critical",
    "is_holding": false,
-   "time": "11-17 14:50"
+   "time": "11-18 08:44"
   }
  ]
 }
