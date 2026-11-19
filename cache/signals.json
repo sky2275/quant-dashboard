@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-11-19 11:37:32",
+ "updated_at": "2026-11-19 14:35:48",
  "signal_count": 4,
- "attack_count": 1,
- "defend_count": 3,
+ "attack_count": 0,
+ "defend_count": 4,
  "signals": [
   {
    "type": "防守",
@@ -10,7 +10,7 @@
    "code": "sh688825",
    "name": "长鑫科技",
    "severity": "critical",
-   "price": 37.75,
+   "price": 37.5,
    "ref_price": "跌破 40.53",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -24,7 +24,7 @@
    "code": "sz300223",
    "name": "君正股份",
    "severity": "critical",
-   "price": 94.6,
+   "price": 94.0,
    "ref_price": "跌破 108.94",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -38,7 +38,7 @@
    "code": "sz002747",
    "name": "埃斯顿",
    "severity": "critical",
-   "price": 25.38,
+   "price": 25.0,
    "ref_price": "跌破 27.44",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -47,18 +47,18 @@
    "trigger": "触止损"
   },
   {
-   "type": "进攻",
-   "action": "买入",
-   "code": "sz002371",
-   "name": "北方华创",
+   "type": "防守",
+   "action": "减仓/回避",
+   "code": "sz003033",
+   "name": "征和工业",
    "severity": "high",
-   "price": 586.98,
-   "ref_price": "575.24-598.72",
-   "position": "10%（短线仓）",
-   "stop": 540.02,
-   "reason": "突破20日高点、美股传导映射标的、主力净流入+1.92亿，趋势+量能共振",
+   "price": 56.67,
+   "ref_price": "不追跌",
+   "position": "减仓",
+   "stop": 20.9852,
+   "reason": "跌幅 -5.55%、主力净流入占比低、主力净流出-0.18亿确认，警惕资金出逃",
    "confidence": 95,
-   "trigger": "突破"
+   "trigger": "急跌"
   }
  ],
  "factor_top": [

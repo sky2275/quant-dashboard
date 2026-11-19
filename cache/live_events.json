@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-19 11:37:28",
+ "updated_at": "2026-11-19 14:35:44",
  "scanned": 11,
  "quote_count": 11,
  "events": [
@@ -7,53 +7,53 @@
    "code": "sh688825",
    "name": "长鑫科技",
    "type": "触止损",
-   "price": 37.75,
-   "change_pct": 2.28,
-   "vol_ratio": 0.89,
-   "turnover": 2.97,
+   "price": 37.5,
+   "change_pct": 1.6,
+   "vol_ratio": 0.73,
+   "turnover": 4.38,
    "msg": "跌破止损线 40.53（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-19 11:37"
+   "time": "11-19 14:35"
+  },
+  {
+   "code": "sz003033",
+   "name": "征和工业",
+   "type": "急跌",
+   "price": 56.67,
+   "change_pct": -5.55,
+   "vol_ratio": 0.51,
+   "turnover": 2.11,
+   "msg": "跌幅 -5.55%，快速跳水",
+   "severity": "critical",
+   "is_holding": true,
+   "time": "11-19 14:35"
   },
   {
    "code": "sz300223",
    "name": "君正股份",
    "type": "触止损",
-   "price": 94.6,
-   "change_pct": -1.45,
-   "vol_ratio": 0.72,
-   "turnover": 3.48,
+   "price": 94.0,
+   "change_pct": -2.07,
+   "vol_ratio": 0.58,
+   "turnover": 5.06,
    "msg": "跌破止损线 108.94（-15%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-19 11:37"
+   "time": "11-19 14:35"
   },
   {
    "code": "sz002747",
    "name": "埃斯顿",
    "type": "触止损",
-   "price": 25.38,
-   "change_pct": -0.08,
-   "vol_ratio": 0.66,
-   "turnover": 2.13,
+   "price": 25.0,
+   "change_pct": -1.57,
+   "vol_ratio": 0.52,
+   "turnover": 2.98,
    "msg": "跌破止损线 27.44（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-19 11:37"
-  },
-  {
-   "code": "sz002371",
-   "name": "北方华创",
-   "type": "突破",
-   "price": 586.98,
-   "change_pct": 2.25,
-   "vol_ratio": 1.17,
-   "turnover": 0.91,
-   "msg": "站上20日高点 589.00，趋势转强",
-   "severity": "high",
-   "is_holding": false,
-   "time": "11-19 11:37"
+   "time": "11-19 14:35"
   }
  ]
 }
