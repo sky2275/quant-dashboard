@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-19 14:35:48",
+ "updated_at": "2026-11-20 08:42:25",
  "signal_count": 4,
  "attack_count": 0,
  "defend_count": 4,
@@ -24,7 +24,7 @@
    "code": "sz300223",
    "name": "君正股份",
    "severity": "critical",
-   "price": 94.0,
+   "price": 93.67,
    "ref_price": "跌破 108.94",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -38,7 +38,7 @@
    "code": "sz002747",
    "name": "埃斯顿",
    "severity": "critical",
-   "price": 25.0,
+   "price": 25.07,
    "ref_price": "跌破 27.44",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -52,11 +52,11 @@
    "code": "sz003033",
    "name": "征和工业",
    "severity": "high",
-   "price": 56.67,
+   "price": 56.6,
    "ref_price": "不追跌",
    "position": "减仓",
    "stop": 20.9852,
-   "reason": "跌幅 -5.55%、主力净流入占比低、主力净流出-0.18亿确认，警惕资金出逃",
+   "reason": "跌幅 -5.67%、主力净流入占比低、主力净流出-0.12亿确认，警惕资金出逃",
    "confidence": 95,
    "trigger": "急跌"
   }
