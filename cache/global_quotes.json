@@ -1,445 +1,445 @@
 {
-  "asof": "2026-11-19",
-  "updated_at": "2026-11-20 11:36",
-  "source": "新华社 / 中新经纬 / 财联社 / 中国证券报 / 陆家嘴财经早餐 / 新华财经 / 中央社 / 每日经济新闻 / MoneyDJ / 韩联社 / Yonhap / Chosun / Reuters / Kitco / 腾讯 qt.gtimg.cn 交叉核对 | 腾讯 qt.gtimg.cn（7 板块 39 只成分股与三大指数为 2026-11-19 美股完整收盘（道 49097.06/-2.19%、标普 7175.83/-2.02%、纳 23879.20/-2.25%；费城半导体指数 9419.72/-2.41%，盘中最高 10109.88（较前收 +4.74%）、收盘贴全天最低）；美债 10Y 5.0461%（-2.22bp）、2Y 4.7682%（-3.60bp）、30Y 5.3982%（-1.27bp）；CME 12 月加息 25bp 96.4%、50bp 3.6%；VIX 28.44（+15.8%，日内高 29.13，4/1 以来最高）；DXY 103.895（+0.03%）；WTI 12 月 83.21/-0.06%、布油 1 月 91.98/+0.03%；现货金 3625.27/-3.24%、现货银 42.90/-4.80%，均 2025/9 以来最低；LME 铜 12453.0、铝 2868.5/+1.63%；韩股 11/19 收盘 KOSPI 5137.89/+1.39%、三星 196,900/+1.13%、SK海力士 1,183,000/+3.41%、LG新能源 302,000/-0.98%；日经 59444.21/+0.71%；港股 11/19 收盘 恒指 22841.62/-1.95%、恒生科技 3649.14/-2.33%、国企 7690.34/-1.86%；今晨 11/20 08:17 首尔盘初 三星 188,700/-4.16%、海力士 1,115,000/-5.75%、LG新能源 298,000/-1.32%、三星SDI 407,000/-5.02%（盘初口径））",
+  "asof": "2026-11-20",
+  "updated_at": "2026-11-23 08:37",
+  "source": "新华社 / 中国证券报 / 中新经纬 / 中国青年网 / 上海证券报 / 证券时报 / 央广财经 / 中国基金报 / 新华财经 / 界面新闻 / Yahoo Finance ^HSI / YX Insights / StreetStats / 腾讯 qt.gtimg.cn 交叉核对 | 腾讯 qt.gtimg.cn（7 板块 39 只成分股与三大指数为 **2026-11-20 美股完整收盘**（道 48147.33/-1.93%、标普 6910.39/-3.70%、纳 22617.73/-5.28%；费城半导体指数 -10.73%、SOX 收 8409、周 -17.1%）；7 板块等权均值由本脚本按 39 只成分股实时聚合：科技巨头 -5.58 / 苹果供应链 -6.32 / 物理AI -6.56 / 先进封装 -10.09 / 半导体 -11.20 / 光模块 -12.99 / 存储 -13.58；美债 10Y 4.94%（周 -20bp）、2Y 4.65%（周 -23bp）、30Y 5.33%；CME 12 月加息 25bp 91.4%、50bp 0%（11/23 06:09 口径）；VIX 35.89（+26.20%、日内高 40.03）；DXY 103.83（-0.10%）；WTI 83.98/+0.93%、布油 92.10（1 月合约，与 11/19 的 91.98 连续可比）；COMEX 金 3539/-3.98%、银 41.08/-7.39%；铜 5.48 美元/磅（周 -9.9%、单日 LME 未取到、标 estimate）；亚太 11/20 收盘：KOSPI 4869.96/-5.21%、日经 56437/-5.06%、恒指 22410.80/-1.89%、恒科 3511.14/-3.78%、国企 7554.37/-1.77%；今晨 11/23 08:12 首尔盘初：三星约 177,500/-3.06%、海力士约 1,087,000/-2.34%、LG新能源 296,500/-1.00%（盘初口径、数值会漂移、以区间表述）；纳指期货今晨 +1.99%（中新经纬 11/23 早班车）。）",
   "kr": {
     "005930": {
       "symbol": "005930",
       "name": "Samsung Electronics Co., Ltd.",
-      "price": 183050.0,
-      "change_pct": -7.03403,
-      "time": "2026-11-20 11:12:48",
-      "note": "🔴 **今晨 11/20 08:17 首尔盘初 三星 188,700 韩元（-4.16%，前收 196,900）** —— 11/19 收盘 196,900（+1.13%），今晨一口气全部吞掉并倒跌。**驱动**：11/19 美股费半 -2.41%（盘中 +4.74% → 收贴最低）、VIX 28.44、AMD 遭做空 → 韩股补跌美股隔夜。**对 A股**：长鑫科技（688825）开盘直接承压；但长鑫 11/19 已逆势 +1.60% 收 37.50、仍在 short 止损 40.53 之下 → **反弹减仓、不因韩股反弹加仓（#14）**。"
+      "price": 177500.0,
+      "change_pct": -3.05844,
+      "time": "2026-11-23 08:12:14",
+      "note": "🔴 **今晨 11/23 08:12 首尔盘初 三星约 177,500 韩元（-3.06%，前收约 183,100）**。11/20 收盘 183,100 附近（当日 KOSPI -5.21%、三星单日约 -7%）。**驱动**：美股 11/20 存储板块 -13.58%（MU -13.89/SNDK -16.05）、费半 -10.73%、NVDA 遭 SEC 会计审查 → 韩股存储继续被重新定价。**对 A股**：长鑫科技（688825）开盘仍承压；长鑫 11/20 已 -6.24% 收 35.16（深破 short 止损 40.53）→ **政策脉冲反弹是减仓窗口，不是加仓依据（#14）**。"
     },
     "000660": {
       "symbol": "000660",
       "name": "SK hynix Inc.",
-      "price": 1103000.0,
-      "change_pct": -6.76247,
-      "time": "2026-11-20 11:12:45",
-      "note": "🔴 **今晨 11/20 08:17 盘初 SK海力士 1,115,000 韩元（-5.75%，前收 1,183,000）**，跌幅大于三星 → 存储链是今日韩股杀跌核心（11/19 收盘 1,183,000/+3.41% 的全部涨幅 + 额外 2.3pct）。**叠加**：11/19 SK海力士 ADR -2.67%、美光 -2.10%、闪迪 -2.71% → **存储「AI 需求验证驱动」叙事今日首次出现韩美同向杀跌**（11/11 曾判「存储逻辑已换轨」，本期须复核是否换回「涨价预期驱动」）。"
+      "price": 1087000.0,
+      "change_pct": -2.33603,
+      "time": "2026-11-23 08:12:14",
+      "note": "🔴 **今晨 11/23 08:12 盘初 SK海力士约 1,087,000 韩元（-2.34%，前收约 1,113,000）**。11/20 韩美存储同步重挫（海力士 ADR -13.11%）。**含义**：存储链的杀跌已从「涨价预期」扩展到「AI 资本开支回报率」层面（#18 两端定价），A股 存储/封测（长鑫、通富微电）不宜按「超跌反弹」处理。"
     },
     "373220": {
       "symbol": "373220",
       "name": "LG Energy Solution, Ltd.",
-      "price": 298500.0,
-      "change_pct": -1.15894,
-      "time": "2026-11-20 11:12:44",
-      "note": "🟡 **今晨 11/20 08:17 盘初 LG新能源 298,000 韩元（-1.32%，前收 302,000）**，11/19 收盘 302,000（-0.98%）；三星SDI 407,000（-5.02%，前收 428,500）、LG化学 206,000（-1.67%）→ **电池链连续两日偏弱、且今日跌幅扩大**。**对 A股**：宁德/亿纬/国轩外围无正催化，观察不接。"
+      "price": 296500.0,
+      "change_pct": -1.00167,
+      "time": "2026-11-23 08:12:05",
+      "note": "🔴 **今晨 11/23 08:12 盘初 LG新能源 296,500 韩元（-1.00%，前收约 299,500）** —— 跌幅远小于存储双雄，说明本轮是「AI 硬件去杠杆」而非「全市场风险偏好崩塌」。**对 A股**：宁德/亿纬/国轩 相对抗跌可期，但无正催化 → 观察不接。"
     },
     "006400": {
       "symbol": "006400",
       "name": "Samsung SDI Co., Ltd.",
-      "price": 402500.0,
-      "change_pct": -6.06768,
-      "time": "2026-11-20 11:12:44"
+      "price": 401000.0,
+      "change_pct": -0.37267,
+      "time": "2026-11-23 08:12:12"
     },
     "051910": {
       "symbol": "051910",
       "name": "LG Chem, Ltd.",
-      "price": 204000.0,
-      "change_pct": -2.6253,
-      "time": "2026-11-20 11:12:47"
+      "price": 198000.0,
+      "change_pct": -2.46305,
+      "time": "2026-11-23 08:12:11"
     },
     "034220": {
       "symbol": "034220",
       "name": "LG Display Co., Ltd.",
-      "price": 6880.0,
-      "change_pct": -2.96192,
-      "time": "2026-11-20 11:12:43"
+      "price": 6550.0,
+      "change_pct": -3.81791,
+      "time": "2026-11-23 08:12:13"
     },
     "005380": {
       "symbol": "005380",
       "name": "Hyundai Motor Company",
-      "price": 254500.0,
-      "change_pct": -4.85981,
-      "time": "2026-11-20 11:12:47"
+      "price": 248500.0,
+      "change_pct": -2.54902,
+      "time": "2026-11-23 08:12:11"
     },
     "000270": {
       "symbol": "000270",
       "name": "Kia Corporation",
-      "price": 88300.0,
-      "change_pct": -3.49727,
-      "time": "2026-11-20 11:12:45"
+      "price": 85300.0,
+      "change_pct": -3.28798,
+      "time": "2026-11-23 08:12:14"
     },
     "005490": {
       "symbol": "005490",
       "name": "POSCO Holdings Inc.",
-      "price": 252500.0,
-      "change_pct": -2.6975,
-      "time": "2026-11-20 11:12:42"
+      "price": 248000.0,
+      "change_pct": -1.5873,
+      "time": "2026-11-23 08:12:08"
     },
     "KS11": {
       "symbol": "KS11",
       "name": "韩国综合指数",
-      "price": 5137.89,
-      "change_pct": 1.39,
-      "note": "🟢 **11/19 收盘 5137.89（+1.39%，国际金融要情/央广财经口径）**：存储双雄三星 +1.13/海力士 +3.41 是主力，半导体权重股在 NVDA 供应链情绪外溢下获支撑。**但今晨 11/20 08:17 盘初存储双雄暴力回吐（三星 -4.16/海力士 -5.75）→ 11/19 的涨幅已被全部吞掉、且补跌幅度超出美股隔夜跌幅 → 对冲锚失效。对 A股：韩股不再是开盘的正向对冲，而是今日最大压力项。**"
+      "price": 4869.96,
+      "change_pct": -5.21,
+      "note": "🔴 **11/20（周五）收 4869.96（-5.21%），跌破 5000 创 10 个月收盘新低，周 -8.0%**；盘中跟随日经一度跌逾 5%。驱动 = 美股 11/19 费半 -2.41% 补跌 + AI 交易重定价 + 外资去杠杆。**政策回应**：11/22 韩国财政部紧急会议决定放宽上市公司每日回购委托上限（11/24 起 3 个月）、强化非法卖空监控（3 个月专项）、已准备随时启动稳市基金。**今晨 11/23 08:12 盘初存储双雄仍在跌（三星 -3.06 / 海力士 -2.34）→ 对冲锚仍未恢复。**"
     }
   },
   "jp": {
     "N225": {
       "symbol": "N225",
       "name": "日经225",
-      "price": 59444.21,
-      "change_pct": 0.71,
-      "note": "🟢 **11/19 收盘 59444.21（+0.71%，国际金融要情口径）**，出口与科技板块共同贡献涨幅；但仍在 6 万点之下、且 11/16 破 6 万后未能收复。**对 A股**：日经与韩股同向偏强 → 亚太 11/19 的强势集中在半导体，与美股 11/19 半导体 -2.47 反向，属「时差错位」，不能用来给 A股 半导体定方向（判据 #9）。"
+      "price": 56437.0,
+      "change_pct": -5.06,
+      "note": "🔴 **11/20（周五）收 56437（-5.06%），周 -7.7%**，软银集团单日 -14.48%（AI 持仓估值杀）、盘中一度跌逾 4% 破 57000。**对 A股**：日经与 KOSPI 同向暴跌 → 亚太不再是「时差错位」而是「同步定价」；按 #9 仍不得线性映射方向，但**可作为「外资在亚太整体降杠杆」的旁证**。"
     },
     "TOPIX": {
       "symbol": "TOPIX",
       "name": "东证指数",
-      "price": 3966.0,
-      "change_pct": 0.71,
-      "note": "🟡 **TOPIX 11/19 约 3966（按日经 +0.71% 同步估算，estimate 标注 — 未取到官方收盘值）**。用于日经/TOPIX 相对强弱比较，本期两者同步 → 无风格信息。"
+      "price": 3765.0,
+      "change_pct": -5.06,
+      "note": "🟡 **TOPIX 11/20 约 3765（按日经 -5.06% 同步估算，estimate — 未取到官方收盘值）**。用于日经/TOPIX 相对强弱比较，本期两者同步 → 无风格信息。"
     }
   },
   "hk": {
     "HSI": {
       "symbol": "HSI",
       "name": "恒生指数",
-      "price": 22413.69,
-      "change_pct": -1.87,
-      "time": "2026/11/20 11:21:48"
+      "price": 22410.8,
+      "change_pct": -1.89,
+      "time": "2026/11/20 18:31:27"
     },
     "HSTECH": {
       "symbol": "HSTECH",
       "name": "恒生科技指数",
-      "price": 3525.85,
-      "change_pct": -3.38,
-      "time": "2026/11/20 11:21:48"
+      "price": 3511.14,
+      "change_pct": -3.78,
+      "time": "2026/11/20 16:08:54"
     },
     "HSCEI": {
       "symbol": "HSCEI",
       "name": "国企指数",
-      "price": 7559.15,
-      "change_pct": -1.71,
-      "time": "2026/11/20 11:21:48"
+      "price": 7554.37,
+      "change_pct": -1.77,
+      "time": "2026/11/20 16:08:54"
     }
   },
   "us": {
     "IXIC": {
       "symbol": "IXIC",
       "name": "纳斯达克",
-      "price": 23879.2,
-      "change_pct": -2.25
+      "price": 22617.73,
+      "change_pct": -5.28
     },
     "DJI": {
       "symbol": "DJI",
       "name": "道琼斯",
-      "price": 49097.06,
-      "change_pct": -2.19
+      "price": 48147.33,
+      "change_pct": -1.93
     },
     "INX": {
       "symbol": "INX",
       "name": "标普500",
-      "price": 7175.83,
-      "change_pct": -2.02
+      "price": 6910.39,
+      "change_pct": -3.7
     }
   },
   "us_sectors": {
     "半导体": {
-      "avg_change_pct": -2.47,
+      "avg_change_pct": -11.2,
       "n": 11,
       "members": {
         "SOXX": {
           "symbol": "SOXX",
           "name": "费城半导体ETF-iShares",
-          "price": 137.95,
-          "change_pct": -2.75
+          "price": 123.4,
+          "change_pct": -10.55
         },
         "SMH": {
           "symbol": "SMH",
           "name": "半导体指数ETF-VanEck",
-          "price": 447.48,
-          "change_pct": -2.62
+          "price": 400.06,
+          "change_pct": -10.6
         },
         "NVDA": {
           "symbol": "NVDA",
           "name": "英伟达",
-          "price": 145.98,
-          "change_pct": -3.3
+          "price": 125.53,
+          "change_pct": -14.01
         },
         "AMD": {
           "symbol": "AMD",
           "name": "超威半导体",
-          "price": 489.19,
-          "change_pct": -7.72
+          "price": 424.39,
+          "change_pct": -13.25
         },
         "INTC": {
           "symbol": "INTC",
           "name": "英特尔",
-          "price": 55.72,
-          "change_pct": 1.92
+          "price": 51.28,
+          "change_pct": -7.97
         },
         "TSM": {
           "symbol": "TSM",
           "name": "台积电",
-          "price": 352.09,
-          "change_pct": -2.9
+          "price": 318.71,
+          "change_pct": -9.48
         },
         "AVGO": {
           "symbol": "AVGO",
           "name": "博通",
-          "price": 346.65,
-          "change_pct": -2.09
+          "price": 304.41,
+          "change_pct": -12.19
         },
         "QCOM": {
           "symbol": "QCOM",
           "name": "高通",
-          "price": 162.01,
-          "change_pct": 1.38
+          "price": 149.94,
+          "change_pct": -7.45
         },
         "ARM": {
           "symbol": "ARM",
           "name": "安谋",
-          "price": 177.17,
-          "change_pct": -3.06
+          "price": 152.2,
+          "change_pct": -14.09
         },
         "MRVL": {
           "symbol": "MRVL",
           "name": "迈威尔科技",
-          "price": 138.47,
-          "change_pct": -4.86
+          "price": 122.28,
+          "change_pct": -11.69
         },
         "MPWR": {
           "symbol": "MPWR",
           "name": "美国芯源",
-          "price": 1295.86,
-          "change_pct": -1.15
+          "price": 1142.05,
+          "change_pct": -11.87
         }
       }
     },
     "存储": {
-      "avg_change_pct": -0.19,
+      "avg_change_pct": -13.58,
       "n": 4,
       "members": {
         "MU": {
           "symbol": "MU",
           "name": "美光科技",
-          "price": 690.44,
-          "change_pct": -2.1
+          "price": 594.51,
+          "change_pct": -13.89
         },
         "WDC": {
           "symbol": "WDC",
           "name": "西部数据",
-          "price": 296.78,
-          "change_pct": 2.98
+          "price": 261.11,
+          "change_pct": -12.02
         },
         "STX": {
           "symbol": "STX",
           "name": "希捷科技",
-          "price": 521.39,
-          "change_pct": 1.06
+          "price": 457.01,
+          "change_pct": -12.35
         },
         "SNDK": {
           "symbol": "SNDK",
           "name": "闪迪",
-          "price": 755.16,
-          "change_pct": -2.71
+          "price": 79.24,
+          "change_pct": -16.05
         }
       }
     },
     "光模块": {
-      "avg_change_pct": -1.94,
+      "avg_change_pct": -12.99,
       "n": 4,
       "members": {
         "COHR": {
           "symbol": "COHR",
           "name": "Coherent Corp.",
-          "price": 214.94,
-          "change_pct": 0.99
+          "price": 187.22,
+          "change_pct": -12.9
         },
         "LITE": {
           "symbol": "LITE",
           "name": "Lumentum",
-          "price": 535.15,
-          "change_pct": -2.89
+          "price": 460.54,
+          "change_pct": -13.94
         },
         "AAOI": {
           "symbol": "AAOI",
           "name": "应用光电",
-          "price": 39.46,
-          "change_pct": -3.26
+          "price": 32.93,
+          "change_pct": -16.55
         },
         "FN": {
           "symbol": "FN",
           "name": "Fabrinet",
-          "price": 311.71,
-          "change_pct": -2.61
+          "price": 285.04,
+          "change_pct": -8.56
         }
       }
     },
     "物理AI": {
-      "avg_change_pct": -2.58,
+      "avg_change_pct": -6.56,
       "n": 5,
       "members": {
         "BOTZ": {
           "symbol": "BOTZ",
           "name": "机器人与人工智能ETF-Global X",
-          "price": 29.0,
-          "change_pct": -2.39
+          "price": 27.34,
+          "change_pct": -5.72
         },
         "ARKQ": {
           "symbol": "ARKQ",
           "name": "自主科技与机器人主动ETF-ARK",
-          "price": 98.52,
-          "change_pct": -3.01
+          "price": 90.91,
+          "change_pct": -7.72
         },
         "SYM": {
           "symbol": "SYM",
           "name": "Symbotic Inc.",
-          "price": 33.16,
-          "change_pct": -1.86
+          "price": 31.1,
+          "change_pct": -6.21
         },
         "ROK": {
           "symbol": "ROK",
           "name": "罗克韦尔自动化",
-          "price": 383.1,
-          "change_pct": -3.22
+          "price": 361.93,
+          "change_pct": -5.53
         },
         "TSLA": {
           "symbol": "TSLA",
           "name": "特斯拉",
-          "price": 374.41,
-          "change_pct": -2.43
+          "price": 345.82,
+          "change_pct": -7.64
         }
       }
     },
     "科技巨头": {
-      "avg_change_pct": -2.72,
+      "avg_change_pct": -5.58,
       "n": 7,
       "members": {
         "NVDA": {
           "symbol": "NVDA",
           "name": "英伟达",
-          "price": 145.98,
-          "change_pct": -3.3
+          "price": 125.53,
+          "change_pct": -14.01
         },
         "AAPL": {
           "symbol": "AAPL",
           "name": "苹果",
-          "price": 349.21,
-          "change_pct": -0.92
+          "price": 342.56,
+          "change_pct": -1.9
         },
         "MSFT": {
           "symbol": "MSFT",
           "name": "微软",
-          "price": 498.3,
-          "change_pct": -1.78
+          "price": 484.52,
+          "change_pct": -2.77
         },
         "GOOGL": {
           "symbol": "GOOGL",
           "name": "谷歌-A",
-          "price": 272.66,
-          "change_pct": -3.46
+          "price": 265.29,
+          "change_pct": -2.7
         },
         "AMZN": {
           "symbol": "AMZN",
           "name": "亚马逊",
-          "price": 257.37,
-          "change_pct": -3.87
+          "price": 246.82,
+          "change_pct": -4.1
         },
         "META": {
           "symbol": "META",
           "name": "Meta Platforms",
-          "price": 596.22,
-          "change_pct": -3.27
+          "price": 560.84,
+          "change_pct": -5.93
         },
         "TSLA": {
           "symbol": "TSLA",
           "name": "特斯拉",
-          "price": 374.41,
-          "change_pct": -2.43
+          "price": 345.82,
+          "change_pct": -7.64
         }
       }
     },
     "苹果供应链": {
-      "avg_change_pct": -1.5,
+      "avg_change_pct": -6.32,
       "n": 5,
       "members": {
         "AAPL": {
           "symbol": "AAPL",
           "name": "苹果",
-          "price": 349.21,
-          "change_pct": -0.92
+          "price": 342.56,
+          "change_pct": -1.9
         },
         "QCOM": {
           "symbol": "QCOM",
           "name": "高通",
-          "price": 162.01,
-          "change_pct": 1.38
+          "price": 149.94,
+          "change_pct": -7.45
         },
         "SWKS": {
           "symbol": "SWKS",
           "name": "思佳讯",
-          "price": 78.66,
-          "change_pct": -4.57
+          "price": 73.91,
+          "change_pct": -6.04
         },
         "CRUS": {
           "symbol": "CRUS",
           "name": "凌云半导体",
-          "price": 115.27,
-          "change_pct": -1.31
+          "price": 110.61,
+          "change_pct": -4.04
         },
         "AVGO": {
           "symbol": "AVGO",
           "name": "博通",
-          "price": 346.65,
-          "change_pct": -2.09
+          "price": 304.41,
+          "change_pct": -12.19
         }
       }
     },
     "先进封装": {
-      "avg_change_pct": -3.13,
+      "avg_change_pct": -10.09,
       "n": 8,
       "members": {
         "AMAT": {
           "symbol": "AMAT",
           "name": "应用材料",
-          "price": 338.93,
-          "change_pct": -3.65
+          "price": 302.63,
+          "change_pct": -10.71
         },
         "LRCX": {
           "symbol": "LRCX",
           "name": "泛林集团",
-          "price": 203.68,
-          "change_pct": -3.77
+          "price": 183.27,
+          "change_pct": -10.02
         },
         "KLAC": {
           "symbol": "KLAC",
           "name": "科磊",
-          "price": 141.48,
-          "change_pct": -2.35
+          "price": 126.87,
+          "change_pct": -10.33
         },
         "ASML": {
           "symbol": "ASML",
           "name": "阿斯麦",
-          "price": 1356.2,
-          "change_pct": -2.8
+          "price": 1266.22,
+          "change_pct": -6.63
         },
         "AMKR": {
           "symbol": "AMKR",
           "name": "艾马克技术",
-          "price": 34.13,
-          "change_pct": -3.29
+          "price": 30.24,
+          "change_pct": -11.4
         },
         "ONTO": {
           "symbol": "ONTO",
           "name": "Onto Innovation",
-          "price": 195.93,
-          "change_pct": -2.53
+          "price": 170.16,
+          "change_pct": -13.15
         },
         "COHU": {
           "symbol": "COHU",
           "name": "科休半导体",
-          "price": 40.79,
-          "change_pct": -3.32
+          "price": 37.31,
+          "change_pct": -8.53
         },
         "TER": {
           "symbol": "TER",
           "name": "泰瑞达",
-          "price": 227.43,
-          "change_pct": -3.31
+          "price": 204.78,
+          "change_pct": -9.96
         }
       }
     }
@@ -447,15 +447,15 @@
   "korea_watch": {
     "三星电子": {
       "code": "kr005930",
-      "change_pct": -7.03403
+      "change_pct": -3.05844
     },
     "SK海力士": {
       "code": "kr000660",
-      "change_pct": -6.76247
+      "change_pct": -2.33603
     },
     "LG新能源": {
       "code": "kr373220",
-      "change_pct": -1.15894
+      "change_pct": -1.00167
     }
   }
 }
