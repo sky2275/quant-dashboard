@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-23 11:37:50",
+ "updated_at": "2026-11-23 14:51:02",
  "scanned": 11,
  "quote_count": 11,
  "events": [
@@ -7,66 +7,92 @@
    "code": "sh688825",
    "name": "长鑫科技",
    "type": "触止损",
-   "price": 34.65,
-   "change_pct": -1.45,
-   "vol_ratio": 1.35,
-   "turnover": 3.97,
+   "price": 35.6,
+   "change_pct": 1.25,
+   "vol_ratio": 1.17,
+   "turnover": 6.61,
    "msg": "跌破止损线 40.53（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-23 11:37"
+   "time": "11-23 14:51"
   },
   {
    "code": "sz300223",
    "name": "君正股份",
    "type": "触止损",
-   "price": 87.58,
-   "change_pct": 1.48,
-   "vol_ratio": 1.18,
-   "turnover": 4.47,
+   "price": 90.5,
+   "change_pct": 4.87,
+   "vol_ratio": 1.08,
+   "turnover": 7.9,
    "msg": "跌破止损线 108.94（-15%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-23 11:37"
+   "time": "11-23 14:51"
   },
   {
    "code": "sz002747",
    "name": "埃斯顿",
    "type": "触止损",
-   "price": 24.9,
-   "change_pct": 2.68,
-   "vol_ratio": 1.6,
-   "turnover": 3.61,
+   "price": 26.68,
+   "change_pct": 10.02,
+   "vol_ratio": 1.5,
+   "turnover": 6.51,
    "msg": "跌破止损线 27.44（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-23 11:37"
+   "time": "11-23 14:51"
   },
   {
    "code": "sz002371",
    "name": "北方华创",
    "type": "急跌",
-   "price": 539.5,
-   "change_pct": -6.82,
-   "vol_ratio": 1.28,
-   "turnover": 1.0,
-   "msg": "跌幅 -6.82%，快速跳水",
+   "price": 541.38,
+   "change_pct": -6.5,
+   "vol_ratio": 1.0,
+   "turnover": 1.51,
+   "msg": "跌幅 -6.50%，快速跳水",
    "severity": "critical",
    "is_holding": false,
-   "time": "11-23 11:37"
+   "time": "11-23 14:51"
+  },
+  {
+   "code": "sz003033",
+   "name": "征和工业",
+   "type": "急拉",
+   "price": 57.37,
+   "change_pct": 10.01,
+   "vol_ratio": 0.92,
+   "turnover": 3.46,
+   "msg": "涨幅 +10.01%，快速拉升",
+   "severity": "high",
+   "is_holding": true,
+   "time": "11-23 14:51"
+  },
+  {
+   "code": "sz002747",
+   "name": "埃斯顿",
+   "type": "急拉",
+   "price": 26.68,
+   "change_pct": 10.02,
+   "vol_ratio": 1.5,
+   "turnover": 6.51,
+   "msg": "涨幅 +10.02%，快速拉升",
+   "severity": "high",
+   "is_holding": true,
+   "time": "11-23 14:51"
   },
   {
    "code": "sz301183",
    "name": "东田微",
    "type": "急拉",
-   "price": 120.56,
-   "change_pct": 6.22,
-   "vol_ratio": 1.67,
-   "turnover": 5.8,
-   "msg": "涨幅 +6.22%，快速拉升",
+   "price": 123.19,
+   "change_pct": 8.54,
+   "vol_ratio": 1.29,
+   "turnover": 8.64,
+   "msg": "涨幅 +8.54%，快速拉升",
    "severity": "high",
    "is_holding": false,
-   "time": "11-23 11:37"
+   "time": "11-23 14:51"
   }
  ]
 }
