@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-23 14:51:07",
+ "updated_at": "2026-11-24 08:36:39",
  "signal_count": 7,
  "attack_count": 3,
  "defend_count": 4,
@@ -10,7 +10,7 @@
    "code": "sh688825",
    "name": "长鑫科技",
    "severity": "critical",
-   "price": 35.6,
+   "price": 35.9,
    "ref_price": "跌破 40.53",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -24,7 +24,7 @@
    "code": "sz300223",
    "name": "君正股份",
    "severity": "critical",
-   "price": 90.5,
+   "price": 90.53,
    "ref_price": "跌破 108.94",
    "position": "清仓 / 减至观察仓",
    "stop": null,
@@ -52,12 +52,12 @@
    "code": "sz002371",
    "name": "北方华创",
    "severity": "high",
-   "price": 541.38,
+   "price": 541.09,
    "ref_price": "不追跌",
    "position": "回避",
    "stop": null,
-   "reason": "跌幅 -6.50%、主力净流入占比低、主力净流入+0.79亿（或为洗盘），警惕资金出逃",
-   "confidence": 70,
+   "reason": "跌幅 -6.55%、主力净流入占比低、主力净流出-2.05亿确认，警惕资金出逃",
+   "confidence": 95,
    "trigger": "急跌"
   },
   {
@@ -84,8 +84,8 @@
    "ref_price": "26.15-27.21",
    "position": "10%（短线仓）",
    "stop": 27.439,
-   "reason": "美股传导映射标的、量化评分60分(强)、业绩高增长、主力净流出-0.58亿（警惕拉高出货），趋势+量能共振",
-   "confidence": 65,
+   "reason": "美股传导映射标的、量化评分60分(强)、业绩高增长、主力净流入+1.45亿，趋势+量能共振",
+   "confidence": 90,
    "trigger": "急拉"
   },
   {
@@ -94,11 +94,11 @@
    "code": "sz301183",
    "name": "东田微",
    "severity": "high",
-   "price": 123.19,
-   "ref_price": "120.73-125.65",
+   "price": 123.53,
+   "ref_price": "121.06-126.00",
    "position": "10%（短线仓）",
-   "stop": 113.33,
-   "reason": "涨幅 +8.54% 拉升，趋势+量能共振",
+   "stop": 113.65,
+   "reason": "涨幅 +8.84% 拉升，趋势+量能共振",
    "confidence": 70,
    "trigger": "急拉"
   }
