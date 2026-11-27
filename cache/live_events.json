@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-11-26 14:33:50",
+ "updated_at": "2026-11-27 08:57:24",
  "scanned": 11,
  "quote_count": 11,
  "events": [
@@ -7,40 +7,40 @@
    "code": "sh688825",
    "name": "长鑫科技",
    "type": "触止损",
-   "price": 32.47,
-   "change_pct": -3.36,
-   "vol_ratio": 0.9,
-   "turnover": 5.03,
+   "price": 32.69,
+   "change_pct": -2.71,
+   "vol_ratio": 0.94,
+   "turnover": 5.88,
    "msg": "跌破止损线 40.53（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-26 14:33"
+   "time": "11-27 08:57"
   },
   {
    "code": "sz300223",
    "name": "君正股份",
    "type": "触止损",
-   "price": 81.09,
-   "change_pct": -0.71,
+   "price": 81.51,
+   "change_pct": -0.2,
    "vol_ratio": 0.84,
-   "turnover": 5.58,
+   "turnover": 6.26,
    "msg": "跌破止损线 108.94（-15%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-26 14:33"
+   "time": "11-27 08:57"
   },
   {
    "code": "sz002747",
    "name": "埃斯顿",
    "type": "触止损",
-   "price": 25.29,
-   "change_pct": -2.73,
-   "vol_ratio": 0.74,
-   "turnover": 3.82,
+   "price": 25.43,
+   "change_pct": -2.19,
+   "vol_ratio": 0.73,
+   "turnover": 4.25,
    "msg": "跌破止损线 27.44（-8%）",
    "severity": "critical",
    "is_holding": true,
-   "time": "11-26 14:33"
+   "time": "11-27 08:57"
   }
  ]
 }
